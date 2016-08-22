@@ -7,7 +7,6 @@ import javax.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.easemob.server.example.Main;
 import com.zhan.app.nearby.bean.User;
 import com.zhan.app.nearby.cache.UserCacheService;
 import com.zhan.app.nearby.dao.UserDao;
@@ -46,17 +45,17 @@ public class UserService {
 			return -1l;
 		}
 		long id = (Long) userDao.insert(user);
-		if (id > 0) {
-			try {
-				String password = MD5Util.getMd5_16(String.valueOf(id));
-				Object resutl = Main.registUser(String.valueOf(id), password, user.getNick_name());
-				if (resutl != null) {
-					System.out.println(resutl);
-				}
-			} catch (Exception e) {
-				throw new AppException(ERROR.ERR_SYS.setNewText(" by 环信"),new RuntimeException("环信注册失败"));
-			}
-		}
+//		if (id > 0) {
+//			try {
+//				String password = MD5Util.getMd5_16(String.valueOf(id));
+//				Object resutl = Main.registUser(String.valueOf(id), password, user.getNick_name());
+//				if (resutl != null) {
+//					System.out.println(resutl);
+//				}
+//			} catch (Exception e) {
+//				throw new AppException(ERROR.ERR_SYS.setNewText(" by 环信"),new RuntimeException("环信注册失败"));
+//			}
+//		}
 		return id;
 	}
 

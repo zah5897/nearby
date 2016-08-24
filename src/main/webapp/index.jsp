@@ -25,13 +25,16 @@
 	<fieldset>
 		<legend>上传图片</legend>
 
-		<form action="user/images" method="post" enctype="multipart/form-data">
+		<form action="image/upload" method="post" enctype="multipart/form-data">
 			 
 				  image1<input type="file" name="image1" multiple="multiple"><br/> 
 				  image2<input type="file" name="image2" multiple="multiple"> 
 				<input type="hidden" name="_ua" value="123456789456"> 
 				<input type="text" name="user_id" value="13"> 
-				<input type="hidden" name="token" value="11231"> 
+				<input type="hidden" name="description" value="test"> 
+				<input type="hidden" name="lat" value="11231"> 
+				<input type="hidden" name="lng" value="11231"> 
+				<input type="hidden" name="addr" value="上海"> 
 				<input type="submit" value="保存">
 		</form>
 	</fieldset>

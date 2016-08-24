@@ -10,9 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.zhan.app.nearby.bean.User;
 import com.zhan.app.nearby.cache.UserCacheService;
 import com.zhan.app.nearby.dao.UserDao;
-import com.zhan.app.nearby.exception.AppException;
-import com.zhan.app.nearby.exception.ERROR;
-import com.zhan.app.nearby.util.MD5Util;
+
 
 @Service
 @Transactional("transactionManager")

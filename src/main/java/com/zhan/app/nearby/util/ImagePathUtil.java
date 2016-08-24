@@ -7,7 +7,7 @@ import com.zhan.app.nearby.bean.User;
 
 public class ImagePathUtil {
 
-	public static String HOST_PROFIX = "http://117.143.221.190/love";
+	public static String HOST_PROFIX = "http://117.143.221.190/nearby";
 	// public static String HOST_PROFIX = "http://139.196.111.132:8080/love";
 
 	public static void completeAvatarPath(User user, boolean thumbAndOrigin) {

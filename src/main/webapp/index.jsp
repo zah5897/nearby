@@ -7,6 +7,8 @@
 <title>注册</title>
 </head>
 <body>
+
+	<!-- 
 	<fieldset>
 		<legend>注册</legend>
 
@@ -38,5 +40,9 @@
 				<input type="submit" value="保存">
 		</form>
 	</fieldset>
+	 -->
+
+
+	<jsp:forward page="/manager/forword?path=manager/login"></jsp:forward>
 </body>
 </html>

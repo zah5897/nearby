@@ -1,15 +1,21 @@
 package com.zhan.app.nearby.dao;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import com.mchange.v2.sql.SqlUtils;
 import com.zhan.app.nearby.bean.User;
 import com.zhan.app.nearby.bean.mapper.SimpkleUserMapper;
+import com.zhan.app.nearby.util.DateTimeUtil;
+import com.zhan.app.nearby.util.SQLUtil;
 
 @Repository("userDao")
 public class UserDao extends BaseDao {
@@ -82,4 +88,63 @@ public class UserDao extends BaseDao {
 	public int updateVisitor(long user_id, String device_token,String lat, String lng,String zh_cn) {
 		return jdbcTemplate.update("update t_user set device_token=?,zh_cn=?, lat=?,lng=? where user_id=?", new Object[] {device_token,zh_cn ,lat, lng, user_id });
 	}
+	
+	
+	public User getUserDetailInfo(long user_id) {
+		List<User> list = jdbcTemplate.query("select *from t_user user where user.user_id=?", new Object[] { user_id },
+				new BeanPropertyRowMapper(User.class));
+		if (list != null && list.size() > 0) {
+			return list.get(0);
+		} else {
+			return null;
+		}
+	}
+
+	public int modify_info(long user_id, String nick_name, String birthday, String job, String height, String weight,
+			String signature, String my_tags, String interests, String animals, String musics, String weekday_todo,
+			String footsteps, String want_to_where) {
+
+		String sql = "update t_user set ";
+		StringBuilder names = new StringBuilder();
+		List<Object> values = new ArrayList<Object>();
+		if (nick_name != null) {
+			names.append("nick_name=?");
+			values.add(nick_name);
+		}
+
+		Date birthdayDate = DateTimeUtil.parseDate(birthday);
+
+		if (birthdayDate != null) {
+			if (values.size() > 0) {
+				names.append(",birthday=?");
+			} else {
+				names.append("birthday=?");
+			}
+			values.add(birthdayDate);
+		}
+
+		SQLUtil.appendSql(names, job, "job_ids", values);
+		SQLUtil.appendSql(names, height, "height", values);
+		SQLUtil.appendSql(names, weight, "weight", values);
+		SQLUtil.appendSql(names, signature, "signature", values);
+		SQLUtil.appendSql(names, my_tags, "my_tag_ids", values);
+		SQLUtil.appendSql(names, interests, "interest_ids", values);
+		SQLUtil.appendSql(names, animals, "animal_ids", values);
+		SQLUtil.appendSql(names, musics, "music_ids", values);
+		SQLUtil.appendSql(names, weekday_todo, "weekday_todo_ids", values);
+		SQLUtil.appendSql(names, footsteps, "footstep_ids", values);
+		SQLUtil.appendSql(names, want_to_where, "want_to_where", values);
+
+		if (values.size() == 0) {
+			return 0;
+		}
+		values.add(user_id);
+		sql += names.toString() + " where user_id=?";
+
+		Object[] params = values.toArray();
+		return jdbcTemplate.update(sql, params);
+	}
+	
+ 
+	
 }

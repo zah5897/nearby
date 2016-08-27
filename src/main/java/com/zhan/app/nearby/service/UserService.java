@@ -7,9 +7,12 @@ import javax.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.zhan.app.nearby.bean.Image;
 import com.zhan.app.nearby.bean.User;
 import com.zhan.app.nearby.cache.UserCacheService;
 import com.zhan.app.nearby.dao.UserDao;
+import com.zhan.app.nearby.util.ImagePathUtil;
+import com.zhan.app.nearby.util.TextUtils;
 
 
 @Service
@@ -20,7 +23,7 @@ public class UserService {
 	@Resource
 	private UserCacheService userCacheService;
 
-	public User getUser(long id) {
+	public User getBasicUser(long id) {
 		return userDao.getUser(id);
 	}
 
@@ -87,6 +90,44 @@ public class UserService {
 		int count = userDao.updateVisitor(user_id, device_token, lat, lng, zh_cn);
 		return count;
 	}
+	
+	
+	public User getUserDetailInfo(long user_id, int count) {
+		User user = userDao.getUserDetailInfo(user_id);
+		if (user != null) {
+
+			ImagePathUtil.completeAvatarPath(user, true); // 补全图片链接地址
+			// 隐藏系统安全信息
+			user.hideSysInfo();
+//			// 补全 tag 属性
+//			setTagByIds(user);
+			// 补全images属性
+
+			if (count <= 0) {
+				count = 4;
+			}
+			//List<Image> userImages = userInfoDao.getUserImages(user_id, 0, count);
+			//ImagePathUtil.completeImagePath(userImages, true); // 补全图片路径
+			//user.setImages(userImages);
+		}
+		return user;
+	}
+
+	public int modify_info(long user_id, String nick_name, String birthday, String job, String height, String weight,
+			String signature, String my_tags, String interests, String animals, String musics, String weekday_todo,
+			String footsteps, String want_to_where, boolean isNick_modify) {
+
+//		if (isNick_modify && !TextUtils.isEmpty(nick_name)) {
+//			try {
+//				Main.updateNickName(String.valueOf(user_id), nick_name);
+//			} catch (Exception e) {
+//				log.error(e);
+//			}
+//		}
+		return userDao.modify_info(user_id, nick_name, birthday, job, height, weight, signature, my_tags, interests,
+				animals, musics, weekday_todo, footsteps, want_to_where);
+	}
+
 	
 	
 }

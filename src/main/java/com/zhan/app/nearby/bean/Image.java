@@ -27,6 +27,9 @@ public class Image {
 	@ColumnType
 	private String origin; // 无关数据库，主要json展示 原始图
 
+	
+	private int praise_count;
+	
 	public long getId() {
 		return id;
 	}
@@ -106,5 +109,11 @@ public class Image {
 	public void setDesciption(String desciption) {
 		this.desciption = desciption;
 	}
+	public int getPraise_count() {
+		return praise_count;
+	}
 
+	public void setPraise_count(int praise_count) {
+		this.praise_count = praise_count;
+	}
 }

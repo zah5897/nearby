@@ -32,12 +32,31 @@ public class ImageDao extends BaseDao {
 					new BeanPropertyRowMapper<Image>(Image.class));
 		}
 	}
-	
-	public void addSelectedImage(long image_id){
-		String sql="insert into "+TABLE_IMAGES_SELECTED+" values (?, ?)";
-		jdbcTemplate.update(sql, new Object[]{image_id,ImageStatus.SELECTED.ordinal()});
+
+	public void addSelectedImage(long image_id) {
+		String sql = "insert into " + TABLE_IMAGES_SELECTED + " values (?, ?)";
+		jdbcTemplate.update(sql, new Object[] { image_id, ImageStatus.SELECTED.ordinal() });
 	}
-	
-	 
+
+	public List<Integer> getPraiseCount(long image_id) {
+		String sql = "select praise_count from " + TABLE_USER_IMAGES + " where id=?";
+		return jdbcTemplate.queryForList(sql, new Object[] { image_id }, Integer.class);
+	}
+
+	public int praiseImage(long image_id) {
+		List<Integer> result = getPraiseCount(image_id);
+
+		if (result == null||result.size()==0) {
+			return -1;
+		}
+		Integer hasPraiseCount = result.get(0);
+
+		if (hasPraiseCount < 0) {
+			hasPraiseCount = 0;
+		}
+		jdbcTemplate.update("update " + TABLE_USER_IMAGES + " set praise_count=? where id=?",
+				new Object[] { hasPraiseCount += 1, image_id });
+		return hasPraiseCount;
+	}
 
 }

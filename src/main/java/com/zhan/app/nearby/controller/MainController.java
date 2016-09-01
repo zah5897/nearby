@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.zhan.app.nearby.bean.Image;
 import com.zhan.app.nearby.exception.ERROR;
+import com.zhan.app.nearby.service.ImageService;
 import com.zhan.app.nearby.service.MainService;
-import com.zhan.app.nearby.service.UserService;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.ResultUtil;
 
@@ -20,6 +20,8 @@ import com.zhan.app.nearby.util.ResultUtil;
 public class MainController {
 	@Resource
 	private MainService mainService;
+	@Resource
+	private ImageService imageService;
 
 	/**
 	 * 发现
@@ -55,5 +57,17 @@ public class MainController {
 		result.put("images", images);
 		return result;
 	}
-	
+
+	@RequestMapping("praise")
+	public ModelMap praise(Long user_id, Long image_id) {
+		int count = imageService.praiseImage(image_id);
+		ModelMap result;
+		if (count > 0) {
+			result = ResultUtil.getResultOKMap();
+			result.put("praise_count", count);
+		} else {
+			result = ResultUtil.getResultMap(ERROR.ERR_FAILED.setNewText("图片找不到"));
+		}
+		return result;
+	}
 }

@@ -13,14 +13,14 @@
         ">
 	<mvc:annotation-driven />
 	<mvc:default-servlet-handler />
+	
+	<mvc:resources mapping="/lib/**" location="/lib/" />
+	<mvc:resources mapping="/images/**" location="/images/" />
+	<mvc:resources mapping="/stylesheets/**" location="/stylesheets/" />
+	
+	
 	<!-- 启动自动扫描 该包下所有的Bean(@Controller) -->
 	<context:component-scan base-package="com.zhan.app.nearby.controller" />
-
-	<!-- 管理后台页面访问 -->
-	<mvc:resources mapping="/manager/images/**" location="/,/manager/" />
-	<mvc:resources mapping="/manager/lib/**" location="/,/manager/" />
-	<mvc:resources mapping="/manager/stylesheets/**"
-		location="/,/manager/" />
 	<!-- 上传资源访问 -->
 
 	<mvc:resources mapping="/images/origin/**" location="/love_upload/images/origin/" />

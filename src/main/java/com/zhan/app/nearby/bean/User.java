@@ -111,7 +111,8 @@ public class User {
 
 	// 设备token
 	@JSONField(serialize = false)
-	private String device_token;;
+	private String device_token;
+	
 
 	public long getUser_id() {
 		return user_id;

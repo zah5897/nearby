@@ -21,4 +21,10 @@ public class ImageService {
 	public void addSelectedImage(long image_id) {
 		imageDao.addSelectedImage(image_id);
 	}
+	
+	
+	public int praiseImage(long image_id){
+		return imageDao.praiseImage(image_id);
+	}
+	
 }

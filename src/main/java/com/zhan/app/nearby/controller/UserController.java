@@ -2,6 +2,7 @@ package com.zhan.app.nearby.controller;
 
 import java.security.NoSuchAlgorithmException;
 import java.util.Iterator;
+import java.util.List;
 import java.util.UUID;
 
 import javax.annotation.Resource;
@@ -15,8 +16,10 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.support.DefaultMultipartHttpServletRequest;
 
 import com.zhan.app.nearby.bean.User;
+import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.cache.UserCacheService;
 import com.zhan.app.nearby.exception.ERROR;
+import com.zhan.app.nearby.service.UserDynamicService;
 import com.zhan.app.nearby.service.UserService;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.ImageSaveUtils;
@@ -35,6 +38,9 @@ public class UserController {
 
 	@Resource
 	private UserCacheService userCacheService;
+
+	@Resource
+	private UserDynamicService userDynamicService;
 
 	/**
 	 * 获取注册用的短信验证码
@@ -152,7 +158,7 @@ public class UserController {
 	public ModelMap loginByMobile(String mobile, String password, String _ua) {
 
 		if (TextUtils.isEmpty(mobile)) {
-			return ResultUtil.getResultMap(ERROR.ERR_PARAM.setNewText("手机号码不能为空!"));
+			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "手机号码不能为空!");
 		}
 		if (TextUtils.isEmpty(password)) {
 			return ResultUtil.getResultMap(ERROR.ERR_PASSWORD);
@@ -189,13 +195,13 @@ public class UserController {
 	public ModelMap logout(String token, long user_id) {
 
 		if (TextUtils.isEmpty(token) || user_id < 1) {
-			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN.setNewText("当前并未登陆"));
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN, "当前并未登陆");
 		}
 
 		String cachetoken = userCacheService.getCacheToken(user_id);
 		if (cachetoken != null) {
 			if (!cachetoken.equals(token)) {
-				return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN.setNewText("当前并未登陆"));
+				return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN, "当前并未登陆");
 			}
 		}
 		User user = userService.getBasicUser(user_id);
@@ -204,10 +210,10 @@ public class UserController {
 				userService.updateToken(new User(user_id));
 				userCacheService.clearLoginUser(token, user_id);
 			} else {
-				return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN.setNewText("当前并未登陆"));
+				return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN, "当前并未登陆");
 			}
 		} else {
-			return ResultUtil.getResultMap(ERROR.ERR_USER_NOT_EXIST.setNewText("当前用户不存在"));
+			return ResultUtil.getResultMap(ERROR.ERR_USER_NOT_EXIST, "当前用户不存在");
 		}
 
 		return ResultUtil.getResultOKMap();
@@ -317,7 +323,7 @@ public class UserController {
 	@RequestMapping("modify_avatar")
 	public ModelMap modify_avatar(DefaultMultipartHttpServletRequest multipartRequest, long user_id, String token) {
 		if (user_id < 1) {
-			return ResultUtil.getResultMap(ERROR.ERR_PARAM.setNewText("用户ID异常"));
+			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "用户ID异常");
 		}
 
 		if (TextUtils.isEmpty(token)) {
@@ -362,8 +368,7 @@ public class UserController {
 		result.put("user", user);
 		return result;
 	}
-	
-	
+
 	/**
 	 * 修改信息
 	 * 
@@ -389,7 +394,7 @@ public class UserController {
 			String weight, String signature, String my_tags, String interest, String favourite_animal,
 			String favourite_music, String weekday_todo, String footsteps, String want_to_where) {
 		if (user_id < 1) {
-			return ResultUtil.getResultMap(ERROR.ERR_PARAM.setNewText("用户ID异常"));
+			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "用户ID异常");
 		}
 		//
 		if (TextUtils.isEmpty(token)) {
@@ -433,6 +438,32 @@ public class UserController {
 			count = 4;
 		}
 		return UserDetailInfoUtil.getDetailInfo(userService, user_id, count);
+	}
+
+	@RequestMapping("dynamic")
+	public ModelMap dynamic(Long user_id, Long user_id_for, Long last_id, Integer count) {
+		if (user_id == null || user_id < 1) {
+			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "请确定当前用户");
+		}
+
+		if (last_id == null) {
+			last_id = 0l;
+		}
+
+		if (count == null) {
+			count = 10;
+		}
+
+		List<UserDynamic> dynamics;
+		if (user_id_for != null && user_id_for > 0) {
+			dynamics = userDynamicService.getUserDynamic(user_id_for, last_id, count);
+		} else {
+			dynamics = userDynamicService.getUserDynamic(user_id, last_id, count);
+		}
+
+		ModelMap result = ResultUtil.getResultOKMap();
+		result.put("dynamics", dynamics);
+		return result;
 	}
 
 }

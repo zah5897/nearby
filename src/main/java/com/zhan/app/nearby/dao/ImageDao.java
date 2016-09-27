@@ -8,55 +8,40 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import com.zhan.app.nearby.bean.Image;
-import com.zhan.app.nearby.comm.ImageStatus;
+import com.zhan.app.nearby.bean.Tag;
 
 @Repository("imageDao")
 public class ImageDao extends BaseDao {
-	public static final String TABLE_USER_IMAGES = "t_user_image";
-	public static final String TABLE_IMAGES_SELECTED = "t_image_selected";
+	public static final String TABLE_USER_IMAGES = "t_image";
 	@Resource
 	private JdbcTemplate jdbcTemplate;
 
-	public long insertImage(Image image) {
-		return saveObj(jdbcTemplate, TABLE_USER_IMAGES, image);
+	public List<Tag> getTagsByType(int type) {
+		return jdbcTemplate.query("select *from " + TABLE_USER_IMAGES + " where type=?", new Object[] { type },
+				new BeanPropertyRowMapper(Tag.class));
 	}
 
-	public List<Image> getImagesBySelectedState(ImageStatus status, long last_id, int page_size) {
-		{
-
-			String sql = "select *from " + TABLE_USER_IMAGES + " image right join " + TABLE_IMAGES_SELECTED
-					+ " selected on image.id=selected.image_id and selected.selected_state=? and selected.image_id>? order by selected.image_id desc limit ?";
-
-			return jdbcTemplate.query(sql, new Object[] { status.ordinal(), last_id, page_size },
-					new BeanPropertyRowMapper<Image>(Image.class));
-		}
+	public List<Tag> getTags() {
+		return jdbcTemplate.query("select *from " + TABLE_USER_IMAGES, new Object[] {},
+				new BeanPropertyRowMapper(Tag.class));
 	}
 
-	public void addSelectedImage(long image_id) {
-		String sql = "insert into " + TABLE_IMAGES_SELECTED + " values (?, ?)";
-		jdbcTemplate.update(sql, new Object[] { image_id, ImageStatus.SELECTED.ordinal() });
-	}
-
-	public List<Integer> getPraiseCount(long image_id) {
-		String sql = "select praise_count from " + TABLE_USER_IMAGES + " where id=?";
-		return jdbcTemplate.queryForList(sql, new Object[] { image_id }, Integer.class);
-	}
-
-	public int praiseImage(long image_id) {
-		List<Integer> result = getPraiseCount(image_id);
-
-		if (result == null||result.size()==0) {
-			return -1;
-		}
-		Integer hasPraiseCount = result.get(0);
-
-		if (hasPraiseCount < 0) {
-			hasPraiseCount = 0;
-		}
-		jdbcTemplate.update("update " + TABLE_USER_IMAGES + " set praise_count=? where id=?",
-				new Object[] { hasPraiseCount += 1, image_id });
-		return hasPraiseCount;
-	}
+	// @SuppressWarnings({ "unchecked", "rawtypes" })
+	// public List<Funny> list(long lastID, int pageSize) {
+	// List<Funny> list = jdbcTemplate.query(
+	// "select funny.*,user.name,user.info,user.avatar " + "from t_funny funny "
+	// + "left join t_user user "
+	// + "on funny.publisher=user.id " + "and funny.id<? order by funny.id desc
+	// " + "limit ?",
+	// new Object[] { lastID, pageSize }, new BeanPropertyRowMapper(Funny.class)
+	// {
+	// @Override
+	// protected void initBeanWrapper(BeanWrapper bw) {
+	// super.initBeanWrapper(bw);
+	// bw.registerCustomEditor(User.class, new UserSupport());
+	// }
+	// });
+	// return list;
+	// }
 
 }

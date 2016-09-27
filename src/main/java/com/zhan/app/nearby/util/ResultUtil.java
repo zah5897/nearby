@@ -12,7 +12,7 @@ public class ResultUtil {
 		return result;
 	}
 
-	public static ModelMap getResultMap(ERROR error) {
+	public static ModelMap getResultMap(ERROR error ) {
 		ModelMap result = new ModelMap();
 		result.addAttribute("code", error.getValue());
 		result.addAttribute("msg", error.getErrorMsg());

@@ -2,8 +2,8 @@ package com.zhan.app.nearby.util;
 
 import java.util.List;
 
-import com.zhan.app.nearby.bean.Image;
 import com.zhan.app.nearby.bean.User;
+import com.zhan.app.nearby.bean.UserDynamic;
 
 public class ImagePathUtil {
 
@@ -28,15 +28,15 @@ public class ImagePathUtil {
 		}
 	}
 
-	public static void completeImagePath(List<Image> images, boolean thumbAndOrigin) {
+	public static void completeImagePath(List<UserDynamic> dynamics, boolean thumbAndOrigin) {
 
-		if (images != null && images.size() > 0) {
-			for (Image image : images) {
-				String shortName = image.getName();
+		if (dynamics != null && dynamics.size() > 0) {
+			for (UserDynamic dynamic : dynamics) {
+				String shortName = dynamic.getLocal_image_name();
 				if (!TextUtils.isEmpty(shortName)) {
-					image.setThumb(HOST_PROFIX + ImageSaveUtils.FILE_ROOT_IMAGES_THUMB + shortName);
+					dynamic.setThumb(HOST_PROFIX + ImageSaveUtils.FILE_ROOT_IMAGES_THUMB + shortName);
 					if (thumbAndOrigin) {
-						image.setOrigin(HOST_PROFIX + ImageSaveUtils.FILE_ROOT_IMAGES_ORIGIN + shortName);
+						dynamic.setOrigin(HOST_PROFIX + ImageSaveUtils.FILE_ROOT_IMAGES_ORIGIN + shortName);
 					}
 				}
 			}

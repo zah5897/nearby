@@ -14,7 +14,7 @@ public class UserDynamic {
 	@JsonIgnore
 	private long user_id; // 外键，关联user id字段，不json 序列化
 
-	private String desciption; // 描述
+	private String description; // 描述
 	@JsonIgnore
 	private String lat;
 	@JsonIgnore
@@ -33,8 +33,7 @@ public class UserDynamic {
 	private String origin; // 无关数据库，主要json展示 原始图
 
 	private int praise_count;
-	@JsonIgnore
-	private int can_common = 1;
+	private String can_comment = "1";
 
 	public long getId() {
 		return id;
@@ -52,12 +51,12 @@ public class UserDynamic {
 		this.user_id = user_id;
 	}
 
-	public String getDesciption() {
-		return desciption;
+	public String getDescription() {
+		return description;
 	}
 
-	public void setDesciption(String desciption) {
-		this.desciption = desciption;
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
 	public String getLat() {
@@ -116,12 +115,13 @@ public class UserDynamic {
 		this.praise_count = praise_count;
 	}
 
-	public int getCan_common() {
-		return can_common;
+	 
+	public String getCan_comment() {
+		return can_comment;
 	}
 
-	public void setCan_common(int can_common) {
-		this.can_common = can_common;
+	public void setCan_comment(String can_comment) {
+		this.can_comment = can_comment;
 	}
 
 	public String getLocal_image_name() {

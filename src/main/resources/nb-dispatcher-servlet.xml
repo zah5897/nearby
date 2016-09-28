@@ -14,9 +14,9 @@
 	<mvc:annotation-driven />
 	<mvc:default-servlet-handler />
 
-	<mvc:resources mapping="/lib/**" location="/lib/" />
-	<mvc:resources mapping="/images/**" location="/images/" />
-	<mvc:resources mapping="/stylesheets/**" location="/stylesheets/" />
+	<mvc:resources mapping="/manager/lib/**" location="/lib/" />
+	<mvc:resources mapping="/manager/images/**" location="/images/" />
+	<mvc:resources mapping="/manager/stylesheets/**" location="/stylesheets/" />
 
 
 	<!-- 启动自动扫描 该包下所有的Bean(@Controller) -->

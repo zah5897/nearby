@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
-@RequestMapping("/manager")
+@RequestMapping("/manager_controller")
 public class ManagerController {
 	@RequestMapping(value = "/forword", method = RequestMethod.GET)
 	public ModelAndView forword(String path) {

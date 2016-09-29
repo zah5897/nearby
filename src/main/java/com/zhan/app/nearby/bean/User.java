@@ -10,10 +10,11 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.zhan.app.nearby.annotation.ColumnType;
 import com.zhan.app.nearby.comm.UserType;
 import com.zhan.app.nearby.util.DateTimeUtil;
-
+@JsonInclude(JsonInclude.Include.NON_NULL) 
 public class User {
 	public User() {
 	}
@@ -25,7 +26,8 @@ public class User {
 	@ColumnType
 	private long user_id;
 	private String mobile;
-	@JsonIgnore
+
+	@JSONField(serialize = false)
 	private String password;
 	private String name;
 	private String nick_name;
@@ -37,6 +39,7 @@ public class User {
 	private String lat;
 	private String lng;
 	@JSONField(name = "_ua")
+	@JsonIgnore
 	private String _ua;
 
 	@ColumnType // 忽略保存
@@ -52,7 +55,8 @@ public class User {
 	@ColumnType // 忽略保存
 	private List<UserDynamic> images;
 
-	@JsonIgnore // 数据库中以逗号分割，json不序列号
+	// 数据库中以逗号分割，json不序列号
+	@JsonIgnore
 	private String job_ids;
 	@ColumnType // 忽略保存
 	private List<Tag> jobs;
@@ -60,12 +64,13 @@ public class User {
 	private String weight;// 体重
 	private String height;// 身高
 
+	
 	@JsonIgnore
 	private String my_tag_ids;
 	@ColumnType // 忽略保存
+
 	@JsonIgnore
 	private List<Tag> my_tags;
-
 	@JsonIgnore
 	private String interest_ids;
 	@ColumnType // 忽略保存
@@ -83,16 +88,17 @@ public class User {
 	@ColumnType // 忽略保存
 	@JsonIgnore
 	private List<Tag> favourite_music;
-
 	@JsonIgnore
 	private String weekday_todo_ids;
 	@ColumnType // 忽略保存
+
 	@JsonIgnore
 	private List<Tag> weekday_todo;
 
 	@JsonIgnore
 	private String footstep_ids;
 	@ColumnType // 忽略保存
+
 	@JsonIgnore
 	private List<Tag> footsteps;
 
@@ -424,7 +430,7 @@ public class User {
 		setLng(null);
 	}
 
-	@JSONField(serialize = false)
+	@JsonIgnore
 	public Object getBasicUserInfoMap() {
 		Map<String, Object> basicInfo = new HashMap<String, Object>();
 		basicInfo.put("user_id", user_id);

@@ -71,7 +71,7 @@ public class ImageController {
 			}
 
 		}
-		return ResultUtil.getResultMap(ERROR.ERR_SYS,"无图片上传");
+		return ResultUtil.getResultMap(ERROR.ERR_PARAM,"无图片上传");
 	}
 
 }

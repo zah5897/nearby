@@ -8,7 +8,7 @@
 </head>
 <body>
 
-	<!-- 
+	 
 	<fieldset>
 		<legend>注册</legend>
 
@@ -30,7 +30,6 @@
 		<form action="image/upload" method="post" enctype="multipart/form-data">
 			 
 				  image1<input type="file" name="image1" multiple="multiple"><br/> 
-				  image2<input type="file" name="image2" multiple="multiple"> 
 				<input type="hidden" name="_ua" value="123456789456"> 
 				<input type="text" name="user_id" value="13"> 
 				<input type="hidden" name="description" value="test"> 
@@ -40,9 +39,9 @@
 				<input type="submit" value="保存">
 		</form>
 	</fieldset>
-	 -->
+ 
 
 
-	<jsp:forward page="/manager/forword?path=manager/login"></jsp:forward>
+	 
 </body>
 </html>

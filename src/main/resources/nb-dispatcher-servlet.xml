@@ -16,7 +16,8 @@
 
 	<mvc:resources mapping="/manager/lib/**" location="/lib/" />
 	<mvc:resources mapping="/manager/images/**" location="/images/" />
-	<mvc:resources mapping="/manager/stylesheets/**" location="/stylesheets/" />
+	<mvc:resources mapping="/manager/stylesheets/**"
+		location="/stylesheets/" />
 
 
 	<!-- 启动自动扫描 该包下所有的Bean(@Controller) -->
@@ -85,11 +86,11 @@
 		</property>
 		<property name="features">
 			<list>
-				<!-- 是否显示值为null的字段<value>WriteMapNullValue</value> -->
 				<value>QuoteFieldNames</value>
 			</list>
 		</property>
 	</bean>
+
 
 
 

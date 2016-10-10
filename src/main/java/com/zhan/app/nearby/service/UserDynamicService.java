@@ -7,6 +7,7 @@ import javax.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.zhan.app.nearby.bean.DynamicComment;
 import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.dao.UserDynamicDao;
 import com.zhan.app.nearby.util.ImagePathUtil;
@@ -33,5 +34,12 @@ public class UserDynamicService {
 		List<UserDynamic> dynamics = userDynamicDao.getUserDynamic(user_id, last_id, count);
 		ImagePathUtil.completeImagePath(dynamics, true);
 		return dynamics;
+	}
+
+	public long comment(DynamicComment comment) {
+		return userDynamicDao.comment(comment);
+	}
+	public List<DynamicComment> commentList(long dynamic_id,int count,Long last_comment_id) {
+		return userDynamicDao.commentList(dynamic_id, count,last_comment_id==null?0:last_comment_id);
 	}
 }

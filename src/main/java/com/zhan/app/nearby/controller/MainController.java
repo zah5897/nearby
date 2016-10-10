@@ -21,7 +21,7 @@ public class MainController {
 	@Resource
 	private MainService mainService;
 	@Resource
-	private UserDynamicService imageService;
+	private UserDynamicService userDynamicService;
 
 	/**
 	 * 发现
@@ -34,10 +34,6 @@ public class MainController {
 	 */
 	@RequestMapping("found")
 	public ModelMap found(Long user_id, Long last_image_id, Integer count, String lat, String lng) {
-
-		if (user_id == null || user_id < 0l) {
-			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "用户id异常");
-		}
 
 		if (last_image_id == null || last_image_id < 0) {
 			last_image_id = 0l;
@@ -59,7 +55,7 @@ public class MainController {
 
 	@RequestMapping("praise")
 	public ModelMap praise(Long user_id, Long image_id) {
-		int count = imageService.praiseDynamic(image_id);
+		int count = userDynamicService.praiseDynamic(image_id);
 		ModelMap result;
 		if (count > 0) {
 			result = ResultUtil.getResultOKMap();

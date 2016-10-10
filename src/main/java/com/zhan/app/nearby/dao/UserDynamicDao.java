@@ -8,13 +8,16 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import com.zhan.app.nearby.bean.DynamicComment;
 import com.zhan.app.nearby.bean.UserDynamic;
+import com.zhan.app.nearby.bean.mapper.DynamicCommentMapper;
 import com.zhan.app.nearby.comm.ImageStatus;
 
 @Repository("userDynamicDao")
 public class UserDynamicDao extends BaseDao {
 	public static final String TABLE_USER_DYNAMIC = "t_user_dynamic";
 	public static final String TABLE_HOME_FOUND_SELECTED = "t_home_found_selected";
+	public static final String TABLE_DYNAMIC_COMMENT = "t_dynamic_comment";
 	@Resource
 	private JdbcTemplate jdbcTemplate;
 
@@ -69,4 +72,18 @@ public class UserDynamicDao extends BaseDao {
 					new BeanPropertyRowMapper<UserDynamic>(UserDynamic.class));
 		}
 	}
+	
+	public long comment(DynamicComment comment){
+		return saveObj(jdbcTemplate, TABLE_DYNAMIC_COMMENT, comment);
+	}
+	public List<DynamicComment> commentList(long dynamic_id,int count,long last_comment_id) {
+		
+		String sql="select comment.*,user.nick_name from "+TABLE_DYNAMIC_COMMENT+" comment left join t_user user on comment.user_id=user.user_id and comment.dynamic_id=? and comment.id>? order by comment.id limit ?";
+		
+		return jdbcTemplate.query(sql, new Object[] { dynamic_id,last_comment_id, count },
+				new DynamicCommentMapper());
+	}
+	
+	
+	
 }

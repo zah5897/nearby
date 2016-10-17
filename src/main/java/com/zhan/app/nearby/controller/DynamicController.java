@@ -10,8 +10,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.zhan.app.nearby.bean.DynamicComment;
+import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.service.UserDynamicService;
+import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.ResultUtil;
 
 @RestController
@@ -20,6 +22,9 @@ public class DynamicController {
 	@Resource
 	private UserDynamicService userDynamicService;
 	 
+	
+	
+	
 	@RequestMapping("comment")
 	public ModelMap comment(DynamicComment comment) {
 		if (comment.getUser_id() < 1L) {
@@ -46,5 +51,18 @@ public class DynamicController {
 		result.put("comments", comments);
 		return result;
 	}
-
+	@RequestMapping("detail")
+	public ModelMap detail(Long dynamic_id) {
+		if (dynamic_id==null||dynamic_id<1l) {
+			return ResultUtil.getResultMap(ERROR.ERR_PARAM);
+		}
+		UserDynamic dynamic = userDynamicService.detail(dynamic_id);
+		if(dynamic!=null){
+			ImagePathUtil.completeImagePath(dynamic, true);
+		}
+		ModelMap result=ResultUtil.getResultOKMap();
+		
+				result.put("detail", dynamic);
+				return result;
+	}
 }

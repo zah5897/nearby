@@ -42,4 +42,7 @@ public class UserDynamicService {
 	public List<DynamicComment> commentList(long dynamic_id,int count,Long last_comment_id) {
 		return userDynamicDao.commentList(dynamic_id, count,last_comment_id==null?0:last_comment_id);
 	}
+	public UserDynamic detail(long dynamic_id) {
+		return userDynamicDao.detail(dynamic_id);
+	}
 }

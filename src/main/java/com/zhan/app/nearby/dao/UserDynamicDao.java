@@ -83,6 +83,11 @@ public class UserDynamicDao extends BaseDao {
 		return jdbcTemplate.query(sql, new Object[] { dynamic_id,last_comment_id, count },
 				new DynamicCommentMapper());
 	}
+
+	public UserDynamic detail(long dynamic_id) {
+		String sql = "select * from " + TABLE_USER_DYNAMIC + " where id=?";
+		return jdbcTemplate.queryForObject(sql, new Object[] {dynamic_id },new BeanPropertyRowMapper<UserDynamic>(UserDynamic.class));
+	}
 	
 	
 	

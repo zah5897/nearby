@@ -1,30 +1,30 @@
 package com.zhan.app.nearby.bean;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.zhan.app.nearby.annotation.ColumnType;
-
-public class UserDynamic {
+@JsonSerialize(include=JsonSerialize.Inclusion.NON_NULL)
+public class UserDynamic implements Serializable{
 	@ColumnType
 	private long id; // 主键
-	@JsonIgnore
 	private long user_id; // 外键，关联user id字段，不json 序列化
 
 	private String description; // 描述
-	@JsonIgnore
 	private String lat;
-	@JsonIgnore
 	private String lng;
 	private String addr;
+
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
-	@JSONField(format = "yyyy-MM-dd")
+	@JSONField(format="yyyy-MM-dd HH:mm:ss")
 	private Date create_time;
 
-	@JsonIgnore
+	
 	private String local_image_name;
 
 	@ColumnType
@@ -123,7 +123,7 @@ public class UserDynamic {
 	public void setCan_comment(String can_comment) {
 		this.can_comment = can_comment;
 	}
-
+	@JsonIgnore
 	public String getLocal_image_name() {
 		return local_image_name;
 	}

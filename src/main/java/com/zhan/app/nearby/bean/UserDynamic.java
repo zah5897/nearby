@@ -13,6 +13,8 @@ import com.zhan.app.nearby.annotation.ColumnType;
 public class UserDynamic implements Serializable{
 	@ColumnType
 	private long id; // 主键
+	
+	@JsonIgnore
 	private long user_id; // 外键，关联user id字段，不json 序列化
 
 	private String description; // 描述
@@ -35,6 +37,9 @@ public class UserDynamic implements Serializable{
 	private int praise_count;
 	private String can_comment = "1";
 
+	@ColumnType
+	private User user;
+	
 	public long getId() {
 		return id;
 	}
@@ -132,4 +137,13 @@ public class UserDynamic implements Serializable{
 		this.local_image_name = local_image_name;
 	}
 
+	public User getUser() {
+		return user;
+	}
+
+	public void setUser(User user) {
+		this.user = user;
+	}
+
+	
 }

@@ -45,6 +45,13 @@ public class ImageController {
 		if (user_id == null && user_id < 0) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM,"用户id异常");
 		}
+		
+		
+		if(userService.getBasicUser(user_id)==null){
+			return ResultUtil.getResultMap(ERROR.ERR_PARAM,"用户不存在");
+		}
+		
+		
 		if (multipartRequest != null) {
 			Iterator<String> iterator = multipartRequest.getFileNames();
 			while (iterator.hasNext()) {

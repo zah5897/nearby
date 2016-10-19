@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 import com.zhan.app.nearby.bean.DynamicComment;
 import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.bean.mapper.DynamicCommentMapper;
+import com.zhan.app.nearby.bean.mapper.DynamicMapper;
 import com.zhan.app.nearby.comm.ImageStatus;
 
 @Repository("userDynamicDao")
@@ -85,8 +86,8 @@ public class UserDynamicDao extends BaseDao {
 	}
 
 	public UserDynamic detail(long dynamic_id) {
-		String sql = "select * from " + TABLE_USER_DYNAMIC + " where id=?";
-		return jdbcTemplate.queryForObject(sql, new Object[] {dynamic_id },new BeanPropertyRowMapper<UserDynamic>(UserDynamic.class));
+		String sql = "select dy.*,user.user_id  ,user.nick_name   from " + TABLE_USER_DYNAMIC + " dy left join t_user user on dy.user_id=user.user_id where dy.id=?";
+		return jdbcTemplate.queryForObject(sql, new Object[] {dynamic_id },new DynamicMapper());
 	}
 	
 	

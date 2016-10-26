@@ -7,6 +7,7 @@ import org.springframework.jdbc.core.RowMapper;
 
 import com.zhan.app.nearby.bean.User;
 import com.zhan.app.nearby.bean.UserDynamic;
+import com.zhan.app.nearby.util.DateTimeUtil;
 
 public class DynamicMapper implements RowMapper<UserDynamic> {
 
@@ -25,6 +26,9 @@ public class DynamicMapper implements RowMapper<UserDynamic> {
 
 		dynamic.getUser().setUser_id(rs.getLong("user_id"));
 		dynamic.getUser().setNick_name(rs.getString("nick_name"));
+		dynamic.getUser().setAvatar(rs.getString("avatar"));
+		dynamic.getUser().setSex(rs.getString("sex"));
+		dynamic.getUser().setAge(DateTimeUtil.getAge(rs.getDate("birthday")));
 		return dynamic;
 	}
 

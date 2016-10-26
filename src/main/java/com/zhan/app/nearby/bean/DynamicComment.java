@@ -22,7 +22,7 @@ public class DynamicComment {
 	@JSONField(format = "yyyy-MM-dd")
 	private Date comment_time;
 	@ColumnType
-	private User comment_user;
+	private User user;
 	
 	public long getId() {
 		return id;
@@ -58,11 +58,12 @@ public class DynamicComment {
 	public void setComment_time(Date comment_time) {
 		this.comment_time = comment_time;
 	}
-	public User getComment_user() {
-		return comment_user;
+	public User getUser() {
+		return user;
 	}
-	public void setComment_user(User comment_user) {
-		this.comment_user = comment_user;
+	public void setUser(User user) {
+		this.user = user;
 	}
+	 
 
 }

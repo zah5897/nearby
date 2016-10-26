@@ -21,8 +21,10 @@ public class DynamicCommentMapper implements RowMapper<DynamicComment> {
 		User user=new User();
 		user.setUser_id(rs.getLong("user_id"));
 		user.setNick_name(rs.getString("nick_name"));
+		user.setSex(rs.getString("sex"));
+		user.setAvatar(rs.getString("avatar"));
 		
-		comment.setComment_user(user);
+		comment.setUser(user);
 		return comment;
 	}
 

@@ -39,6 +39,15 @@ public class UserDynamicService {
 	public long comment(DynamicComment comment) {
 		return userDynamicDao.comment(comment);
 	}
+	
+	public DynamicComment loadComment(long dynamic_id,long comment_id) {
+		DynamicComment comment=userDynamicDao.loadComment(dynamic_id, comment_id);
+		ImagePathUtil.completeAvatarPath(comment.getUser(), true);
+		return comment;
+	}
+	
+	
+	
 	public List<DynamicComment> commentList(long dynamic_id,int count,Long last_comment_id) {
 		return userDynamicDao.commentList(dynamic_id, count,last_comment_id==null?0:last_comment_id);
 	}

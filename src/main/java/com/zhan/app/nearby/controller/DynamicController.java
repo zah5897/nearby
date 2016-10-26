@@ -32,11 +32,17 @@ public class DynamicController {
 		}
 		comment.setComment_time(new Date());
 		long id = userDynamicService.comment(comment);
+		
+		ModelMap result;
 		if (id > 0) {
-			return ResultUtil.getResultOKMap();
+			DynamicComment resultObj=userDynamicService.loadComment(comment.getDynamic_id(), id);
+			result =ResultUtil.getResultOKMap();
+			result.put("comment", resultObj);
 		}else{
-			return ResultUtil.getResultMap(ERROR.ERR_FAILED,"评论失败");
+			result= ResultUtil.getResultMap(ERROR.ERR_FAILED,"评论失败");
 		}
+		
+		return result;
 	}
 	@RequestMapping("comment_list")
 	public ModelMap comment_list(Long dynamic_id,Integer count,Long last_comment_id) {
@@ -59,6 +65,7 @@ public class DynamicController {
 		UserDynamic dynamic = userDynamicService.detail(dynamic_id);
 		if(dynamic!=null){
 			ImagePathUtil.completeImagePath(dynamic, true);
+			ImagePathUtil.completeAvatarPath(dynamic.getUser(), true);
 		}
 		ModelMap result=ResultUtil.getResultOKMap();
 		

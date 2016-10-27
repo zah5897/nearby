@@ -4,8 +4,10 @@ import java.util.Date;
 import java.util.Iterator;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
+import org.apache.tomcat.jni.Address;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,6 +18,8 @@ import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.service.UserDynamicService;
 import com.zhan.app.nearby.service.UserService;
+import com.zhan.app.nearby.util.AddressUtil;
+import com.zhan.app.nearby.util.IPUtil;
 import com.zhan.app.nearby.util.ImageSaveUtils;
 import com.zhan.app.nearby.util.ResultUtil;
 
@@ -63,11 +67,11 @@ public class ImageController {
 						dynamic.setLocal_image_name(imagePath);
 						dynamic.setCreate_time(new Date());
 						long id = userDynamicService.insertDynamic(dynamic);
-
+						dynamic.setId(id);
+						AddressUtil.praseAddress(IPUtil.getIpAddress(multipartRequest),dynamic);
 						if (id > 0) {
 							userDynamicService.addHomeFoundSelected(id);
 						}
-
 						return ResultUtil.getResultOKMap();
 					} catch (Exception e) {
 						e.printStackTrace();
@@ -80,5 +84,9 @@ public class ImageController {
 		}
 		return ResultUtil.getResultMap(ERROR.ERR_PARAM,"无图片上传");
 	}
-
+	@RequestMapping("test")
+	public ModelMap test(HttpServletRequest request,String lat,String lng) {
+		AddressUtil.getAddressByIp(IPUtil.getIpAddress(request));
+		return ResultUtil.getResultOKMap();
+	}
 }

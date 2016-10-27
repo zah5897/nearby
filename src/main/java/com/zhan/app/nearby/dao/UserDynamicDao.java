@@ -84,10 +84,19 @@ public class UserDynamicDao extends BaseDao {
 	}
 	public List<DynamicComment> commentList(long dynamic_id,int count,long last_comment_id) {
 		
-		String sql="select comment.*,user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday from "+TABLE_DYNAMIC_COMMENT+" comment left join t_user user on comment.user_id=user.user_id and comment.dynamic_id=? and comment.id>? order by comment.id desc limit ?";
 		
-		return jdbcTemplate.query(sql, new Object[] { dynamic_id,last_comment_id, count },
-				new DynamicCommentMapper());
+		if(last_comment_id>0){
+			String sql="select comment.*,user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday from "+TABLE_DYNAMIC_COMMENT+" comment left join t_user user on comment.user_id=user.user_id where comment.dynamic_id=? and comment.id<? order by comment.id desc limit ?";
+			
+			return jdbcTemplate.query(sql, new Object[] { dynamic_id,last_comment_id, count },
+					new DynamicCommentMapper());
+		}else{
+			String sql="select comment.*,user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday from "+TABLE_DYNAMIC_COMMENT+" comment left join t_user user on comment.user_id=user.user_id where comment.dynamic_id=?  order by comment.id desc limit ?";
+			
+			return jdbcTemplate.query(sql, new Object[] { dynamic_id, count },
+					new DynamicCommentMapper());
+		}
+		 
 	}
 
 	public UserDynamic detail(long dynamic_id) {
@@ -98,7 +107,9 @@ public class UserDynamicDao extends BaseDao {
 			return null;
 		}
 		}
-	
-	
+	public void updateAddress(UserDynamic dynamic) {
+		jdbcTemplate.update("update " + TABLE_USER_DYNAMIC + " set addr=? where id=?",
+				new Object[] { dynamic.getAddr(), dynamic.getId() });
+	}
 	
 }

@@ -32,7 +32,7 @@
 	<mvc:resources mapping="/avatar/thumb/**" location="/love_upload/avatar/thumb/" />
 
 
-
+<bean id="SpringContextUtil" class="com.zhan.app.nearby.util.SpringContextUtil"></bean>
 
 	<!-- 拦截器 -->
 	<bean id="handlerMapping"

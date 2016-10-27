@@ -55,7 +55,14 @@ public class DynamicController {
 		List<DynamicComment> comments = userDynamicService.commentList(dynamic_id, count,last_comment_id);
 		ModelMap result=ResultUtil.getResultOKMap();
 		result.put("comments", comments);
-		result.put("last_comment_id", comments.get(comments.size()-1).getId());
+		long last_id=-1l;
+		if(comments!=null&&comments.size()>0&&comments.size()==count){
+			last_id=comments.get(comments.size()-1).getId();
+		}
+		
+		result.put("hasMore", last_id>0);
+		
+		result.put("last_comment_id", last_id);
 		return result;
 	}
 	@RequestMapping("detail")

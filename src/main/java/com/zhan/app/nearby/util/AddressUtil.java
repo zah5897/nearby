@@ -12,20 +12,21 @@ public class AddressUtil {
 	   new Thread(){
 		   @Override
 		public void run() {
-			   String address=getAddressByLatLng(dynamic.getLat(),dynamic.getLng());
-			   if(TextUtils.isEmpty(address)){
+			   String[] address=getAddressByLatLng(dynamic.getLat(),dynamic.getLng());
+			   if(TextUtils.isEmpty(address[0])){
 				   address=getAddressByIp(ip);
 			   }
-			   if(!TextUtils.isEmpty(address)){
+			   if(!TextUtils.isEmpty(address[0])){
 				   UserDynamicService  userDynamicService= ((UserDynamicService)SpringContextUtil.getBean("userDynamicService"));
-				   dynamic.setAddr(address);
+				   dynamic.setAddr(address[0]);
+				   dynamic.setStreet(address[1]);
 				   userDynamicService.updateAddress(dynamic);
 			   }
 		}
 	   }.start();
    }
    
-   public static String getAddressByLatLng(String lat,String lng){
+   public static String[] getAddressByLatLng(String lat,String lng){
 	   String url="http://api.map.baidu.com/geocoder/v2/?ak="+AK+"&location="+lat+","+lng+"&output=json";
 	   String result= HttpUtil.sendGet(url, null);
 	   if(!TextUtils.isEmpty(result)){
@@ -33,14 +34,21 @@ public class AddressUtil {
 	      int status=obj.getIntValue("status");
 	      if(status==0){
 	    	  JSONObject resultObj=obj.getJSONObject("result");
+	    	  
+	    	  
+	    	  JSONObject addressComponent=resultObj.getJSONObject("addressComponent");
 	    	  String address=resultObj.getString("formatted_address");
-	    	  return address;
+	    	  String street=null;
+	    	  if(addressComponent!=null){
+	    		  street=addressComponent.getString("street")+addressComponent.getString("street_number");
+	    	  }
+	    	  return new String[]{address,street};
 	      }
 	   }
 	   return null;
    }
    
-   public static String getAddressByIp(String ip){
+   public static String[] getAddressByIp(String ip){
 	   String lat = null;
 	   String lng = null;
 	   //高精度定位

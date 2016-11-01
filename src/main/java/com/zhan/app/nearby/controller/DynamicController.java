@@ -9,6 +9,7 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.alibaba.fastjson.JSON;
 import com.zhan.app.nearby.bean.DynamicComment;
 import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.exception.ERROR;
@@ -76,7 +77,6 @@ public class DynamicController {
 			ImagePathUtil.completeAvatarPath(dynamic.getUser(), true);
 		}
 		ModelMap result=ResultUtil.getResultOKMap();
-		
 				result.put("detail", dynamic);
 				return result;
 	}

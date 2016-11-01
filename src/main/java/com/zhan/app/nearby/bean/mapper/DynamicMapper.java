@@ -2,6 +2,7 @@ package com.zhan.app.nearby.bean.mapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Date;
 
 import org.springframework.jdbc.core.RowMapper;
 
@@ -22,13 +23,16 @@ public class DynamicMapper implements RowMapper<UserDynamic> {
 		dynamic.setCan_comment(rs.getString("can_comment"));
 
 		User user = new User();
-		dynamic.setUser(user);
+		
 
-		dynamic.getUser().setUser_id(rs.getLong("user_id"));
-		dynamic.getUser().setNick_name(rs.getString("nick_name"));
-		dynamic.getUser().setAvatar(rs.getString("avatar"));
-		dynamic.getUser().setSex(rs.getString("sex"));
-		dynamic.getUser().setAge(DateTimeUtil.getAge(rs.getDate("birthday")));
+		user.setUser_id(rs.getLong("user_id"));
+		user.setNick_name(rs.getString("nick_name"));
+		user.setAvatar(rs.getString("avatar"));
+		user.setSex(rs.getString("sex"));
+		Date birthday=rs.getDate("birthday");
+		user.setAge(DateTimeUtil.getAge(birthday));
+		
+		dynamic.setUser(user);
 		return dynamic;
 	}
 

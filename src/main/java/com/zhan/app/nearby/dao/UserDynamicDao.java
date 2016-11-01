@@ -108,8 +108,8 @@ public class UserDynamicDao extends BaseDao {
 		}
 		}
 	public void updateAddress(UserDynamic dynamic) {
-		jdbcTemplate.update("update " + TABLE_USER_DYNAMIC + " set addr=? where id=?",
-				new Object[] { dynamic.getAddr(), dynamic.getId() });
+		jdbcTemplate.update("update " + TABLE_USER_DYNAMIC + " set addr=? ,street=? where id=?",
+				new Object[] { dynamic.getAddr(), dynamic.getStreet(),dynamic.getId() });
 	}
 	
 }

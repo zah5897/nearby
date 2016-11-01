@@ -153,7 +153,7 @@ public class User {
 	}
 
 	public String getAge() {
-		return DateTimeUtil.getAge(birthday);
+		return age;
 	}
 
 	public String getSex() {

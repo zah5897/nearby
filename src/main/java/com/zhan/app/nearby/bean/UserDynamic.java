@@ -21,6 +21,7 @@ public class UserDynamic implements Serializable{
 	private String lat;
 	private String lng;
 	private String addr;
+	private String street;
 
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	@JSONField(format="yyyy-MM-dd HH:mm:ss")
@@ -143,6 +144,14 @@ public class UserDynamic implements Serializable{
 
 	public void setUser(User user) {
 		this.user = user;
+	}
+
+	public String getStreet() {
+		return street;
+	}
+
+	public void setStreet(String street) {
+		this.street = street;
 	}
 
 	

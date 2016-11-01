@@ -426,7 +426,7 @@ public class UserController {
 	 * 
 	 * @param user_id
 	 * @param user_id_for
-	 * @param count
+	 * @param countz'z
 	 * @return
 	 */
 	@RequestMapping("detial_info")
@@ -441,11 +441,12 @@ public class UserController {
 	}
 
 	@RequestMapping("dynamic")
-	public ModelMap dynamic(Long user_id, Long user_id_for, Long last_id, Integer count) {
-		if (user_id == null || user_id < 1) {
-			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "请确定当前用户");
+	public ModelMap dynamic(Long user_id_for, Long last_id, Integer count) {
+		
+		if(user_id_for==null||user_id_for<1){
+			return ResultUtil.getResultMap(ERROR.ERR_PARAM,"请确定用户ID");
 		}
-
+		
 		if (last_id == null) {
 			last_id = 0l;
 		}
@@ -455,11 +456,7 @@ public class UserController {
 		}
 
 		List<UserDynamic> dynamics;
-		if (user_id_for != null && user_id_for > 0) {
-			dynamics = userDynamicService.getUserDynamic(user_id_for, last_id, count);
-		} else {
-			dynamics = userDynamicService.getUserDynamic(user_id, last_id, count);
-		}
+		dynamics = userDynamicService.getUserDynamic(user_id_for, last_id, count);
 
 		ModelMap result = ResultUtil.getResultOKMap();
 		result.put("dynamics", dynamics);

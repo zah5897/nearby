@@ -46,7 +46,7 @@ public class ImageController {
 	@RequestMapping("upload")
 	public ModelMap upload(DefaultMultipartHttpServletRequest multipartRequest, Long user_id, UserDynamic dynamic) {
 
-		if (user_id == null && user_id < 0) {
+		if (user_id == null || user_id < 0) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM,"用户id异常");
 		}
 		

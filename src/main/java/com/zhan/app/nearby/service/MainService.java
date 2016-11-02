@@ -22,7 +22,11 @@ public class MainService {
 	}
 
 	public List<UserDynamic> getHomeFoundSelected(ImageStatus imageStatus, long last_img_id, int page_size) {
-		return userDynamicDao.getHomeFoundSelected(imageStatus, last_img_id, page_size);
+		try{
+		   return userDynamicDao.getHomeFoundSelected(imageStatus, last_img_id, page_size);
+		}catch(Exception e){
+			return null;
+		}
 	}
 
 }

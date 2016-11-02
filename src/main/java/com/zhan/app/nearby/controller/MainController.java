@@ -9,7 +9,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.zhan.app.nearby.bean.UserDynamic;
+import com.zhan.app.nearby.comm.DynamicMsgType;
 import com.zhan.app.nearby.exception.ERROR;
+import com.zhan.app.nearby.service.DynamicMsgService;
 import com.zhan.app.nearby.service.MainService;
 import com.zhan.app.nearby.service.UserDynamicService;
 import com.zhan.app.nearby.util.ImagePathUtil;
@@ -23,6 +25,10 @@ public class MainController {
 	@Resource
 	private UserDynamicService userDynamicService;
 
+	
+	@Resource
+	private DynamicMsgService dynamicMsgService;
+	
 	/**
 	 * 发现
 	 * 
@@ -60,6 +66,11 @@ public class MainController {
 		if (count > 0) {
 			result = ResultUtil.getResultOKMap();
 			result.put("praise_count", count);
+			
+			long userId=userDynamicService.getUserIdByDynamicId(image_id);
+			if(userId>0){
+				dynamicMsgService.insertActionMsg(DynamicMsgType.TYPE_PRAISE, user_id, image_id,userId, null);
+			}
 		} else {
 			result = ResultUtil.getResultMap(ERROR.ERR_FAILED, "图片找不到");
 		}

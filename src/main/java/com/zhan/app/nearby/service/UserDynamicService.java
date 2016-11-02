@@ -62,4 +62,12 @@ public class UserDynamicService {
 	public void updateAddress(UserDynamic dynamic){
 		userDynamicDao.updateAddress(dynamic);
 	}
+	
+	public void updateBrowserCount(long dynamic_id,int browser_count){
+		userDynamicDao.updateBrowserCount(dynamic_id,browser_count);
+	}
+
+	public long getUserIdByDynamicId(long dynamic_id) {
+		return userDynamicDao.getUserIdByDynamicId(dynamic_id);
+	}
 }

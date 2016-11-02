@@ -38,6 +38,9 @@ public class UserDynamic implements Serializable{
 	private int praise_count;
 	private String can_comment = "1";
 
+	
+	private int browser_count;
+	
 	@ColumnType
 	private User user;
 	
@@ -152,6 +155,14 @@ public class UserDynamic implements Serializable{
 
 	public void setStreet(String street) {
 		this.street = street;
+	}
+
+	public int getBrowser_count() {
+		return browser_count;
+	}
+
+	public void setBrowser_count(int browser_count) {
+		this.browser_count = browser_count;
 	}
 
 	

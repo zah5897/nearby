@@ -19,6 +19,7 @@ import com.zhan.app.nearby.service.UserDynamicService;
 import com.zhan.app.nearby.service.UserService;
 import com.zhan.app.nearby.util.AddressUtil;
 import com.zhan.app.nearby.util.IPUtil;
+import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.ImageSaveUtils;
 import com.zhan.app.nearby.util.ResultUtil;
 
@@ -71,7 +72,16 @@ public class ImageController {
 						if (id > 0) {
 							userDynamicService.addHomeFoundSelected(id);
 						}
-						return ResultUtil.getResultOKMap();
+						
+						ModelMap result=ResultUtil.getResultOKMap();
+						
+						UserDynamic dy = userDynamicService.detail(id);
+						if(dy!=null){
+							ImagePathUtil.completeImagePath(dy, true);
+							ImagePathUtil.completeAvatarPath(dy.getUser(), true);
+						}
+						result.put("detail", dy);
+						return result;
 					} catch (Exception e) {
 						e.printStackTrace();
 						log.error(e.getMessage());

@@ -153,7 +153,7 @@ public class UserDynamicDao extends BaseDao {
 		}catch(Exception e){
 			log.error(e);	
 		}
-		return LikeDynamicState.DEFAULT.ordinal();
+		return LikeDynamicState.UNLIKE.ordinal();
 	}
 	
 }

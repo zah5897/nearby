@@ -60,7 +60,7 @@ public class UserDynamicService {
 	public UserDynamic detail(long dynamic_id,Long user_id) {
 		UserDynamic dynamic=userDynamicDao.detail(dynamic_id);
 		if(user_id==null||user_id<1){
-			dynamic.setLike_state(LikeDynamicState.DEFAULT.ordinal());	
+			dynamic.setLike_state(LikeDynamicState.UNLIKE.ordinal());	
 		}
 		int likeState=userDynamicDao.getLikeState(user_id,dynamic_id);
 		dynamic.setLike_state(likeState);

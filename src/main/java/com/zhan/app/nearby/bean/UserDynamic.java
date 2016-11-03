@@ -40,6 +40,8 @@ public class UserDynamic implements Serializable{
 
 	
 	private int browser_count;
+	@ColumnType //客户端组合数据
+	private int like_state;
 	
 	@ColumnType
 	private User user;
@@ -163,6 +165,14 @@ public class UserDynamic implements Serializable{
 
 	public void setBrowser_count(int browser_count) {
 		this.browser_count = browser_count;
+	}
+
+	public int getLike_state() {
+		return like_state;
+	}
+
+	public void setLike_state(int like_state) {
+		this.like_state = like_state;
 	}
 
 	

@@ -4,24 +4,29 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.apache.log4j.Logger;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import com.zhan.app.nearby.bean.DynamicComment;
 import com.zhan.app.nearby.bean.UserDynamic;
+import com.zhan.app.nearby.bean.UserDynamicRelationShip;
 import com.zhan.app.nearby.bean.mapper.DynamicCommentMapper;
 import com.zhan.app.nearby.bean.mapper.DynamicMapper;
 import com.zhan.app.nearby.comm.ImageStatus;
+import com.zhan.app.nearby.comm.LikeDynamicState;
+import com.zhan.app.nearby.controller.UserController;
 
 @Repository("userDynamicDao")
 public class UserDynamicDao extends BaseDao {
 	public static final String TABLE_USER_DYNAMIC = "t_user_dynamic";
 	public static final String TABLE_HOME_FOUND_SELECTED = "t_home_found_selected";
 	public static final String TABLE_DYNAMIC_COMMENT = "t_dynamic_comment";
+	public static final String TABLE_LIKE_DYNAMIC_STATE = "t_like_dynamic";
 	@Resource
 	private JdbcTemplate jdbcTemplate;
-
+	private static Logger log = Logger.getLogger(UserDynamicDao.class);
 	public long insertDynamic(UserDynamic dyanmic) {
 		return saveObj(jdbcTemplate, TABLE_USER_DYNAMIC, dyanmic);
 	}
@@ -123,6 +128,32 @@ public class UserDynamicDao extends BaseDao {
 			}catch(Exception e){
 				return 0l;
 			}
+	}
+
+	public long updateLikeState(UserDynamicRelationShip dynamicRelationShip) {
+			String sql = "select count(*) from " + TABLE_LIKE_DYNAMIC_STATE + " where user_id=? and dynamic_id=?";
+			int count=0;
+			try{
+			  count= jdbcTemplate.queryForObject(sql, new Object[] { dynamicRelationShip.getUser_id(),dynamicRelationShip.getDynamic_id() }, Integer.class);
+			}catch(Exception e){
+				log.error(e);	
+			}
+			if(count==0){
+			return	saveObj(jdbcTemplate, TABLE_LIKE_DYNAMIC_STATE, dynamicRelationShip);
+			}else{
+				return	jdbcTemplate.update("update " + TABLE_LIKE_DYNAMIC_STATE + " set relationship=? where user_id=? and dynamic_id=?",
+						new Object[] { dynamicRelationShip.getRelation_ship(), dynamicRelationShip.getUser_id(),dynamicRelationShip.getDynamic_id() });
+			}
+	}
+
+	public int getLikeState(Long user_id, long dynamic_id) {
+		String sql = "select relationship from " + TABLE_LIKE_DYNAMIC_STATE + " where user_id=? and dynamic_id=?";
+		try{
+		 return jdbcTemplate.queryForObject(sql, new Object[] { user_id,dynamic_id }, Integer.class);
+		}catch(Exception e){
+			log.error(e);	
+		}
+		return LikeDynamicState.DEFAULT.ordinal();
 	}
 	
 }

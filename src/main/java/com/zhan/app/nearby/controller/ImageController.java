@@ -75,7 +75,7 @@ public class ImageController {
 						
 						ModelMap result=ResultUtil.getResultOKMap();
 						
-						UserDynamic dy = userDynamicService.detail(id);
+						UserDynamic dy = userDynamicService.detail(id,user_id);
 						if(dy!=null){
 							ImagePathUtil.completeImagePath(dy, true);
 							ImagePathUtil.completeAvatarPath(dy.getUser(), true);

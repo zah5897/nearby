@@ -9,6 +9,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.zhan.app.nearby.bean.DynamicComment;
 import com.zhan.app.nearby.bean.UserDynamic;
+import com.zhan.app.nearby.bean.UserDynamicRelationShip;
+import com.zhan.app.nearby.comm.LikeDynamicState;
 import com.zhan.app.nearby.dao.UserDynamicDao;
 import com.zhan.app.nearby.util.ImagePathUtil;
 
@@ -55,8 +57,14 @@ public class UserDynamicService {
 		}
 		return comments;
 	}
-	public UserDynamic detail(long dynamic_id) {
-		return userDynamicDao.detail(dynamic_id);
+	public UserDynamic detail(long dynamic_id,Long user_id) {
+		UserDynamic dynamic=userDynamicDao.detail(dynamic_id);
+		if(user_id==null||user_id<1){
+			dynamic.setLike_state(LikeDynamicState.DEFAULT.ordinal());	
+		}
+		int likeState=userDynamicDao.getLikeState(user_id,dynamic_id);
+		dynamic.setLike_state(likeState);
+		return dynamic;
 	}
 	
 	public void updateAddress(UserDynamic dynamic){
@@ -69,5 +77,13 @@ public class UserDynamicService {
 
 	public long getUserIdByDynamicId(long dynamic_id) {
 		return userDynamicDao.getUserIdByDynamicId(dynamic_id);
+	}
+	public long updateLikeState(Long user_id, long dynamic_id, LikeDynamicState like) {
+		
+		UserDynamicRelationShip dynamicRelationShip=new UserDynamicRelationShip();
+		dynamicRelationShip.setDynamic_id(dynamic_id);
+		dynamicRelationShip.setUser_id(user_id);
+		dynamicRelationShip.setRelation_ship(like.ordinal());
+		return userDynamicDao.updateLikeState(dynamicRelationShip);
 	}
 }

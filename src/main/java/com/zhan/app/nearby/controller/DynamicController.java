@@ -13,11 +13,13 @@ import com.zhan.app.nearby.bean.DynamicComment;
 import com.zhan.app.nearby.bean.DynamicMessage;
 import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.comm.DynamicMsgType;
+import com.zhan.app.nearby.comm.LikeDynamicState;
 import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.service.DynamicMsgService;
 import com.zhan.app.nearby.service.UserDynamicService;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.ResultUtil;
+import com.zhan.app.nearby.util.TextUtils;
 
 @RestController
 @RequestMapping("/dynamic")
@@ -74,11 +76,11 @@ public class DynamicController {
 		return result;
 	}
 	@RequestMapping("detail")
-	public ModelMap detail(Long dynamic_id) {
+	public ModelMap detail(Long dynamic_id,Long user_id) {
 		if (dynamic_id==null||dynamic_id<1l) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM);
 		}
-		UserDynamic dynamic = userDynamicService.detail(dynamic_id);
+		UserDynamic dynamic = userDynamicService.detail(dynamic_id,user_id);
 		if(dynamic!=null){
 			ImagePathUtil.completeImagePath(dynamic, true);
 			ImagePathUtil.completeAvatarPath(dynamic.getUser(), true);
@@ -98,6 +100,47 @@ public class DynamicController {
 		result.put("msgs", msgs);
 		return result;
 	}
+	
+	
+	@RequestMapping("like")
+	public ModelMap like(Long user_id,String dynamic_id) {
+		if (user_id==null||user_id<1l) {
+			return ResultUtil.getResultMap(ERROR.ERR_PARAM,"请确定当前用户：user_id="+user_id);
+		}
+		if(TextUtils.isEmpty(dynamic_id)){
+			return ResultUtil.getResultMap(ERROR.ERR_PARAM,"请确定您要操作的动态信息");
+		}
+		String[] dy_ids=dynamic_id.split(",");
+		for(String id:dy_ids){
+			try{
+			  long dy_id=Long.parseLong(id);
+			  userDynamicService.updateLikeState(user_id,dy_id,LikeDynamicState.LIKE);
+			}catch(NumberFormatException e){
+			}
+		}
+	    return ResultUtil.getResultOKMap();
+	}
+	
+	
+	@RequestMapping("unlike")
+	public ModelMap unlike(Long user_id,String dynamic_id) {
+		if (user_id==null||user_id<1l) {
+			return ResultUtil.getResultMap(ERROR.ERR_PARAM,"请确定当前用户：user_id="+user_id);
+		}
+		if(TextUtils.isEmpty(dynamic_id)){
+			return ResultUtil.getResultMap(ERROR.ERR_PARAM,"请确定您要操作的动态信息");
+		}
+		String[] dy_ids=dynamic_id.split(",");
+		for(String id:dy_ids){
+			try{
+			  long dy_id=Long.parseLong(id);
+			  userDynamicService.updateLikeState(user_id,dy_id,LikeDynamicState.UNLIKE);
+			}catch(NumberFormatException e){
+			}
+		}
+	    return ResultUtil.getResultOKMap();
+	}
+	
 	
 	
 	

@@ -20,6 +20,8 @@ public class AddressUtil {
 				   UserDynamicService  userDynamicService= ((UserDynamicService)SpringContextUtil.getBean("userDynamicService"));
 				   dynamic.setAddr(address[0]);
 				   dynamic.setStreet(address[1]);
+				   dynamic.setCity(address[2]);
+				   dynamic.setRegion(address[3]);
 				   userDynamicService.updateAddress(dynamic);
 			   }
 		}
@@ -42,7 +44,9 @@ public class AddressUtil {
 	    	  if(addressComponent!=null){
 	    		  street=addressComponent.getString("street")+addressComponent.getString("street_number");
 	    	  }
-	    	  return new String[]{address,street};
+	    	  String district=addressComponent.getString("district");
+	    	  String city=addressComponent.getString("city");
+	    	  return new String[]{address,street,city,district};
 	      }
 	   }
 	   return null;
@@ -88,4 +92,8 @@ public class AddressUtil {
 		   }
 	   return null;
    }
+   
+   public static void main(String[] args) {
+	   getAddressByIp("117.143.221.190");
+    }
 }

@@ -22,6 +22,8 @@ public class UserDynamic implements Serializable{
 	private String lng;
 	private String addr;
 	private String street;
+	private String city;
+	private String region;
 
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	@JSONField(format="yyyy-MM-dd HH:mm:ss")
@@ -173,6 +175,22 @@ public class UserDynamic implements Serializable{
 
 	public void setLike_state(int like_state) {
 		this.like_state = like_state;
+	}
+
+	public String getCity() {
+		return city;
+	}
+
+	public void setCity(String city) {
+		this.city = city;
+	}
+
+	public String getRegion() {
+		return region;
+	}
+
+	public void setRegion(String region) {
+		this.region = region;
 	}
 
 	

@@ -435,7 +435,7 @@ public class User {
 		Map<String, Object> basicInfo = new HashMap<String, Object>();
 		basicInfo.put("user_id", user_id);
 		basicInfo.put("nick_name", nick_name != null ? nick_name : new String());
-		basicInfo.put("age", age != null ? age : new String());
+		basicInfo.put("age", DateTimeUtil.getAge(getBirthday()));
 		basicInfo.put("sex", sex != null ? sex : new String());
 		basicInfo.put("avatar", avatar != null ? avatar : new String());
 		basicInfo.put("origin_avatar", origin_avatar != null ? origin_avatar : new String());

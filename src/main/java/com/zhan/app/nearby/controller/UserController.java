@@ -21,6 +21,7 @@ import com.zhan.app.nearby.cache.UserCacheService;
 import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.service.UserDynamicService;
 import com.zhan.app.nearby.service.UserService;
+import com.zhan.app.nearby.util.DateTimeUtil;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.ImageSaveUtils;
 import com.zhan.app.nearby.util.MD5Util;
@@ -135,7 +136,7 @@ public class UserController {
 
 		ModelMap result = ResultUtil.getResultOKMap();
 		user.setUser_id(id);
-
+		user.setAge(DateTimeUtil.getAge(user.getBirthday()));
 		ImagePathUtil.completeAvatarPath(user, true); // 补全图片链接地址
 		result.put("user", user);
 		// 注册完毕，则可以清理掉redis关于code缓存了
@@ -176,6 +177,7 @@ public class UserController {
 				user.set_ua(_ua);
 				userService.updateToken(user); // 更新token，弱登录
 				user.set_ua(null);
+				user.setAge(DateTimeUtil.getAge(user.getBirthday()));
 				userCacheService.cacheLoginToken(user); // 缓存token，缓解检查登陆查询
 
 				ImagePathUtil.completeAvatarPath(user, true); // 补全图片链接地址

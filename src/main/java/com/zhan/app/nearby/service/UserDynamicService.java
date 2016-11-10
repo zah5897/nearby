@@ -65,7 +65,6 @@ public class UserDynamicService {
 		}
 		int likeState=userDynamicDao.getLikeState(user_id,dynamic_id);
 		dynamic.setLike_state(likeState);
-		dynamic.getUser().setAge(DateTimeUtil.getAge(dynamic.getUser().getBirthday()));
 		return dynamic;
 	}
 	

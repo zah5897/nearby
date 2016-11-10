@@ -458,17 +458,15 @@ public class UserController {
 		}
 		ModelMap result = ResultUtil.getResultOKMap();
 		List<UserDynamic> dynamics= userDynamicService.getUserDynamic(user_id_for, last_id, count);
-		if(dynamics!=null&&dynamics.size()==count){
-			result.put("hasMore", true);
-			result.put("last_id", true);
-		}else{
-			result.put("hasMore", dynamics.get(dynamics.size()-1).getId());
-		}
 		result.put("dynamics", dynamics);
 		
-		
-		
-		
+		if(dynamics==null||dynamics.size()<count){
+			result.put("hasMore", false);
+			result.put("last_id", 0);
+		}else{
+			result.put("hasMore", true);
+			result.put("hasMore", dynamics.get(dynamics.size()-1).getId());
+		}
 		return result;
 	}
 

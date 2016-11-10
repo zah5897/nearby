@@ -14,7 +14,6 @@ import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.service.DynamicMsgService;
 import com.zhan.app.nearby.service.MainService;
 import com.zhan.app.nearby.service.UserDynamicService;
-import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.ResultUtil;
 
 @RestController
@@ -25,10 +24,9 @@ public class MainController {
 	@Resource
 	private UserDynamicService userDynamicService;
 
-	
 	@Resource
 	private DynamicMsgService dynamicMsgService;
-	
+
 	/**
 	 * 发现
 	 * 
@@ -53,9 +51,16 @@ public class MainController {
 		}
 
 		List<UserDynamic> dynamics = mainService.getHomeFoundSelected(last_image_id, realCount);
-		ImagePathUtil.completeImagePath(dynamics, true);
 		ModelMap result = ResultUtil.getResultOKMap();
 		result.put("images", dynamics);
+
+		if (dynamics == null || dynamics.size() < realCount) {
+			result.put("hasMore", false);
+			result.put("last_id", 0);
+		} else {
+			result.put("hasMore", true);
+			result.put("last_id", dynamics.get(realCount - 1).getId());
+		}
 		return result;
 	}
 
@@ -66,10 +71,10 @@ public class MainController {
 		if (count > 0) {
 			result = ResultUtil.getResultOKMap();
 			result.put("praise_count", count);
-			
-			long userId=userDynamicService.getUserIdByDynamicId(image_id);
-			if(userId>0){
-				dynamicMsgService.insertActionMsg(DynamicMsgType.TYPE_PRAISE, user_id, image_id,userId, null);
+
+			long userId = userDynamicService.getUserIdByDynamicId(image_id);
+			if (userId > 0) {
+				dynamicMsgService.insertActionMsg(DynamicMsgType.TYPE_PRAISE, user_id, image_id, userId, null);
 			}
 		} else {
 			result = ResultUtil.getResultMap(ERROR.ERR_FAILED, "图片找不到");

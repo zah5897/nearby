@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.comm.DynamicMsgType;
+import com.zhan.app.nearby.comm.LikeDynamicState;
 import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.service.DynamicMsgService;
 import com.zhan.app.nearby.service.MainService;
@@ -75,6 +76,7 @@ public class MainController {
 			long userId = userDynamicService.getUserIdByDynamicId(image_id);
 			if (userId > 0) {
 				dynamicMsgService.insertActionMsg(DynamicMsgType.TYPE_PRAISE, user_id, image_id, userId, null);
+				userDynamicService.updateLikeState(user_id,image_id,LikeDynamicState.LIKE);
 			}
 		} else {
 			result = ResultUtil.getResultMap(ERROR.ERR_FAILED, "图片找不到");

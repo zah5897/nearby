@@ -466,7 +466,7 @@ public class UserController {
 			result.put("last_id", 0);
 		}else{
 			result.put("hasMore", true);
-			result.put("hasMore", dynamics.get(dynamics.size()-1).getId());
+			result.put("last_id", dynamics.get(dynamics.size()-1).getId());
 		}
 		return result;
 	}

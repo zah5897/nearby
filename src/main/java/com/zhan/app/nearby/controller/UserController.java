@@ -1,6 +1,7 @@
 package com.zhan.app.nearby.controller;
 
 import java.security.NoSuchAlgorithmException;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
@@ -392,7 +393,7 @@ public class UserController {
 	 * @return
 	 */
 	@RequestMapping("modify_info")
-	public ModelMap modify_info(long user_id, String token, String nick_name, String age, String jobs, String height,
+	public ModelMap modify_info(long user_id, String token, String nick_name, String birthday, String jobs, String height,
 			String weight, String signature, String my_tags, String interest, String favourite_animal,
 			String favourite_music, String weekday_todo, String footsteps, String want_to_where) {
 		if (user_id < 1) {
@@ -418,7 +419,7 @@ public class UserController {
 			isNick_modify = true;
 		}
 
-		userService.modify_info(user_id, nick_name, age, jobs, height, weight, signature, my_tags, interest,
+		userService.modify_info(user_id, nick_name, birthday, jobs, height, weight, signature, my_tags, interest,
 				favourite_animal, favourite_music, weekday_todo, footsteps, want_to_where, isNick_modify);
 		return detial_info(user_id, null, null);
 	}

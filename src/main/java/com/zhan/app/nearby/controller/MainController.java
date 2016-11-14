@@ -16,6 +16,7 @@ import com.zhan.app.nearby.service.DynamicMsgService;
 import com.zhan.app.nearby.service.MainService;
 import com.zhan.app.nearby.service.UserDynamicService;
 import com.zhan.app.nearby.util.ResultUtil;
+import com.zhan.app.nearby.util.TextUtils;
 
 @RestController
 @RequestMapping("/main")
@@ -38,7 +39,7 @@ public class MainController {
 	 * @return
 	 */
 	@RequestMapping("found")
-	public ModelMap found(Long user_id, Long last_image_id, Integer count, String lat, String lng) {
+	public ModelMap found(Long user_id, Long last_image_id, Integer count, String lat, String lng, Integer city_id) {
 
 		if (last_image_id == null || last_image_id < 0) {
 			last_image_id = 0l;
@@ -51,7 +52,11 @@ public class MainController {
 			realCount = count;
 		}
 
-		List<UserDynamic> dynamics = mainService.getHomeFoundSelected(last_image_id, realCount);
+		if (city_id == null || city_id <0) {
+			city_id=0;
+		}
+
+		List<UserDynamic> dynamics = mainService.getHomeFoundSelected(last_image_id, realCount,city_id);
 		ModelMap result = ResultUtil.getResultOKMap();
 		result.put("images", dynamics);
 
@@ -76,7 +81,7 @@ public class MainController {
 			long userId = userDynamicService.getUserIdByDynamicId(image_id);
 			if (userId > 0) {
 				dynamicMsgService.insertActionMsg(DynamicMsgType.TYPE_PRAISE, user_id, image_id, userId, null);
-				userDynamicService.updateLikeState(user_id,image_id,LikeDynamicState.LIKE);
+				userDynamicService.updateLikeState(user_id, image_id, LikeDynamicState.LIKE);
 			}
 		} else {
 			result = ResultUtil.getResultMap(ERROR.ERR_FAILED, "图片找不到");

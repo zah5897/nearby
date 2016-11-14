@@ -45,6 +45,12 @@ public class UserDynamic implements Serializable{
 	@ColumnType //客户端组合数据
 	private int like_state;
 	
+	
+	
+	@JsonIgnore
+	private int city_id;
+	@JsonIgnore
+	private int district_id;
 	@ColumnType
 	private User user;
 	
@@ -192,6 +198,25 @@ public class UserDynamic implements Serializable{
 	public void setRegion(String region) {
 		this.region = region;
 	}
+
+
+	public int getCity_id() {
+		return city_id;
+	}
+
+	public void setCity_id(int city_id) {
+		this.city_id = city_id;
+	}
+
+	public int getDistrict_id() {
+		return district_id;
+	}
+
+	public void setDistrict_id(int district_id) {
+		this.district_id = district_id;
+	}
+
+	 
 
 	
 }

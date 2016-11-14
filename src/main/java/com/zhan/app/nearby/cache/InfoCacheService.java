@@ -9,6 +9,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import com.alibaba.fastjson.JSON;
+import com.zhan.app.nearby.bean.City;
 import com.zhan.app.nearby.bean.Tag;
 
 /**
@@ -19,6 +20,7 @@ import com.zhan.app.nearby.bean.Tag;
  */
 @Service
 public class InfoCacheService {
+
 	@Resource
 	protected RedisTemplate<String, Serializable> redisTemplate;
 
@@ -36,4 +38,28 @@ public class InfoCacheService {
 			redisTemplate.opsForValue().set(key, JSON.toJSONString(tags));
 		}
 	}
+
+	public List<City> getCities(String key) {
+		Object obj = redisTemplate.opsForValue().get(key);
+		if (obj != null) {
+			List<City> cities = JSON.parseArray(obj.toString(), City.class);
+			return cities;
+		}
+		return null;
+	}
+
+	public void setCities(String key, List<City> cities) {
+		if (cities != null) {
+			redisTemplate.opsForValue().set(key, JSON.toJSONString(cities));
+		}
+	}
+
+	public void clear(String key) {
+		try {
+			redisTemplate.delete(key);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 }

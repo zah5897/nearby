@@ -87,7 +87,6 @@
 		<property name="features">
 			<list>
 				<!-- 是否显示值为null的字段<value>WriteMapNullValue</value> -->
-				<value>QuoteFieldNames</value>
 				<value>WriteDateUseDateFormat</value>
 			</list>
 		</property>

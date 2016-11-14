@@ -31,18 +31,18 @@ public class UserDynamicDao extends BaseDao {
 		return saveObj(jdbcTemplate, TABLE_USER_DYNAMIC, dyanmic);
 	}
 
-	public List<UserDynamic> getHomeFoundSelected(ImageStatus status, long last_id, int page_size) {
+	public List<UserDynamic> getHomeFoundSelected(ImageStatus status, long last_id, int page_size,int city_id) {
 		String sql;
 		if (last_id < 1) {
 			sql = "select dynamic.* ,user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday from "
 					+ TABLE_USER_DYNAMIC + " dynamic left join " + TABLE_HOME_FOUND_SELECTED
-					+ " selected on dynamic.id=selected.dynamic_id left join t_user user on  dynamic.user_id=user.user_id where selected.selected_state=?  order by dynamic.id desc limit ?";
-			return jdbcTemplate.query(sql, new Object[] { status.ordinal(), page_size }, new DynamicMapper());
+					+ " selected on dynamic.id=selected.dynamic_id left join t_user user on  dynamic.user_id=user.user_id where selected.selected_state=? and (dynamic.city_id=? or dynamic.district_id=?)  order by dynamic.id desc limit ?";
+			return jdbcTemplate.query(sql, new Object[] { status.ordinal(),city_id,city_id, page_size }, new DynamicMapper());
 		} else {
 			sql = "select dynamic.* ,user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday from "
 					+ TABLE_USER_DYNAMIC + " dynamic left join " + TABLE_HOME_FOUND_SELECTED
-					+ " selected on dynamic.id=selected.dynamic_id left join t_user user on  dynamic.user_id=user.user_id where selected.selected_state=? and dynamic.id<? order by dynamic.id desc limit ?";
-			return jdbcTemplate.query(sql, new Object[] { status.ordinal(), last_id, page_size }, new DynamicMapper());
+					+ " selected on dynamic.id=selected.dynamic_id left join t_user user on  dynamic.user_id=user.user_id where selected.selected_state=? and dynamic.id<? and (dynamic.city_id=? or dynamic.district_id=?) order by dynamic.id desc limit ?";
+			return jdbcTemplate.query(sql, new Object[] { status.ordinal(), last_id, city_id,city_id,page_size }, new DynamicMapper());
 		}
 	}
 
@@ -127,8 +127,8 @@ public class UserDynamicDao extends BaseDao {
 	}
 
 	public void updateAddress(UserDynamic dynamic) {
-		jdbcTemplate.update("update " + TABLE_USER_DYNAMIC + " set addr=? ,street=?,city=?,region=? where id=?",
-				new Object[] { dynamic.getAddr(), dynamic.getStreet(), dynamic.getCity(), dynamic.getRegion(),
+		jdbcTemplate.update("update " + TABLE_USER_DYNAMIC + " set addr=? ,street=?,city=?,region=? ,city_id=?,district_id=? where id=?",
+				new Object[] { dynamic.getAddr(), dynamic.getStreet(), dynamic.getCity(), dynamic.getRegion(),dynamic.getCity_id(),dynamic.getDistrict_id(),
 						dynamic.getId() });
 	}
 

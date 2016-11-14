@@ -91,11 +91,15 @@ public class DynamicController {
 				return result;
 	}
 	@RequestMapping("msg_list")
-	public ModelMap msg_list(Long user_id) {
+	public ModelMap msg_list(Long user_id,Long last_id) {
 		if (user_id==null||user_id<1) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM,"user_id参数异常：user_id="+user_id);
 		}
-		List<DynamicMessage> msgs = dynamicMsgService.msg_list(user_id);
+		
+		if(last_id==null){
+			last_id=0l;
+		}
+		List<DynamicMessage> msgs = dynamicMsgService.msg_list(user_id,last_id);
 		ModelMap result=ResultUtil.getResultOKMap();
 		result.put("msgs", msgs);
 		return result;

@@ -19,6 +19,7 @@ import org.springframework.web.multipart.support.DefaultMultipartHttpServletRequ
 import com.zhan.app.nearby.bean.User;
 import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.cache.UserCacheService;
+import com.zhan.app.nearby.comm.UserType;
 import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.service.UserDynamicService;
 import com.zhan.app.nearby.service.UserService;
@@ -393,8 +394,8 @@ public class UserController {
 	 * @return
 	 */
 	@RequestMapping("modify_info")
-	public ModelMap modify_info(long user_id, String token, String nick_name, String birthday, String jobs, String height,
-			String weight, String signature, String my_tags, String interest, String favourite_animal,
+	public ModelMap modify_info(long user_id, String token, String nick_name, String birthday, String jobs,
+			String height, String weight, String signature, String my_tags, String interest, String favourite_animal,
 			String favourite_music, String weekday_todo, String footsteps, String want_to_where) {
 		if (user_id < 1) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "用户ID异常");
@@ -445,11 +446,11 @@ public class UserController {
 
 	@RequestMapping("dynamic")
 	public ModelMap dynamic(Long user_id_for, Long last_id, Integer count) {
-		
-		if(user_id_for==null||user_id_for<1){
-			return ResultUtil.getResultMap(ERROR.ERR_PARAM,"请确定用户ID");
+
+		if (user_id_for == null || user_id_for < 1) {
+			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "请确定用户ID");
 		}
-		
+
 		if (last_id == null) {
 			last_id = 0l;
 		}
@@ -458,17 +459,49 @@ public class UserController {
 			count = 10;
 		}
 		ModelMap result = ResultUtil.getResultOKMap();
-		List<UserDynamic> dynamics= userDynamicService.getUserDynamic(user_id_for, last_id, count);
+		List<UserDynamic> dynamics = userDynamicService.getUserDynamic(user_id_for, last_id, count);
 		result.put("dynamics", dynamics);
-		
-		if(dynamics==null||dynamics.size()<count){
+
+		if (dynamics == null || dynamics.size() < count) {
 			result.put("hasMore", false);
 			result.put("last_id", 0);
-		}else{
+		} else {
 			result.put("hasMore", true);
-			result.put("last_id", dynamics.get(dynamics.size()-1).getId());
+			result.put("last_id", dynamics.get(dynamics.size() - 1).getId());
 		}
 		return result;
 	}
 
+	@RequestMapping("visitor_regist")
+	public ModelMap visitor_regist(String device_id, String device_token, String zh_cn,String lat,String lng) {
+
+		if (!TextUtils.isEmpty(zh_cn)) {
+			if (zh_cn.length() > 2) {
+				return ResultUtil.getResultMap(ERROR.ERR_PARAM, "zh-cn has too long,max &lt 2");
+			}
+		}
+		if (TextUtils.isEmpty(device_id)) {
+			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "deviceId is empty");
+		}
+
+		User user = userService.findUserByDeviceId(device_id);
+		if (user == null) {
+
+			user = new User();
+			user.setMobile(device_id);
+			user.setDevice_token(device_token);
+			user.setLat(lat);
+			user.setLng(lng);
+			user.setZh_cn(zh_cn);
+			user.setType((short) UserType.VISITOR.ordinal());
+			long user_id = userService.insertUser(user);
+			user.setUser_id(user_id);
+		} else {
+			userService.updateVisitor(user.getUser_id(), device_token, lat, lng, zh_cn);
+			user.setDevice_token(device_token);
+		}
+		ModelMap result = ResultUtil.getResultOKMap();
+		result.put("user", user);
+		return result;
+	}
 }

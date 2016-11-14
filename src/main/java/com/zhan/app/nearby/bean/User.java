@@ -109,7 +109,6 @@ public class User {
 	private String disc;
 
 	// 区分游客和正式用户
-	@JsonIgnore
 	private short type = (short) UserType.OFFIEC.ordinal(); // 默认为正式用户
 
 	// 区分国外用户

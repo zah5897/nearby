@@ -31,6 +31,9 @@ public class UserService {
 	public User findUserByMobile(String mobile) {
 		return userDao.findUserByMobile(mobile);
 	}
+	public User findUserByDeviceId(String deviceId) {
+		return userDao.findUserByDeviceId(deviceId);
+	}
 
 	// @Transactional(readOnly = true)
 	// public User findUserByName(String name) {

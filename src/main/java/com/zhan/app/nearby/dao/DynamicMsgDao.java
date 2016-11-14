@@ -20,10 +20,10 @@ public class DynamicMsgDao extends BaseDao {
 		return saveObj(jdbcTemplate, TABLE_DYNAMIC_MSG, msg);
 	}
 
-	public List<DynamicMessage> loadMsg(Long user_id) {
+	public List<DynamicMessage> loadMsg(Long user_id,long last_id) {
 		try{
-		   String sql = "select msg.*,user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday  from " + TABLE_DYNAMIC_MSG + " msg left join t_user user on msg.user_id=user.user_id where msg.user_id=?";
-		  return jdbcTemplate.query(sql, new Object[]{user_id}, new DynamicMsgMapper());
+		   String sql = "select msg.*,user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday  from " + TABLE_DYNAMIC_MSG + " msg left join t_user user on msg.user_id=user.user_id where msg.user_id=? and msg.last_id>? order by msg.id desc";
+		  return jdbcTemplate.query(sql, new Object[]{user_id,last_id}, new DynamicMsgMapper());
 		}catch(Exception e){
 		   return null;
 		}

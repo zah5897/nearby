@@ -31,8 +31,8 @@ public class DynamicMsgService {
 		return dynamicMsgDao.insert(msg);
 	}
 
-	public List<DynamicMessage> msg_list(Long user_id) {
-		List<DynamicMessage> msgs=dynamicMsgDao.loadMsg(user_id);
+	public List<DynamicMessage> msg_list(Long user_id,long last_id) {
+		List<DynamicMessage> msgs=dynamicMsgDao.loadMsg(user_id,last_id);
 		for(DynamicMessage message:msgs){
 			ImagePathUtil.completeAvatarPath(message.getUser(), true);
 		}

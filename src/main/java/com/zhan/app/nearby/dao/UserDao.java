@@ -14,6 +14,7 @@ import org.springframework.stereotype.Repository;
 import com.mchange.v2.sql.SqlUtils;
 import com.zhan.app.nearby.bean.User;
 import com.zhan.app.nearby.bean.mapper.SimpkleUserMapper;
+import com.zhan.app.nearby.comm.UserType;
 import com.zhan.app.nearby.util.DateTimeUtil;
 import com.zhan.app.nearby.util.SQLUtil;
 
@@ -52,9 +53,16 @@ public class UserDao extends BaseDao {
 		} else {
 			return null;
 		}
-
 	}
-
+	public User findUserByDeviceId(String deviceId) {
+		List<User> list = jdbcTemplate.query("select *from t_user user where user.mobile=? and type=?", new Object[] { deviceId ,UserType.VISITOR.ordinal()},
+				new SimpkleUserMapper());
+		if (list != null && list.size() > 0) {
+			return list.get(0);
+		} else {
+			return null;
+		}
+	}
 	public Serializable insert(User user) {
 		return saveObj(jdbcTemplate, "t_user", user);
 	}
@@ -144,6 +152,8 @@ public class UserDao extends BaseDao {
 		Object[] params = values.toArray();
 		return jdbcTemplate.update(sql, params);
 	}
+
+	
 	
  
 	

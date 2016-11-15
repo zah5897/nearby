@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.support.DefaultMultipartHttpServletRequest;
 
+import com.zhan.app.nearby.bean.City;
 import com.zhan.app.nearby.bean.User;
 import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.cache.UserCacheService;
@@ -139,8 +140,8 @@ public class UserController {
 		user.setUser_id(id);
 		user.setAge(DateTimeUtil.getAge(user.getBirthday()));
 		ImagePathUtil.completeAvatarPath(user, true); // 补全图片链接地址
+		user.setCity(getDefaultCityId());
 		result.put("user", user);
-		result.put("city_id", getDefaultCityId());
 		// 注册完毕，则可以清理掉redis关于code缓存了
 		userCacheService.clearCode(user.getMobile());
 		return result;
@@ -183,8 +184,8 @@ public class UserController {
 				userCacheService.cacheLoginToken(user); // 缓存token，缓解检查登陆查询
 
 				ImagePathUtil.completeAvatarPath(user, true); // 补全图片链接地址
+				user.setCity(getDefaultCityId());
 				result.put("user", user);
-				result.put("city_id", getDefaultCityId());
 				return result;
 			} else {
 				return ResultUtil.getResultMap(ERROR.ERR_PASSWORD);
@@ -502,12 +503,18 @@ public class UserController {
 			user.setDevice_token(device_token);
 		}
 		ModelMap result = ResultUtil.getResultOKMap();
+		
+		user.setCity(getDefaultCityId());
 		result.put("user", user);
-		result.put("city_id", getDefaultCityId());
 		return result;
 	}
 	
-	private String getDefaultCityId(){
-		return "2";
+	private City getDefaultCityId(){
+		
+		City city=new City();
+		city.setId(2);
+		city.setName("上海");
+		city.setType(0);
+		return city;
 	}
 }

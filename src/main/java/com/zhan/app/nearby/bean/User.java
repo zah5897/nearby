@@ -119,6 +119,9 @@ public class User {
 	@JsonIgnore
 	private String device_token;
 
+	
+	private City city;
+	
 	public long getUser_id() {
 		return user_id;
 	}
@@ -413,6 +416,16 @@ public class User {
 
 	public void setDevice_token(String device_token) {
 		this.device_token = device_token;
+	}
+
+	 
+
+	public City getCity() {
+		return city;
+	}
+
+	public void setCity(City city) {
+		this.city = city;
 	}
 
 	/**

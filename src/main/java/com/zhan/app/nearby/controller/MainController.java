@@ -16,7 +16,6 @@ import com.zhan.app.nearby.service.DynamicMsgService;
 import com.zhan.app.nearby.service.MainService;
 import com.zhan.app.nearby.service.UserDynamicService;
 import com.zhan.app.nearby.util.ResultUtil;
-import com.zhan.app.nearby.util.TextUtils;
 
 @RestController
 @RequestMapping("/main")

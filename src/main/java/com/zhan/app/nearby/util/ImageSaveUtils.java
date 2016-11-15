@@ -13,7 +13,7 @@ public class ImageSaveUtils {
 	// 头像压缩 按此宽度
 	public static final int PRESS_AVATAR_WIDTH = 240;
 	// 用户上传按此宽度
-	public static final int PRESS_IMAGE_WIDTH = 180;
+	public static final int PRESS_IMAGE_WIDTH = 240;
 
 	private static final String ROOT_PATH = "love_upload";
 	// 用户上传的图片路径
@@ -81,7 +81,7 @@ public class ImageSaveUtils {
 			if (shortName.contains(".")) {
 				fileShortName = UUID.randomUUID() + "." + shortName.split("\\.")[1];
 			} else {
-				fileShortName = UUID.randomUUID().toString();
+				fileShortName = UUID.randomUUID().toString()+".jpg";
 			}
 			File uploadFile = new File(filePath + fileShortName);
 			uploadFile.mkdirs();
@@ -141,7 +141,7 @@ public class ImageSaveUtils {
 			uploadSmallFile.delete();
 		}
 	}
-	private static void pressImageByWidth(String origin, int minWidth, String thumb) throws IOException {
+	public static void pressImageByWidth(String origin, int minWidth, String thumb) throws IOException {
 		ImageCompressUtil.resizeByWidth(origin, minWidth, thumb);
 	}
 }

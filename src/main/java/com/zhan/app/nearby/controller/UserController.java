@@ -141,6 +141,7 @@ public class UserController {
 		user.setAge(DateTimeUtil.getAge(user.getBirthday()));
 		ImagePathUtil.completeAvatarPath(user, true); // 补全图片链接地址
 		result.put("user", user);
+		result.put("city_id", getDefaultCityId());
 		// 注册完毕，则可以清理掉redis关于code缓存了
 		userCacheService.clearCode(user.getMobile());
 		return result;
@@ -184,6 +185,7 @@ public class UserController {
 
 				ImagePathUtil.completeAvatarPath(user, true); // 补全图片链接地址
 				result.put("user", user);
+				result.put("city_id", getDefaultCityId());
 				return result;
 			} else {
 				return ResultUtil.getResultMap(ERROR.ERR_PASSWORD);
@@ -502,6 +504,11 @@ public class UserController {
 		}
 		ModelMap result = ResultUtil.getResultOKMap();
 		result.put("user", user);
+		result.put("city_id", getDefaultCityId());
 		return result;
+	}
+	
+	private String getDefaultCityId(){
+		return "2";
 	}
 }

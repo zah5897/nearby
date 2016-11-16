@@ -84,7 +84,7 @@ public class UserDynamicService {
 		UserDynamicRelationShip dynamicRelationShip=new UserDynamicRelationShip();
 		dynamicRelationShip.setDynamic_id(dynamic_id);
 		dynamicRelationShip.setUser_id(user_id);
-		dynamicRelationShip.setRelation_ship(like.ordinal());
+		dynamicRelationShip.setRelationship(like.ordinal());
 		return userDynamicDao.updateLikeState(dynamicRelationShip);
 	}
 }

@@ -38,10 +38,10 @@ public class MainController {
 	 * @return
 	 */
 	@RequestMapping("found")
-	public ModelMap found(Long user_id, Long last_image_id, Integer count, String lat, String lng, Integer city_id) {
+	public ModelMap found(Long user_id, Long last_id, Integer count, String lat, String lng, Integer city_id) {
 
-		if (last_image_id == null || last_image_id < 0) {
-			last_image_id = 0l;
+		if (last_id == null || last_id < 0) {
+			last_id = 0l;
 		}
 
 		int realCount;
@@ -55,7 +55,7 @@ public class MainController {
 			city_id=0;
 		}
 
-		List<UserDynamic> dynamics = mainService.getHomeFoundSelected(last_image_id, realCount,city_id);
+		List<UserDynamic> dynamics = mainService.getHomeFoundSelected(last_id, realCount,city_id);
 		ModelMap result = ResultUtil.getResultOKMap();
 		result.put("images", dynamics);
 

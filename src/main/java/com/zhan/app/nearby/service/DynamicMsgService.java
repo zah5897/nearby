@@ -33,8 +33,10 @@ public class DynamicMsgService {
 
 	public List<DynamicMessage> msg_list(Long user_id,long last_id) {
 		List<DynamicMessage> msgs=dynamicMsgDao.loadMsg(user_id,last_id);
-		for(DynamicMessage message:msgs){
-			ImagePathUtil.completeAvatarPath(message.getUser(), true);
+		if(msgs!=null){
+			for(DynamicMessage message:msgs){
+				ImagePathUtil.completeAvatarPath(message.getUser(), true);
+			}
 		}
 		return msgs;
 	}

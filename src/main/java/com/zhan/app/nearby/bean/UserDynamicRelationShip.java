@@ -15,7 +15,7 @@ public class UserDynamicRelationShip implements Serializable{
 	@JsonIgnore
 	private long user_id;  
 	private long dynamic_id;  
-	private int relation_ship;
+	private int relationship;
 	public long getUser_id() {
 		return user_id;
 	}
@@ -28,11 +28,14 @@ public class UserDynamicRelationShip implements Serializable{
 	public void setDynamic_id(long dynamic_id) {
 		this.dynamic_id = dynamic_id;
 	}
-	public int getRelation_ship() {
-		return relation_ship;
+	public int getRelationship() {
+		return relationship;
 	}
-	public void setRelation_ship(int relation_ship) {
-		this.relation_ship = relation_ship;
+	public void setRelationship(int relationship) {
+		this.relationship = relationship;
+	}
+	public static long getSerialversionuid() {
+		return serialVersionUID;
 	}
 	 
 }

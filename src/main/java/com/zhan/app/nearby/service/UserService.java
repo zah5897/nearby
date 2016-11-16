@@ -1,6 +1,5 @@
 package com.zhan.app.nearby.service;
 
-import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -8,12 +7,10 @@ import javax.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.zhan.app.nearby.bean.Image;
 import com.zhan.app.nearby.bean.User;
 import com.zhan.app.nearby.cache.UserCacheService;
 import com.zhan.app.nearby.dao.UserDao;
 import com.zhan.app.nearby.util.ImagePathUtil;
-import com.zhan.app.nearby.util.TextUtils;
 
 
 @Service

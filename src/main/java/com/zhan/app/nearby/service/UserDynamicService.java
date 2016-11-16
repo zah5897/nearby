@@ -12,7 +12,6 @@ import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.bean.UserDynamicRelationShip;
 import com.zhan.app.nearby.comm.LikeDynamicState;
 import com.zhan.app.nearby.dao.UserDynamicDao;
-import com.zhan.app.nearby.util.DateTimeUtil;
 import com.zhan.app.nearby.util.ImagePathUtil;
 
 @Service

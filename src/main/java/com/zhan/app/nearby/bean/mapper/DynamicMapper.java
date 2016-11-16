@@ -8,6 +8,7 @@ import org.springframework.jdbc.core.RowMapper;
 
 import com.zhan.app.nearby.bean.User;
 import com.zhan.app.nearby.bean.UserDynamic;
+import com.zhan.app.nearby.comm.LikeDynamicState;
 import com.zhan.app.nearby.util.DateTimeUtil;
 
 public class DynamicMapper implements RowMapper<UserDynamic> {
@@ -23,16 +24,21 @@ public class DynamicMapper implements RowMapper<UserDynamic> {
 		dynamic.setBrowser_count(rs.getInt("browser_count"));
 		dynamic.setCan_comment(rs.getString("can_comment"));
 
+		try {
+			dynamic.setLike_state(rs.getInt("like_state"));
+		} catch (Exception e) {
+			dynamic.setLike_state(LikeDynamicState.UNLIKE.ordinal());
+		}
+
 		User user = new User();
-		
 
 		user.setUser_id(rs.getLong("user_id"));
 		user.setNick_name(rs.getString("nick_name"));
 		user.setAvatar(rs.getString("avatar"));
 		user.setSex(rs.getString("sex"));
-		Date birthday=rs.getDate("birthday");
+		Date birthday = rs.getDate("birthday");
 		user.setAge(DateTimeUtil.getAge(birthday));
-		
+
 		dynamic.setUser(user);
 		return dynamic;
 	}

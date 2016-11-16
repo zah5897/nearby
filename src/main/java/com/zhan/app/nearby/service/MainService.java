@@ -18,8 +18,9 @@ public class MainService {
 	@Resource
 	private UserDynamicDao userDynamicDao;
 
-	public List<UserDynamic> getHomeFoundSelected(long last_img_id, int page_size,int city_id) {
-		List<UserDynamic> dynamics = getHomeFoundSelected(ImageStatus.SELECTED, last_img_id, page_size,city_id);
+	public List<UserDynamic> getHomeFoundSelected(long user_id, long last_img_id, int page_size, int city_id) {
+		List<UserDynamic> dynamics = userDynamicDao.getHomeFoundSelected(user_id, ImageStatus.SELECTED, last_img_id,
+				page_size, city_id);
 		if (dynamics != null) {
 			for (UserDynamic dy : dynamics) {
 				ImagePathUtil.completeAvatarPath(dy.getUser(), true);
@@ -27,14 +28,6 @@ public class MainService {
 		}
 		ImagePathUtil.completeImagePath(dynamics, true);
 		return dynamics;
-	}
-
-	public List<UserDynamic> getHomeFoundSelected(ImageStatus imageStatus, long last_img_id, int page_size,int city_id) {
-		try {
-			return userDynamicDao.getHomeFoundSelected(imageStatus, last_img_id, page_size,city_id);
-		} catch (Exception e) {
-			return null;
-		}
 	}
 
 }

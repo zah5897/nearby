@@ -54,8 +54,10 @@ public class MainController {
 		if (city_id == null || city_id <0) {
 			city_id=0;
 		}
-
-		List<UserDynamic> dynamics = mainService.getHomeFoundSelected(last_id, realCount,city_id);
+		if(user_id==null){
+			user_id=0l;
+		}
+		List<UserDynamic> dynamics = mainService.getHomeFoundSelected(user_id,last_id, realCount,city_id);
 		ModelMap result = ResultUtil.getResultOKMap();
 		result.put("images", dynamics);
 

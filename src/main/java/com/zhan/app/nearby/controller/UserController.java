@@ -129,7 +129,15 @@ public class UserController {
 		}
 		String token = UUID.randomUUID().toString();
 		user.setToken(token);
-		long id = userService.insertUser(user);
+		long id=user.getUser_id();
+		if(id>0){
+		   int count=userService.visitorToNormal(user);
+		   if(count==0){
+			   return ResultUtil.getResultMap(ERROR.ERR_USER_EXIST, "无法找到该游客账号");
+		   }
+		}else{
+			id = userService.insertUser(user);
+		}
 		if (id == -1l) {
 			return ResultUtil.getResultMap(ERROR.ERR_USER_EXIST, "该手机号码已经注册过");
 		}

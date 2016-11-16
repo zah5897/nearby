@@ -96,6 +96,7 @@ public class UserService {
 	}
 	
 	
+	
 	public User getUserDetailInfo(long user_id, int count) {
 		User user = userDao.getUserDetailInfo(user_id);
 		if (user != null) {
@@ -120,18 +121,11 @@ public class UserService {
 	public int modify_info(long user_id, String nick_name, String birthday, String job, String height, String weight,
 			String signature, String my_tags, String interests, String animals, String musics, String weekday_todo,
 			String footsteps, String want_to_where, boolean isNick_modify) {
-
-//		if (isNick_modify && !TextUtils.isEmpty(nick_name)) {
-//			try {
-//				Main.updateNickName(String.valueOf(user_id), nick_name);
-//			} catch (Exception e) {
-//				log.error(e);
-//			}
-//		}
 		return userDao.modify_info(user_id, nick_name, birthday, job, height, weight, signature, my_tags, interests,
 				animals, musics, weekday_todo, footsteps, want_to_where);
 	}
-
-	
+	public int visitorToNormal(User user){
+		return userDao.visitorToNormal(user.getUser_id(),user.getMobile(), user.getPassword(), user.getToken(), user.getNick_name(), user.getBirthday(), user.getSex(), user.getAvatar());
+	}
 	
 }

@@ -24,6 +24,7 @@ public class SimpkleUserMapper implements RowMapper<User> {
 		user.set_ua(rs.getString("_ua"));
 		user.setLat(rs.getString("lat"));
 		user.setLng(rs.getString("lng"));
+		user.setType(rs.getShort("type"));
 		return user;
 	}
 

@@ -153,6 +153,11 @@ public class UserDao extends BaseDao {
 		return jdbcTemplate.update(sql, params);
 	}
 
+	public int visitorToNormal(long user_id,String mobile,String password, String token, String nick_name,Date birthday,String sex,String avatar) {
+		String sql = "update t_user set mobile=?,password=?,token=?,nick_name=?,birthday=?,sex=?,avatar=?,type=? where user_id=?";
+		return jdbcTemplate.update(sql, new Object[]{mobile,password,token,nick_name,birthday,sex,avatar,UserType.VISITOR.ordinal(),user_id});
+	}
+
 	
 	
  

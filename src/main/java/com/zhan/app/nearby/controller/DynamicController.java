@@ -114,17 +114,23 @@ public class DynamicController {
 		if(TextUtils.isEmpty(dynamic_id)){
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM,"请确定您要操作的动态信息");
 		}
+		
+		
 		String[] dy_ids=dynamic_id.split(",");
 		for(String id:dy_ids){
 			try{
 			  long dy_id=Long.parseLong(id);
+			  int count = userDynamicService.praiseDynamic(dy_id);
 			  userDynamicService.updateLikeState(user_id,dy_id,LikeDynamicState.LIKE);
+			  
+			    dynamicMsgService.insertActionMsg(DynamicMsgType.TYPE_PRAISE, user_id, dy_id, user_id, null);
+				userDynamicService.updateLikeState(user_id, dy_id, LikeDynamicState.LIKE);
+			  
 			}catch(NumberFormatException e){
 			}
 		}
 	    return ResultUtil.getResultOKMap();
 	}
-	
 	
 	@RequestMapping("unlike")
 	public ModelMap unlike(Long user_id,String dynamic_id) {

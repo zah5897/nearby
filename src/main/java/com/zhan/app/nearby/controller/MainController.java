@@ -54,10 +54,7 @@ public class MainController {
 		if (city_id == null || city_id <0) {
 			city_id=0;
 		}
-		if(user_id==null){
-			user_id=0l;
-		}
-		List<UserDynamic> dynamics = mainService.getHomeFoundSelected(user_id,last_id, realCount,city_id);
+		List<UserDynamic> dynamics = mainService.getHomeFoundSelected(0,last_id, realCount,city_id); //不需要like_state
 		ModelMap result = ResultUtil.getResultOKMap();
 		result.put("images", dynamics);
 
@@ -71,22 +68,22 @@ public class MainController {
 		return result;
 	}
 
-	@RequestMapping("praise")
-	public ModelMap praise(Long user_id, Long image_id) {
-		int count = userDynamicService.praiseDynamic(image_id);
-		ModelMap result;
-		if (count > 0) {
-			result = ResultUtil.getResultOKMap();
-			result.put("praise_count", count);
-
-			long userId = userDynamicService.getUserIdByDynamicId(image_id);
-			if (userId > 0) {
-				dynamicMsgService.insertActionMsg(DynamicMsgType.TYPE_PRAISE, user_id, image_id, userId, null);
-				userDynamicService.updateLikeState(user_id, image_id, LikeDynamicState.LIKE);
-			}
-		} else {
-			result = ResultUtil.getResultMap(ERROR.ERR_FAILED, "图片找不到");
-		}
-		return result;
-	}
+//	@RequestMapping("praise")
+//	public ModelMap praise(Long user_id, Long image_id) {
+//		int count = userDynamicService.praiseDynamic(image_id);
+//		ModelMap result;
+//		if (count > 0) {
+//			result = ResultUtil.getResultOKMap();
+//			result.put("praise_count", count);
+//
+//			long userId = userDynamicService.getUserIdByDynamicId(image_id);
+//			if (userId > 0) {
+//				dynamicMsgService.insertActionMsg(DynamicMsgType.TYPE_PRAISE, user_id, image_id, userId, null);
+//				userDynamicService.updateLikeState(user_id, image_id, LikeDynamicState.LIKE);
+//			}
+//		} else {
+//			result = ResultUtil.getResultMap(ERROR.ERR_FAILED, "图片找不到");
+//		}
+//		return result;
+//	}
 }

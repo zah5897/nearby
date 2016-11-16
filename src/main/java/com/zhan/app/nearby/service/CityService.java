@@ -74,7 +74,7 @@ public class CityService {
 
 		provinces = new ArrayList<>();
 
-		String[] hotTag = { "北京", "上海", "深圳", "杭州", "南京", "成都", "武汉", "长沙" };
+		String[] hotTag = { "北京", "上海", "深圳", "杭州", "南京", "成都", "武汉", "长沙","重庆"};
 
 		List<City> provincesAll = cityDao.list();
 

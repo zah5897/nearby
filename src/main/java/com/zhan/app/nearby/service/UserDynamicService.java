@@ -41,46 +41,48 @@ public class UserDynamicService {
 	public long comment(DynamicComment comment) {
 		return userDynamicDao.comment(comment);
 	}
-	
-	public DynamicComment loadComment(long dynamic_id,long comment_id) {
-		DynamicComment comment=userDynamicDao.loadComment(dynamic_id, comment_id);
+
+	public DynamicComment loadComment(long dynamic_id, long comment_id) {
+		DynamicComment comment = userDynamicDao.loadComment(dynamic_id, comment_id);
 		ImagePathUtil.completeAvatarPath(comment.getUser(), true);
 		return comment;
 	}
-	
-	public List<DynamicComment> commentList(long dynamic_id,int count,Long last_comment_id) {
-		List<DynamicComment> comments=userDynamicDao.commentList(dynamic_id, count,last_comment_id==null?0:last_comment_id);
-		if(comments!=null&&comments.size()>0){
-			for(DynamicComment comment:comments){
+
+	public List<DynamicComment> commentList(long dynamic_id, int count, Long last_comment_id) {
+		List<DynamicComment> comments = userDynamicDao.commentList(dynamic_id, count,
+				last_comment_id == null ? 0 : last_comment_id);
+		if (comments != null && comments.size() > 0) {
+			for (DynamicComment comment : comments) {
 				ImagePathUtil.completeAvatarPath(comment.getUser(), true);
 			}
 		}
 		return comments;
 	}
-	public UserDynamic detail(long dynamic_id,Long user_id) {
-		UserDynamic dynamic=userDynamicDao.detail(dynamic_id);
-		if(user_id==null||user_id<1){
-			dynamic.setLike_state(LikeDynamicState.UNLIKE.ordinal());	
+
+	public UserDynamic detail(long dynamic_id, Long user_id) {
+		UserDynamic dynamic = userDynamicDao.detail(dynamic_id);
+		if (user_id == null || user_id < 1) {
+			dynamic.setLike_state(LikeDynamicState.UNLIKE.ordinal());
 		}
-		int likeState=userDynamicDao.getLikeState(user_id,dynamic_id);
+		int likeState = userDynamicDao.getLikeState(user_id, dynamic_id);
 		dynamic.setLike_state(likeState);
 		return dynamic;
 	}
-	
-	public void updateAddress(UserDynamic dynamic){
+
+	public void updateAddress(UserDynamic dynamic) {
 		userDynamicDao.updateAddress(dynamic);
 	}
-	
-	public void updateBrowserCount(long dynamic_id,int browser_count){
-		userDynamicDao.updateBrowserCount(dynamic_id,browser_count);
+
+	public void updateBrowserCount(long dynamic_id, int browser_count) {
+		userDynamicDao.updateBrowserCount(dynamic_id, browser_count);
 	}
 
 	public long getUserIdByDynamicId(long dynamic_id) {
 		return userDynamicDao.getUserIdByDynamicId(dynamic_id);
 	}
+
 	public long updateLikeState(Long user_id, long dynamic_id, LikeDynamicState like) {
-		
-		UserDynamicRelationShip dynamicRelationShip=new UserDynamicRelationShip();
+		UserDynamicRelationShip dynamicRelationShip = new UserDynamicRelationShip();
 		dynamicRelationShip.setDynamic_id(dynamic_id);
 		dynamicRelationShip.setUser_id(user_id);
 		dynamicRelationShip.setRelationship(like.ordinal());

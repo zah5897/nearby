@@ -177,7 +177,7 @@ public class UserDynamicDao extends BaseDao {
 			return jdbcTemplate.update(
 					"update " + TABLE_LIKE_DYNAMIC_STATE + " set relationship=? where user_id=? and dynamic_id=?",
 					new Object[] { dynamicRelationShip.getRelationship(), dynamicRelationShip.getUser_id(),
-							dynamicRelationShip.getRelationship() });
+							dynamicRelationShip.getDynamic_id() });
 		}
 	}
 

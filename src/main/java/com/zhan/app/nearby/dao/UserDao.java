@@ -46,7 +46,7 @@ public class UserDao extends BaseDao {
 	}
 
 	public User findUserByMobile(String mobile) {
-		List<User> list = jdbcTemplate.query("select *from t_user user where user.mobile=?", new Object[] { mobile },
+		List<User> list = jdbcTemplate.query("select user.* ,city.name as city_name from t_user user left join t_sys_city city on user.city_id=city.id where user.mobile=?", new Object[] { mobile },
 				new SimpkleUserMapper());
 		if (list != null && list.size() > 0) {
 			return list.get(0);

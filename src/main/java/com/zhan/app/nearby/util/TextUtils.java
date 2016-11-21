@@ -9,6 +9,10 @@ public final class TextUtils {
 		return s.length() == 0;
 	}
 
+	public static boolean isNotEmpty(final CharSequence s) {
+		return !isEmpty(s);
+	}
+
 	public static boolean isBlank(final CharSequence s) {
 		if (s == null) {
 			return true;

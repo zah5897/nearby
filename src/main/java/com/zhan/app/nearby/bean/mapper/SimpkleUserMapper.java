@@ -5,7 +5,9 @@ import java.sql.SQLException;
 
 import org.springframework.jdbc.core.RowMapper;
 
+import com.zhan.app.nearby.bean.City;
 import com.zhan.app.nearby.bean.User;
+import com.zhan.app.nearby.util.TextUtils;
 
 public class SimpkleUserMapper implements RowMapper<User> {
 
@@ -25,6 +27,21 @@ public class SimpkleUserMapper implements RowMapper<User> {
 		user.setLat(rs.getString("lat"));
 		user.setLng(rs.getString("lng"));
 		user.setType(rs.getShort("type"));
+
+		try {
+			int cityId = rs.getInt("city_id");
+			String cityName = rs.getString("city_name");
+
+			if (cityId > 0 && TextUtils.isNotEmpty(cityName)) {
+				City city = new City();
+				city.setId(cityId);
+				city.setName(cityName);
+				user.setCity(city);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 		return user;
 	}
 

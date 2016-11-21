@@ -129,13 +129,13 @@ public class UserController {
 		}
 		String token = UUID.randomUUID().toString();
 		user.setToken(token);
-		long id=user.getUser_id();
-		if(id>0){
-		   int count=userService.visitorToNormal(user);
-		   if(count==0){
-			   return ResultUtil.getResultMap(ERROR.ERR_USER_EXIST, "无法找到该游客账号");
-		   }
-		}else{
+		long id = user.getUser_id();
+		if (id > 0) {
+			int count = userService.visitorToNormal(user);
+			if (count == 0) {
+				return ResultUtil.getResultMap(ERROR.ERR_USER_EXIST, "无法找到该游客账号");
+			}
+		} else {
 			id = userService.insertUser(user);
 		}
 		if (id == -1l) {
@@ -148,7 +148,10 @@ public class UserController {
 		user.setUser_id(id);
 		user.setAge(DateTimeUtil.getAge(user.getBirthday()));
 		ImagePathUtil.completeAvatarPath(user, true); // 补全图片链接地址
-		user.setCity(getDefaultCityId());
+
+		if (user.getCity() == null) {
+			user.setCity(getDefaultCityId());
+		}
 		result.put("user", user);
 		// 注册完毕，则可以清理掉redis关于code缓存了
 		userCacheService.clearCode(user.getMobile());
@@ -483,7 +486,7 @@ public class UserController {
 	}
 
 	@RequestMapping("visitor_regist")
-	public ModelMap visitor_regist(String device_id, String device_token, String zh_cn,String lat,String lng) {
+	public ModelMap visitor_regist(String device_id, String device_token, String zh_cn, String lat, String lng) {
 
 		if (!TextUtils.isEmpty(zh_cn)) {
 			if (zh_cn.length() > 2) {
@@ -511,15 +514,15 @@ public class UserController {
 			user.setDevice_token(device_token);
 		}
 		ModelMap result = ResultUtil.getResultOKMap();
-		
+
 		user.setCity(getDefaultCityId());
 		result.put("user", user);
 		return result;
 	}
-	
-	private City getDefaultCityId(){
-		
-		City city=new City();
+
+	private City getDefaultCityId() {
+
+		City city = new City();
 		city.setId(2);
 		city.setName("上海");
 		city.setType(0);

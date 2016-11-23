@@ -102,11 +102,11 @@ public class UserDynamicService {
 				if (dy != null && dy.getUser_id() == user_id) {
 					userDynamicDao.delete(user_id, dy_id);
 					ImageSaveUtils.removeUserImages(servletContext, dy.getLocal_image_name());
-					if (successid == null) {
-						successid = id;
-					} else {
-						successid += "," + id;
-					}
+				}
+				if (successid == null) {
+					successid = id;
+				} else {
+					successid += "," + id;
 				}
 			} catch (NumberFormatException e) {
 				e.printStackTrace();

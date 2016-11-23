@@ -31,34 +31,40 @@ public class UserDynamicDao extends BaseDao {
 		return saveObj(jdbcTemplate, TABLE_USER_DYNAMIC, dyanmic);
 	}
 
-	public List<UserDynamic> getHomeFoundSelected(long user_id,ImageStatus status, long last_id, int page_size,int city_id) {
+	public List<UserDynamic> getHomeFoundSelected(long user_id, ImageStatus status, long last_id, int page_size,
+			int city_id) {
 		String sql;
-		if(user_id>0){
+		if (user_id > 0) {
 			if (last_id < 1) {
 				sql = "select dynamic.*,coalesce((select relationship from t_like_dynamic t_like where t_like.dynamic_id=dynamic.id and t_like.user_id=?), '0') as like_state ,user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday from "
 						+ TABLE_USER_DYNAMIC + " dynamic left join " + TABLE_HOME_FOUND_SELECTED
 						+ " selected on dynamic.id=selected.dynamic_id left join t_user user on  dynamic.user_id=user.user_id    where selected.selected_state=? and (dynamic.city_id=? or dynamic.district_id=?)   order by dynamic.id desc limit ?";
-				return jdbcTemplate.query(sql, new Object[] {user_id, status.ordinal(),city_id,city_id, page_size }, new DynamicMapper());
+				return jdbcTemplate.query(sql, new Object[] { user_id, status.ordinal(), city_id, city_id, page_size },
+						new DynamicMapper());
 			} else {
 				sql = "select dynamic.*,coalesce((select relationship from t_like_dynamic t_like where t_like.dynamic_id=dynamic.id and t_like.user_id=?), '0') as like_state ,user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday from "
 						+ TABLE_USER_DYNAMIC + " dynamic left join " + TABLE_HOME_FOUND_SELECTED
 						+ " selected on dynamic.id=selected.dynamic_id left join t_user user on  dynamic.user_id=user.user_id   where selected.selected_state=? and dynamic.id<? and (dynamic.city_id=? or dynamic.district_id=?)   order by dynamic.id desc limit ?";
-				return jdbcTemplate.query(sql, new Object[] { user_id,status.ordinal(), last_id, city_id,city_id,page_size }, new DynamicMapper());
+				return jdbcTemplate.query(sql,
+						new Object[] { user_id, status.ordinal(), last_id, city_id, city_id, page_size },
+						new DynamicMapper());
 			}
-		}else{
+		} else {
 			if (last_id < 1) {
 				sql = "select dynamic.* ,user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday from "
 						+ TABLE_USER_DYNAMIC + " dynamic left join " + TABLE_HOME_FOUND_SELECTED
 						+ " selected on dynamic.id=selected.dynamic_id left join t_user user on  dynamic.user_id=user.user_id  where selected.selected_state=? and (dynamic.city_id=? or dynamic.district_id=?)  order by dynamic.id desc limit ?";
-				return jdbcTemplate.query(sql, new Object[] { status.ordinal(),city_id,city_id, page_size }, new DynamicMapper());
+				return jdbcTemplate.query(sql, new Object[] { status.ordinal(), city_id, city_id, page_size },
+						new DynamicMapper());
 			} else {
 				sql = "select dynamic.* ,user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday from "
 						+ TABLE_USER_DYNAMIC + " dynamic left join " + TABLE_HOME_FOUND_SELECTED
 						+ " selected on dynamic.id=selected.dynamic_id left join t_user user on  dynamic.user_id=user.user_id where selected.selected_state=? and dynamic.id<? and (dynamic.city_id=? or dynamic.district_id=?) order by dynamic.id desc limit ?";
-				return jdbcTemplate.query(sql, new Object[] { status.ordinal(), last_id, city_id,city_id,page_size }, new DynamicMapper());
+				return jdbcTemplate.query(sql, new Object[] { status.ordinal(), last_id, city_id, city_id, page_size },
+						new DynamicMapper());
 			}
 		}
-		
+
 	}
 
 	public void addHomeFoundSelected(long dynamic_id) {
@@ -71,29 +77,37 @@ public class UserDynamicDao extends BaseDao {
 		return jdbcTemplate.queryForList(sql, new Object[] { dynamic_id }, Integer.class);
 	}
 
-	public int praiseDynamic(long dynamic_id) {
+	public int praiseDynamic(long dynamic_id, boolean praise) {
 		List<Integer> result = getPraiseCount(dynamic_id);
-
 		if (result == null || result.size() == 0) {
 			return -1;
 		}
 		Integer hasPraiseCount = result.get(0);
-
-		if (hasPraiseCount < 0) {
+		if (hasPraiseCount == null || hasPraiseCount < 0) {
 			hasPraiseCount = 0;
 		}
+		if (praise) {
+			hasPraiseCount += 1;
+		} else {
+			hasPraiseCount -= 1;
+			if (hasPraiseCount < 0) {
+				hasPraiseCount = 0;
+			}
+		}
 		jdbcTemplate.update("update " + TABLE_USER_DYNAMIC + " set praise_count=? where id=?",
-				new Object[] { hasPraiseCount += 1, dynamic_id });
+				new Object[] { hasPraiseCount, dynamic_id });
 		return hasPraiseCount;
 	}
 
 	public List<UserDynamic> getUserDynamic(long user_id, long last_id, int count) {
 		if (last_id < 1) {
-			String sql = "select dy.*,coalesce(t_like.relationship, '0') as like_state from " + TABLE_USER_DYNAMIC + " dy left join t_like_dynamic t_like on dy.id=t_like.dynamic_id and dy.user_id=t_like.user_id where dy.user_id=? order by dy.id desc limit ?";
+			String sql = "select dy.*,coalesce(t_like.relationship, '0') as like_state from " + TABLE_USER_DYNAMIC
+					+ " dy left join t_like_dynamic t_like on dy.id=t_like.dynamic_id and dy.user_id=t_like.user_id where dy.user_id=? order by dy.id desc limit ?";
 			return jdbcTemplate.query(sql, new Object[] { user_id, count },
 					new BeanPropertyRowMapper<UserDynamic>(UserDynamic.class));
 		} else {
-			String sql = "select dy.*,coalesce(t_like.relationship, '0') as like_state from " + TABLE_USER_DYNAMIC + " dy left join t_like_dynamic t_like on dy.id=t_like.dynamic_id and dy.user_id=t_like.user_id where dy.user_id=? and dy.id<? order by dy.id desc limit ?";
+			String sql = "select dy.*,coalesce(t_like.relationship, '0') as like_state from " + TABLE_USER_DYNAMIC
+					+ " dy left join t_like_dynamic t_like on dy.id=t_like.dynamic_id and dy.user_id=t_like.user_id where dy.user_id=? and dy.id<? order by dy.id desc limit ?";
 			return jdbcTemplate.query(sql, new Object[] { user_id, last_id, count },
 					new BeanPropertyRowMapper<UserDynamic>(UserDynamic.class));
 		}
@@ -141,10 +155,21 @@ public class UserDynamicDao extends BaseDao {
 		}
 	}
 
+	public UserDynamic basic(long dynamic_id) {
+		try {
+			String sql = "select  *   from " + TABLE_USER_DYNAMIC + "   where id=?";
+			return jdbcTemplate.queryForObject(sql, new Object[] { dynamic_id }, new BeanPropertyRowMapper<>());
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
 	public void updateAddress(UserDynamic dynamic) {
-		jdbcTemplate.update("update " + TABLE_USER_DYNAMIC + " set addr=? ,street=?,city=?,region=? ,city_id=?,district_id=? where id=?",
-				new Object[] { dynamic.getAddr(), dynamic.getStreet(), dynamic.getCity(), dynamic.getRegion(),dynamic.getCity_id(),dynamic.getDistrict_id(),
-						dynamic.getId() });
+		jdbcTemplate.update(
+				"update " + TABLE_USER_DYNAMIC
+						+ " set addr=? ,street=?,city=?,region=? ,city_id=?,district_id=? where id=?",
+				new Object[] { dynamic.getAddr(), dynamic.getStreet(), dynamic.getCity(), dynamic.getRegion(),
+						dynamic.getCity_id(), dynamic.getDistrict_id(), dynamic.getId() });
 	}
 
 	public void updateBrowserCount(long dynamic_id, int browser_count) {
@@ -189,6 +214,21 @@ public class UserDynamicDao extends BaseDao {
 			log.error(e);
 		}
 		return LikeDynamicState.UNLIKE.ordinal();
+	}
+
+	public int delete(Long user_id, long dynamic_id) {
+		// 删除本体
+		String sql = "delete from " + TABLE_USER_DYNAMIC + " where user_id=? and id=?";
+		jdbcTemplate.update(sql, new Object[] { user_id, dynamic_id });
+		// 删除喜欢记录
+		sql = "delete from t_like_dynamic where user_id=? and dynamic_id=?";
+		jdbcTemplate.update(sql, new Object[] { user_id, dynamic_id });
+
+		// 删除首页选中
+		sql = "delete from t_home_found_selected where  and dynamic_id=?";
+		jdbcTemplate.update(sql, new Object[] { dynamic_id });
+
+		return 0;
 	}
 
 }

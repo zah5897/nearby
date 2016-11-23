@@ -1,14 +1,14 @@
 package com.zhan.app.nearby.bean;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.alibaba.fastjson.annotation.JSONField;
 import com.zhan.app.nearby.annotation.ColumnType;
 
 public class Image {
 	@ColumnType
 	private long id;
-	@JsonIgnore
+	@JSONField(serialize = false)
 	private long type_id;
-	@JsonIgnore
+	@JSONField(serialize = false)
 	private short type;
 	private String thumb;
 	private String origin;

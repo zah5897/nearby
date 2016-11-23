@@ -9,9 +9,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.zhan.app.nearby.bean.UserDynamic;
-import com.zhan.app.nearby.comm.DynamicMsgType;
-import com.zhan.app.nearby.comm.LikeDynamicState;
-import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.service.DynamicMsgService;
 import com.zhan.app.nearby.service.MainService;
 import com.zhan.app.nearby.service.UserDynamicService;

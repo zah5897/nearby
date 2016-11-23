@@ -12,7 +12,7 @@ public class ResultUtil {
 		return result;
 	}
 
-	public static ModelMap getResultMap(ERROR error ) {
+	public static ModelMap getResultMap(ERROR error) {
 		ModelMap result = new ModelMap();
 		result.addAttribute("code", error.getValue());
 		result.addAttribute("msg", error.getErrorMsg());
@@ -32,4 +32,5 @@ public class ResultUtil {
 		result.addAttribute("msg", ERROR.ERR_NO_ERR.getErrorMsg());
 		return result;
 	}
+
 }

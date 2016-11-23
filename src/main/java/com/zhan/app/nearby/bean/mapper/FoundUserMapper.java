@@ -13,7 +13,7 @@ public class FoundUserMapper implements RowMapper<User> {
 		User user = new User();
 		user.setUser_id(rs.getLong("user_id"));
 		user.setNick_name(rs.getString("nick_name"));
-		user.setBirthday(rs.getDate("birthday"));
+		user.setBirthday(rs.getTimestamp("birthday"));
 		user.setAvatar(rs.getString("avatar"));
 		user.setLat(rs.getString("lat"));
 		user.setLng(rs.getString("lng"));

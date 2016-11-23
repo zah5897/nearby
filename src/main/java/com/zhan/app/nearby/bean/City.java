@@ -2,13 +2,12 @@ package com.zhan.app.nearby.bean;
 
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
-@JsonInclude(JsonInclude.Include.NON_NULL) 
+import com.alibaba.fastjson.annotation.JSONField;
 public class City {
 	private int id;
 	private String name;
-	@JsonIgnore
+//	@JsonIgnore
+	@JSONField(serialize = false)
 	private int parent_id;
 	private List<City> children;
 	private int type;

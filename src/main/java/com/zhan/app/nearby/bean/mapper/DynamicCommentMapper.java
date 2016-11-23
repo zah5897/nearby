@@ -15,18 +15,16 @@ public class DynamicCommentMapper implements RowMapper<DynamicComment> {
 		comment.setId(rs.getLong("id"));
 		comment.setDynamic_id(rs.getLong("dynamic_id"));
 		comment.setContent(rs.getString("content"));
-		comment.setComment_time(rs.getDate("comment_time"));
-		
-		
-		User user=new User();
+		comment.setComment_time(rs.getTimestamp("comment_time"));
+
+		User user = new User();
 		user.setUser_id(rs.getLong("user_id"));
 		user.setNick_name(rs.getString("nick_name"));
 		user.setSex(rs.getString("sex"));
 		user.setAvatar(rs.getString("avatar"));
-		
+
 		comment.setUser(user);
 		return comment;
 	}
 
-	 
 }

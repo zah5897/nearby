@@ -18,7 +18,7 @@ public class DynamicMapper implements RowMapper<UserDynamic> {
 		dynamic.setId(rs.getLong("id"));
 		dynamic.setDescription(rs.getString("description"));
 		dynamic.setAddr(rs.getString("addr"));
-		dynamic.setCreate_time(rs.getDate("create_time"));
+		dynamic.setCreate_time(rs.getTimestamp("create_time"));
 		dynamic.setLocal_image_name(rs.getString("local_image_name"));
 		dynamic.setPraise_count(rs.getInt("praise_count"));
 		dynamic.setBrowser_count(rs.getInt("browser_count"));

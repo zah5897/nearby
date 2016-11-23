@@ -6,15 +6,20 @@ import java.util.Date;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import com.alibaba.fastjson.annotation.JSONField;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.zhan.app.nearby.annotation.ColumnType;
-@JsonSerialize(include=JsonSerialize.Inclusion.NON_NULL)
-public class UserDynamic implements Serializable{
+
+public class UserDynamic implements Serializable {
+	/**
+	 * 
+	 */
+	@ColumnType
+	private static final long serialVersionUID = 1L;
+
 	@ColumnType
 	private long id; // 主键
-	
-	@JsonIgnore
+
+	// @JsonIgnore
+	@JSONField(serialize = false)
 	private long user_id; // 外键，关联user id字段，不json 序列化
 
 	private String description; // 描述
@@ -25,11 +30,10 @@ public class UserDynamic implements Serializable{
 	private String city;
 	private String region;
 
-	@DateTimeFormat(pattern = "yyyy-MM-dd")
-	@JSONField(format="yyyy-MM-dd HH:mm:ss")
+	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	private Date create_time;
 
-	
+	@JSONField(serialize = false)
 	private String local_image_name;
 
 	@ColumnType
@@ -40,20 +44,19 @@ public class UserDynamic implements Serializable{
 	private int praise_count;
 	private String can_comment = "1";
 
-	
 	private int browser_count;
-	@ColumnType //客户端组合数据
+	@ColumnType // 客户端组合数据
 	private int like_state;
-	
-	
-	
-	@JsonIgnore
+
+	// @JsonIgnore
+	@JSONField(serialize = false)
 	private int city_id;
-	@JsonIgnore
+	// @JsonIgnore
+	@JSONField(serialize = false)
 	private int district_id;
 	@ColumnType
 	private User user;
-	
+
 	public long getId() {
 		return id;
 	}
@@ -102,6 +105,7 @@ public class UserDynamic implements Serializable{
 		this.addr = addr;
 	}
 
+	@JSONField(format = "yyyy-MM-dd")
 	public Date getCreate_time() {
 		return create_time;
 	}
@@ -134,7 +138,6 @@ public class UserDynamic implements Serializable{
 		this.praise_count = praise_count;
 	}
 
-	 
 	public String getCan_comment() {
 		return can_comment;
 	}
@@ -142,7 +145,7 @@ public class UserDynamic implements Serializable{
 	public void setCan_comment(String can_comment) {
 		this.can_comment = can_comment;
 	}
-	@JsonIgnore
+
 	public String getLocal_image_name() {
 		return local_image_name;
 	}
@@ -199,7 +202,6 @@ public class UserDynamic implements Serializable{
 		this.region = region;
 	}
 
-
 	public int getCity_id() {
 		return city_id;
 	}
@@ -216,7 +218,4 @@ public class UserDynamic implements Serializable{
 		this.district_id = district_id;
 	}
 
-	 
-
-	
 }

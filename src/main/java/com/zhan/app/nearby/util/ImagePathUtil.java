@@ -32,19 +32,20 @@ public class ImagePathUtil {
 
 		if (dynamics != null && dynamics.size() > 0) {
 			for (UserDynamic dynamic : dynamics) {
-				completeImagePath(dynamic,thumbAndOrigin);
+				completeImagePath(dynamic, thumbAndOrigin);
 			}
 		}
 	}
+
 	public static void completeImagePath(UserDynamic dynamic, boolean thumbAndOrigin) {
-		
-				String shortName = dynamic.getLocal_image_name();
-				if (!TextUtils.isEmpty(shortName)) {
-					dynamic.setThumb(HOST_PROFIX + ImageSaveUtils.FILE_ROOT_IMAGES_THUMB + shortName);
-					if (thumbAndOrigin) {
-						dynamic.setOrigin(HOST_PROFIX + ImageSaveUtils.FILE_ROOT_IMAGES_ORIGIN + shortName);
-					}
-				}
+
+		String shortName = dynamic.getLocal_image_name();
+		if (!TextUtils.isEmpty(shortName)) {
+			dynamic.setThumb(HOST_PROFIX + ImageSaveUtils.FILE_ROOT_IMAGES_THUMB + shortName);
+			if (thumbAndOrigin) {
+				dynamic.setOrigin(HOST_PROFIX + ImageSaveUtils.FILE_ROOT_IMAGES_ORIGIN + shortName);
+			}
+		}
 	}
 
 	// public static void main(String args[]){

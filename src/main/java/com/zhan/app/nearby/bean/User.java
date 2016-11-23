@@ -9,12 +9,10 @@ import java.util.Map;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import com.alibaba.fastjson.annotation.JSONField;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.zhan.app.nearby.annotation.ColumnType;
 import com.zhan.app.nearby.comm.UserType;
 import com.zhan.app.nearby.util.DateTimeUtil;
-@JsonInclude(JsonInclude.Include.NON_NULL) 
+
 public class User {
 	public User() {
 	}
@@ -38,15 +36,14 @@ public class User {
 	private String signature;
 	private String lat;
 	private String lng;
-	@JSONField(name = "_ua")
-	@JsonIgnore
+	@JSONField(name = "_ua", serialize = false)
+	// @JsonIgnore
 	private String _ua;
 
 	@ColumnType // 忽略保存
 	private String origin_avatar;
 
-	@DateTimeFormat(pattern = "yyyy-MM-dd")
-	@JSONField(format = "yyyy-MM-dd")
+	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	private Date birthday;
 	private String token;
 
@@ -56,7 +53,8 @@ public class User {
 	private List<UserDynamic> images;
 
 	// 数据库中以逗号分割，json不序列号
-	@JsonIgnore
+	// @JsonIgnore
+	@JSONField(serialize = false)
 	private String job_ids;
 	@ColumnType // 忽略保存
 	private List<Tag> jobs;
@@ -64,64 +62,78 @@ public class User {
 	private String weight;// 体重
 	private String height;// 身高
 
-	
-	@JsonIgnore
+	// @JsonIgnore
+	@JSONField(serialize = false)
 	private String my_tag_ids;
 	@ColumnType // 忽略保存
 
-	@JsonIgnore
+	// @JsonIgnore
+	@JSONField(serialize = false)
 	private List<Tag> my_tags;
-	@JsonIgnore
+	// @JsonIgnore
+	@JSONField(serialize = false)
 	private String interest_ids;
 	@ColumnType // 忽略保存
-	@JsonIgnore
+	// @JsonIgnore
+	@JSONField(serialize = false)
 	private List<Tag> interest;
 
-	@JsonIgnore
+	// @JsonIgnore
+	@JSONField(serialize = false)
 	private String animal_ids;
 	@ColumnType // 忽略保存
-	@JsonIgnore
+	// @JsonIgnore
+	@JSONField(serialize = false)
 	private List<Tag> favourite_animal;
 
-	@JsonIgnore
+	// @JsonIgnore
+	@JSONField(serialize = false)
 	private String music_ids;
 	@ColumnType // 忽略保存
-	@JsonIgnore
+	// @JsonIgnore
+	@JSONField(serialize = false)
 	private List<Tag> favourite_music;
-	@JsonIgnore
+	// @JsonIgnore
+	@JSONField(serialize = false)
 	private String weekday_todo_ids;
 	@ColumnType // 忽略保存
 
-	@JsonIgnore
+	// @JsonIgnore
+	@JSONField(serialize = false)
 	private List<Tag> weekday_todo;
 
-	@JsonIgnore
+	// @JsonIgnore
+	@JSONField(serialize = false)
 	private String footstep_ids;
 	@ColumnType // 忽略保存
 
-	@JsonIgnore
+	// @JsonIgnore
+	@JSONField(serialize = false)
 	private List<Tag> footsteps;
 
-	@JsonIgnore
+	// @JsonIgnore
+	@JSONField(serialize = false)
 	private String want_to_where;
 
-	@JsonIgnore
+	// @JsonIgnore
+	@JSONField(serialize = false)
 	private String disc;
 
 	// 区分游客和正式用户
 	private short type = (short) UserType.OFFIEC.ordinal(); // 默认为正式用户
 
 	// 区分国外用户
-	@JsonIgnore
+	// @JsonIgnore
+	@JSONField(serialize = false)
 	private String zh_cn;
 
 	// 设备token
-	@JsonIgnore
+	// @JsonIgnore
+	@JSONField(serialize = false)
 	private String device_token;
 
-	
 	private City city;
-	
+
 	public long getUser_id() {
 		return user_id;
 	}
@@ -418,8 +430,6 @@ public class User {
 		this.device_token = device_token;
 	}
 
-	 
-
 	public City getCity() {
 		return city;
 	}
@@ -442,7 +452,8 @@ public class User {
 		setLng(null);
 	}
 
-	@JsonIgnore
+	// @JsonIgnore
+	@JSONField(serialize = false)
 	public Object getBasicUserInfoMap() {
 		Map<String, Object> basicInfo = new HashMap<String, Object>();
 		basicInfo.put("user_id", user_id);

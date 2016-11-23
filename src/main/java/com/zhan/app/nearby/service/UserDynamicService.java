@@ -3,6 +3,8 @@ package com.zhan.app.nearby.service;
 import java.util.List;
 
 import javax.annotation.Resource;
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,6 +15,7 @@ import com.zhan.app.nearby.bean.UserDynamicRelationShip;
 import com.zhan.app.nearby.comm.LikeDynamicState;
 import com.zhan.app.nearby.dao.UserDynamicDao;
 import com.zhan.app.nearby.util.ImagePathUtil;
+import com.zhan.app.nearby.util.ImageSaveUtils;
 
 @Service
 @Transactional("transactionManager")
@@ -28,8 +31,8 @@ public class UserDynamicService {
 		userDynamicDao.addHomeFoundSelected(dynamic_id);
 	}
 
-	public int praiseDynamic(long dynamic_id) {
-		return userDynamicDao.praiseDynamic(dynamic_id);
+	public int praiseDynamic(long dynamic_id, boolean praise) {
+		return userDynamicDao.praiseDynamic(dynamic_id, praise);
 	}
 
 	public List<UserDynamic> getUserDynamic(long user_id, long last_id, int count) {
@@ -87,5 +90,28 @@ public class UserDynamicService {
 		dynamicRelationShip.setUser_id(user_id);
 		dynamicRelationShip.setRelationship(like.ordinal());
 		return userDynamicDao.updateLikeState(dynamicRelationShip);
+	}
+
+	public String delete(ServletContext servletContext, Long user_id, String dynamic_ids) {
+		String[] dy_ids = dynamic_ids.split(",");
+		String successid = null;
+		for (String id : dy_ids) {
+			try {
+				long dy_id = Long.parseLong(id);
+				UserDynamic dy = userDynamicDao.basic(dy_id);
+				if (dy != null && dy.getUser_id() == user_id) {
+					userDynamicDao.delete(user_id, dy_id);
+					ImageSaveUtils.removeUserImages(servletContext, dy.getLocal_image_name());
+					if (successid == null) {
+						successid = id;
+					} else {
+						successid += "," + id;
+					}
+				}
+			} catch (NumberFormatException e) {
+				e.printStackTrace();
+			}
+		}
+		return successid;
 	}
 }

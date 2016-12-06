@@ -158,7 +158,8 @@ public class UserDynamicDao extends BaseDao {
 	public UserDynamic basic(long dynamic_id) {
 		try {
 			String sql = "select  *   from " + TABLE_USER_DYNAMIC + "   where id=?";
-			return jdbcTemplate.queryForObject(sql, new Object[] { dynamic_id }, new BeanPropertyRowMapper<>());
+			return jdbcTemplate.queryForObject(sql, new Object[] { dynamic_id },
+					new BeanPropertyRowMapper<>(UserDynamic.class));
 		} catch (Exception e) {
 			return null;
 		}
@@ -225,7 +226,7 @@ public class UserDynamicDao extends BaseDao {
 		jdbcTemplate.update(sql, new Object[] { user_id, dynamic_id });
 
 		// 删除首页选中
-		sql = "delete from t_home_found_selected where  and dynamic_id=?";
+		sql = "delete from t_home_found_selected where  dynamic_id=?";
 		jdbcTemplate.update(sql, new Object[] { dynamic_id });
 
 		return 0;

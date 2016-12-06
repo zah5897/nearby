@@ -4,10 +4,10 @@ import java.util.Date;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.zhan.app.nearby.annotation.ColumnType;
+import com.zhan.app.nearby.bean.property.MsgAttention;
 
 public class DynamicMessage {
 	private long id;
-	@JSONField(serialize = false)
 	private long dynamic_id;
 	private String content;
 	@JSONField(serialize = false)
@@ -23,6 +23,8 @@ public class DynamicMessage {
 	private User user;
 	@ColumnType
 	private UserDynamic dynamic;
+
+	private MsgAttention attention;
 
 	public long getId() {
 		return id;
@@ -94,6 +96,14 @@ public class DynamicMessage {
 
 	public void setBy_user_id(long by_user_id) {
 		this.by_user_id = by_user_id;
+	}
+
+	public MsgAttention getAttention() {
+		return attention;
+	}
+
+	public void setAttention(MsgAttention attention) {
+		this.attention = attention;
 	}
 
 }

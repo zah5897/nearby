@@ -3,6 +3,7 @@ package com.zhan.app.nearby.controller;
 import java.util.List;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,11 +11,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.zhan.app.nearby.bean.City;
 import com.zhan.app.nearby.dao.CityDao;
+import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.service.CityService;
 import com.zhan.app.nearby.util.AddressUtil;
+import com.zhan.app.nearby.util.IPUtil;
 import com.zhan.app.nearby.util.ImportCityUtil;
 import com.zhan.app.nearby.util.ResultUtil;
 import com.zhan.app.nearby.util.SpringContextUtil;
+import com.zhan.app.nearby.util.TextUtils;
 
 @RestController
 @RequestMapping("/city")
@@ -57,10 +61,18 @@ public class CityController {
 	}
 
 	@RequestMapping("gps_city")
-	public ModelMap gps_city(String lat, String lng) {
+	public ModelMap gps_city(HttpServletRequest request, String lat, String lng) {
 		ModelMap result = ResultUtil.getResultOKMap();
-		String[] city_info = AddressUtil.getAddressByLatLng(lat, lng);
+		String[] city_info = null;
+		if (TextUtils.isEmpty(lat) || TextUtils.isEmpty(lng)) {
+			city_info = AddressUtil.getAddressByIp(IPUtil.getIpAddress(request));
+		} else {
+			city_info = AddressUtil.getAddressByLatLng(lat, lng);
+		}
 
+		if (city_info == null) {
+			return ResultUtil.getResultMap(ERROR.ERR_SYS);
+		}
 		CityService cityService = ((CityService) SpringContextUtil.getBean("cityService"));
 		List<City> provincesAll = cityService.list();
 		if (provincesAll != null) {

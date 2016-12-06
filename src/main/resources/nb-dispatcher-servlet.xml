@@ -33,7 +33,7 @@
 						<value>WriteDateUseDateFormat</value>
 					</list>
 				</property>
-				<property name="defaultDateFormat" value="yyyy-MM-dd HH:mm:ss"></property>
+				<property name="defaultDateFormat" value="yyyy-MM-dd HH:mm"></property>
 			</bean>
 		</mvc:message-converters>
 	</mvc:annotation-driven>

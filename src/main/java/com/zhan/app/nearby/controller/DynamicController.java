@@ -88,10 +88,13 @@ public class DynamicController {
 			ImagePathUtil.completeImagePath(dynamic, true);
 			ImagePathUtil.completeAvatarPath(dynamic.getUser(), true);
 			userDynamicService.updateBrowserCount(dynamic.getId(), dynamic.getBrowser_count() + 1);
+			ModelMap result = ResultUtil.getResultOKMap();
+			result.put("detail", dynamic);
+			return result;
+		} else {
+			return ResultUtil.getResultMap(ERROR.ERR_NOT_EXIST, "该动态不存在或被删除");
 		}
-		ModelMap result = ResultUtil.getResultOKMap();
-		result.put("detail", dynamic);
-		return result;
+
 	}
 
 	@RequestMapping("msg_list")

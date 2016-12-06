@@ -8,6 +8,7 @@ import org.springframework.jdbc.core.RowMapper;
 
 import com.zhan.app.nearby.bean.DynamicMessage;
 import com.zhan.app.nearby.bean.User;
+import com.zhan.app.nearby.bean.property.MsgAttention;
 import com.zhan.app.nearby.util.DateTimeUtil;
 
 public class DynamicMsgMapper implements RowMapper<DynamicMessage> {
@@ -16,11 +17,19 @@ public class DynamicMsgMapper implements RowMapper<DynamicMessage> {
 		DynamicMessage dynamicMsg = new DynamicMessage();
 		dynamicMsg.setId(rs.getLong("id"));
 		dynamicMsg.setContent(rs.getString("content"));
-		dynamicMsg.setCreate_time(rs.getDate("create_time"));
-		dynamicMsg.setDynamic_id(rs.getLong("dynamic_id"));
+		dynamicMsg.setCreate_time(rs.getTimestamp("create_time"));
+
 		dynamicMsg.setType(rs.getInt("type"));
+
+		long dy_id = rs.getLong("dynamic_id");
+
+		dynamicMsg.setAttention(new MsgAttention());
+		dynamicMsg.getAttention().setId(dy_id);
+		dynamicMsg.getAttention().setType(dynamicMsg.getType());
+		dynamicMsg.setDynamic_id(dy_id);
+
 		User user = new User();
-		user.setUser_id(rs.getLong("user_id"));
+		user.setUser_id(rs.getLong("by_user_id"));
 		user.setNick_name(rs.getString("nick_name"));
 		user.setAvatar(rs.getString("avatar"));
 		user.setSex(rs.getString("sex"));

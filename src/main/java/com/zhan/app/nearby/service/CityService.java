@@ -44,6 +44,13 @@ public class CityService {
 			if (city.getType() == 0) {
 				if (city.getChildren() == null) {
 					city.setChildren(new ArrayList<>());
+					City cityPraent = new City();
+					cityPraent.setType(city.getType());
+					cityPraent.setId(city.getId());
+					cityPraent.setName(city.getName());
+					cityPraent.setParent_id(city.getParent_id());
+					city.getChildren().add(cityPraent);
+
 				}
 				for (City city_child : provincesAll) {
 					if (city_child.getType() == 1 && city.getId() == city_child.getParent_id()) {
@@ -74,7 +81,7 @@ public class CityService {
 
 		provinces = new ArrayList<>();
 
-		String[] hotTag = { "北京", "上海", "深圳", "杭州", "南京", "成都", "武汉", "长沙","重庆"};
+		String[] hotTag = { "北京", "上海", "深圳", "杭州", "南京", "成都", "武汉", "长沙", "重庆" };
 
 		List<City> provincesAll = cityDao.list();
 

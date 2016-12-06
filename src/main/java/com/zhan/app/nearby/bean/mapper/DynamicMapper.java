@@ -23,6 +23,7 @@ public class DynamicMapper implements RowMapper<UserDynamic> {
 		dynamic.setPraise_count(rs.getInt("praise_count"));
 		dynamic.setBrowser_count(rs.getInt("browser_count"));
 		dynamic.setCan_comment(rs.getString("can_comment"));
+		dynamic.setStreet(rs.getString("street"));
 
 		try {
 			dynamic.setLike_state(rs.getInt("like_state"));

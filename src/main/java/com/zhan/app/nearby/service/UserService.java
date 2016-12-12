@@ -10,8 +10,10 @@ import org.springframework.transaction.annotation.Transactional;
 import com.zhan.app.nearby.bean.User;
 import com.zhan.app.nearby.cache.UserCacheService;
 import com.zhan.app.nearby.dao.UserDao;
+import com.zhan.app.nearby.util.AddressUtil;
+import com.zhan.app.nearby.util.IPUtil;
 import com.zhan.app.nearby.util.ImagePathUtil;
-
+import com.zhan.app.nearby.util.TextUtils;
 
 @Service
 @Transactional("transactionManager")
@@ -28,6 +30,7 @@ public class UserService {
 	public User findUserByMobile(String mobile) {
 		return userDao.findUserByMobile(mobile);
 	}
+
 	public User findUserByDeviceId(String deviceId) {
 		return userDao.findUserByDeviceId(deviceId);
 	}
@@ -47,17 +50,19 @@ public class UserService {
 			return -1l;
 		}
 		long id = (Long) userDao.insert(user);
-//		if (id > 0) {
-//			try {
-//				String password = MD5Util.getMd5_16(String.valueOf(id));
-//				Object resutl = Main.registUser(String.valueOf(id), password, user.getNick_name());
-//				if (resutl != null) {
-//					System.out.println(resutl);
-//				}
-//			} catch (Exception e) {
-//				throw new AppException(ERROR.ERR_SYS.setNewText(" by 环信"),new RuntimeException("环信注册失败"));
-//			}
-//		}
+		// if (id > 0) {
+		// try {
+		// String password = MD5Util.getMd5_16(String.valueOf(id));
+		// Object resutl = Main.registUser(String.valueOf(id), password,
+		// user.getNick_name());
+		// if (resutl != null) {
+		// System.out.println(resutl);
+		// }
+		// } catch (Exception e) {
+		// throw new AppException(ERROR.ERR_SYS.setNewText(" by 环信"),new
+		// RuntimeException("环信注册失败"));
+		// }
+		// }
 		return id;
 	}
 
@@ -86,14 +91,12 @@ public class UserService {
 		// userCacheService.cacheValidateCode(mobile, code);
 		return count;
 	}
-	
-	public int updateVisitor(long user_id, String device_token,String lat, String lng,String zh_cn) {
+
+	public int updateVisitor(long user_id, String device_token, String lat, String lng, String zh_cn) {
 		int count = userDao.updateVisitor(user_id, device_token, lat, lng, zh_cn);
 		return count;
 	}
-	
-	
-	
+
 	public User getUserDetailInfo(long user_id, int count) {
 		User user = userDao.getUserDetailInfo(user_id);
 		if (user != null) {
@@ -101,16 +104,17 @@ public class UserService {
 			ImagePathUtil.completeAvatarPath(user, true); // 补全图片链接地址
 			// 隐藏系统安全信息
 			user.hideSysInfo();
-//			// 补全 tag 属性
-//			setTagByIds(user);
+			// // 补全 tag 属性
+			// setTagByIds(user);
 			// 补全images属性
 
 			if (count <= 0) {
 				count = 4;
 			}
-			//List<Image> userImages = userInfoDao.getUserImages(user_id, 0, count);
-			//ImagePathUtil.completeImagePath(userImages, true); // 补全图片路径
-			//user.setImages(userImages);
+			// List<Image> userImages = userInfoDao.getUserImages(user_id, 0,
+			// count);
+			// ImagePathUtil.completeImagePath(userImages, true); // 补全图片路径
+			// user.setImages(userImages);
 		}
 		return user;
 	}
@@ -121,8 +125,38 @@ public class UserService {
 		return userDao.modify_info(user_id, nick_name, birthday, job, height, weight, signature, my_tags, interests,
 				animals, musics, weekday_todo, footsteps, want_to_where);
 	}
-	public int visitorToNormal(User user){
-		return userDao.visitorToNormal(user.getUser_id(),user.getMobile(), user.getPassword(), user.getToken(), user.getNick_name(), user.getBirthday(), user.getSex(), user.getAvatar());
+
+	public int visitorToNormal(User user) {
+		return userDao.visitorToNormal(user.getUser_id(), user.getMobile(), user.getPassword(), user.getToken(),
+				user.getNick_name(), user.getBirthday(), user.getSex(), user.getAvatar());
 	}
-	
+
+	public void uploadLocation(String ip, long user_id, String lat, String lng) {
+		if (TextUtils.isEmpty(lat) || TextUtils.isEmpty(lng)) {
+			new Thread() {
+				@Override
+				public void run() {
+					String[] lat_lng = AddressUtil.getLatLngByIP(ip);
+					if (lat_lng == null) {
+						return;
+					}
+					if (TextUtils.isEmpty(lat_lng[0]) || TextUtils.isEmpty(lat_lng[1])) {
+						return;
+					}
+					userDao.updateLocation(user_id, lat_lng[0], lat_lng[1]);
+				}
+			}.start();
+		} else {
+			userDao.updateLocation(user_id, lat, lng);
+		}
+	}
+
+	public void uploadToken(long user_id, String token, String zh_cn) {
+		userDao.uploadToken(user_id, token, zh_cn);
+	}
+
+	public String getDeviceToken(long user_id) {
+		return userDao.getDeviceToken(user_id);
+	}
+
 }

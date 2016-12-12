@@ -51,6 +51,10 @@ public class AddressUtil {
 		}.start();
 	}
 
+	public static String[] getLatLngByIP(String ip) {
+		return getLatLng(ip);
+	}
+
 	public static String[] getAddressByLatLng(String lat, String lng) {
 		String url = "http://api.map.baidu.com/geocoder/v2/?ak=" + AK + "&location=" + lat + "," + lng + "&output=json";
 		String result = HttpUtil.sendGet(url, null);
@@ -75,9 +79,8 @@ public class AddressUtil {
 		return null;
 	}
 
-	public static String[] getAddressByIp(String ip) {
-		String lat = null;
-		String lng = null;
+	private static String[] getLatLng(String ip) {
+		String[] latLng = new String[2];
 		// 高精度定位
 		String url = "http://api.map.baidu.com/highacciploc/v1?qcip=" + ip + "&qterm=pc&ak=" + AK + "&coord=bd09ll";
 		String result = HttpUtil.sendGet(url, null);
@@ -87,13 +90,11 @@ public class AddressUtil {
 			if (contentObj != null) {
 				JSONObject location = contentObj.getJSONObject("location");
 				if (location != null) {
-					lat = location.getString("lat");
-					lng = location.getString("lng");
+					latLng[0] = location.getString("lat");
+					latLng[1] = location.getString("lng");
+					return latLng;
 				}
 			}
-		}
-		if (!TextUtils.isEmpty(lat) && !TextUtils.isEmpty(lng)) {
-			return getAddressByLatLng(lat, lng);
 		}
 
 		// 低精度ip定位
@@ -105,14 +106,21 @@ public class AddressUtil {
 			if (contentObj != null) {
 				JSONObject xy = contentObj.getJSONObject("point");
 				if (xy != null) {
-					lng = xy.getString("x");
-					lat = xy.getString("y");
-					if (!TextUtils.isEmpty(lat) && !TextUtils.isEmpty(lng)) {
-						return getAddressByLatLng(lat, lng);
-					}
+					latLng[0] = xy.getString("x");
+					latLng[1] = xy.getString("y");
+					return latLng;
 				}
 			}
 		}
+		return null;
+	}
+
+	public static String[] getAddressByIp(String ip) {
+		String[] lat_lng = getLatLng(ip);
+		if (lat_lng != null && !TextUtils.isEmpty(lat_lng[0]) && !TextUtils.isEmpty(lat_lng[1])) {
+			return getAddressByLatLng(lat_lng[0], lat_lng[1]);
+		}
+		// 高精度定位
 		return null;
 	}
 

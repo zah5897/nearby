@@ -84,17 +84,18 @@ public class DynamicController {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM);
 		}
 		UserDynamic dynamic = userDynamicService.detail(dynamic_id, user_id);
+		ModelMap result;
 		if (dynamic != null) {
 			ImagePathUtil.completeImagePath(dynamic, true);
 			ImagePathUtil.completeAvatarPath(dynamic.getUser(), true);
 			userDynamicService.updateBrowserCount(dynamic.getId(), dynamic.getBrowser_count() + 1);
-			ModelMap result = ResultUtil.getResultOKMap();
+			result = ResultUtil.getResultOKMap();
 			result.put("detail", dynamic);
-			return result;
 		} else {
-			return ResultUtil.getResultMap(ERROR.ERR_NOT_EXIST, "该动态不存在或被删除");
+			result = ResultUtil.getResultMap(ERROR.ERR_NOT_EXIST, "该动态不存在或被删除");
+			result.put("dynamic_id", dynamic_id);
 		}
-
+		return result;
 	}
 
 	@RequestMapping("msg_list")
@@ -126,8 +127,12 @@ public class DynamicController {
 			try {
 				long dy_id = Long.parseLong(id);
 				int count = userDynamicService.praiseDynamic(dy_id, true);
-				userDynamicService.updateLikeState(user_id, dy_id, LikeDynamicState.LIKE);
-				dynamicMsgService.insertActionMsg(DynamicMsgType.TYPE_PRAISE, user_id, dy_id, user_id, null);
+				if (count > 0) {
+					userDynamicService.updateLikeState(user_id, dy_id, LikeDynamicState.LIKE);
+					long userId = userDynamicService.getUserIdByDynamicId(dy_id);
+					dynamicMsgService.insertActionMsg(DynamicMsgType.TYPE_PRAISE, user_id, dy_id, userId, null);
+				}
+
 			} catch (NumberFormatException e) {
 			}
 		}

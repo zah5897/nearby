@@ -94,9 +94,8 @@ public class UserDynamicDao extends BaseDao {
 				hasPraiseCount = 0;
 			}
 		}
-		jdbcTemplate.update("update " + TABLE_USER_DYNAMIC + " set praise_count=? where id=?",
+		return jdbcTemplate.update("update " + TABLE_USER_DYNAMIC + " set praise_count=? where id=?",
 				new Object[] { hasPraiseCount, dynamic_id });
-		return hasPraiseCount;
 	}
 
 	public List<UserDynamic> getUserDynamic(long user_id, long last_id, int count) {

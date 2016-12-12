@@ -12,6 +12,7 @@ import com.zhan.app.nearby.bean.DynamicMessage;
 import com.zhan.app.nearby.comm.DynamicMsgType;
 import com.zhan.app.nearby.dao.DynamicMsgDao;
 import com.zhan.app.nearby.util.ImagePathUtil;
+import com.zhan.app.nearby.util.PushUtils;
 
 @Service
 @Transactional("transactionManager")
@@ -27,6 +28,7 @@ public class DynamicMsgService {
 		msg.setType(type.ordinal());
 		msg.setContent(content);
 		msg.setCreate_time(new Date());
+		PushUtils.commentMsg(type, user_id, dynamic_id);
 		return dynamicMsgDao.insert(msg);
 	}
 

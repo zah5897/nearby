@@ -46,23 +46,26 @@ public class UserDao extends BaseDao {
 	}
 
 	public User findUserByMobile(String mobile) {
-		List<User> list = jdbcTemplate.query("select user.* ,city.name as city_name from t_user user left join t_sys_city city on user.city_id=city.id where user.mobile=?", new Object[] { mobile },
-				new SimpkleUserMapper());
+		List<User> list = jdbcTemplate.query(
+				"select user.* ,city.name as city_name from t_user user left join t_sys_city city on user.city_id=city.id where user.mobile=?",
+				new Object[] { mobile }, new SimpkleUserMapper());
 		if (list != null && list.size() > 0) {
 			return list.get(0);
 		} else {
 			return null;
 		}
 	}
+
 	public User findUserByDeviceId(String deviceId) {
-		List<User> list = jdbcTemplate.query("select *from t_user user where user.mobile=? and type=?", new Object[] { deviceId ,UserType.VISITOR.ordinal()},
-				new SimpkleUserMapper());
+		List<User> list = jdbcTemplate.query("select *from t_user user where user.mobile=? and type=?",
+				new Object[] { deviceId, UserType.VISITOR.ordinal() }, new SimpkleUserMapper());
 		if (list != null && list.size() > 0) {
 			return list.get(0);
 		} else {
 			return null;
 		}
 	}
+
 	public Serializable insert(User user) {
 		return saveObj(jdbcTemplate, "t_user", user);
 	}
@@ -93,11 +96,12 @@ public class UserDao extends BaseDao {
 	public int updateLocation(long user_id, String lat, String lng) {
 		return jdbcTemplate.update("update t_user set lat=?,lng=? where user_id=?", new Object[] { lat, lng, user_id });
 	}
-	public int updateVisitor(long user_id, String device_token,String lat, String lng,String zh_cn) {
-		return jdbcTemplate.update("update t_user set device_token=?,zh_cn=?, lat=?,lng=? where user_id=?", new Object[] {device_token,zh_cn ,lat, lng, user_id });
+
+	public int updateVisitor(long user_id, String device_token, String lat, String lng, String zh_cn) {
+		return jdbcTemplate.update("update t_user set device_token=?,zh_cn=?, lat=?,lng=? where user_id=?",
+				new Object[] { device_token, zh_cn, lat, lng, user_id });
 	}
-	
-	
+
 	public User getUserDetailInfo(long user_id) {
 		List<User> list = jdbcTemplate.query("select *from t_user user where user.user_id=?", new Object[] { user_id },
 				new BeanPropertyRowMapper(User.class));
@@ -153,13 +157,21 @@ public class UserDao extends BaseDao {
 		return jdbcTemplate.update(sql, params);
 	}
 
-	public int visitorToNormal(long user_id,String mobile,String password, String token, String nick_name,Date birthday,String sex,String avatar) {
+	public int visitorToNormal(long user_id, String mobile, String password, String token, String nick_name,
+			Date birthday, String sex, String avatar) {
 		String sql = "update t_user set mobile=?,password=?,token=?,nick_name=?,birthday=?,sex=?,avatar=?,type=? where user_id=?";
-		return jdbcTemplate.update(sql, new Object[]{mobile,password,token,nick_name,birthday,sex,avatar,UserType.VISITOR.ordinal(),user_id});
+		return jdbcTemplate.update(sql, new Object[] { mobile, password, token, nick_name, birthday, sex, avatar,
+				UserType.VISITOR.ordinal(), user_id });
 	}
 
-	
-	
- 
-	
+	public int uploadToken(long user_id, String token, String zh_cn) {
+		String sql = "update t_user set device_token=?,zh_cn=? where user_id=?";
+		return jdbcTemplate.update(sql, new Object[] { token, zh_cn, user_id });
+	}
+
+	public String getDeviceToken(long user_id) {
+		return jdbcTemplate.queryForObject("select device_token from t_user user where user.user_id=?",
+				new Object[] { user_id }, String.class);
+	}
+
 }

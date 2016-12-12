@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.UUID;
 
 import javax.annotation.Resource;
+import javax.naming.spi.DirStateFactory.Result;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
@@ -24,6 +25,7 @@ import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.service.UserDynamicService;
 import com.zhan.app.nearby.service.UserService;
 import com.zhan.app.nearby.util.DateTimeUtil;
+import com.zhan.app.nearby.util.IPUtil;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.ImageSaveUtils;
 import com.zhan.app.nearby.util.MD5Util;
@@ -129,6 +131,7 @@ public class UserController {
 		}
 		String token = UUID.randomUUID().toString();
 		user.setToken(token);
+		user.setType((short)UserType.OFFIEC.ordinal());
 		long id = user.getUser_id();
 		if (id > 0) {
 			int count = userService.visitorToNormal(user);
@@ -483,6 +486,18 @@ public class UserController {
 			result.put("last_id", dynamics.get(dynamics.size() - 1).getId());
 		}
 		return result;
+	}
+
+	@RequestMapping("update_location")
+	public ModelMap update_location(HttpServletRequest request, long user_id, String lat, String lng) {
+		userService.uploadLocation(IPUtil.getIpAddress(request), user_id, lat, lng);
+		return ResultUtil.getResultOKMap();
+	}
+
+	@RequestMapping("add_token")
+	public ModelMap add_token(HttpServletRequest request, long user_id, String device_token, String zh_cn) {
+		userService.uploadToken(user_id, device_token, zh_cn);
+		return ResultUtil.getResultOKMap();
 	}
 
 	@RequestMapping("visitor_regist")

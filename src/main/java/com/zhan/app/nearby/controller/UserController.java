@@ -489,7 +489,7 @@ public class UserController {
 	}
 
 	@RequestMapping("update_location")
-	public ModelMap update_location(HttpServletRequest request, long user_id, String lat, String lng) {
+	public ModelMap update_location(HttpServletRequest request, long user_id, String lat, String lng,String ios_address) {
 		userService.uploadLocation(IPUtil.getIpAddress(request), user_id, lat, lng);
 		return ResultUtil.getResultOKMap();
 	}

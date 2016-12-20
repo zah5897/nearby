@@ -15,6 +15,7 @@ public class FateUserMapper implements RowMapper<User> {
 		user.setNick_name(rs.getString("nick_name"));
 		user.setAvatar(rs.getString("avatar"));
 		user.setSex(rs.getString("sex"));
+		user.setType(rs.getShort("type"));
 		return user;
 	}
 

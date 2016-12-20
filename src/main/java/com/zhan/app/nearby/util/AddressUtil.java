@@ -12,12 +12,31 @@ import com.zhan.app.nearby.service.UserDynamicService;
 public class AddressUtil {
 	private static final String AK = "dZo8pGRmo4X3T0lXx5yuf6r9Xs4ktzpo";
 
-	public static void praseAddress(String ip, UserDynamic dynamic) {
+	public static void praseAddress(String ip, UserDynamic dynamic, String ios_addr) {
 
 		new Thread() {
 			@Override
 			public void run() {
-				String[] address = getAddressByLatLng(dynamic.getLat(), dynamic.getLng());
+				String[] address = null;
+				if (!TextUtils.isEmpty(ios_addr)) {
+					try {
+						JSONObject obj = JSON.parseObject(ios_addr);
+						address = new String[4];
+						String city = obj.getString("City");
+						String SubLocality = obj.getString("SubLocality");
+						String Street = obj.getString("Street");
+						address[0] = city + SubLocality + Street;
+						address[1] = Street;
+						address[2] = city;
+						address[3] = SubLocality;
+					} catch (Exception e) {
+						address = null;
+					}
+
+				}
+				if (address == null) {
+					address = getAddressByLatLng(dynamic.getLat(), dynamic.getLng());
+				}
 				if (TextUtils.isEmpty(address[0])) {
 					address = getAddressByIp(ip);
 				}

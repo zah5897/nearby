@@ -12,12 +12,12 @@ public class PushUtils {
 
 	public static int TYPE = 1; // 开发模式
 
-	public static void commentMsg(DynamicMsgType type, long user_id, long id) {
+	public static void commentMsg(RedisTemplate<String, String> redisTemplate,long msg_id, DynamicMsgType type, long user_id,
+			long id) {
 
 		new Thread() {
 			public void run() {
 				UserService userService = SpringContextUtil.getBean("userService");
-
 				try {
 					String token = userService.getDeviceToken(user_id);
 					if (TextUtils.isEmpty(token)) {
@@ -39,36 +39,13 @@ public class PushUtils {
 					object.put("token", token);
 					object.put("time", System.currentTimeMillis() / 1000 / 60); // 精度分钟
 					object.put("type", TYPE);
-					push(object.toJSONString());
-
+					object.put("msg_id", msg_id);
+					long id = redisTemplate.opsForList().leftPush(KEY_NEARBY_PUSH, object.toJSONString());
 				} catch (Exception e) {
 
 				}
 			}
 		}.start();
 
-	}
-
-	// private static void push(String title, long id, String token, long time)
-	// {
-	// JSONObject object = new JSONObject();
-	// object.put("alert", title);
-	// object.put("id", id);
-	// object.put("app_name", APP_NAME);
-	// object.put("token", token);
-	// object.put("time", time); // 精度分钟
-	// object.put("type", TYPE);
-	// push(object.toJSONString());
-	// }
-
-	private static void push(String msg) {
-		RedisTemplate<String, String> redisTemplate = SpringContextUtil.getBean("redisTemplate");
-		if (redisTemplate != null) {
-			try {
-				redisTemplate.opsForList().leftPush(KEY_NEARBY_PUSH, msg);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
 	}
 }

@@ -152,7 +152,7 @@ public class UserInfoDao extends BaseDao {
 	public List<User> getRandUsers(long user_id,String lat, String lng, int count) {
 		String disc = " ROUND(6378.138*2*ASIN(SQRT(POW(SIN((?*PI()/180-lat*PI()/180)/2),2)+COS(?*PI()/180)*COS(lat*PI()/180)*POW(SIN((?*PI()/180-lng*PI()/180)/2),2)))*1000) AS juli";
 		return jdbcTemplate.query(
-				"select user_id,avatar, nick_name,birthday,job_ids,lat,lng,interest_ids, " + disc
+				"select user_id,avatar, nick_name,type,birthday,job_ids,lat,lng,interest_ids, " + disc
 						+ " from t_user where user_id<>? order by rand() limit ?",
 				new Object[] { lat, lat, lng,user_id, count }, new FoundUserMapper());
 
@@ -183,7 +183,7 @@ public class UserInfoDao extends BaseDao {
 	}
 	public List<User> getLikeEachUsers(long user_id, long last_user_id, int page_size) {
 		
-		String sql="select friend.user_id ,user.nick_name ,user.avatar,user.sex "
+		String sql="select friend.user_id ,user.nick_name ,user.avatar,user.sex,user.type "
 				+ "from t_relationship me,"
 				+ "t_relationship friend ,"
 				+ "t_user user "

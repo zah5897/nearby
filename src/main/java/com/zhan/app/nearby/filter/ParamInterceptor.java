@@ -15,6 +15,24 @@ public class ParamInterceptor implements HandlerInterceptor {
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
 			throws Exception {
 		String _ua = request.getParameter("_ua");
+		String url = request.getRequestURI();
+		System.out.println(url);
+		if (url.contains("nearby/manager")) {
+			return true;
+		}
+
+		if (url.contains("nearby/js")) {
+			return true;
+		}
+		if (url.contains("nearby/images")) {
+			return true;
+		}
+		if (url.contains("nearby/css")) {
+			return true;
+		}
+		if (url.endsWith(".html")) {
+			return true;
+		}
 		if (TextUtils.isEmpty(_ua) || _ua.length() < 10) {
 			WriteJsonUtil.write(response, ERROR.ERR_NO_AGREE);
 			return false;

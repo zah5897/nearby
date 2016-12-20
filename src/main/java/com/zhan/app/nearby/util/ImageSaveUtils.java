@@ -17,8 +17,8 @@ public class ImageSaveUtils {
 
 	private static final String ROOT_PATH = "love_upload";
 	// 用户上传的图片路径
-	public static final String FILE_ROOT_IMAGES_ORIGIN = "/images/origin/";
-	public static final String FILE_ROOT_IMAGES_THUMB = "/images/thumb/";
+	public static final String FILE_ROOT_IMAGES_ORIGIN = "/img/origin/";
+	public static final String FILE_ROOT_IMAGES_THUMB = "/img/thumb/";
 
 	// 用户头像图片路径
 	public static final String FILE_ROOT_AVATAR_ORIGIN = "/avatar/origin/";
@@ -81,7 +81,7 @@ public class ImageSaveUtils {
 			if (shortName.contains(".")) {
 				fileShortName = UUID.randomUUID() + "." + shortName.split("\\.")[1];
 			} else {
-				fileShortName = UUID.randomUUID().toString()+".jpg";
+				fileShortName = UUID.randomUUID().toString() + ".jpg";
 			}
 			File uploadFile = new File(filePath + fileShortName);
 			uploadFile.mkdirs();
@@ -141,6 +141,7 @@ public class ImageSaveUtils {
 			uploadSmallFile.delete();
 		}
 	}
+
 	public static void pressImageByWidth(String origin, int minWidth, String thumb) throws IOException {
 		ImageCompressUtil.resizeByWidth(origin, minWidth, thumb);
 	}

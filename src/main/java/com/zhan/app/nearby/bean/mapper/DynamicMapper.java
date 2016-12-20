@@ -37,6 +37,7 @@ public class DynamicMapper implements RowMapper<UserDynamic> {
 		user.setNick_name(rs.getString("nick_name"));
 		user.setAvatar(rs.getString("avatar"));
 		user.setSex(rs.getString("sex"));
+		user.setType(rs.getShort("type"));
 		Date birthday = rs.getDate("birthday");
 		user.setAge(DateTimeUtil.getAge(birthday));
 

@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +20,8 @@ import com.zhan.app.nearby.util.PushUtils;
 public class DynamicMsgService {
 	@Resource
 	private DynamicMsgDao dynamicMsgDao;
+	@Resource
+	private RedisTemplate<String, String> redisTemplate;
 
 	public long insertActionMsg(DynamicMsgType type, long by_user_id, long dynamic_id, long user_id, String content) {
 		DynamicMessage msg = new DynamicMessage();
@@ -28,8 +31,9 @@ public class DynamicMsgService {
 		msg.setType(type.ordinal());
 		msg.setContent(content);
 		msg.setCreate_time(new Date());
-		PushUtils.commentMsg(type, user_id, dynamic_id);
-		return dynamicMsgDao.insert(msg);
+		long id = dynamicMsgDao.insert(msg);
+		PushUtils.commentMsg(redisTemplate, id, type, user_id, dynamic_id);
+		return id;
 	}
 
 	public List<DynamicMessage> msg_list(Long user_id, long last_id) {

@@ -22,7 +22,7 @@ public class DynamicMsgDao extends BaseDao {
 
 	public List<DynamicMessage> loadMsg(Long user_id, long last_id) {
 		try {
-			String sql = "select msg.*,user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday  from "
+			String sql = "select msg.*,user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday,user.type  from "
 					+ TABLE_DYNAMIC_MSG
 					+ " msg left join t_user user on msg.by_user_id=user.user_id where msg.user_id=? and msg.id>? order by msg.id desc";
 			return jdbcTemplate.query(sql, new Object[] { user_id, last_id }, new DynamicMsgMapper());

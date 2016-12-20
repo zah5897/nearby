@@ -20,6 +20,7 @@ public class FoundUserMapper implements RowMapper<User> {
 		user.setJob_ids(rs.getString("job_ids"));
 		user.setDisc(rs.getString("juli"));
 		user.setInterest_ids(rs.getString("interest_ids"));
+		user.setType(rs.getShort("type"));
 		return user;
 	}
 

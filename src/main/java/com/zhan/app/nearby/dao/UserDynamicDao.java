@@ -36,13 +36,13 @@ public class UserDynamicDao extends BaseDao {
 		String sql;
 		if (user_id > 0) {
 			if (last_id < 1) {
-				sql = "select dynamic.*,coalesce((select relationship from t_like_dynamic t_like where t_like.dynamic_id=dynamic.id and t_like.user_id=?), '0') as like_state ,user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday from "
+				sql = "select dynamic.*,coalesce((select relationship from t_like_dynamic t_like where t_like.dynamic_id=dynamic.id and t_like.user_id=?), '0') as like_state ,user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday ,user.type from "
 						+ TABLE_USER_DYNAMIC + " dynamic left join " + TABLE_HOME_FOUND_SELECTED
 						+ " selected on dynamic.id=selected.dynamic_id left join t_user user on  dynamic.user_id=user.user_id    where selected.selected_state=? and (dynamic.city_id=? or dynamic.district_id=?)   order by dynamic.id desc limit ?";
 				return jdbcTemplate.query(sql, new Object[] { user_id, status.ordinal(), city_id, city_id, page_size },
 						new DynamicMapper());
 			} else {
-				sql = "select dynamic.*,coalesce((select relationship from t_like_dynamic t_like where t_like.dynamic_id=dynamic.id and t_like.user_id=?), '0') as like_state ,user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday from "
+				sql = "select dynamic.*,coalesce((select relationship from t_like_dynamic t_like where t_like.dynamic_id=dynamic.id and t_like.user_id=?), '0') as like_state ,user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday ,user.type from "
 						+ TABLE_USER_DYNAMIC + " dynamic left join " + TABLE_HOME_FOUND_SELECTED
 						+ " selected on dynamic.id=selected.dynamic_id left join t_user user on  dynamic.user_id=user.user_id   where selected.selected_state=? and dynamic.id<? and (dynamic.city_id=? or dynamic.district_id=?)   order by dynamic.id desc limit ?";
 				return jdbcTemplate.query(sql,
@@ -51,13 +51,13 @@ public class UserDynamicDao extends BaseDao {
 			}
 		} else {
 			if (last_id < 1) {
-				sql = "select dynamic.* ,user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday from "
+				sql = "select dynamic.* ,user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday,user.type from "
 						+ TABLE_USER_DYNAMIC + " dynamic left join " + TABLE_HOME_FOUND_SELECTED
 						+ " selected on dynamic.id=selected.dynamic_id left join t_user user on  dynamic.user_id=user.user_id  where selected.selected_state=? and (dynamic.city_id=? or dynamic.district_id=?)  order by dynamic.id desc limit ?";
 				return jdbcTemplate.query(sql, new Object[] { status.ordinal(), city_id, city_id, page_size },
 						new DynamicMapper());
 			} else {
-				sql = "select dynamic.* ,user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday from "
+				sql = "select dynamic.* ,user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday,user.type from "
 						+ TABLE_USER_DYNAMIC + " dynamic left join " + TABLE_HOME_FOUND_SELECTED
 						+ " selected on dynamic.id=selected.dynamic_id left join t_user user on  dynamic.user_id=user.user_id where selected.selected_state=? and dynamic.id<? and (dynamic.city_id=? or dynamic.district_id=?) order by dynamic.id desc limit ?";
 				return jdbcTemplate.query(sql, new Object[] { status.ordinal(), last_id, city_id, city_id, page_size },
@@ -118,7 +118,7 @@ public class UserDynamicDao extends BaseDao {
 
 	public DynamicComment loadComment(long dynamic_id, long comment_id) {
 
-		String sql = "select comment.*,user.user_id  ,user.nick_name ,user.avatar,user.sex from "
+		String sql = "select comment.*,user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.type from "
 				+ TABLE_DYNAMIC_COMMENT
 				+ " comment left join t_user user on comment.user_id=user.user_id where comment.dynamic_id=? and comment.id=?";
 
@@ -128,14 +128,14 @@ public class UserDynamicDao extends BaseDao {
 	public List<DynamicComment> commentList(long dynamic_id, int count, long last_comment_id) {
 
 		if (last_comment_id > 0) {
-			String sql = "select comment.*,user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday from "
+			String sql = "select comment.*,user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday ,user.type from "
 					+ TABLE_DYNAMIC_COMMENT
 					+ " comment left join t_user user on comment.user_id=user.user_id where comment.dynamic_id=? and comment.id<? order by comment.id desc limit ?";
 
 			return jdbcTemplate.query(sql, new Object[] { dynamic_id, last_comment_id, count },
 					new DynamicCommentMapper());
 		} else {
-			String sql = "select comment.*,user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday from "
+			String sql = "select comment.*,user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday ,user.type from "
 					+ TABLE_DYNAMIC_COMMENT
 					+ " comment left join t_user user on comment.user_id=user.user_id where comment.dynamic_id=?  order by comment.id desc limit ?";
 
@@ -146,7 +146,7 @@ public class UserDynamicDao extends BaseDao {
 
 	public UserDynamic detail(long dynamic_id) {
 		try {
-			String sql = "select dy.*,user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday  from "
+			String sql = "select dy.*,user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday,user.type  from "
 					+ TABLE_USER_DYNAMIC + " dy left join t_user user on dy.user_id=user.user_id where dy.id=?";
 			return jdbcTemplate.queryForObject(sql, new Object[] { dynamic_id }, new DynamicMapper());
 		} catch (Exception e) {

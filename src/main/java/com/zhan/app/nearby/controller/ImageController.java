@@ -44,7 +44,7 @@ public class ImageController {
 	 * @return
 	 */
 	@RequestMapping("upload")
-	public ModelMap upload(DefaultMultipartHttpServletRequest multipartRequest, Long user_id, UserDynamic dynamic) {
+	public ModelMap upload(DefaultMultipartHttpServletRequest multipartRequest, Long user_id, UserDynamic dynamic,String ios_addr) {
 
 		if (user_id == null || user_id < 0) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM,"用户id异常");
@@ -68,7 +68,7 @@ public class ImageController {
 						dynamic.setCreate_time(new Date());
 						long id = userDynamicService.insertDynamic(dynamic);
 						dynamic.setId(id);
-						AddressUtil.praseAddress(IPUtil.getIpAddress(multipartRequest),dynamic);
+						AddressUtil.praseAddress(IPUtil.getIpAddress(multipartRequest),dynamic,ios_addr);
 						if (id > 0) {
 							userDynamicService.addHomeFoundSelected(id);
 						}

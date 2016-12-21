@@ -61,11 +61,11 @@ $(function(){
 });
 </script>
 <ul class="bread">
-  <li><a href="{:U('Index/info')}" target="right" class="icon-home"> 首页</a></li>
+  <li><a href="<%=path %>/manager/forword?path=welcome" target="right"  class="icon-home"> 首页</a></li>
   <li><a href="##" id="a_leader_txt">网站信息</a></li>
 </ul>
 <div class="admin">
-  <iframe scrolling="auto" rameborder="0" src="<%=path %>/manager/selected_dynamic_list?pageIndex=1" name="right" width="100%" height="100%"></iframe>
+  <iframe scrolling="auto" rameborder="0" src="<%=path %>/manager/forword?path=welcome" name="right" width="100%" height="100%"></iframe>
 </div>
 </body>
 </html>

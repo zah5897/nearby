@@ -186,8 +186,8 @@ public class ManagerController {
 	}
 
 	// 添加多个到首页推荐
-	@RequestMapping(value = "/add_batch_from_selected")
-	public @ResponseBody ModelMap add_batch_from_selected(String ids, int currentPage) {
+	@RequestMapping(value = "/add_batch_to_selected")
+	public @ResponseBody ModelMap add_batch_to_selected(String ids, int currentPage) {
 
 		if (TextUtils.isEmpty(ids)) {
 			return ResultUtil.getResultMap(ERROR.ERR_FAILED);

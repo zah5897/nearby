@@ -31,7 +31,7 @@
 						<button type="button" class="button border-green" id="checkall">
 							<span class="icon-check"></span>全选
 						</button>
-						<button type="button" class="button border-yellow"
+						<button type="button" class="button border-yellow" id="add_batch"
 							onclick="window.location.href='#add'">
 							<span class="icon-plus-square-o"></span>批量添加
 						</button>
@@ -112,9 +112,7 @@
 			      alert("指定的table id或行数不存在！");
 			     return;
 			 }
-			  
 			 
-			 alert(pageData);
 			 var toAdd="<tr id='tr_"+pageData["id"]+"'>";
 			 toAdd+="<td><input type='checkbox' name='id[]' value='"+pageData["id"]+"' />"+pageData["id"]+"</td>";
 			 
@@ -141,14 +139,14 @@
 				}
 			});
 		})
-		$("#del_batch").click(function() {
+		$("#add_batch").click(function() {
 			var chk_value =[]; 
 			$('input[name="id[]"]:checked').each(function(){ 
 			    chk_value.push($(this).val()); 
 			});
 			if(chk_value.length>0){
 				    var ids=JSON.stringify(chk_value);
-					$.post("<%=path%>/manager/add_batch_from_selected",{ids:ids,currentPage:currentPage},function(result){
+					$.post("<%=path%>/manager/add_batch_to_selected",{ids:ids,currentPage:currentPage},function(result){
 			       // $("#tr_"+id).remove();//移除当前的元素
 			        //reviewTableTr(result);
 			       var pageData=JSON.parse(result)["pageData"];

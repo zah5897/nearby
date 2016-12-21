@@ -74,35 +74,31 @@ public class ManagerController {
 		return new ModelAndView(path);
 	}
 
-	// 列出已经选择到首页的动态
+	// 列出已经选择到首页的动态 返回json
 	@RequestMapping(value = "/selected_dynamic_list")
-	public ModelAndView selected_dynamic_list(int pageIndex) {
-		int count = managerService.getHomeFoundSelectedCount();
-		ModelAndView view = new ModelAndView("dynamic_1");
-		if (pageIndex <= 0) {
+	public @ResponseBody ModelMap selected_dynamic_list(int pageIndex) {
+		int pageCount = getPageCount();
+		if (pageIndex == 0) {
 			pageIndex = 1;
+		}else if(pageIndex<0){
+			pageIndex=pageCount;
 		}
-
 		List<UserDynamic> dys = managerService.getHomeFoundSelected(pageIndex, 10);
 		if (dys != null && dys.size() > 0) {
 			ImagePathUtil.completeImagePath(dys, true);
 		}
-		view.addObject("selecteds", dys);
-		view.addObject("count", count);
-		int pageCount = count / 10;
 
-		if (count % 10 > 0) {
-			pageCount += 1;
-		}
-		view.addObject("pageCount", pageCount);
-		view.addObject("currentPageIndex", pageIndex);
-		return view;
+		ModelMap reMap = ResultUtil.getResultOKMap();
+		reMap.put("selecteds", dys);
+		reMap.put("pageCount", pageCount);
+		reMap.put("currentPageIndex", pageIndex);
+		return reMap;
 	}
 
 	// 未选择出现在首页的列表
 	@RequestMapping(value = "/unselected_dynamic_list")
 	public ModelAndView unselected_dynamic_list(int pageIndex) {
-		int count = managerService.getUnSelectedCount();
+		int pageCount = getPageCount();
 		ModelAndView view = new ModelAndView("dynamic_unselected");
 		if (pageIndex <= 0) {
 			pageIndex = 1;
@@ -113,15 +109,18 @@ public class ManagerController {
 			ImagePathUtil.completeImagePath(dys, true);
 		}
 		view.addObject("selecteds", dys);
-		view.addObject("count", count);
-		int pageCount = count / 10;
-
-		if (count % 10 > 0) {
-			pageCount += 1;
-		}
 		view.addObject("pageCount", pageCount);
 		view.addObject("currentPageIndex", pageIndex);
 		return view;
+	}
+	
+	private int getPageCount(){
+		int count = managerService.getHomeFoundSelectedCount();
+		int pageCount = count / 10;
+		if (count % 10 > 0) {
+			pageCount += 1;
+		}
+		return pageCount;
 	}
 
 	@RequestMapping(value = "/remove_from_selected")
@@ -130,11 +129,14 @@ public class ManagerController {
 		ModelMap r = ResultUtil.getResultOKMap();
 
 		List<UserDynamic> dys = managerService.getHomeFoundSelected(currentPage, 10);
-
-		if (dys != null) {
+		r.put("pageCount", getPageCount());
+		if (dys != null&&dys.size()>0) {
 			UserDynamic dy = dys.get(dys.size() - 1);
 			ImagePathUtil.completeImagePath(dy, true);
 			r.put("pageData", dy);
+			r.put("currentPageIndex", currentPage);
+		}else{
+			r.put("currentPageIndex", currentPage-1>0?currentPage-1:1);
 		}
 		return r;
 	}
@@ -155,8 +157,9 @@ public class ManagerController {
 			managerService.removeFromSelected(id);
 		}
 		ModelMap r = ResultUtil.getResultOKMap();
+		r.put("pageCount", getPageCount());
 		List<UserDynamic> dys = managerService.getHomeFoundSelected(currentPage, 10);
-		if (dys != null) {
+		if (dys != null&&dys.size()>0) {
 			ImagePathUtil.completeImagePath(dys, true);
 			if (len >= dys.size()) {
 				r.put("pageData", dys);
@@ -165,7 +168,9 @@ public class ManagerController {
 				List<UserDynamic> subList = dys.subList(from, dys.size());
 				r.put("pageData", subList);
 			}
-
+			r.put("currentPageIndex", currentPage);
+		}else{
+			r.put("currentPageIndex", currentPage-1>0?currentPage-1:1);
 		}
 		return r;
 	}

@@ -26,8 +26,8 @@
   <div class="leftnav-title"><strong><span class="icon-list"></span>菜单列表</strong></div>
   <h2><span class="icon-user"></span>基本设置</h2>
   <ul style="display:block">
-    <li><a href="<%=path %>/manager/selected_dynamic_list?pageIndex=1" target="right"><span class="icon-caret-right"></span>首页推荐</a></li>
-    <li><a href="<%=path %>/manager/unselected_dynamic_list?pageIndex=1" target="right"><span class="icon-caret-right"></span>用户动态</a></li>
+    <li><a href="<%=path %>/manager/forword?path=dynamic_selected" target="right"><span class="icon-caret-right"></span>首页推荐</a></li>
+    <li><a href="<%=path %>/manager/forword?path=dynamic_unselected" target="right"><span class="icon-caret-right"></span>用户动态</a></li>
     <!--  
     <li><a href="<%=path %>/manager/forword?path=info" target="right"><span class="icon-caret-right"></span>网站设置</a></li>
     <li><a href="<%=path %>/manager/forword?path=pass" target="right"><span class="icon-caret-right"></span>修改密码</a></li>

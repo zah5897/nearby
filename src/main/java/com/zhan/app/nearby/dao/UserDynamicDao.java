@@ -67,9 +67,18 @@ public class UserDynamicDao extends BaseDao {
 
 	}
 
-	public void addHomeFoundSelected(long dynamic_id) {
+	public int addHomeFoundSelected(long dynamic_id) {
+
+		String checkHas = "select count(*) from " + TABLE_HOME_FOUND_SELECTED
+				+ " where dynamic_id=? and selected_state=?";
+		int count = jdbcTemplate.queryForObject(checkHas, new Object[] { dynamic_id, ImageStatus.SELECTED.ordinal() },
+				Integer.class);
+
+		if (count > 0) {
+			return 0;
+		}
 		String sql = "insert into " + TABLE_HOME_FOUND_SELECTED + " values (?, ?)";
-		jdbcTemplate.update(sql, new Object[] { dynamic_id, ImageStatus.SELECTED.ordinal() });
+		return jdbcTemplate.update(sql, new Object[] { dynamic_id, ImageStatus.SELECTED.ordinal() });
 	}
 
 	public List<Integer> getPraiseCount(long dynamic_id) {

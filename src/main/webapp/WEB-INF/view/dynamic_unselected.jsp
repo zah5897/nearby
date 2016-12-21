@@ -31,8 +31,9 @@
 						<button type="button" class="button border-green" id="checkall">
 							<span class="icon-check"></span>全选
 						</button>
-						<button type="button" id="del_batch" class="button border-red">
-							<span class="icon-trash-o"></span>批量删除
+						<button type="button" class="button border-yellow"
+							onclick="window.location.href='#add'">
+							<span class="icon-plus-square-o"></span>批量添加
 						</button>
 					</li>
 				</ul>
@@ -58,8 +59,9 @@
 						<td>${dy.create_time }</td>
 						<td>${dy.praise_count }</td>
 						<td><div class="button-group">
-								<a class="button border-red" href="javascript:void(0)"
-									onclick="return del(${dy.id})"><span class="icon-trash-o"></span>删除</a>
+								<a class="button border-green" href="javascript:void(0)"
+									onclick="return add(${dy.id})"><span
+									class="icon-plus-square-o"></span>添加</a>
 							</div></td>
 					</tr>
 				</c:forEach>
@@ -93,8 +95,8 @@
 
 		}
 
-		function del(id) {
-				$.post("<%=path %>/manager/remove_from_selected",{id:id,currentPage:currentPage},function(result){
+		function add(id) {
+				$.post("<%=path%>/manager/add_to_selected",{id:id,currentPage:currentPage},function(result){
 			        $("#tr_"+id).remove();//移除当前的元素
 			        var pageData=JSON.parse(result)["pageData"];
 			        reviewTableTr(pageData);
@@ -110,20 +112,24 @@
 			      alert("指定的table id或行数不存在！");
 			     return;
 			 }
+			  
+			 
+			 alert(pageData);
 			 var toAdd="<tr id='tr_"+pageData["id"]+"'>";
 			 toAdd+="<td><input type='checkbox' name='id[]' value='"+pageData["id"]+"' />"+pageData["id"]+"</td>";
 			 
-			 var nick_name=pageData.user.nick_name;
-			 nick_name=nick_name==undefined?"":nick_name;
+			  var nick_name=pageData.user.nick_name;
+			  nick_name=nick_name==undefined?"":nick_name;
 			 
 			 toAdd+="<td>"+nick_name+"</td>";
 			 toAdd+="<td><img src='"+pageData.thumb+"' alt='' width='120' height='50' /></td>";
 			 toAdd+="<td>"+pageData["description"]+"</td>";
 			 toAdd+="<td>"+pageData["create_time"]+"</td>";
 			 toAdd+="<td>"+pageData["praise_count"]+"</td>";
-			 toAdd+="<td><div class='button-group'><a class='button border-red' href='javascript:void(0)'	onclick='return del("+pageData["id"]+")'><span class='icon-trash-o'></span>删除</a></div></td>";
+			 toAdd+="<td><div class='button-group'><a class='button border-green' href='javascript:void(0)'	onclick='return add("+pageData["id"]+")'><span class='icon-plus-square-o'></span>删除</a></div></td>";
 			 toAdd+="</tr>";
 			 last2tr.after(toAdd);
+			  
 		}
 	  
 		$("#checkall").click(function() {
@@ -142,7 +148,7 @@
 			});
 			if(chk_value.length>0){
 				    var ids=JSON.stringify(chk_value);
-					$.post("<%=path %>/manager/removes_from_selected",{ids:ids,currentPage:currentPage},function(result){
+					$.post("<%=path%>/manager/add_batch_from_selected",{ids:ids,currentPage:currentPage},function(result){
 			       // $("#tr_"+id).remove();//移除当前的元素
 			        //reviewTableTr(result);
 			       var pageData=JSON.parse(result)["pageData"];

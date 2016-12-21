@@ -65,4 +65,17 @@ public class ManagerDao extends BaseDao {
 		return jdbcTemplate.update(sql, new Object[] { id, ImageStatus.SELECTED.ordinal() });
 	}
 
+	public int addToSelected(long id) {
+		String checkHas = "select count(*) from " + TABLE_HOME_FOUND_SELECTED
+				+ " where dynamic_id=? and selected_state=?";
+		int count = jdbcTemplate.queryForObject(checkHas, new Object[] { id, ImageStatus.SELECTED.ordinal() },
+				Integer.class);
+
+		if (count < 1) {
+			String sql = "insert into " + TABLE_HOME_FOUND_SELECTED + " values (?, ?)";
+			return jdbcTemplate.update(sql, new Object[] { id, ImageStatus.SELECTED.ordinal() });
+		}
+		return 0;
+	}
+
 }

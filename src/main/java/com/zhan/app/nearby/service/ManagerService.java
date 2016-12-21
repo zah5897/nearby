@@ -37,4 +37,7 @@ public class ManagerService {
 	public int removeFromSelected(long id) {
 		return managerDao.removeFromSelected(id);
 	}
+	public int addToSelected(long id) {
+		return managerDao.addToSelected(id);
+	}
 }

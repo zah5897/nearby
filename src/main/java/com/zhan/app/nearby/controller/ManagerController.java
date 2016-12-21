@@ -13,10 +13,14 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.zhan.app.nearby.bean.UserDynamic;
+import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.service.ManagerService;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.ResultUtil;
+import com.zhan.app.nearby.util.TextUtils;
 
 @Controller
 @RequestMapping("/manager")
@@ -99,7 +103,7 @@ public class ManagerController {
 	@RequestMapping(value = "/unselected_dynamic_list")
 	public ModelAndView unselected_dynamic_list(int pageIndex) {
 		int count = managerService.getUnSelectedCount();
-		ModelAndView view = new ModelAndView("dynamic_1");
+		ModelAndView view = new ModelAndView("dynamic_unselected");
 		if (pageIndex <= 0) {
 			pageIndex = 1;
 		}
@@ -121,18 +125,94 @@ public class ManagerController {
 	}
 
 	@RequestMapping(value = "/remove_from_selected")
-	public @ResponseBody ModelMap remove_from_selected(long id,int currentPage) {
+	public @ResponseBody ModelMap remove_from_selected(long id, int currentPage) {
 		managerService.removeFromSelected(id);
-		ModelMap r=ResultUtil.getResultOKMap();
-		
+		ModelMap r = ResultUtil.getResultOKMap();
+
 		List<UserDynamic> dys = managerService.getHomeFoundSelected(currentPage, 10);
-		
-		if(dys!=null){
-			UserDynamic dy=dys.get(dys.size()-1);
+
+		if (dys != null) {
+			UserDynamic dy = dys.get(dys.size() - 1);
 			ImagePathUtil.completeImagePath(dy, true);
-			r.put("pageData", dy); 
+			r.put("pageData", dy);
 		}
 		return r;
 	}
 
+	// 删除多个
+	@RequestMapping(value = "/removes_from_selected")
+	public @ResponseBody ModelMap removes_from_selected(String ids, int currentPage) {
+
+		if (TextUtils.isEmpty(ids)) {
+			return ResultUtil.getResultMap(ERROR.ERR_FAILED);
+		}
+		JSONArray idsArray = JSON.parseArray(ids);
+
+		int len = idsArray.size();
+		for (int i = 0; i < len; i++) {
+			String strId = idsArray.getString(i);
+			long id = Long.parseLong(strId);
+			managerService.removeFromSelected(id);
+		}
+		ModelMap r = ResultUtil.getResultOKMap();
+		List<UserDynamic> dys = managerService.getHomeFoundSelected(currentPage, 10);
+		if (dys != null) {
+			ImagePathUtil.completeImagePath(dys, true);
+			if (len >= dys.size()) {
+				r.put("pageData", dys);
+			} else {
+				int from = dys.size() - len;
+				List<UserDynamic> subList = dys.subList(from, dys.size());
+				r.put("pageData", subList);
+			}
+
+		}
+		return r;
+	}
+
+	// 添加到首页推荐
+	@RequestMapping(value = "/add_to_selected")
+	public @ResponseBody ModelMap add_to_selected(long id, int currentPage) {
+		managerService.addToSelected(id);
+		ModelMap r = ResultUtil.getResultOKMap();
+
+		List<UserDynamic> dys = managerService.getUnSelected(currentPage, 10);
+		if (dys != null) {
+			UserDynamic dy = dys.get(dys.size() - 1);
+			ImagePathUtil.completeImagePath(dy, true);
+			r.put("pageData", dy);
+		}
+		return r;
+	}
+
+	// 添加多个到首页推荐
+	@RequestMapping(value = "/add_batch_from_selected")
+	public @ResponseBody ModelMap add_batch_from_selected(String ids, int currentPage) {
+
+		if (TextUtils.isEmpty(ids)) {
+			return ResultUtil.getResultMap(ERROR.ERR_FAILED);
+		}
+		JSONArray idsArray = JSON.parseArray(ids);
+
+		int len = idsArray.size();
+		for (int i = 0; i < len; i++) {
+			String strId = idsArray.getString(i);
+			long id = Long.parseLong(strId);
+			managerService.addToSelected(id);
+		}
+		ModelMap r = ResultUtil.getResultOKMap();
+		List<UserDynamic> dys = managerService.getUnSelected(currentPage, 10);
+		if (dys != null) {
+			ImagePathUtil.completeImagePath(dys, true);
+			if (len >= dys.size()) {
+				r.put("pageData", dys);
+			} else {
+				int from = dys.size() - len;
+				List<UserDynamic> subList = dys.subList(from, dys.size());
+				r.put("pageData", subList);
+			}
+
+		}
+		return r;
+	}
 }

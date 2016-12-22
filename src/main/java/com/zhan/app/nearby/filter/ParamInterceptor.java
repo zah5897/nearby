@@ -30,9 +30,13 @@ public class ParamInterceptor implements HandlerInterceptor {
 		if (url.contains("nearby/css")) {
 			return true;
 		}
+		if (url.contains("nearby/img/")) {
+			return true;
+		}
 		if (url.endsWith(".html")) {
 			return true;
 		}
+		 
 		if (TextUtils.isEmpty(_ua) || _ua.length() < 10) {
 			WriteJsonUtil.write(response, ERROR.ERR_NO_AGREE);
 			return false;

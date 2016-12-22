@@ -277,7 +277,7 @@
 			 nick_name=nick_name==undefined?"":nick_name;
 			 
 			 toAdd+="<td>"+nick_name+"</td>";
-			 toAdd+="<td><img src='"+pageData.thumb+"' alt='' width='120' height='50' /></td>";
+			 toAdd+="<td><img src='"+pageData.thumb+"' alt=''   height='50' /></td>";
 			 toAdd+="<td>"+pageData["description"]+"</td>";
 			 toAdd+="<td>"+pageData["create_time"]+"</td>";
 			 toAdd+="<td>"+pageData["praise_count"]+"</td>";

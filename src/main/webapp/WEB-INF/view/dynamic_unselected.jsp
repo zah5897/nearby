@@ -31,8 +31,7 @@
 						<button type="button" class="button border-green" id="checkall">
 							<span class="icon-check"></span>全选
 						</button>
-						<button type="button" class="button border-yellow" id="add_batch"
-							onclick="window.location.href='#add'">
+						<button type="button" id="add_batch" class="button border-yellow">
 							<span class="icon-plus-square-o"></span>批量添加
 						</button>
 					</li>
@@ -49,7 +48,7 @@
 					<th width="120">操作</th>
 				</tr>
 
-
+				<!--  
 				<c:forEach var="dy" items="${selecteds}">
 					<tr id="tr_${dy.id }">
 						<td><input type="checkbox" name="id[]" value="${dy.id }" />${dy.id }</td>
@@ -59,19 +58,69 @@
 						<td>${dy.create_time }</td>
 						<td>${dy.praise_count }</td>
 						<td><div class="button-group">
-								<a class="button border-green" href="javascript:void(0)"
-									onclick="return add(${dy.id})"><span
-									class="icon-plus-square-o"></span>添加</a>
+								<a class="button border-red" href="javascript:void(0)"
+									onclick="return del(${dy.id})"><span class="icon-trash-o"></span>删除</a>
 							</div></td>
 					</tr>
 				</c:forEach>
-
+                -->
 				<tr id="bottom">
 					<td colspan="8">
 						<div class="pagelist">
-							<a href=previous()>上一页</a> <a href=page(1)><span
-								class="current">1</span></a><a href="">2</a><a href="">3</a><a
-								href="">下一页</a><a href="">尾页</a>
+							<a href="javascript:void(0)" onclick="return previous()">上一页</a>
+							<!--  
+						   <c:choose>
+						       <c:when test="${currentPageIndex<10}">
+                                   <c:forEach var="i" begin="1" end="10" step="1">   
+     						           <c:choose>
+     						                <c:when test="${i==currentPageIndex }">
+     						                   <a href="javascript:void(0)" onclick="return page(${i})"><span class="current">${i }</span></a>
+     						                </c:when>
+     						                <c:otherwise>
+     						                	<a href="javascript:void(0)" onclick="return page(${i})">${i }</a>
+     						                </c:otherwise>
+     						           </c:choose>  
+						           </c:forEach>
+						       </c:when>
+						       
+						       <c:when test="${currentPageIndex<pageCount-10&&currentPageIndex>=10}">
+						         <c:forEach var="i" begin="${currentPageIndex }" end="${currentPageIndex+10 }" step="1">   
+     						           <c:choose>
+     						                <c:when test="${i==currentPageIndex }">
+     						                   <a href="javascript:void(0)" onclick="return page(${i})"><span class="current">${i }</span></a>
+     						                </c:when>
+     						                <c:otherwise>
+     						                	<a href="javascript:void(0)" onclick="return page(${i})">${i }</a>
+     						                </c:otherwise>
+     						           </c:choose>  
+						           </c:forEach>
+						           <c:otherwise>
+						                <c:forEach var="i" begin="${pageCount-10 }" end="10" step="1">   
+     						           <c:choose>
+     						                <c:when test="${i==currentPageIndex }">
+     						                   <a href="javascript:void(0)" onclick="return page(${i})"><span class="current">${i }</span></a>
+     						                </c:when>
+     						                <c:otherwise>
+     						                	<a href="javascript:void(0)" onclick="return page(${i})">${i }</a>
+     						                </c:otherwise>
+     						           </c:choose>  
+						           </c:forEach>
+						           </c:otherwise>
+						       </c:when>
+						   </c:choose>
+						   -->
+
+							<a id="next_flag" href="javascript:void(0)"
+								onclick="return next()">下一页</a> <a href="javascript:void(0)"
+								onclick="return page(-1)">尾页</a>
+							<!--  
+							<a href="javascript:void(0)" onclick="return previous()">上一页</a>
+							<a href="javascript:void(0)" onclick="page(1)"><span class="current">1</span></a>
+							<a href="javascript:void(0)">2</a>
+							<a href="javascript:void(0)">3</a>
+							<a href="javascript:void(0)" onclick="return next()">下一页</a>
+							<a href="javascript:void(0)" onclick="return end()">尾页</a>
+							-->
 						</div>
 					</td>
 				</tr>
@@ -79,55 +128,162 @@
 		</div>
 	</form>
 	<script type="text/javascript">
-		var currentPage = 1;
+	    //页面索引记录
+	    var currentPage = 0;
+	    var pageSize = 10;
+	    var pageCount = 100;
+	    //默认加载第一页
+	    $(document).ready(function(){ 
+		     page(1);
+		}); 
+		
+	    //前一页
 		function previous() {
-			if (confirm(currentPath - 1)) {
-
+			if (currentPage-1<1) {
+                return false;
 			}
+			page(currentPage-1)
 		}
+	    //前一页
+		function next() {
+			if (currentPage+1>pageCount) {
+                return false;
+			}
+			page(currentPage+1)
+		}
+	    
+	     //获取对应页面
 		function page(index) {
+			if (currentPage == index) {
+				return false;
+			}
+			$.post("<%=path%>/manager/unselected_dynamic_list",{'pageIndex':index},function(result){
+				 var json=JSON.parse(result);
+			        if(json.code==0){
+			        	$("table tr[id*='tr_'").each(function(i){
+				        	this.remove();//移除当前的元素
+				        })
+			        	refreshTable(json);
+			        }
+		    });
+			
+			return true;
+		}
 
-			if (currentPath == index) {
-				if (confirm("已经是第一页了")) {
-
+		//刷新表格
+		function refreshTable(json){
+			var pageData=json["selecteds"];
+			if(pageData){
+				for(var i=0;i<pageData.length;i++){
+					var tr;
+					if(i==0){
+						tr=$("table tr").eq(0);
+					}else{
+						tr=$("table tr").eq(-2);
+					}
+					reviewTableTr(pageData[i],tr);
 				}
 			}
-
+			refreshPageIndex(json["pageCount"],json["currentPageIndex"]);		
 		}
-
+		
+		function refreshPageIndex(page_count,currentPageIndex){
+			currentPage=currentPageIndex;
+			this.pageCount=page_count;
+			
+			var pageIndexHtml="";
+			var nextAflag=$("a#next_flag").eq(0);
+			if(currentPage<=pageSize){
+				var end=pageSize;
+				if(pageCount<pageSize){
+					end=pageCount;
+				} 
+                  for(var i=1;i<=end;i++){
+                	  pageIndexHtml+=getItem(currentPage,i);
+                  }				
+			}else{
+				//11
+				
+				if(currentPage==pageCount){
+					for(var i=pageCount-pageSize+1;i<=pageCount;i++){
+	                	  pageIndexHtml+=getItem(currentPage,i);
+	                  }	
+				}else if(currentPage+5>pageCount){
+					for(var i=pageCount-pageSize+1;i<=pageCount;i++){
+	                	  pageIndexHtml+=getItem(currentPage,i);
+	                  }	
+				}else{
+					for(var i=pageCount-4;i<=pageCount+5;i++){
+	                	  pageIndexHtml+=getItem(currentPage,i);
+	                  }	
+				}
+				
+			}
+			$("a.pg_flag").each(function(){
+				 this.remove();//移除当前的元素
+			 })
+			nextAflag.before(pageIndexHtml);
+			
+		}
+		
+		
+		
+		function getItem(currentPage,i){
+			 if(i==currentPage){
+         		  return "<a  class='pg_flag' href='javascript:void(0)' onclick='return page("+i+")'><span class='current'>"+i+"</span></a>";
+         	  }else{
+         		  return "<a class='pg_flag' href='javascript:void(0)' onclick='return page("+i+")'>"+i+"</a>";
+         	  }
+		}
+		
+		 
+		
 		function add(id) {
 				$.post("<%=path%>/manager/add_to_selected",{id:id,currentPage:currentPage},function(result){
 			        $("#tr_"+id).remove();//移除当前的元素
-			        var pageData=JSON.parse(result)["pageData"];
-			        reviewTableTr(pageData);
+			        
+			        var json=JSON.parse(result);
+			        var pageData=json["pageData"];
+			        
+			        var last2tr=$("table tr").eq(-2);
+					 if(last2tr.size()==0){
+					      alert("指定的table id或行数不存在！");
+					     return;
+					 }
+					 if(pageData){
+						 reviewTableTr(pageData,last2tr);
+					 }else{
+						 page(json["currentPageIndex"]);
+					 }
+			        refreshPageIndex(json["pageCount"],json["currentPageIndex"]);
 			    });
 		}
 
-	  //把最后一个补上
-      function reviewTableTr(pageData) {
+	  //
+      function reviewTableTr(pageData,tr) {
 			 //获取table倒数第二行 $("#tab tr").eq(-2)
 			 //var last2tr=$("table tr").eq(row);
-			 var last2tr=$("table tr").eq(-2);
-			 if(last2tr.size()==0){
-			      alert("指定的table id或行数不存在！");
-			     return;
+			 
+    	     var currentItem=$("tr#tr_"+pageData["id"]);
+			 
+			 if(currentItem.length>0){
+				 return;
 			 }
 			 
 			 var toAdd="<tr id='tr_"+pageData["id"]+"'>";
 			 toAdd+="<td><input type='checkbox' name='id[]' value='"+pageData["id"]+"' />"+pageData["id"]+"</td>";
 			 
-			  var nick_name=pageData.user.nick_name;
-			  nick_name=nick_name==undefined?"":nick_name;
+			 var nick_name=pageData.user.nick_name;
+			 nick_name=nick_name==undefined?"":nick_name;
 			 
 			 toAdd+="<td>"+nick_name+"</td>";
 			 toAdd+="<td><img src='"+pageData.thumb+"' alt='' width='120' height='50' /></td>";
 			 toAdd+="<td>"+pageData["description"]+"</td>";
 			 toAdd+="<td>"+pageData["create_time"]+"</td>";
 			 toAdd+="<td>"+pageData["praise_count"]+"</td>";
-			 toAdd+="<td><div class='button-group'><a class='button border-green' href='javascript:void(0)'	onclick='return add("+pageData["id"]+")'><span class='icon-plus-square-o'></span>删除</a></div></td>";
+			 toAdd+="<td><div class='button-group'><a class='button border-green' href='javascript:void(0)'	onclick='return add("+pageData["id"]+")'><span class='icon-plus-square-o'></span>添加</a></div></td>";
 			 toAdd+="</tr>";
-			 last2tr.after(toAdd);
-			  
+			 tr.after(toAdd);
 		}
 	  
 		$("#checkall").click(function() {
@@ -146,26 +302,35 @@
 			});
 			if(chk_value.length>0){
 				    var ids=JSON.stringify(chk_value);
-					$.post("<%=path%>/manager/add_batch_to_selected",{ids:ids,currentPage:currentPage},function(result){
-			       // $("#tr_"+id).remove();//移除当前的元素
-			        //reviewTableTr(result);
-			       var pageData=JSON.parse(result)["pageData"];
-			       if(pageData.length>0){
-			    	   
-			    	   for(var i=0;i<chk_value.length;i++){
-			    		   $("#tr_"+chk_value[i]).remove();//移除当前的元素
-			    	   }
-			    	   for(var i=0;i<pageData.length;i++){
-			    		   var dy=pageData[i];
-			    		   reviewTableTr(dy);
-			    	   }
-			       }
-			       
-			    });
-				return true;
-			} 
-		})
-		 
+					$.post("<%=path%>/manager/add_batch_to_selected", {
+							ids : ids,
+							currentPage : currentPage
+						}, function(result) {
+
+							var json = JSON.parse(result);
+							var pageData = json["pageData"];
+							for (var i = 0; i < chk_value.length; i++) {
+								$("#tr_" + chk_value[i]).remove();//移除当前的元素
+							}
+							if (pageData) {
+								var last2tr = $("table tr").eq(-2);
+								if (last2tr.size() == 0) {
+									alert("指定的table id或行数不存在！");
+									return;
+								}
+								for (var i = 0; i < pageData.length; i++) {
+									var dy = pageData[i];
+									reviewTableTr(dy, last2tr);
+								}
+							} else {
+								page(json["currentPageIndex"]);
+							}
+							refreshPageIndex(json["pageCount"],
+									json["currentPageIndex"]);
+						});
+						return true;
+					}
+				})
 	</script>
 </body>
 </html>

@@ -213,29 +213,16 @@ public class UserController {
 
 	@RequestMapping("logout")
 	public ModelMap logout(String token, long user_id) {
-
 		if (TextUtils.isEmpty(token) || user_id < 1) {
-			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN, "当前并未登陆");
-		}
-
-		String cachetoken = userCacheService.getCacheToken(user_id);
-		if (cachetoken != null) {
-			if (!cachetoken.equals(token)) {
-				return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN, "当前并未登陆");
-			}
+			return ResultUtil.getResultOKMap();
 		}
 		User user = userService.getBasicUser(user_id);
 		if (user != null) {
 			if (token.equals(user.getToken())) {
 				userService.updateToken(new User(user_id));
 				userCacheService.clearLoginUser(token, user_id);
-			} else {
-				return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN, "当前并未登陆");
-			}
-		} else {
-			return ResultUtil.getResultMap(ERROR.ERR_USER_NOT_EXIST, "当前用户不存在");
-		}
-
+			} 
+		}  
 		return ResultUtil.getResultOKMap();
 	}
 

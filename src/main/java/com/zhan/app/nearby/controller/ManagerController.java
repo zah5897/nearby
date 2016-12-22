@@ -77,7 +77,7 @@ public class ManagerController {
 	// 列出已经选择到首页的动态 返回json
 	@RequestMapping(value = "/selected_dynamic_list")
 	public @ResponseBody ModelMap selected_dynamic_list(int pageIndex) {
-		int pageCount = getPageCount();
+		int pageCount = getPageCount(true);
 		if (pageIndex == 0) {
 			pageIndex = 1;
 		}else if(pageIndex<0){
@@ -97,30 +97,40 @@ public class ManagerController {
 
 	// 未选择出现在首页的列表
 	@RequestMapping(value = "/unselected_dynamic_list")
-	public ModelAndView unselected_dynamic_list(int pageIndex) {
-		int pageCount = getPageCount();
-		ModelAndView view = new ModelAndView("dynamic_unselected");
-		if (pageIndex <= 0) {
+	public @ResponseBody ModelMap unselected_dynamic_list(int pageIndex) {
+		int pageCount = getPageCount(false);
+		if (pageIndex == 0) {
 			pageIndex = 1;
+		}else if(pageIndex<0){
+			pageIndex=pageCount;
+		}else if(pageIndex>pageCount){
+			pageIndex=pageCount;
 		}
 
 		List<UserDynamic> dys = managerService.getUnSelected(pageIndex, 10);
 		if (dys != null && dys.size() > 0) {
 			ImagePathUtil.completeImagePath(dys, true);
 		}
-		view.addObject("selecteds", dys);
-		view.addObject("pageCount", pageCount);
-		view.addObject("currentPageIndex", pageIndex);
-		return view;
+		ModelMap reMap = ResultUtil.getResultOKMap();
+		reMap.put("selecteds", dys);
+		reMap.put("pageCount", pageCount);
+		reMap.put("currentPageIndex", pageIndex);
+		return reMap;
 	}
 	
-	private int getPageCount(){
-		int count = managerService.getHomeFoundSelectedCount();
+	private int getPageCount(boolean isSelected){
+		int count;
+		if(isSelected){
+			count=	managerService.getHomeFoundSelectedCount();
+		}else{
+			count=	managerService.getUnSelectedCount();
+		}
 		int pageCount = count / 10;
 		if (count % 10 > 0) {
 			pageCount += 1;
 		}
-		return pageCount;
+		
+		return pageCount==0?1:pageCount;
 	}
 
 	@RequestMapping(value = "/remove_from_selected")
@@ -129,7 +139,7 @@ public class ManagerController {
 		ModelMap r = ResultUtil.getResultOKMap();
 
 		List<UserDynamic> dys = managerService.getHomeFoundSelected(currentPage, 10);
-		r.put("pageCount", getPageCount());
+		r.put("pageCount", getPageCount(true));
 		if (dys != null&&dys.size()>0) {
 			UserDynamic dy = dys.get(dys.size() - 1);
 			ImagePathUtil.completeImagePath(dy, true);
@@ -157,7 +167,7 @@ public class ManagerController {
 			managerService.removeFromSelected(id);
 		}
 		ModelMap r = ResultUtil.getResultOKMap();
-		r.put("pageCount", getPageCount());
+		r.put("pageCount", getPageCount(true));
 		List<UserDynamic> dys = managerService.getHomeFoundSelected(currentPage, 10);
 		if (dys != null&&dys.size()>0) {
 			ImagePathUtil.completeImagePath(dys, true);
@@ -180,13 +190,20 @@ public class ManagerController {
 	public @ResponseBody ModelMap add_to_selected(long id, int currentPage) {
 		managerService.addToSelected(id);
 		ModelMap r = ResultUtil.getResultOKMap();
-
+		r.put("pageCount", getPageCount(false));
+		
 		List<UserDynamic> dys = managerService.getUnSelected(currentPage, 10);
-		if (dys != null) {
+		if (dys != null&&dys.size()>0) {
 			UserDynamic dy = dys.get(dys.size() - 1);
-			ImagePathUtil.completeImagePath(dy, true);
-			r.put("pageData", dy);
+			if(dy.getId()<id){
+				ImagePathUtil.completeImagePath(dy, true);
+				r.put("pageData", dy);
+			}
+			r.put("currentPageIndex", currentPage);
+		}else{
+			r.put("currentPageIndex", currentPage-1>0?currentPage-1:1);
 		}
+		
 		return r;
 	}
 
@@ -206,8 +223,22 @@ public class ManagerController {
 			managerService.addToSelected(id);
 		}
 		ModelMap r = ResultUtil.getResultOKMap();
+//		List<UserDynamic> dys = managerService.getUnSelected(currentPage, 10);
+//		if (dys != null) {
+//			ImagePathUtil.completeImagePath(dys, true);
+//			if (len >= dys.size()) {
+//				r.put("pageData", dys);
+//			} else {
+//				int from = dys.size() - len;
+//				List<UserDynamic> subList = dys.subList(from, dys.size());
+//				r.put("pageData", subList);
+//			}
+//
+//		}
+		
+		r.put("pageCount", getPageCount(false));
 		List<UserDynamic> dys = managerService.getUnSelected(currentPage, 10);
-		if (dys != null) {
+		if (dys != null&&dys.size()>0) {
 			ImagePathUtil.completeImagePath(dys, true);
 			if (len >= dys.size()) {
 				r.put("pageData", dys);
@@ -216,7 +247,9 @@ public class ManagerController {
 				List<UserDynamic> subList = dys.subList(from, dys.size());
 				r.put("pageData", subList);
 			}
-
+			r.put("currentPageIndex", currentPage);
+		}else{
+			r.put("currentPageIndex", currentPage-1>0?currentPage-1:1);
 		}
 		return r;
 	}

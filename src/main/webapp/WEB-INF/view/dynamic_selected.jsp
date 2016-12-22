@@ -68,48 +68,6 @@
 					<td colspan="8">
 						<div class="pagelist">
 						   <a href="javascript:void(0)" onclick="return previous()">上一页</a>
-						   <!--  
-						   <c:choose>
-						       <c:when test="${currentPageIndex<10}">
-                                   <c:forEach var="i" begin="1" end="10" step="1">   
-     						           <c:choose>
-     						                <c:when test="${i==currentPageIndex }">
-     						                   <a href="javascript:void(0)" onclick="return page(${i})"><span class="current">${i }</span></a>
-     						                </c:when>
-     						                <c:otherwise>
-     						                	<a href="javascript:void(0)" onclick="return page(${i})">${i }</a>
-     						                </c:otherwise>
-     						           </c:choose>  
-						           </c:forEach>
-						       </c:when>
-						       
-						       <c:when test="${currentPageIndex<pageCount-10&&currentPageIndex>=10}">
-						         <c:forEach var="i" begin="${currentPageIndex }" end="${currentPageIndex+10 }" step="1">   
-     						           <c:choose>
-     						                <c:when test="${i==currentPageIndex }">
-     						                   <a href="javascript:void(0)" onclick="return page(${i})"><span class="current">${i }</span></a>
-     						                </c:when>
-     						                <c:otherwise>
-     						                	<a href="javascript:void(0)" onclick="return page(${i})">${i }</a>
-     						                </c:otherwise>
-     						           </c:choose>  
-						           </c:forEach>
-						           <c:otherwise>
-						                <c:forEach var="i" begin="${pageCount-10 }" end="10" step="1">   
-     						           <c:choose>
-     						                <c:when test="${i==currentPageIndex }">
-     						                   <a href="javascript:void(0)" onclick="return page(${i})"><span class="current">${i }</span></a>
-     						                </c:when>
-     						                <c:otherwise>
-     						                	<a href="javascript:void(0)" onclick="return page(${i})">${i }</a>
-     						                </c:otherwise>
-     						           </c:choose>  
-						           </c:forEach>
-						           </c:otherwise>
-						       </c:when>
-						   </c:choose>
-						   -->
-						  
 						   	<a id="next_flag" href="javascript:void(0)" onclick="return next()">下一页</a>
 							<a href="javascript:void(0)" onclick="return page(-1)">尾页</a>
 						    <!--  
@@ -133,7 +91,7 @@
 	    var pageCount = 100;
 	    //默认加载第一页
 	    $(document).ready(function(){ 
-		　　  page(1);
+		   page(1);
 		}); 
 		
 	    //前一页
@@ -172,7 +130,7 @@
 		//刷新表格
 		function refreshTable(json){
 			var pageData=json["selecteds"];
-			if(pageData.length>0){
+			if(pageData){
 				for(var i=0;i<pageData.length;i++){
 					var tr;
 					if(i==0){
@@ -182,6 +140,8 @@
 					}
 					reviewTableTr(pageData[i],tr);
 				}
+			}else{
+				page(json["currentPageIndex"]);
 			}
 			refreshPageIndex(json["pageCount"],json["currentPageIndex"]);		
 		}
@@ -189,42 +149,49 @@
 		function refreshPageIndex(page_count,currentPageIndex){
 			currentPage=currentPageIndex;
 			this.pageCount=page_count;
+			
 			var pageIndexHtml="";
 			var nextAflag=$("a#next_flag").eq(0);
-			
-			if(pageCount<pageSize){
-				pageSize=pageCount;
-			}
-			if(currentPage<pageSize){
-                  for(var i=1;i<=pageSize;i++){
-                	  if(i==currentPage){
-                		  pageIndexHtml+="<a class='pg_flag' href='javascript:void(0)' onclick='return page("+i+")'><span class='current'>"+i+"</span></a>";
-                	  }else{
-                		  pageIndexHtml+="<a class='pg_flag' href='javascript:void(0)' onclick='return page("+i+")'>"+i+"</a>";
-                	  }
+			if(currentPage<=pageSize){
+				var end=pageSize;
+				if(pageCount<pageSize){
+					end=pageCount;
+				} 
+                  for(var i=1;i<=end;i++){
+                	  pageIndexHtml+=getItem(currentPage,i);
                   }				
-			}else if(currentPage<pageCount-5){
-				 for(var i=currentPageIndex-4;i<=pageSize;i++){
-               	  if(i==currentPage){
-               		  pageIndexHtml+="<a class='pg_flag' href='javascript:void(0)' onclick='return page("+i+")'><span class='current'>"+i+"</span></a>";
-               	  }else{
-               		  pageIndexHtml+="<a class='pg_flag' href='javascript:void(0)' onclick='return page("+i+")'>"+i+"</a>";
-               	  }
-                 }	
 			}else{
-				for(var i=pageCount-pageSize;i<=pageSize;i++){
-	               	  if(i==currentPage){
-	               		  pageIndexHtml+="<a  class='pg_flag' href='javascript:void(0)' onclick='return page("+i+")'><span class='current'>"+i+"</span></a>";
-	               	  }else{
-	               		  pageIndexHtml+="<a class='pg_flag' href='javascript:void(0)' onclick='return page("+i+")'>"+i+"</a>";
-	               	  }
-	            }	
+				//11
+				
+				if(currentPage==pageCount){
+					for(var i=pageCount-pageSize+1;i<=pageCount;i++){
+	                	  pageIndexHtml+=getItem(currentPage,i);
+	                  }	
+				}else if(currentPage+5>pageCount){
+					for(var i=pageCount-pageSize+1;i<=pageCount;i++){
+	                	  pageIndexHtml+=getItem(currentPage,i);
+	                  }	
+				}else{
+					for(var i=pageCount-4;i<=pageCount+5;i++){
+	                	  pageIndexHtml+=getItem(currentPage,i);
+	                  }	
+				}
+				
 			}
 			
 			 $("a.pg_flag").each(function(){
 				 this.remove();//移除当前的元素
 			 })
 			nextAflag.before(pageIndexHtml);
+		}
+		 
+		
+		function getItem(currentPage,i){
+			 if(i==currentPage){
+          		  return "<a  class='pg_flag' href='javascript:void(0)' onclick='return page("+i+")'><span class='current'>"+i+"</span></a>";
+          	  }else{
+          		  return "<a class='pg_flag' href='javascript:void(0)' onclick='return page("+i+")'>"+i+"</a>";
+          	  }
 		}
 		
 		function del(id) {
@@ -239,7 +206,11 @@
 					      alert("指定的table id或行数不存在！");
 					     return;
 					 }
-			        reviewTableTr(pageData,last2tr);
+					 if(pageData){
+						 reviewTableTr(pageData,last2tr);
+					 }else{
+						 page(json["currentPageIndex"]);
+					 }
 			        refreshPageIndex(json["pageCount"],json["currentPageIndex"]);
 			    });
 		}
@@ -248,6 +219,13 @@
       function reviewTableTr(pageData,tr) {
 			 //获取table倒数第二行 $("#tab tr").eq(-2)
 			 //var last2tr=$("table tr").eq(row);
+			 
+			 var currentItem=$("tr#tr_"+pageData["id"]);
+			 
+			 if(currentItem.length>0){
+				 return;
+			 }
+			 
 			 var toAdd="<tr id='tr_"+pageData["id"]+"'>";
 			 toAdd+="<td><input type='checkbox' name='id[]' value='"+pageData["id"]+"' />"+pageData["id"]+"</td>";
 			 
@@ -286,10 +264,10 @@
 			       
 			       var json=JSON.parse(result);
 			       var pageData=json["pageData"];
-			       if(pageData.length>0){
-			    	   for(var i=0;i<chk_value.length;i++){
-			    		   $("#tr_"+chk_value[i]).remove();//移除当前的元素
-			    	   }
+			       for(var i=0;i<chk_value.length;i++){
+		    		   $("#tr_"+chk_value[i]).remove();//移除当前的元素
+		    	   }
+			       if(pageData){
 			    	   var last2tr=$("table tr").eq(-2);
 						 if(last2tr.size()==0){
 						      alert("指定的table id或行数不存在！");
@@ -299,6 +277,8 @@
 			    		   var dy=pageData[i];
 			    		   reviewTableTr(dy,last2tr);
 			    	   }
+			       }else{
+			    	   page(json["currentPageIndex"]);
 			       }
 			       refreshPageIndex(json["pageCount"],json["currentPageIndex"]);
 			    });

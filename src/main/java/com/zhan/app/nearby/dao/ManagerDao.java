@@ -31,7 +31,7 @@ public class ManagerDao extends BaseDao {
 				+ TABLE_USER_DYNAMIC + " dynamic left join " + TABLE_HOME_FOUND_SELECTED
 				+ " selected on dynamic.id=selected.dynamic_id left join t_user user on  dynamic.user_id=user.user_id  where selected.selected_state=?   order by dynamic.id desc limit ?,?";
 		return jdbcTemplate.query(sql,
-				new Object[] { ImageStatus.SELECTED.ordinal(), (pageIndex - 1) * pageSize, pageIndex * pageSize },
+				new Object[] { ImageStatus.SELECTED.ordinal(), (pageIndex - 1) * pageSize, pageSize },
 				new DynamicMapper());
 
 	}
@@ -42,7 +42,7 @@ public class ManagerDao extends BaseDao {
 				+ " dynamic left join t_user user on  dynamic.user_id=user.user_id  where dynamic.id not in(select dynamic_id from "
 				+ TABLE_HOME_FOUND_SELECTED + " where selected_state=?)   order by dynamic.id desc limit ?,?";
 		return jdbcTemplate.query(sql,
-				new Object[] { ImageStatus.SELECTED.ordinal(), (pageIndex - 1) * pageSize, pageIndex * pageSize },
+				new Object[] { ImageStatus.SELECTED.ordinal(), (pageIndex - 1) * pageSize, pageSize },
 				new DynamicMapper());
 
 	}

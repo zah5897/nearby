@@ -69,9 +69,11 @@ public class ImageController {
 						long id = userDynamicService.insertDynamic(dynamic);
 						dynamic.setId(id);
 						AddressUtil.praseAddress(IPUtil.getIpAddress(multipartRequest),dynamic,ios_addr);
-						if (id > 0) {
-							userDynamicService.addHomeFoundSelected(id);
-						}
+						
+						//预先放在首页推荐
+//						if (id > 0) {
+//							userDynamicService.addHomeFoundSelected(id);
+//						}
 						
 						ModelMap result=ResultUtil.getResultOKMap();
 						

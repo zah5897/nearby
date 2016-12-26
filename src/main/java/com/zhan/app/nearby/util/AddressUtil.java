@@ -21,7 +21,7 @@ public class AddressUtil {
 				if (!TextUtils.isEmpty(ios_addr)) {
 					try {
 						JSONObject obj = JSON.parseObject(ios_addr);
-						address = new String[4];
+						address = new String[6];
 						String city = obj.getString("City");
 						String SubLocality = obj.getString("SubLocality");
 						String Street = obj.getString("Street");
@@ -29,6 +29,8 @@ public class AddressUtil {
 						address[1] = Street;
 						address[2] = city;
 						address[3] = SubLocality;
+						address[4] = dynamic.getLat();
+						address[5] = dynamic.getLng();
 					} catch (Exception e) {
 						address = null;
 					}
@@ -47,6 +49,8 @@ public class AddressUtil {
 					dynamic.setStreet(address[1]);
 					dynamic.setCity(address[2]);
 					dynamic.setRegion(address[3]);
+					dynamic.setLat(address[4]);
+					dynamic.setLng(address[5]);
 
 					CityDao cityDao = ((CityDao) SpringContextUtil.getBean("cityDao"));
 					List<City> provincesAll = cityDao.list();
@@ -92,7 +96,7 @@ public class AddressUtil {
 				String district = addressComponent.getString("district");
 				String city = addressComponent.getString("city");
 				String province = addressComponent.getString("province");
-				return new String[] { address, street, city, district, province };
+				return new String[] { address, street, city, district, province ,lat,lng};
 			}
 		}
 		return null;

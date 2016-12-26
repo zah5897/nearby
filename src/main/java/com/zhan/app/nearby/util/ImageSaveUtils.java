@@ -15,10 +15,12 @@ public class ImageSaveUtils {
 	// 用户上传按此宽度
 	public static final int PRESS_IMAGE_WIDTH = 240;
 
-	private static final String ROOT_PATH = "love_upload";
+	private static final String ROOT_PATH = "nearby_upload";
 	// 用户上传的图片路径
-	public static final String FILE_ROOT_IMAGES_ORIGIN = "/img/origin/";
-	public static final String FILE_ROOT_IMAGES_THUMB = "/img/thumb/";
+	public static final String FILE_ROOT_IMAGES_ORIGIN = "/images/origin/";
+	public static final String REQ_IMAGES_ORIGIN = "/img/origin/";
+	public static final String FILE_ROOT_IMAGES_THUMB = "/images/thumb/";
+	public static final String REQ_IMAGES_THUMB = "/img/thumb/";
 
 	// 用户头像图片路径
 	public static final String FILE_ROOT_AVATAR_ORIGIN = "/avatar/origin/";

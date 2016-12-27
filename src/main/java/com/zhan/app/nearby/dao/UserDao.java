@@ -161,7 +161,7 @@ public class UserDao extends BaseDao {
 			Date birthday, String sex, String avatar) {
 		String sql = "update t_user set mobile=?,password=?,token=?,nick_name=?,birthday=?,sex=?,avatar=?,type=? where user_id=?";
 		return jdbcTemplate.update(sql, new Object[] { mobile, password, token, nick_name, birthday, sex, avatar,
-				UserType.VISITOR.ordinal(), user_id });
+				UserType.OFFIEC.ordinal(), user_id });
 	}
 
 	public int uploadToken(long user_id, String token, String zh_cn) {

@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.UUID;
 
 import javax.annotation.Resource;
-import javax.naming.spi.DirStateFactory.Result;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
@@ -14,6 +13,7 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.multipart.support.DefaultMultipartHttpServletRequest;
 
 import com.zhan.app.nearby.bean.City;
@@ -91,7 +91,7 @@ public class UserController {
 	 */
 
 	@RequestMapping("regist")
-	public ModelMap regist(DefaultMultipartHttpServletRequest multipartRequest, User user, String code) {
+	public ModelMap regist(HttpServletRequest request, User user, String code) {
 
 		if (TextUtils.isEmpty(user.getMobile())) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "手机号码不能为空!");
@@ -112,6 +112,11 @@ public class UserController {
 			return ResultUtil.getResultMap(ERROR.ERR_PASSWORD);
 		}
 
+		DefaultMultipartHttpServletRequest multipartRequest = null;
+		
+		if(request instanceof MultipartHttpServletRequest){
+			multipartRequest=(DefaultMultipartHttpServletRequest) request;
+		}
 		if (multipartRequest != null) {
 			Iterator<String> iterator = multipartRequest.getFileNames();
 			while (iterator.hasNext()) {

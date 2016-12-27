@@ -240,4 +240,10 @@ public class UserDynamicDao extends BaseDao {
 		return 0;
 	}
 
+	public int getMostCityID() {
+		String sql = "select c.city_id from (select count(*) as count, gb.* from t_user_dynamic gb group by gb.city_id) as c order by c.count desc limit 1";
+		return jdbcTemplate.queryForObject(sql, Integer.class);
+
+	}
+
 }

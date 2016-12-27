@@ -43,7 +43,7 @@ public class User {
 	@ColumnType // 忽略保存
 	private String origin_avatar;
 
-	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	private Date birthday;
 	private String token;
 

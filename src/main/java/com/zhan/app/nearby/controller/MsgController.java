@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.zhan.app.nearby.service.DynamicMsgService;
 import com.zhan.app.nearby.util.ResultUtil;
+import com.zhan.app.nearby.util.TextUtils;
 
 @RestController
 @RequestMapping("/msg")
@@ -21,5 +22,20 @@ public class MsgController {
 		ModelMap mm = ResultUtil.getResultOKMap();
 		mm.put("msg_id", msg_id);
 		return mm;
+	}
+	@RequestMapping("update_state")
+	public ModelMap delete(Long user_id, String msg_ids) {
+		if(user_id==null||TextUtils.isEmpty(msg_ids)){
+			return ResultUtil.getResultOKMap();
+		}
+		String[] ids=msg_ids.split(",");
+		for(String id:ids){
+			try{
+			    dynamicMsgService.updateState(Long.parseLong(id));
+			}catch(Exception e){
+				e.printStackTrace();
+			}
+		}
+		return ResultUtil.getResultOKMap();
 	}
 }

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import com.zhan.app.nearby.bean.DynamicMessage;
 import com.zhan.app.nearby.bean.mapper.DynamicMsgMapper;
+import com.zhan.app.nearby.comm.MsgState;
 
 @Repository("dynamicMsgDao")
 public class DynamicMsgDao extends BaseDao {
@@ -34,6 +35,11 @@ public class DynamicMsgDao extends BaseDao {
 	public int delete(long msg_id) {
 		String sql = "delete from " + TABLE_DYNAMIC_MSG + " where id=?";
 		return jdbcTemplate.update(sql, new Object[] { msg_id });
+	}
+
+	public int updateState(long id) {
+		String sql="update "+TABLE_DYNAMIC_MSG+" set state=? where id=?";
+		return jdbcTemplate.update(sql, new Object[] { MsgState.READED.ordinal(),id});
 	}
 
 }

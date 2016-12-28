@@ -42,7 +42,7 @@
 					<th width="80">ID</th>
 					<th>发布者</th>
 					<th>图片</th>
-					<th>内容</th>
+					<th width="20%">内容</th>
 					<th>时间</th>
 					<th width="25%">点赞数量</th>
 					<th width="120">操作</th>

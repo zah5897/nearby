@@ -19,6 +19,8 @@ public class DynamicMessage {
 
 	private Date create_time;
 
+	
+	private int state;
 	@ColumnType
 	private User user;
 	@ColumnType
@@ -104,6 +106,14 @@ public class DynamicMessage {
 
 	public void setAttention(MsgAttention attention) {
 		this.attention = attention;
+	}
+
+	public int getState() {
+		return state;
+	}
+
+	public void setState(int state) {
+		this.state = state;
 	}
 
 }

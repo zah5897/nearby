@@ -49,4 +49,8 @@ public class DynamicMsgService {
 	public void delete(long msg_id) {
 		dynamicMsgDao.delete(msg_id);
 	}
+
+	public int updateState(long id) {
+		return dynamicMsgDao.updateState(id);
+	}
 }

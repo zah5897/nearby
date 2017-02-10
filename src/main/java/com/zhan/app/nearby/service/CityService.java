@@ -106,4 +106,24 @@ public class CityService {
 		infoCacheService.clear(CITY_LIST);
 	}
 
+	public City getCity(int birth_city_id) {
+		// TODO Auto-generated method stub
+		List<City> all=list();
+		if(all!=null&&birth_city_id>0){
+			for(City c:all){
+				if(c.getId()==birth_city_id){
+					return c;
+				}
+				if(c.getChildren()!=null){
+					for(City child:c.getChildren()){
+						if(child.getId()==birth_city_id){
+							return child;
+						}
+					}
+				}
+			}
+		}
+		return null;
+	}
+
 }

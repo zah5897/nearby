@@ -1,6 +1,7 @@
 package com.zhan.app.nearby.cache;
 
 import java.io.Serializable;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Resource;
 
@@ -25,8 +26,8 @@ public class UserCacheService {
 	public void cacheLoginToken(User user) {
 		try{
 		String id = String.valueOf(user.getUser_id());
-		// String json = JSON.toJSONString(user);
-		redisTemplate.opsForHash().put(RedisKeys.KEY_LOGIN_TOKEN, id, user.getToken());
+		redisTemplate.opsForValue().set(id, user.getToken());
+		redisTemplate.expire(id, 60, TimeUnit.DAYS);
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -34,39 +35,33 @@ public class UserCacheService {
 
 	public void cacheValidateCode(String mobile, String code) {
 		try{
-		redisTemplate.opsForHash().put(RedisKeys.KEY_CODE, mobile, code);
-		redisTemplate.opsForHash().put(RedisKeys.KEY_CODE_TIME, mobile,
-				String.valueOf(System.currentTimeMillis() / 1000));// 精确秒级别
+	    redisTemplate.opsForValue().set(mobile, code);
+	    redisTemplate.expire(mobile, 60, TimeUnit.SECONDS);
 		}catch(Exception e){
 			e.printStackTrace();
 		}
 	}
 
-	public long getLastCodeTime(String mobile) {
+	
+	public String getCachevalideCode(String mobile) {
 		try{
-		Object time = redisTemplate.opsForHash().get(RedisKeys.KEY_CODE_TIME, mobile);
-		if (time == null) {
-			return 0;
+			redisTemplate.persist(mobile);
+		Object codeObj = redisTemplate.opsForValue().get(mobile);
+		if(codeObj!=null){
+			return codeObj.toString();
 		}
-		return Long.parseLong(time.toString());
-		}catch(Exception e){
-			e.printStackTrace();
+		 }catch(Exception e){
+			
 		}
-		return 0L;
-	}
-
-	public boolean valideCode(String mobile, String code) {
+		return null;
+		}
+		public boolean valideCode(String mobile, String code) {
 		
 		try{
-		
-		if (!redisTemplate.opsForHash().hasKey(RedisKeys.KEY_CODE, mobile)) {
-			return false; // 不存在该手机号码发送的code
-		}
-		Object codeObj = redisTemplate.opsForHash().get(RedisKeys.KEY_CODE, mobile);
+		Object codeObj = redisTemplate.opsForValue().get(mobile);
 		if (codeObj == null) {
 			return false;
 		}
-
 		return codeObj.toString().equals(code);
 	}catch(Exception e){
 		e.printStackTrace();
@@ -76,8 +71,7 @@ public class UserCacheService {
 
 	public void clearCode(String mobile) {
 		try{
-		redisTemplate.opsForHash().delete(RedisKeys.KEY_CODE, mobile);
-		redisTemplate.opsForHash().delete(RedisKeys.KEY_CODE_TIME, mobile);// 精确秒级别
+     		redisTemplate.delete(mobile);
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -85,7 +79,7 @@ public class UserCacheService {
 
 	public String getCacheToken(long user_id) {
 		try{
-		Object tokenObj = redisTemplate.opsForHash().get(RedisKeys.KEY_LOGIN_TOKEN, String.valueOf(user_id));
+		Object tokenObj = redisTemplate.opsForValue().get(user_id);
 		if (tokenObj != null) {
 			return tokenObj.toString();
 		}
@@ -98,8 +92,7 @@ public class UserCacheService {
 	public void clearLoginUser(String token, long user_id) {
 		try{
 		String sid = String.valueOf(user_id);
-		redisTemplate.opsForHash().delete(RedisKeys.KEY_LOGIN_TOKEN, sid);
-		redisTemplate.opsForHash().delete(RedisKeys.KEY_LOGIN_TOKEN, sid);
+		redisTemplate.delete(sid);
 		}catch(Exception e){
 			e.printStackTrace();
 		}

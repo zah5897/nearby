@@ -7,6 +7,7 @@ import javax.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.zhan.app.nearby.bean.City;
 import com.zhan.app.nearby.bean.User;
 import com.zhan.app.nearby.cache.UserCacheService;
 import com.zhan.app.nearby.dao.UserDao;
@@ -22,6 +23,8 @@ public class UserService {
 	private UserDao userDao;
 	@Resource
 	private UserCacheService userCacheService;
+	@Resource
+	private CityService cityService;
 
 	public User getBasicUser(long id) {
 		return userDao.getUser(id);
@@ -101,6 +104,15 @@ public class UserService {
 		User user = userDao.getUserDetailInfo(user_id);
 		if (user != null) {
 
+			if(user.getCity_id()>0){
+				user.setCity(cityService.getCity(user.getCity_id()));
+			}
+			if(user.getBirth_city_id()>0){
+				 user.setBirth_city(cityService.getCity(user.getBirth_city_id()));
+			}
+			
+			
+			
 			ImagePathUtil.completeAvatarPath(user, true); // 补全图片链接地址
 			// 隐藏系统安全信息
 			user.hideSysInfo();
@@ -121,9 +133,9 @@ public class UserService {
 
 	public int modify_info(long user_id, String nick_name, String birthday, String job, String height, String weight,
 			String signature, String my_tags, String interests, String animals, String musics, String weekday_todo,
-			String footsteps, String want_to_where, boolean isNick_modify) {
+			String footsteps, String want_to_where, boolean isNick_modify,Integer birth_city_id) {
 		return userDao.modify_info(user_id, nick_name, birthday, job, height, weight, signature, my_tags, interests,
-				animals, musics, weekday_todo, footsteps, want_to_where);
+				animals, musics, weekday_todo, footsteps, want_to_where,birth_city_id);
 	}
 
 	public int visitorToNormal(User user) {
@@ -159,4 +171,19 @@ public class UserService {
 		return userDao.getDeviceToken(user_id);
 	}
 
+	public void setCity(Long user_id, Integer city_id) {
+		
+		if(user_id==null||user_id>0){
+			return;
+		}
+		
+		if(city_id==null){
+			return;
+		}
+		
+		  userDao.setCity(user_id,city_id);
+	}
+
+	
+	
 }

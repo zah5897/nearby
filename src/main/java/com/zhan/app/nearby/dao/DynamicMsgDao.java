@@ -38,7 +38,7 @@ public class DynamicMsgDao extends BaseDao {
 	}
 
 	public int updateState(long id) {
-		String sql="update "+TABLE_DYNAMIC_MSG+" set state=? where id=?";
+		String sql="update "+TABLE_DYNAMIC_MSG+" set isReadNum=? where id=?";
 		return jdbcTemplate.update(sql, new Object[] { MsgState.READED.ordinal(),id});
 	}
 

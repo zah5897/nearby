@@ -13,7 +13,7 @@ public class ImageSaveUtils {
 	// 头像压缩 按此宽度
 	public static final int PRESS_AVATAR_WIDTH = 240;
 	// 用户上传按此宽度
-	public static final int PRESS_IMAGE_WIDTH = 240;
+	public static final int PRESS_IMAGE_WIDTH = 320;
 
 	private static final String ROOT_PATH = "nearby_upload";
 	// 用户上传的图片路径

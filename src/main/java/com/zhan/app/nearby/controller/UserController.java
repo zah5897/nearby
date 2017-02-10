@@ -22,6 +22,7 @@ import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.cache.UserCacheService;
 import com.zhan.app.nearby.comm.UserType;
 import com.zhan.app.nearby.exception.ERROR;
+import com.zhan.app.nearby.service.CityService;
 import com.zhan.app.nearby.service.UserDynamicService;
 import com.zhan.app.nearby.service.UserService;
 import com.zhan.app.nearby.util.DateTimeUtil;
@@ -31,6 +32,7 @@ import com.zhan.app.nearby.util.ImageSaveUtils;
 import com.zhan.app.nearby.util.MD5Util;
 import com.zhan.app.nearby.util.RandomCodeUtil;
 import com.zhan.app.nearby.util.ResultUtil;
+import com.zhan.app.nearby.util.SMSHelper;
 import com.zhan.app.nearby.util.TextUtils;
 import com.zhan.app.nearby.util.UserDetailInfoUtil;
 
@@ -46,6 +48,9 @@ public class UserController {
 
 	@Resource
 	private UserDynamicService userDynamicService;
+
+	@Resource
+	private CityService cityService;
 
 	/**
 	 * 获取注册用的短信验证码
@@ -65,16 +70,25 @@ public class UserController {
 			return ResultUtil.getResultMap(ERROR.ERR_USER_EXIST, "该手机号码已注册");
 		}
 
-		long now = System.currentTimeMillis() / 1000;
-		long lastTime = userCacheService.getLastCodeTime(mobile);
-
+		String cache = userCacheService.getCachevalideCode(mobile);
+		if(cache!=null){
+			//已经在一分钟内发过，还没过期
+			System.out.println("已经在一分钟内发过，还没过期");
+		}
 		// if (now - lastTime <= 60) {
 		// return ResultUtil.getResultMap(ERROR.ERR_FREUENT);
 		// }
 		ModelMap data = ResultUtil.getResultOKMap();
 		String code = RandomCodeUtil.randomCode(6);
-		userCacheService.cacheValidateCode(mobile, code);
-		data.put("validate_code", code);
+
+		boolean smsOK = SMSHelper.sms(mobile, code, 1);
+		if (smsOK) {
+			userCacheService.cacheValidateCode(mobile, code);
+			data.put("validate_code", code);
+		}else{
+			data = ResultUtil.getResultMap(ERROR.ERR_FAILED, "验证码发送失败");
+		}
+
 		return data;
 	}
 
@@ -113,9 +127,9 @@ public class UserController {
 		}
 
 		DefaultMultipartHttpServletRequest multipartRequest = null;
-		
-		if(request instanceof MultipartHttpServletRequest){
-			multipartRequest=(DefaultMultipartHttpServletRequest) request;
+
+		if (request instanceof MultipartHttpServletRequest) {
+			multipartRequest = (DefaultMultipartHttpServletRequest) request;
 		}
 		if (multipartRequest != null) {
 			Iterator<String> iterator = multipartRequest.getFileNames();
@@ -136,7 +150,7 @@ public class UserController {
 		}
 		String token = UUID.randomUUID().toString();
 		user.setToken(token);
-		user.setType((short)UserType.OFFIEC.ordinal());
+		user.setType((short) UserType.OFFIEC.ordinal());
 		long id = user.getUser_id();
 		if (id > 0) {
 			int count = userService.visitorToNormal(user);
@@ -203,7 +217,14 @@ public class UserController {
 				userCacheService.cacheLoginToken(user); // 缓存token，缓解检查登陆查询
 
 				ImagePathUtil.completeAvatarPath(user, true); // 补全图片链接地址
-				user.setCity(getDefaultCityId());
+				if (user.getCity() == null) {
+					user.setCity(getDefaultCityId());
+				}
+
+				if (user.getBirth_city_id() > 0) {
+					user.setBirth_city(cityService.getCity(user.getBirth_city_id()));
+				}
+
 				result.put("user", user);
 				return result;
 			} else {
@@ -226,8 +247,8 @@ public class UserController {
 			if (token.equals(user.getToken())) {
 				userService.updateToken(new User(user_id));
 				userCacheService.clearLoginUser(token, user_id);
-			} 
-		}  
+			}
+		}
 		return ResultUtil.getResultOKMap();
 	}
 
@@ -248,9 +269,11 @@ public class UserController {
 			return ResultUtil.getResultMap(ERROR.ERR_USER_NOT_EXIST, "该手机号码未注册");
 		}
 
-		long now = System.currentTimeMillis() / 1000;
-		long lastTime = userCacheService.getLastCodeTime(mobile);
-
+		String cache = userCacheService.getCachevalideCode(mobile);
+		if(cache!=null){
+			//已经在一分钟内发过，还没过期
+			System.out.println("已经在一分钟内发过，还没过期");
+		}
 		// if (now - lastTime <= 60) {
 		// return ResultUtil.getResultMap(ERROR.ERR_FREUENT);
 		// }
@@ -404,20 +427,16 @@ public class UserController {
 	@RequestMapping("modify_info")
 	public ModelMap modify_info(long user_id, String token, String nick_name, String birthday, String jobs,
 			String height, String weight, String signature, String my_tags, String interest, String favourite_animal,
-			String favourite_music, String weekday_todo, String footsteps, String want_to_where) {
+			String favourite_music, String weekday_todo, String footsteps, String want_to_where,
+			Integer birth_city_id) {
 		if (user_id < 1) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "用户ID异常");
 		}
-		//
-		if (TextUtils.isEmpty(token)) {
-			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
-		}
+
 		User user = userService.getBasicUser(user_id);
 		//
 		if (user == null) {
 			return ResultUtil.getResultMap(ERROR.ERR_USER_NOT_EXIST, "该用户不存在！");
-		} else if (!token.equals(user.getToken())) {
-			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
 		boolean isNick_modify = false;
 		if (user.getNick_name() != null) {
@@ -429,7 +448,8 @@ public class UserController {
 		}
 
 		userService.modify_info(user_id, nick_name, birthday, jobs, height, weight, signature, my_tags, interest,
-				favourite_animal, favourite_music, weekday_todo, footsteps, want_to_where, isNick_modify);
+				favourite_animal, favourite_music, weekday_todo, footsteps, want_to_where, isNick_modify,
+				birth_city_id);
 		return detial_info(user_id, null, null);
 	}
 
@@ -481,7 +501,8 @@ public class UserController {
 	}
 
 	@RequestMapping("update_location")
-	public ModelMap update_location(HttpServletRequest request, long user_id, String lat, String lng,String ios_address) {
+	public ModelMap update_location(HttpServletRequest request, long user_id, String lat, String lng,
+			String ios_address) {
 		userService.uploadLocation(IPUtil.getIpAddress(request), user_id, lat, lng);
 		return ResultUtil.getResultOKMap();
 	}
@@ -524,6 +545,13 @@ public class UserController {
 
 		user.setCity(getDefaultCityId());
 		result.put("user", user);
+		return result;
+	}
+
+	@RequestMapping("set_city")
+	public ModelMap set_city(Long user_id, Integer city_id) {
+		userService.setCity(user_id, city_id);
+		ModelMap result = ResultUtil.getResultOKMap();
 		return result;
 	}
 

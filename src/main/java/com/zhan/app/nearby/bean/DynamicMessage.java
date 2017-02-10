@@ -20,7 +20,7 @@ public class DynamicMessage {
 	private Date create_time;
 
 	
-	private int state;
+	private int isReadNum;
 	@ColumnType
 	private User user;
 	@ColumnType
@@ -108,12 +108,14 @@ public class DynamicMessage {
 		this.attention = attention;
 	}
 
-	public int getState() {
-		return state;
+	public int getIsReadNum() {
+		return isReadNum;
 	}
 
-	public void setState(int state) {
-		this.state = state;
+	public void setIsReadNum(int isReadNum) {
+		this.isReadNum = isReadNum;
 	}
+
+	 
 
 }

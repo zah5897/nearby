@@ -19,20 +19,7 @@ public class UserDetailInfoUtil {
 			return ResultUtil.getResultMap(ERROR.ERR_USER_NOT_EXIST, "该用户不存在！");
 		}
 		Map<String, Object> secret_me = new HashMap<String, Object>();
-		// secret_me.put("interest", user.getInterest() != null ?
-		// user.getInterest() : new ArrayList<Tag>());
-		// secret_me.put("favourite_animal",
-		// user.getFavourite_animal() != null ? user.getFavourite_animal() : new
-		// ArrayList<Tag>());
-		// secret_me.put("favourite_music",
-		// user.getFavourite_music() != null ? user.getFavourite_music() : new
-		// ArrayList<Tag>());
-		// secret_me.put("weekday_todo", user.getWeekday_todo() != null ?
-		// user.getWeekday_todo() : new ArrayList<Tag>());
-		// secret_me.put("footsteps", user.getFootsteps() != null ?
-		// user.getFootsteps() : new ArrayList<Tag>());
-		// secret_me.put("want_to_where", user.getWant_to_where() != null ?
-		// user.getWant_to_where() : new String());
+		 
 		//
 		Map<String, Object> userJson = new HashMap<String, Object>();
 		userJson.put("about_me", user.getBasicUserInfoMap());

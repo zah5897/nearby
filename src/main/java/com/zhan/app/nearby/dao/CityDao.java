@@ -22,11 +22,11 @@ public class CityDao extends BaseDao {
 
 	public List<City> list() {
 		return jdbcTemplate.query("select *from " + TABLE_NAME + " pre ", new Object[] {},
-				new BeanPropertyRowMapper(City.class));
+				new BeanPropertyRowMapper<City>(City.class));
 	}
 	public List<City> listByType(int type) {
 		return jdbcTemplate.query("select *from " + TABLE_NAME + " where type=? ", new Object[] {type},
-				new BeanPropertyRowMapper(City.class));
+				new BeanPropertyRowMapper<City>(City.class));
 	}
 
 	 

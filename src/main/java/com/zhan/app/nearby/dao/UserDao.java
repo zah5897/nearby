@@ -114,7 +114,7 @@ public class UserDao extends BaseDao {
 
 	public int modify_info(long user_id, String nick_name, String birthday, String job, String height, String weight,
 			String signature, String my_tags, String interests, String animals, String musics, String weekday_todo,
-			String footsteps, String want_to_where) {
+			String footsteps, String want_to_where,Integer birth_city_id) {
 
 		String sql = "update t_user set ";
 		StringBuilder names = new StringBuilder();
@@ -146,6 +146,10 @@ public class UserDao extends BaseDao {
 		SQLUtil.appendSql(names, weekday_todo, "weekday_todo_ids", values);
 		SQLUtil.appendSql(names, footsteps, "footstep_ids", values);
 		SQLUtil.appendSql(names, want_to_where, "want_to_where", values);
+		if(birth_city_id!=null){
+			SQLUtil.appendSql(names, String.valueOf(birth_city_id), "birth_city_id", values);
+		}
+		
 
 		if (values.size() == 0) {
 			return 0;
@@ -172,6 +176,11 @@ public class UserDao extends BaseDao {
 	public String getDeviceToken(long user_id) {
 		return jdbcTemplate.queryForObject("select device_token from t_user user where user.user_id=?",
 				new Object[] { user_id }, String.class);
+	}
+
+	public Object setCity(Long user_id, Integer city_id) {
+		return jdbcTemplate.update("update  t_user set city_id=? where user.user_id=?",
+				new Object[] { city_id,user_id });
 	}
 
 }

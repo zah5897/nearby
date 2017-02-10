@@ -131,8 +131,12 @@ public class User {
 	// @JsonIgnore
 	@JSONField(serialize = false)
 	private String device_token;
-
+	@JSONField(serialize=false)
+	private int city_id;
 	private City city;
+	@JSONField(serialize=false)
+	private int birth_city_id;
+	private City birth_city;
 
 	public long getUser_id() {
 		return user_id;
@@ -436,6 +440,36 @@ public class User {
 
 	public void setCity(City city) {
 		this.city = city;
+		if (city!=null) {
+			city.setChildren(null);
+		}
+	}
+
+	public int getCity_id() {
+		return city_id;
+	}
+
+	public void setCity_id(int city_id) {
+		this.city_id = city_id;
+	}
+
+	public int getBirth_city_id() {
+		return birth_city_id;
+	}
+
+	public void setBirth_city_id(int birth_city_id) {
+		this.birth_city_id = birth_city_id;
+	}
+
+	public City getBirth_city() {
+		return birth_city;
+	}
+
+	public void setBirth_city(City birth_city) {
+		this.birth_city = birth_city;
+		if (birth_city!=null) {
+			birth_city.setChildren(null);
+		}
 	}
 
 	/**
@@ -468,6 +502,13 @@ public class User {
 		basicInfo.put("height", height != null ? height : new String());
 		basicInfo.put("images", images != null ? images : new ArrayList<UserDynamic>());
 		basicInfo.put("jobs", jobs != null ? jobs : new ArrayList<Tag>());
+		
+		if(city!=null){
+			basicInfo.put("city", city);
+		}
+		if(birth_city!=null){
+			basicInfo.put("birth_city", birth_city);
+		}
 		return basicInfo;
 	}
 

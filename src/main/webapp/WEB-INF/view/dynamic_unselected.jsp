@@ -23,14 +23,13 @@
 	<form method="post" action="">
 		<div class="panel admin-panel">
 			<div class="panel-head">
-				<strong class="icon-reorder">&nbsp;管理动态</strong>
+				<strong class="icon-reorder"> 管理动态</strong>
 			</div>
 			<div class="padding border-bottom">
 				<ul class="search">
 					<li>
 						<button type="button" class="button border-green" id="checkall">
-							<span class="icon-check"></span>全选
-						</button>
+							<span class="icon-check"></span>全选</button>
 						<button type="button" id="add_batch" class="button border-yellow">
 							<span class="icon-plus-square-o"></span>批量添加
 						</button>
@@ -41,7 +40,7 @@
 				<tr>
 					<th width="80">ID</th>
 					<th>发布者</th>
-					<th>图片</th>
+					<th>图片</th>
 					<th width="20%">内容</th>
 					<th>时间</th>
 					<th width="25%">点赞数量</th>

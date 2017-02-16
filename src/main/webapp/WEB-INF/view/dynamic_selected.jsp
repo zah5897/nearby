@@ -29,7 +29,7 @@
 				<ul class="search">
 					<li>
 						<button type="button" class="button border-green" id="checkall">
-							<span class="icon-check"></span>全选
+							<span class="icon-check"></span>全选
 						</button>
 						<button type="button" id="del_batch" class="button border-red">
 							<span class="icon-trash-o"></span>批量删除
@@ -41,14 +41,14 @@
 				<tr>
 					<th width="80">ID</th>
 					<th>发布者</th>
-					<th>图片</th>
-					<th width="20%">内容</th>
+					<th>图片</th>
+					<th>内容</th>
 					<th>时间</th>
 					<th width="25%">点赞数量</th>
 					<th width="120">操作</th>
 				</tr>
 
-               <!--  
+				<!--  
 				<c:forEach var="dy" items="${selecteds}">
 					<tr id="tr_${dy.id }">
 						<td><input type="checkbox" name="id[]" value="${dy.id }" />${dy.id }</td>
@@ -67,10 +67,11 @@
 				<tr id="bottom">
 					<td colspan="8">
 						<div class="pagelist">
-						   <a href="javascript:void(0)" onclick="return previous()">上一页</a>
-						   	<a id="next_flag" href="javascript:void(0)" onclick="return next()">下一页</a>
-							<a href="javascript:void(0)" onclick="return page(-1)">尾页</a>
-						    <!--  
+							<a href="javascript:void(0)" onclick="return previous()">上一页</a>
+							<a id="next_flag" href="javascript:void(0)"
+								onclick="return next()">下一页</a> <a href="javascript:void(0)"
+								onclick="return page(-1)">尾页</a>
+							<!--  
 							<a href="javascript:void(0)" onclick="return previous()">上一页</a>
 							<a href="javascript:void(0)" onclick="page(1)"><span class="current">1</span></a>
 							<a href="javascript:void(0)">2</a>
@@ -114,7 +115,7 @@
 			if (currentPage == index) {
 				return false;
 			}
-			$.post("<%=path %>/manager/selected_dynamic_list",{'pageIndex':index},function(result){
+			$.post("<%=path%>/manager/selected_dynamic_list",{'pageIndex':index},function(result){
 				 var json=JSON.parse(result);
 			        if(json.code==0){
 			        	$("table tr[id*='tr_'").each(function(i){
@@ -195,7 +196,7 @@
 		}
 		
 		function del(id) {
-				$.post("<%=path %>/manager/remove_from_selected",{id:id,currentPage:currentPage},function(result){
+				$.post("<%=path%>/manager/remove_from_selected",{id:id,currentPage:currentPage},function(result){
 			        $("#tr_"+id).remove();//移除当前的元素
 			        
 			        var json=JSON.parse(result);
@@ -258,34 +259,37 @@
 			});
 			if(chk_value.length>0){
 				    var ids=JSON.stringify(chk_value);
-					$.post("<%=path %>/manager/removes_from_selected",{ids:ids,currentPage:currentPage},function(result){
-			       // $("#tr_"+id).remove();//移除当前的元素
-			        //reviewTableTr(result);
-			       
-			       var json=JSON.parse(result);
-			       var pageData=json["pageData"];
-			       for(var i=0;i<chk_value.length;i++){
-		    		   $("#tr_"+chk_value[i]).remove();//移除当前的元素
-		    	   }
-			       if(pageData){
-			    	   var last2tr=$("table tr").eq(-2);
-						 if(last2tr.size()==0){
-						      alert("指定的table id或行数不存在！");
-						     return;
-						 }
-			    	   for(var i=0;i<pageData.length;i++){
-			    		   var dy=pageData[i];
-			    		   reviewTableTr(dy,last2tr);
-			    	   }
-			       }else{
-			    	   page(json["currentPageIndex"]);
-			       }
-			       refreshPageIndex(json["pageCount"],json["currentPageIndex"]);
-			    });
-				return true;
-			} 
-		})
-		 
+					$.post("<%=path%>/manager/removes_from_selected", {
+							ids : ids,
+							currentPage : currentPage
+						}, function(result) {
+							// $("#tr_"+id).remove();//移除当前的元素
+							//reviewTableTr(result);
+
+							var json = JSON.parse(result);
+							var pageData = json["pageData"];
+							for (var i = 0; i < chk_value.length; i++) {
+								$("#tr_" + chk_value[i]).remove();//移除当前的元素
+							}
+							if (pageData) {
+								var last2tr = $("table tr").eq(-2);
+								if (last2tr.size() == 0) {
+									alert("指定的table id或行数不存在！");
+									return;
+								}
+								for (var i = 0; i < pageData.length; i++) {
+									var dy = pageData[i];
+									reviewTableTr(dy, last2tr);
+								}
+							} else {
+								page(json["currentPageIndex"]);
+							}
+							refreshPageIndex(json["pageCount"],
+									json["currentPageIndex"]);
+						});
+						return true;
+					}
+				})
 	</script>
 </body>
 </html>

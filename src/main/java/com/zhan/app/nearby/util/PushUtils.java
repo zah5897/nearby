@@ -12,8 +12,8 @@ public class PushUtils {
 
 	public static int TYPE = 1; // 开发模式
 
-	public static void commentMsg(RedisTemplate<String, String> redisTemplate,long msg_id, DynamicMsgType type, long user_id,
-			long id) {
+	public static void commentMsg(final RedisTemplate<String, String> redisTemplate,final long msg_id, final DynamicMsgType type, final long user_id,
+			final long id) {
 
 		new Thread() {
 			public void run() {

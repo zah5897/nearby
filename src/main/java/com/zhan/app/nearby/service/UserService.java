@@ -143,7 +143,7 @@ public class UserService {
 				user.getNick_name(), user.getBirthday(), user.getSex(), user.getAvatar());
 	}
 
-	public void uploadLocation(String ip, long user_id, String lat, String lng) {
+	public void uploadLocation(final String ip, final long user_id, String lat, String lng) {
 		if (TextUtils.isEmpty(lat) || TextUtils.isEmpty(lng)) {
 			new Thread() {
 				@Override

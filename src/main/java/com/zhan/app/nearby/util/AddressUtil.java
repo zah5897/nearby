@@ -12,7 +12,7 @@ import com.zhan.app.nearby.service.UserDynamicService;
 public class AddressUtil {
 	private static final String AK = "dZo8pGRmo4X3T0lXx5yuf6r9Xs4ktzpo";
 
-	public static void praseAddress(String ip, UserDynamic dynamic, String ios_addr) {
+	public static void praseAddress(final String ip, final UserDynamic dynamic, final String ios_addr) {
 
 		new Thread() {
 			@Override

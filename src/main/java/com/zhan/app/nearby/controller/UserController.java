@@ -71,8 +71,8 @@ public class UserController {
 		}
 
 		String cache = userCacheService.getCachevalideCode(mobile);
-		if(cache!=null){
-			//已经在一分钟内发过，还没过期
+		if (cache != null) {
+			// 已经在一分钟内发过，还没过期
 			System.out.println("已经在一分钟内发过，还没过期");
 		}
 		// if (now - lastTime <= 60) {
@@ -85,7 +85,7 @@ public class UserController {
 		if (smsOK) {
 			userCacheService.cacheValidateCode(mobile, code);
 			data.put("validate_code", code);
-		}else{
+		} else {
 			data = ResultUtil.getResultMap(ERROR.ERR_FAILED, "验证码发送失败");
 		}
 
@@ -270,8 +270,8 @@ public class UserController {
 		}
 
 		String cache = userCacheService.getCachevalideCode(mobile);
-		if(cache!=null){
-			//已经在一分钟内发过，还没过期
+		if (cache != null) {
+			// 已经在一分钟内发过，还没过期
 			System.out.println("已经在一分钟内发过，还没过期");
 		}
 		// if (now - lastTime <= 60) {
@@ -279,8 +279,14 @@ public class UserController {
 		// }
 		ModelMap data = ResultUtil.getResultOKMap();
 		String code = RandomCodeUtil.randomCode(6);
-		userCacheService.cacheValidateCode(mobile, code);
-		data.put("validate_code", code);
+
+		boolean smsOK = SMSHelper.sms(mobile, code, 1);
+		if (smsOK) {
+			userCacheService.cacheValidateCode(mobile, code);
+			data.put("validate_code", code);
+		} else {
+			data = ResultUtil.getResultMap(ERROR.ERR_FAILED, "验证码发送失败");
+		}
 		return data;
 	}
 

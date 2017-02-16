@@ -51,12 +51,12 @@
 	<context:component-scan base-package="com.zhan.app.nearby.controller" />
 	<!-- 上传资源访问 -->
 
-	<mvc:resources mapping="/img/origin/**" location="/nearby_upload/images/origin/" />
-	<mvc:resources mapping="/img/thumb/**" location="/nearby_upload/images/thumb/" />
+	<mvc:resources mapping="/img/origin/**" location="D:/web/nearby_image/images/origin/" />
+	<mvc:resources mapping="/img/thumb/**" location="D:/web/nearby_image/images/thumb/" />
 
 
-	<mvc:resources mapping="/avatar/origin/**" location="/nearby_upload/avatar/origin/" />
-	<mvc:resources mapping="/avatar/thumb/**" location="/nearby_upload/avatar/thumb/" />
+	<mvc:resources mapping="/avatar/origin/**" location="/nearby_image/avatar/origin/" />
+	<mvc:resources mapping="/avatar/thumb/**" location="/nearby_image/avatar/thumb/" />
 
 
 	<bean id="SpringContextUtil" class="com.zhan.app.nearby.util.SpringContextUtil"></bean>

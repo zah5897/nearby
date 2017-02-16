@@ -43,7 +43,7 @@ public class CityService {
 		for (City city : provincesAll) {
 			if (city.getType() == 0) {
 				if (city.getChildren() == null) {
-					city.setChildren(new ArrayList<>());
+					city.setChildren(new ArrayList<City>());
 					City cityPraent = new City();
 					cityPraent.setType(city.getType());
 					cityPraent.setId(city.getId());

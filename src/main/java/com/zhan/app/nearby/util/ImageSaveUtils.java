@@ -2,6 +2,8 @@ package com.zhan.app.nearby.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
 import java.util.UUID;
 
 import javax.servlet.ServletContext;
@@ -15,41 +17,49 @@ public class ImageSaveUtils {
 	// 用户上传按此宽度
 	public static final int PRESS_IMAGE_WIDTH = 320;
 
-	private static final String ROOT_PATH = "nearby_upload";
+	private static String IMAGE_ROOT_PATH;
 	// 用户上传的图片路径
 	public static final String FILE_ROOT_IMAGES_ORIGIN = "/images/origin/";
-	public static final String REQ_IMAGES_ORIGIN = "/img/origin/";
 	public static final String FILE_ROOT_IMAGES_THUMB = "/images/thumb/";
-	public static final String REQ_IMAGES_THUMB = "/img/thumb/";
 
 	// 用户头像图片路径
 	public static final String FILE_ROOT_AVATAR_ORIGIN = "/avatar/origin/";
 	public static final String FILE_ROOT_AVATAR_THUMB = "/avatar/thumb/";
 
-	private static String WEBAPP_PATH;
+	private static String getRootPath() {
 
-	private static String getRootPath(ServletContext servletContext) {
-		if (WEBAPP_PATH != null) {
-			return WEBAPP_PATH;
+		if (IMAGE_ROOT_PATH == null) {
+			InputStream in = ImageSaveUtils.class.getClassLoader().getResourceAsStream("config.properties");
+			Properties props = new Properties();
+			try {
+				props.load(in);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			IMAGE_ROOT_PATH = props.getProperty("IMAGE_SAVE_PATH");
+			if (!TextUtils.isEmpty(IMAGE_ROOT_PATH)) {
+				File file = new File(IMAGE_ROOT_PATH);
+				file.mkdirs();
+			}
 		}
-		WEBAPP_PATH = servletContext.getRealPath("/");
-		return WEBAPP_PATH;
+		return IMAGE_ROOT_PATH;
 	}
 
 	public static String getOriginAvatarPath(ServletContext servletContext) {
-		return getRootPath(servletContext) + ROOT_PATH + FILE_ROOT_AVATAR_ORIGIN;
+		return getRootPath() + FILE_ROOT_AVATAR_ORIGIN;
 	}
 
 	public static String getThumbAvatarPath(ServletContext servletContext) {
-		return getRootPath(servletContext) + ROOT_PATH + FILE_ROOT_AVATAR_THUMB;
+		return getRootPath() + FILE_ROOT_AVATAR_THUMB;
 	}
 
 	public static String getOriginImagesPath(ServletContext servletContext) {
-		return getRootPath(servletContext) + ROOT_PATH + FILE_ROOT_IMAGES_ORIGIN;
+		return getRootPath() + FILE_ROOT_IMAGES_ORIGIN;
 	}
 
 	public static String getThumbImagesPath(ServletContext servletContext) {
-		return getRootPath(servletContext) + ROOT_PATH + FILE_ROOT_IMAGES_THUMB;
+		return getRootPath() + FILE_ROOT_IMAGES_THUMB;
 	}
 
 	public static String saveAvatar(MultipartFile file, ServletContext servletContext)

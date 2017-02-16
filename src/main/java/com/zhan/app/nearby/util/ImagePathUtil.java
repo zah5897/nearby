@@ -7,7 +7,7 @@ import com.zhan.app.nearby.bean.UserDynamic;
 
 public class ImagePathUtil {
 
-	public static String HOST_PROFIX = "http://117.143.221.190/nearby";
+	public static String HOST_PROFIX = "http://app.weimobile.com/nearby";
 	// public static String HOST_PROFIX = "http://139.196.111.132:8080/love";
 
 	public static void completeAvatarPath(User user, boolean thumbAndOrigin) {
@@ -41,9 +41,9 @@ public class ImagePathUtil {
 
 		String shortName = dynamic.getLocal_image_name();
 		if (!TextUtils.isEmpty(shortName)) {
-			dynamic.setThumb(HOST_PROFIX + ImageSaveUtils.REQ_IMAGES_THUMB + shortName);
+			dynamic.setThumb(HOST_PROFIX + ImageSaveUtils.FILE_ROOT_IMAGES_THUMB + shortName);
 			if (thumbAndOrigin) {
-				dynamic.setOrigin(HOST_PROFIX + ImageSaveUtils.REQ_IMAGES_ORIGIN + shortName);
+				dynamic.setOrigin(HOST_PROFIX + ImageSaveUtils.FILE_ROOT_IMAGES_ORIGIN + shortName);
 			}
 		}
 	}

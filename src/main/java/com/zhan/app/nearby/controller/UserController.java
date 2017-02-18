@@ -81,7 +81,7 @@ public class UserController {
 		ModelMap data = ResultUtil.getResultOKMap();
 		String code = RandomCodeUtil.randomCode(6);
 
-		boolean smsOK = SMSHelper.sms(mobile, code, 1);
+		boolean smsOK = SMSHelper.smsRegist(mobile, code);
 		if (smsOK) {
 			userCacheService.cacheValidateCode(mobile, code);
 			data.put("validate_code", code);
@@ -280,7 +280,7 @@ public class UserController {
 		ModelMap data = ResultUtil.getResultOKMap();
 		String code = RandomCodeUtil.randomCode(6);
 
-		boolean smsOK = SMSHelper.sms(mobile, code, 1);
+		boolean smsOK = SMSHelper.smsResetPwd(mobile, code);
 		if (smsOK) {
 			userCacheService.cacheValidateCode(mobile, code);
 			data.put("validate_code", code);

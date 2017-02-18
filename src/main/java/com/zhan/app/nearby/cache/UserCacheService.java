@@ -36,7 +36,7 @@ public class UserCacheService {
 	public void cacheValidateCode(String mobile, String code) {
 		try{
 	    redisTemplate.opsForValue().set(mobile, code);
-	    redisTemplate.expire(mobile, 60, TimeUnit.SECONDS);
+	    redisTemplate.expire(mobile, 60, TimeUnit.MINUTES);
 		}catch(Exception e){
 			e.printStackTrace();
 		}

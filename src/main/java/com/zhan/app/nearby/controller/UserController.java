@@ -1,6 +1,7 @@
 package com.zhan.app.nearby.controller;
 
 import java.security.NoSuchAlgorithmException;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
@@ -151,6 +152,7 @@ public class UserController {
 		String token = UUID.randomUUID().toString();
 		user.setToken(token);
 		user.setType((short) UserType.OFFIEC.ordinal());
+		user.setLast_login_time(new Date());
 		long id = user.getUser_id();
 		if (id > 0) {
 			int count = userService.visitorToNormal(user);
@@ -211,6 +213,7 @@ public class UserController {
 				ModelMap result = ResultUtil.getResultOKMap("登录成功");
 				user.setToken(UUID.randomUUID().toString());
 				user.set_ua(_ua);
+				userService.pushLongTimeNoLoginMsg(user.getUser_id(), user.getLast_login_time());
 				userService.updateToken(user); // 更新token，弱登录
 				user.set_ua(null);
 				user.setAge(DateTimeUtil.getAge(user.getBirthday()));
@@ -520,11 +523,12 @@ public class UserController {
 	}
 
 	@RequestMapping("visitor_regist")
-	public ModelMap visitor_regist(String device_id, String device_token, String zh_cn, String lat, String lng) {
+	public ModelMap visitor_regist(String device_id, String aid, String device_token, String zh_cn, String lat,
+			String lng) {
 
 		if (!TextUtils.isEmpty(zh_cn)) {
 			if (zh_cn.length() > 2) {
-				return ResultUtil.getResultMap(ERROR.ERR_PARAM, "zh-cn has too long,max &lt 2");
+				return ResultUtil.getResultMap(ERROR.ERR_PARAM, "zh_cn has too long,max &lt 2");
 			}
 		}
 		if (TextUtils.isEmpty(device_id)) {
@@ -537,6 +541,7 @@ public class UserController {
 			user = new User();
 			user.setMobile(device_id);
 			user.setDevice_token(device_token);
+			user.setApp_id(aid);
 			user.setLat(lat);
 			user.setLng(lng);
 			user.setZh_cn(zh_cn);
@@ -544,7 +549,44 @@ public class UserController {
 			long user_id = userService.insertUser(user);
 			user.setUser_id(user_id);
 		} else {
-			userService.updateVisitor(user.getUser_id(), device_token, lat, lng, zh_cn);
+			userService.updateVisitor(user.getUser_id(), aid, device_token, lat, lng, zh_cn);
+			user.setDevice_token(device_token);
+		}
+		ModelMap result = ResultUtil.getResultOKMap();
+
+		user.setCity(getDefaultCityId());
+		result.put("user", user);
+		return result;
+	}
+
+	@RequestMapping("add_app_user")
+	public ModelMap add_app_user(String device_id, String aid, String device_token, String zh_cn, String lat,
+			String lng) {
+
+		if (!TextUtils.isEmpty(zh_cn)) {
+			if (zh_cn.length() > 2) {
+				return ResultUtil.getResultMap(ERROR.ERR_PARAM, "zh_cn has too long,max &lt 2");
+			}
+		}
+		if (TextUtils.isEmpty(device_id)) {
+			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "deviceId is empty");
+		}
+
+		User user = userService.findUserByDeviceId(device_id);
+		if (user == null) {
+
+			user = new User();
+			user.setMobile(device_id);
+			user.setDevice_token(device_token);
+			user.setApp_id(aid);
+			user.setLat(lat);
+			user.setLng(lng);
+			user.setZh_cn(zh_cn);
+			user.setType((short) UserType.VISITOR.ordinal());
+			long user_id = userService.insertUser(user);
+			user.setUser_id(user_id);
+		} else {
+			userService.updateVisitor(user.getUser_id(), aid, device_token, lat, lng, zh_cn);
 			user.setDevice_token(device_token);
 		}
 		ModelMap result = ResultUtil.getResultOKMap();

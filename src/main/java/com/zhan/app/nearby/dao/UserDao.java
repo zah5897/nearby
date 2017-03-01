@@ -11,7 +11,6 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import com.mchange.v2.sql.SqlUtils;
 import com.zhan.app.nearby.bean.User;
 import com.zhan.app.nearby.bean.mapper.SimpkleUserMapper;
 import com.zhan.app.nearby.comm.UserType;
@@ -80,9 +79,9 @@ public class UserDao extends BaseDao {
 		return count;
 	}
 
-	public int updateToken(long userId, String token, String _ua) {
-		return jdbcTemplate.update("update t_user set token=?,_ua=? where user_id=?",
-				new Object[] { token, _ua, userId });
+	public int updateToken(long userId, String token, String _ua, Date last_login_time) {
+		return jdbcTemplate.update("update t_user set token=?,_ua=?,last_login_time=? where user_id=?",
+				new Object[] { token, _ua, last_login_time, userId });
 	}
 
 	public int updatePassword(String mobile, String password) {
@@ -97,9 +96,9 @@ public class UserDao extends BaseDao {
 		return jdbcTemplate.update("update t_user set lat=?,lng=? where user_id=?", new Object[] { lat, lng, user_id });
 	}
 
-	public int updateVisitor(long user_id, String device_token, String lat, String lng, String zh_cn) {
-		return jdbcTemplate.update("update t_user set device_token=?,zh_cn=?, lat=?,lng=? where user_id=?",
-				new Object[] { device_token, zh_cn, lat, lng, user_id });
+	public int updateVisitor(long user_id, String app_id, String device_token, String lat, String lng, String zh_cn) {
+		return jdbcTemplate.update("update t_user set app_id=?, device_token=?,zh_cn=?, lat=?,lng=? where user_id=?",
+				new Object[] { app_id, device_token, zh_cn, lat, lng, user_id });
 	}
 
 	public User getUserDetailInfo(long user_id) {
@@ -114,7 +113,7 @@ public class UserDao extends BaseDao {
 
 	public int modify_info(long user_id, String nick_name, String birthday, String job, String height, String weight,
 			String signature, String my_tags, String interests, String animals, String musics, String weekday_todo,
-			String footsteps, String want_to_where,Integer birth_city_id) {
+			String footsteps, String want_to_where, Integer birth_city_id) {
 
 		String sql = "update t_user set ";
 		StringBuilder names = new StringBuilder();
@@ -146,10 +145,9 @@ public class UserDao extends BaseDao {
 		SQLUtil.appendSql(names, weekday_todo, "weekday_todo_ids", values);
 		SQLUtil.appendSql(names, footsteps, "footstep_ids", values);
 		SQLUtil.appendSql(names, want_to_where, "want_to_where", values);
-		if(birth_city_id!=null){
+		if (birth_city_id != null) {
 			SQLUtil.appendSql(names, String.valueOf(birth_city_id), "birth_city_id", values);
 		}
-		
 
 		if (values.size() == 0) {
 			return 0;
@@ -162,10 +160,10 @@ public class UserDao extends BaseDao {
 	}
 
 	public int visitorToNormal(long user_id, String mobile, String password, String token, String nick_name,
-			Date birthday, String sex, String avatar) {
-		String sql = "update t_user set mobile=?,password=?,token=?,nick_name=?,birthday=?,sex=?,avatar=?,type=? where user_id=?";
+			Date birthday, String sex, String avatar, Date last_login_time) {
+		String sql = "update t_user set mobile=?,password=?,token=?,nick_name=?,birthday=?,sex=?,avatar=?,type=?,last_login_time=? where user_id=?";
 		return jdbcTemplate.update(sql, new Object[] { mobile, password, token, nick_name, birthday, sex, avatar,
-				UserType.OFFIEC.ordinal(), user_id });
+				UserType.OFFIEC.ordinal(), last_login_time, user_id });
 	}
 
 	public int uploadToken(long user_id, String token, String zh_cn) {
@@ -180,7 +178,7 @@ public class UserDao extends BaseDao {
 
 	public Object setCity(Long user_id, Integer city_id) {
 		return jdbcTemplate.update("update  t_user set city_id=? where user.user_id=?",
-				new Object[] { city_id,user_id });
+				new Object[] { city_id, user_id });
 	}
 
 }

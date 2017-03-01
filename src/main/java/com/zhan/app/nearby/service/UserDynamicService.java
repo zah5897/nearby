@@ -1,18 +1,21 @@
 package com.zhan.app.nearby.service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
 import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.easemob.server.example.Main;
 import com.zhan.app.nearby.bean.DynamicComment;
 import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.bean.UserDynamicRelationShip;
 import com.zhan.app.nearby.comm.LikeDynamicState;
+import com.zhan.app.nearby.dao.UserDao;
 import com.zhan.app.nearby.dao.UserDynamicDao;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.ImageSaveUtils;
@@ -22,6 +25,8 @@ import com.zhan.app.nearby.util.ImageSaveUtils;
 public class UserDynamicService {
 	@Resource
 	private UserDynamicDao userDynamicDao;
+	@Resource
+	private UserDao userDao;
 
 	public long insertDynamic(UserDynamic dynamic) {
 		return userDynamicDao.insertDynamic(dynamic);
@@ -32,7 +37,16 @@ public class UserDynamicService {
 	}
 
 	public int praiseDynamic(long dynamic_id, boolean praise) {
-		return userDynamicDao.praiseDynamic(dynamic_id, praise);
+		int result=userDynamicDao.praiseDynamic(dynamic_id, praise);
+		if(result>0){
+			if(praise){
+               long user_id=userDynamicDao.getUserIdByDynamicId(dynamic_id);
+		        Map<String, String> ext = new HashMap<String, String>();
+				ext.put("dynamic_id",String.valueOf(dynamic_id));
+		        Main.sendTxtMessage(Main.SYS,new String[]{String.valueOf(user_id)}, "有人赞了你的图片！", ext);
+			}
+		}		
+		return result;
 	}
 
 	public List<UserDynamic> getUserDynamic(long user_id, long last_id, int count) {
@@ -42,7 +56,16 @@ public class UserDynamicService {
 	}
 
 	public long comment(DynamicComment comment) {
-		return userDynamicDao.comment(comment);
+		long id=userDynamicDao.comment(comment);
+		if(id>0){
+             long user_id=userDynamicDao.getUserIdByDynamicId(comment.getDynamic_id());
+             
+             Map<String, String> ext = new HashMap<String, String>();
+			 ext.put("comment_id",String.valueOf(comment.getId()));
+			 ext.put("dynamic_id",String.valueOf(comment.getDynamic_id()));
+             Main.sendTxtMessage(Main.SYS,new String[]{String.valueOf(user_id)}, "有人评论了你的图片，快去看看！", ext);
+		}
+		return id;
 	}
 
 	public DynamicComment loadComment(long dynamic_id, long comment_id) {

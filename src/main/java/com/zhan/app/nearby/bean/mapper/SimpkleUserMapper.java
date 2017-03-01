@@ -28,6 +28,7 @@ public class SimpkleUserMapper implements RowMapper<User> {
 		user.setLng(rs.getString("lng"));
 		user.setType(rs.getShort("type"));
 		user.setBirth_city_id(rs.getInt("birth_city_id"));
+		user.setLast_login_time(rs.getTimestamp("last_login_time"));
 
 		try {
 			int cityId = rs.getInt("city_id");

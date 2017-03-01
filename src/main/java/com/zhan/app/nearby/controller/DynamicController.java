@@ -48,6 +48,7 @@ public class DynamicController {
 			if (userId > 0) {
 				dynamicMsgService.insertActionMsg(DynamicMsgType.TYPE_COMMENT, comment.getUser_id(),
 						comment.getDynamic_id(), userId, comment.getContent());
+			     
 			}
 		} else {
 			result = ResultUtil.getResultMap(ERROR.ERR_FAILED, "评论失败");

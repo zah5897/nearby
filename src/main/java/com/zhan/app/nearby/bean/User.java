@@ -138,6 +138,35 @@ public class User {
 	private int birth_city_id;
 	private City birth_city;
 
+	@JSONField(serialize=false)
+	private String app_id;
+
+	
+	@JSONField(serialize=false)
+	private Date last_login_time;
+	
+	
+	
+	
+	
+	
+	
+	public Date getLast_login_time() {
+		return last_login_time;
+	}
+
+	public void setLast_login_time(Date last_login_time) {
+		this.last_login_time = last_login_time;
+	}
+
+	public String getApp_id() {
+		return app_id;
+	}
+
+	public void setApp_id(String app_id) {
+		this.app_id = app_id;
+	}
+
 	public long getUser_id() {
 		return user_id;
 	}

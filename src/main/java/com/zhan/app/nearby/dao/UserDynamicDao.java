@@ -194,6 +194,7 @@ public class UserDynamicDao extends BaseDao {
 			return 0l;
 		}
 	}
+	 
 
 	public long updateLikeState(UserDynamicRelationShip dynamicRelationShip) {
 		String sql = "select count(*) from " + TABLE_LIKE_DYNAMIC_STATE + " where user_id=? and dynamic_id=?";

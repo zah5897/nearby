@@ -1,5 +1,6 @@
 package com.easemob.server.example;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSONObject;
@@ -92,17 +93,17 @@ public class Main {
 		// ext.put("action",
 		// String.valueOf(MessageAction.ACTION_SOMEONE_LIKE_ME_TIP.ordinal()));
 		//
-		// System.out.println(sendCmdMessage("admin",new String[]{"15"},ext));
+		 System.out.println(sendTxtMessage("admin",new String[]{"15"},"",new HashMap<String, String>()));
 
-		Object obj = registUser("13", "13", "zah");
-		if (obj instanceof ResponseWrapper) {
-			ResponseWrapper response = (ResponseWrapper) obj;
-
-			ObjectNode node = (ObjectNode) response.getResponseBody();
-
-			System.out.println(response.getResponseStatus());
-			System.out.println(node.get("error"));
-		}
+//		Object obj = registUser("13", "13", "zah");
+//		if (obj instanceof ResponseWrapper) {
+//			ResponseWrapper response = (ResponseWrapper) obj;
+//
+//			ObjectNode node = (ObjectNode) response.getResponseBody();
+//
+//			System.out.println(response.getResponseStatus());
+//			System.out.println(node.get("error"));
+//		}
 	}
 
 	public static Object registUser(String userName, String password, String nickname) {

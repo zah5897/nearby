@@ -167,7 +167,7 @@ public class UserDynamicDao extends BaseDao {
 		try {
 			String sql = "select  *   from " + TABLE_USER_DYNAMIC + "   where id=?";
 			return jdbcTemplate.queryForObject(sql, new Object[] { dynamic_id },
-					new BeanPropertyRowMapper<>(UserDynamic.class));
+					new BeanPropertyRowMapper<UserDynamic>(UserDynamic.class));
 		} catch (Exception e) {
 			return null;
 		}

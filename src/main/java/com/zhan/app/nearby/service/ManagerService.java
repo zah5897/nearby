@@ -8,15 +8,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.zhan.app.nearby.bean.UserDynamic;
-import com.zhan.app.nearby.comm.ImageStatus;
+import com.zhan.app.nearby.cache.UserCacheService;
 import com.zhan.app.nearby.dao.ManagerDao;
-import com.zhan.app.nearby.util.ImageSaveUtils;
 
 @Service
 @Transactional("transactionManager")
 public class ManagerService {
 	@Resource
 	private ManagerDao managerDao;
+	@Resource
+	private UserCacheService userCacheService;
 
 	public int getHomeFoundSelectedCount() {
 		return managerDao.getHomeFoundSelectedCount();
@@ -39,5 +40,12 @@ public class ManagerService {
 	}
 	public int addToSelected(long id) {
 		return managerDao.addToSelected(id);
+	}
+	
+	public boolean updateWelcome(String welcome){
+		return userCacheService.setWelcome(welcome);
+	}
+	public String getWelcome(){
+		return userCacheService.getWelcome();
 	}
 }

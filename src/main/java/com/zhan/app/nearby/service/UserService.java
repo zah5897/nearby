@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.easemob.server.example.Main;
-import com.mysql.fabric.xmlrpc.base.Data;
 import com.zhan.app.nearby.bean.User;
 import com.zhan.app.nearby.cache.UserCacheService;
 import com.zhan.app.nearby.dao.UserDao;
@@ -99,17 +98,18 @@ public class UserService {
 		return userDao.updateToken(user.getUser_id(), user.getToken(), user.get_ua(), new Date());
 	}
 
-	public void pushLongTimeNoLoginMsg(long user_id,Date lastLoginTime) {
-		
-		long now=System.currentTimeMillis()/1000/60/60/24;
+	public void pushLongTimeNoLoginMsg(long user_id, Date lastLoginTime) {
+
+		long now = System.currentTimeMillis() / 1000 / 60 / 60 / 24;
 		long loginTime;
-		if(lastLoginTime==null){
-			loginTime=0;
-		}else{
-			loginTime=lastLoginTime.getTime()/1000/60/60/24;
+		if (lastLoginTime == null) {
+			loginTime = 0;
+		} else {
+			loginTime = lastLoginTime.getTime() / 1000 / 60 / 60 / 24;
 		}
-		if(now-loginTime>=3){
-			Main.sendTxtMessage(Main.SYS, new String[] { String.valueOf(user_id) }, "附近发生新鲜事，快来瞧一瞧！", new HashMap<String,String>());
+		if (now - loginTime >= 3) {
+			Main.sendTxtMessage(Main.SYS, new String[] { String.valueOf(user_id) },userCacheService.getWelcome(),
+					new HashMap<String, String>());
 		}
 	}
 

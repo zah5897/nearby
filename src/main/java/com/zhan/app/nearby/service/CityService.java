@@ -39,7 +39,7 @@ public class CityService {
 			return provinces;
 		}
 		List<City> provincesAll = cityDao.list();
-		provinces = new ArrayList<>();
+		provinces = new ArrayList<City>();
 		for (City city : provincesAll) {
 			if (city.getType() == 0) {
 				if (city.getChildren() == null) {
@@ -79,7 +79,7 @@ public class CityService {
 			return provinces;
 		}
 
-		provinces = new ArrayList<>();
+		provinces = new ArrayList<City>();
 
 		String[] hotTag = { "北京", "上海", "深圳", "杭州", "南京", "成都", "武汉", "长沙", "重庆" };
 

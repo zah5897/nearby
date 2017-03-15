@@ -137,6 +137,12 @@ public class Main {
 		// "from" : "jma2"
 		// //表示消息发送者。无此字段Server会默认设置为"from":"admin"，有from字段但值为空串("")时请求失败
 		// }
+		if(ext!=null){
+			ext.put("from", "nearby");
+		}else{
+			ext=new HashMap<String, String>();
+			ext.put("from", "nearby");
+		}
 
 		BodyWrapper payload = new TextMessageBody("users", users, from, ext, msgTxt);
 		SendMessageAPI message = (SendMessageAPI) factory.newInstance(EasemobRestAPIFactory.SEND_MESSAGE_CLASS);

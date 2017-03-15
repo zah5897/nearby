@@ -603,6 +603,12 @@ public class UserController {
 		return result;
 	}
 
+	@RequestMapping("add_block")
+	public ModelMap set_city(Long user_id, String token, Long block_user_id) {
+		ModelMap result = ResultUtil.getResultOKMap();
+		return result;
+	}
+
 	private City getDefaultCityId() {
 
 		City city = new City();

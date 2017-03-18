@@ -16,6 +16,7 @@ import com.zhan.app.nearby.bean.mapper.DynamicCommentMapper;
 import com.zhan.app.nearby.bean.mapper.DynamicMapper;
 import com.zhan.app.nearby.comm.ImageStatus;
 import com.zhan.app.nearby.comm.LikeDynamicState;
+import com.zhan.app.nearby.comm.Relationship;
 
 @Repository("userDynamicDao")
 public class UserDynamicDao extends BaseDao {
@@ -38,16 +39,17 @@ public class UserDynamicDao extends BaseDao {
 			if (last_id < 1) {
 				sql = "select dynamic.*,coalesce((select relationship from t_like_dynamic t_like where t_like.dynamic_id=dynamic.id and t_like.user_id=?), '0') as like_state ,user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday ,user.type from "
 						+ TABLE_USER_DYNAMIC + " dynamic left join " + TABLE_HOME_FOUND_SELECTED
-						+ " selected on dynamic.id=selected.dynamic_id left join t_user user on  dynamic.user_id=user.user_id    where selected.selected_state=? and (dynamic.city_id=? or dynamic.district_id=?)   order by dynamic.id desc limit ?";
-				return jdbcTemplate.query(sql, new Object[] { user_id, status.ordinal(), city_id, city_id, page_size },
-						new DynamicMapper());
+						+ " selected on dynamic.id=selected.dynamic_id left join t_user user on  dynamic.user_id=user.user_id     where selected.selected_state=? and (dynamic.city_id=? or dynamic.district_id=?) "
+						+ fiflterBlock() + "  order by dynamic.id desc limit ?";
+				return jdbcTemplate.query(sql, new Object[] { user_id, status.ordinal(), city_id, city_id, user_id,
+						Relationship.BLACK.ordinal(), page_size }, new DynamicMapper());
 			} else {
 				sql = "select dynamic.*,coalesce((select relationship from t_like_dynamic t_like where t_like.dynamic_id=dynamic.id and t_like.user_id=?), '0') as like_state ,user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday ,user.type from "
 						+ TABLE_USER_DYNAMIC + " dynamic left join " + TABLE_HOME_FOUND_SELECTED
-						+ " selected on dynamic.id=selected.dynamic_id left join t_user user on  dynamic.user_id=user.user_id   where selected.selected_state=? and dynamic.id<? and (dynamic.city_id=? or dynamic.district_id=?)   order by dynamic.id desc limit ?";
-				return jdbcTemplate.query(sql,
-						new Object[] { user_id, status.ordinal(), last_id, city_id, city_id, page_size },
-						new DynamicMapper());
+						+ " selected on dynamic.id=selected.dynamic_id left join t_user user on  dynamic.user_id=user.user_id   where selected.selected_state=? and dynamic.id<? and (dynamic.city_id=? or dynamic.district_id=?) "
+						+ fiflterBlock() + "  order by dynamic.id desc limit ?";
+				return jdbcTemplate.query(sql, new Object[] { user_id, status.ordinal(), last_id, city_id, city_id,
+						user_id, Relationship.BLACK.ordinal(), page_size }, new DynamicMapper());
 			}
 		} else {
 			if (last_id < 1) {
@@ -65,6 +67,10 @@ public class UserDynamicDao extends BaseDao {
 			}
 		}
 
+	}
+
+	private String fiflterBlock() {
+		return " and dynamic.user_id not in (select with_user_id from t_user_relationship where user_id=? and relationship=?) ";
 	}
 
 	public int addHomeFoundSelected(long dynamic_id) {
@@ -194,7 +200,6 @@ public class UserDynamicDao extends BaseDao {
 			return 0l;
 		}
 	}
-	 
 
 	public long updateLikeState(UserDynamicRelationShip dynamicRelationShip) {
 		String sql = "select count(*) from " + TABLE_LIKE_DYNAMIC_STATE + " where user_id=? and dynamic_id=?";
@@ -245,6 +250,14 @@ public class UserDynamicDao extends BaseDao {
 		String sql = "select c.city_id from (select count(*) as count, gb.* from t_user_dynamic gb group by gb.city_id) as c order by c.count desc limit 1";
 		return jdbcTemplate.queryForObject(sql, Integer.class);
 
+	}
+
+	public int getCityImageCount(long user_id,int city_id) {
+		String sql = "select count(*) from " + TABLE_USER_DYNAMIC + " dynamic left join " + TABLE_HOME_FOUND_SELECTED
+				+ " selected on dynamic.id=selected.dynamic_id "
+				+ " where selected.selected_state=? and (dynamic.city_id=? or dynamic.district_id=?) " + fiflterBlock();
+		return jdbcTemplate.queryForObject(sql, new Object[] { ImageStatus.SELECTED.ordinal(), city_id, city_id, user_id,
+				Relationship.BLACK.ordinal()}, Integer.class);
 	}
 
 }

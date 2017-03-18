@@ -13,6 +13,7 @@ import org.springframework.stereotype.Repository;
 
 import com.zhan.app.nearby.bean.User;
 import com.zhan.app.nearby.bean.mapper.SimpkleUserMapper;
+import com.zhan.app.nearby.comm.Relationship;
 import com.zhan.app.nearby.comm.UserType;
 import com.zhan.app.nearby.util.DateTimeUtil;
 import com.zhan.app.nearby.util.SQLUtil;
@@ -179,6 +180,14 @@ public class UserDao extends BaseDao {
 	public Object setCity(Long user_id, Integer city_id) {
 		return jdbcTemplate.update("update  t_user set city_id=? where user.user_id=?",
 				new Object[] { city_id, user_id });
+	}
+	public void updateRelationship(Long user_id, Long with_user_id,Relationship relationship) {
+		
+		int count=jdbcTemplate.queryForObject("select count(*) from t_user_relationship where user_id=? and with_user_id=?",new Object[]{user_id,with_user_id}, Integer.class);
+		if(count<1){
+			jdbcTemplate.update("insert into t_user_relationship values(?,?,?)",new Object[] { user_id, with_user_id ,relationship.ordinal()});
+		}
+		 
 	}
 
 }

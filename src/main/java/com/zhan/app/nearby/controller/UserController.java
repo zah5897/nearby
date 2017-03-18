@@ -21,6 +21,7 @@ import com.zhan.app.nearby.bean.City;
 import com.zhan.app.nearby.bean.User;
 import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.cache.UserCacheService;
+import com.zhan.app.nearby.comm.Relationship;
 import com.zhan.app.nearby.comm.UserType;
 import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.service.CityService;
@@ -606,6 +607,9 @@ public class UserController {
 	@RequestMapping("add_block")
 	public ModelMap set_city(Long user_id, String token, Long block_user_id) {
 		ModelMap result = ResultUtil.getResultOKMap();
+		if(user_id!=null&&user_id>0&&block_user_id!=null&&block_user_id>0){
+			userService.updateRelationship(user_id, block_user_id, Relationship.BLACK);
+		}
 		return result;
 	}
 

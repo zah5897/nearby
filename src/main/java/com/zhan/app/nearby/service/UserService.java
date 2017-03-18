@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.easemob.server.example.Main;
 import com.zhan.app.nearby.bean.User;
 import com.zhan.app.nearby.cache.UserCacheService;
+import com.zhan.app.nearby.comm.Relationship;
 import com.zhan.app.nearby.dao.UserDao;
 import com.zhan.app.nearby.exception.AppException;
 import com.zhan.app.nearby.exception.ERROR;
@@ -214,4 +215,7 @@ public class UserService {
 		userDao.setCity(user_id, city_id);
 	}
 
+	public void updateRelationship(long user_id, long with_user_id, Relationship relation) {
+		userDao.updateRelationship(user_id, with_user_id, relation);
+	}
 }

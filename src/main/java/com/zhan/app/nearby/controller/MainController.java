@@ -51,16 +51,26 @@ public class MainController {
 		if (city_id == null || city_id < 0) {
 			city_id = 0;
 		}
-		List<UserDynamic> dynamics = mainService.getHomeFoundSelected(0, last_id, realCount, city_id); // 不需要like_state
+		if(user_id==null){
+			user_id=0l;
+		}
+		
+		
+		int imageCount=mainService.getCityImageCount(user_id, city_id);
+		List<UserDynamic> dynamics = mainService.getHomeFoundSelected(user_id, last_id, realCount, city_id); // 不需要like_state
 
 		ModelMap result = ResultUtil.getResultOKMap();
 
 		if (last_id <= 0) {
-			if (dynamics == null || dynamics.size() == 0) {
+			if (imageCount<1) {
 				int recommend_city_id = mainService.getMostByCity();
-				dynamics = mainService.getHomeFoundSelected(0, last_id, realCount, recommend_city_id); // 不需要like_state
+				dynamics = mainService.getHomeFoundSelected(user_id, last_id, realCount, recommend_city_id); // 不需要like_state
 				result.put("recommend_city_id", recommend_city_id);
+			}else{
+				dynamics = mainService.getHomeFoundSelected(user_id, last_id, realCount, city_id); // 不需要like_state
 			}
+		}else{
+			dynamics = mainService.getHomeFoundSelected(user_id, last_id, realCount, city_id); // 不需要like_state
 		}
 
 		result.put("images", dynamics);

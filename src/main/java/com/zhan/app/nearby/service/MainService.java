@@ -34,6 +34,10 @@ public class MainService {
 		return dynamics;
 	}
 
+	public int getCityImageCount(long user_id, int city_id) {
+		return userDynamicDao.getCityImageCount(user_id,city_id);
+	}
+
 	public int getMostByCity() {
 		return userDynamicDao.getMostCityID();
 	}

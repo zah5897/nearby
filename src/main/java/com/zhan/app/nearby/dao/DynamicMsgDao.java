@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 import com.zhan.app.nearby.bean.DynamicMessage;
 import com.zhan.app.nearby.bean.mapper.DynamicMsgMapper;
 import com.zhan.app.nearby.comm.MsgState;
+import com.zhan.app.nearby.comm.Relationship;
 
 @Repository("dynamicMsgDao")
 public class DynamicMsgDao extends BaseDao {
@@ -25,8 +26,8 @@ public class DynamicMsgDao extends BaseDao {
 		try {
 			String sql = "select msg.*,user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday,user.type  from "
 					+ TABLE_DYNAMIC_MSG
-					+ " msg left join t_user user on msg.by_user_id=user.user_id where msg.user_id=? and msg.id>? order by msg.id desc";
-			return jdbcTemplate.query(sql, new Object[] { user_id, last_id }, new DynamicMsgMapper());
+					+ " msg left join t_user user on msg.by_user_id=user.user_id where msg.user_id=? and msg.id>? "+fiflterBlock()+" order by msg.id desc";
+			return jdbcTemplate.query(sql, new Object[] { user_id, last_id,user_id,Relationship.BLACK.ordinal() }, new DynamicMsgMapper());
 		} catch (Exception e) {
 			return null;
 		}
@@ -41,5 +42,7 @@ public class DynamicMsgDao extends BaseDao {
 		String sql="update "+TABLE_DYNAMIC_MSG+" set isReadNum=? where id=?";
 		return jdbcTemplate.update(sql, new Object[] { MsgState.READED.ordinal(),id});
 	}
-
+	private String fiflterBlock() {
+		return " and msg.by_user_id not in (select with_user_id from t_user_relationship where user_id=? and relationship=?) ";
+	}
 }

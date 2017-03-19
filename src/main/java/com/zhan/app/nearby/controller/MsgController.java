@@ -24,7 +24,7 @@ public class MsgController {
 		return mm;
 	}
 	@RequestMapping("update_state")
-	public ModelMap delete(Long user_id, String msg_ids) {
+	public ModelMap update_state(Long user_id, String msg_ids) {
 		if(user_id==null||TextUtils.isEmpty(msg_ids)){
 			return ResultUtil.getResultOKMap();
 		}

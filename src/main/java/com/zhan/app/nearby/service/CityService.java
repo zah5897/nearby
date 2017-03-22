@@ -108,15 +108,15 @@ public class CityService {
 
 	public City getCity(int birth_city_id) {
 		// TODO Auto-generated method stub
-		List<City> all=list();
-		if(all!=null&&birth_city_id>0){
-			for(City c:all){
-				if(c.getId()==birth_city_id){
+		List<City> all = list();
+		if (all != null && birth_city_id > 0) {
+			for (City c : all) {
+				if (c.getId() == birth_city_id) {
 					return c;
 				}
-				if(c.getChildren()!=null){
-					for(City child:c.getChildren()){
-						if(child.getId()==birth_city_id){
+				if (c.getChildren() != null) {
+					for (City child : c.getChildren()) {
+						if (child.getId() == birth_city_id) {
 							return child;
 						}
 					}
@@ -124,6 +124,24 @@ public class CityService {
 			}
 		}
 		return null;
+	}
+
+	public void reset_type() {
+		//省
+		List<City> provincesAll = cityDao.listByParentId(0);
+		for(City city:provincesAll){
+			//市
+			List<City> cities = cityDao.listByParentId(city.getId());
+			for(City cy:cities){
+				//去
+				List<City> cs = cityDao.listByParentId(cy.getId());
+				for(City c:cs){
+					cityDao.updateType(c.getId(), 2);
+				}
+			}
+			
+		}
+		
 	}
 
 }

@@ -8,7 +8,9 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.zhan.app.nearby.bean.City;
 import com.zhan.app.nearby.bean.UserDynamic;
+import com.zhan.app.nearby.service.CityService;
 import com.zhan.app.nearby.service.DynamicMsgService;
 import com.zhan.app.nearby.service.MainService;
 import com.zhan.app.nearby.service.UserDynamicService;
@@ -24,6 +26,8 @@ public class MainController {
 
 	@Resource
 	private DynamicMsgService dynamicMsgService;
+	@Resource
+	private CityService cityService;
 
 	/**
 	 * 发现
@@ -51,30 +55,32 @@ public class MainController {
 		if (city_id == null || city_id < 0) {
 			city_id = 0;
 		}
-		if(user_id==null){
-			user_id=0l;
+		if (user_id == null) {
+			user_id = 0l;
 		}
-		
-		
-		int imageCount=mainService.getCityImageCount(user_id, city_id);
-		List<UserDynamic> dynamics = mainService.getHomeFoundSelected(user_id, last_id, realCount, city_id); // 不需要like_state
 
-		ModelMap result = ResultUtil.getResultOKMap();
+		City city = cityService.getCity(city_id);
 
-		if (last_id <= 0) {
-			if (imageCount<1) {
-				int recommend_city_id = mainService.getMostByCity();
-				dynamics = mainService.getHomeFoundSelected(user_id, last_id, realCount, recommend_city_id); // 不需要like_state
-				result.put("recommend_city_id", recommend_city_id);
-			}else{
-				dynamics = mainService.getHomeFoundSelected(user_id, last_id, realCount, city_id); // 不需要like_state
+		List<UserDynamic> dynamics;
+		if (city == null) {
+			int recommend_city_id = mainService.getMostByCity();
+			dynamics = mainService.getHomeFoundSelected(user_id, last_id, realCount, recommend_city_id); // 不需要like_state
+		} else {
+
+			int imageCount = mainService.getCityImageCount(user_id, city_id);
+			if (imageCount >= 20) {
+				dynamics = mainService.getHomeFoundSelected(user_id, last_id, realCount, city_id);
+			} else {
+				if (city.getParent_id() > 0) {
+					dynamics = mainService.getHomeFoundSelected(user_id, last_id, realCount, city.getParent_id()); // 不需要like_state
+				} else {
+					int recommend_city_id = mainService.getMostByCity();
+					dynamics = mainService.getHomeFoundSelected(user_id, last_id, realCount, recommend_city_id); // 不需要like_state
+				}
 			}
-		}else{
-			dynamics = mainService.getHomeFoundSelected(user_id, last_id, realCount, city_id); // 不需要like_state
 		}
-
+		ModelMap result = ResultUtil.getResultOKMap();
 		result.put("images", dynamics);
-
 		if (dynamics == null || dynamics.size() < realCount) {
 			result.put("hasMore", false);
 			result.put("last_id", 0);

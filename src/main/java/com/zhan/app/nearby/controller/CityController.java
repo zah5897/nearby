@@ -31,6 +31,17 @@ public class CityController {
 		ImportCityUtil.importCity(cityService);
 		return ResultUtil.getResultOKMap();
 	}
+	
+	@RequestMapping("reset_type")
+	public ModelMap reset_type() {
+		cityService.reset_type();
+		return ResultUtil.getResultOKMap();
+	}
+	
+	
+	
+	
+	
 
 	@RequestMapping("clear_cache")
 	public ModelMap clear_cache() {

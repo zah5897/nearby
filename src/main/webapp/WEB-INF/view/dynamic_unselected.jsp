@@ -42,6 +42,7 @@
 					<th>发布者</th>
 					<th>图片</th>
 					<th width="20%">内容</th>
+					<th>城市</th>
 					<th>时间</th>
 					<th width="25%">点赞数量</th>
 					<th width="120">操作</th>
@@ -278,6 +279,7 @@
 			 toAdd+="<td>"+nick_name+"</td>";
 			 toAdd+="<td><img src='"+pageData.thumb+"' alt=''   height='50' /></td>";
 			 toAdd+="<td>"+pageData["description"]+"</td>";
+			 toAdd+="<td>"+pageData["city"]+"</td>";
 			 toAdd+="<td>"+pageData["create_time"]+"</td>";
 			 toAdd+="<td>"+pageData["praise_count"]+"</td>";
 			 toAdd+="<td><div class='button-group'><a class='button border-green' href='javascript:void(0)'	onclick='return add("+pageData["id"]+")'><span class='icon-plus-square-o'></span>添加</a></div></td>";

@@ -21,7 +21,6 @@ import com.zhan.app.nearby.bean.Image;
 import com.zhan.app.nearby.bean.User;
 import com.zhan.app.nearby.bean.mapper.FateUserMapper;
 import com.zhan.app.nearby.bean.mapper.FoundUserMapper;
-import com.zhan.app.nearby.bean.mapper.SimpkleUserMapper;
 import com.zhan.app.nearby.comm.Relationship;
 import com.zhan.app.nearby.util.DateTimeUtil;
 

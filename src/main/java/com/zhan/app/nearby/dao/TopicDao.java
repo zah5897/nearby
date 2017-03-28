@@ -25,4 +25,13 @@ public class TopicDao extends BaseDao {
 				new BeanPropertyRowMapper<Topic>(Topic.class));
 	}
 
+	public Topic top() {
+	 List<Topic> topics=jdbcTemplate.query("select *from " + TABLE_NAME + " order by id desc limit 1", new Object[] {},
+				new BeanPropertyRowMapper<Topic>(Topic.class));
+	 if(topics!=null&&topics.size()>0){
+		 return topics.get(0);
+	 }
+	 return null;
+	}
+
 }

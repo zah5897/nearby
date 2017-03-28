@@ -11,8 +11,22 @@ public class Topic {
 	private long id;
 	private String name;
 	private String icon;
+	@ColumnType
+	private String icon_origin;
+	private String big_icon;
+	@ColumnType
+	private String big_icon_origin;
+	private String description;
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
 	private Date create_time;
-    
+    @ColumnType
 	@JsonIgnore
 	private List<UserDynamic> dynamics;
 
@@ -54,6 +68,30 @@ public class Topic {
 
 	public void setIcon(String icon) {
 		this.icon = icon;
+	}
+
+	public String getBig_icon() {
+		return big_icon;
+	}
+
+	public void setBig_icon(String big_icon) {
+		this.big_icon = big_icon;
+	}
+
+	public String getIcon_origin() {
+		return icon_origin;
+	}
+
+	public void setIcon_origin(String icon_origin) {
+		this.icon_origin = icon_origin;
+	}
+
+	public String getBig_icon_origin() {
+		return big_icon_origin;
+	}
+
+	public void setBig_icon_origin(String big_icon_origin) {
+		this.big_icon_origin = big_icon_origin;
 	}
 	
 	

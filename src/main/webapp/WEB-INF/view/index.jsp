@@ -29,8 +29,9 @@
     <li><a href="<%=path %>/manager/forword?path=dynamic_selected" target="right"><span class="icon-caret-right"></span>首页推荐</a></li>
     <li><a href="<%=path %>/manager/forword?path=dynamic_unselected" target="right"><span class="icon-caret-right"></span>用户动态</a></li>
     <li><a href="<%=path %>/manager/forword?path=topic_manager" target="right"><span class="icon-caret-right"></span>话题管理</a></li>
+  
     <li><a href="<%=path %>/manager/forword?path=update_welcome" target="right"><span class="icon-caret-right"></span>系统设置</a></li>
-    <!--  
+       <!-- 
     <li><a href="<%=path %>/manager/forword?path=info" target="right"><span class="icon-caret-right"></span>网站设置</a></li>
     <li><a href="<%=path %>/manager/forword?path=pass" target="right"><span class="icon-caret-right"></span>修改密码</a></li>
     <li><a href="<%=path %>/manager/forword?path=page" target="right"><span class="icon-caret-right"></span>单页管理</a></li>  

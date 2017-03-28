@@ -24,6 +24,9 @@ public class TopicService {
 	public List<Topic> list() {
 		return topicDao.list();
 	}
+	public  Topic top() {
+		return topicDao.top();
+	}
 
  
 

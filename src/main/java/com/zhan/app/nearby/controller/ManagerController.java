@@ -1,5 +1,7 @@
 package com.zhan.app.nearby.controller;
 
+import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -11,14 +13,18 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.support.DefaultMultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.zhan.app.nearby.bean.Topic;
 import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.service.ManagerService;
 import com.zhan.app.nearby.util.ImagePathUtil;
+import com.zhan.app.nearby.util.ImageSaveUtils;
 import com.zhan.app.nearby.util.ResultUtil;
 import com.zhan.app.nearby.util.TextUtils;
 
@@ -73,8 +79,6 @@ public class ManagerController {
 	public ModelAndView forword(String path) {
 		return new ModelAndView(path);
 	}
-
-	
 
 	// 列出已经选择到首页的动态 返回json
 	@RequestMapping(value = "/selected_dynamic_list")
@@ -209,6 +213,28 @@ public class ManagerController {
 		return r;
 	}
 
+	// 忽略
+	@RequestMapping(value = "/ignore")
+	public @ResponseBody ModelMap ignore(long id, int currentPage) {
+		managerService.ignore(id);
+		ModelMap r = ResultUtil.getResultOKMap();
+		r.put("pageCount", getPageCount(false));
+
+		List<UserDynamic> dys = managerService.getUnSelected(currentPage, 10);
+		if (dys != null && dys.size() > 0) {
+			UserDynamic dy = dys.get(dys.size() - 1);
+			if (dy.getId() < id) {
+				ImagePathUtil.completeImagePath(dy, true);
+				r.put("pageData", dy);
+			}
+			r.put("currentPageIndex", currentPage);
+		} else {
+			r.put("currentPageIndex", currentPage - 1 > 0 ? currentPage - 1 : 1);
+		}
+
+		return r;
+	}
+
 	// 添加多个到首页推荐
 	@RequestMapping(value = "/add_batch_to_selected")
 	public @ResponseBody ModelMap add_batch_to_selected(String ids, int currentPage) {
@@ -256,12 +282,14 @@ public class ManagerController {
 		}
 		return r;
 	}
+
 	@RequestMapping(value = "/get_welcome")
-	public @ResponseBody ModelMap get_welcome(){
-		ModelMap reMap=ResultUtil.getResultOKMap();
+	public @ResponseBody ModelMap get_welcome() {
+		ModelMap reMap = ResultUtil.getResultOKMap();
 		reMap.put("welcome", managerService.getWelcome());
 		return reMap;
 	}
+
 	@RequestMapping(value = "/set_welcome")
 	public @ResponseBody ModelMap set_welcome(String welcome) {
 		if (managerService.updateWelcome(welcome)) {
@@ -271,7 +299,57 @@ public class ManagerController {
 		} else {
 			return ResultUtil.getResultMap(ERROR.ERR_SYS);
 		}
-
 	}
-	
+
+	@RequestMapping(value = "/add_topic")
+	public @ResponseBody ModelMap add_topic(HttpServletRequest request, Topic topic) {
+		if (request instanceof DefaultMultipartHttpServletRequest) {
+			DefaultMultipartHttpServletRequest multipartRequest = (DefaultMultipartHttpServletRequest) request;
+			Iterator<String> iterator = multipartRequest.getFileNames();
+			while (iterator.hasNext()) {
+				MultipartFile file = multipartRequest.getFile((String) iterator.next());
+				if (!file.isEmpty()) {
+
+					String name = file.getName();
+
+					if ("small_img".equals(name)) {
+						try {
+							String imagePath = ImageSaveUtils.saveTopicImages(file,
+									multipartRequest.getServletContext());
+							topic.setIcon(imagePath);
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					} else if ("big_img".equals(name)) {
+						try {
+							String imagePath = ImageSaveUtils.saveTopicImages(file,
+									multipartRequest.getServletContext());
+							topic.setBig_icon(imagePath);
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					}
+
+				}
+			}
+		}
+		topic.setCreate_time(new Date());
+		managerService.addTopic(topic);
+		ImagePathUtil.completeTopicImagePath(topic, true);
+		return ResultUtil.getResultOKMap().addAttribute("topic", topic);
+	}
+
+	@RequestMapping(value = "/load_topic")
+	public @ResponseBody ModelMap load_topic() {
+		List<Topic> topics = managerService.loadTopic();
+		ImagePathUtil.completeTopicImagePath(topics, true);
+		return ResultUtil.getResultOKMap().addAttribute("topics", topics);
+	}
+
+	@RequestMapping(value = "/del_topic")
+	public @ResponseBody ModelMap del_topic(long id) {
+		managerService.delTopic(id);
+		return ResultUtil.getResultOKMap();
+	}
+
 }

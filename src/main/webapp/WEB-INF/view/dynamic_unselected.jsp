@@ -18,6 +18,9 @@
 <link rel="stylesheet" href="<%=path%>/css/admin.css">
 <script src="<%=path%>/js/jquery.js"></script>
 <script src="<%=path%>/js/pintuer.js"></script>
+<style type="text/css">
+   td {word-break:break-all}
+</style>
 </head>
 <body>
 	<form method="post" action="">
@@ -38,89 +41,23 @@
 			</div>
 			<table class="table table-hover text-center">
 				<tr>
-					<th width="80">ID</th>
-					<th>发布者</th>
-					<th>图片</th>
+					<th width="5%">ID</th>
+					<th width="10%">发布者</th>
+					<th width="25%">图片</th>
 					<th width="20%">内容</th>
-					<th>城市</th>
-					<th>时间</th>
-					<th width="25%">点赞数量</th>
-					<th width="120">操作</th>
+					<th width="5%">城市</th>
+					<th width="10%">时间</th>
+					<th width="5%">点赞数量</th>
+					<th width="20%">操作</th>
 				</tr>
-
-				<!--  
-				<c:forEach var="dy" items="${selecteds}">
-					<tr id="tr_${dy.id }">
-						<td><input type="checkbox" name="id[]" value="${dy.id }" />${dy.id }</td>
-						<td>${dy.user.nick_name }</td>
-						<td><img src="${dy.thumb }" alt="" width="120" height="50" /></td>
-						<td>${dy.description }</td>
-						<td>${dy.create_time }</td>
-						<td>${dy.praise_count }</td>
-						<td><div class="button-group">
-								<a class="button border-red" href="javascript:void(0)"
-									onclick="return del(${dy.id})"><span class="icon-trash-o"></span>删除</a>
-							</div></td>
-					</tr>
-				</c:forEach>
-                -->
 				<tr id="bottom">
 					<td colspan="8">
 						<div class="pagelist">
 							<a href="javascript:void(0)" onclick="return previous()">上一页</a>
-							<!--  
-						   <c:choose>
-						       <c:when test="${currentPageIndex<10}">
-                                   <c:forEach var="i" begin="1" end="10" step="1">   
-     						           <c:choose>
-     						                <c:when test="${i==currentPageIndex }">
-     						                   <a href="javascript:void(0)" onclick="return page(${i})"><span class="current">${i }</span></a>
-     						                </c:when>
-     						                <c:otherwise>
-     						                	<a href="javascript:void(0)" onclick="return page(${i})">${i }</a>
-     						                </c:otherwise>
-     						           </c:choose>  
-						           </c:forEach>
-						       </c:when>
-						       
-						       <c:when test="${currentPageIndex<pageCount-10&&currentPageIndex>=10}">
-						         <c:forEach var="i" begin="${currentPageIndex }" end="${currentPageIndex+10 }" step="1">   
-     						           <c:choose>
-     						                <c:when test="${i==currentPageIndex }">
-     						                   <a href="javascript:void(0)" onclick="return page(${i})"><span class="current">${i }</span></a>
-     						                </c:when>
-     						                <c:otherwise>
-     						                	<a href="javascript:void(0)" onclick="return page(${i})">${i }</a>
-     						                </c:otherwise>
-     						           </c:choose>  
-						           </c:forEach>
-						           <c:otherwise>
-						                <c:forEach var="i" begin="${pageCount-10 }" end="10" step="1">   
-     						           <c:choose>
-     						                <c:when test="${i==currentPageIndex }">
-     						                   <a href="javascript:void(0)" onclick="return page(${i})"><span class="current">${i }</span></a>
-     						                </c:when>
-     						                <c:otherwise>
-     						                	<a href="javascript:void(0)" onclick="return page(${i})">${i }</a>
-     						                </c:otherwise>
-     						           </c:choose>  
-						           </c:forEach>
-						           </c:otherwise>
-						       </c:when>
-						   </c:choose>
-						   -->
-
+							 
 							<a id="next_flag" href="javascript:void(0)"
 								onclick="return next()">下一页</a> <a href="javascript:void(0)"
 								onclick="return page(-1)">尾页</a>
-							<!--  
-							<a href="javascript:void(0)" onclick="return previous()">上一页</a>
-							<a href="javascript:void(0)" onclick="page(1)"><span class="current">1</span></a>
-							<a href="javascript:void(0)">2</a>
-							<a href="javascript:void(0)">3</a>
-							<a href="javascript:void(0)" onclick="return next()">下一页</a>
-							<a href="javascript:void(0)" onclick="return end()">尾页</a>
-							-->
 						</div>
 					</td>
 				</tr>
@@ -258,6 +195,26 @@
 			        refreshPageIndex(json["pageCount"],json["currentPageIndex"]);
 			    });
 		}
+		function ignore(id) {
+				$.post("<%=path%>/manager/ignore",{id:id,currentPage:currentPage},function(result){
+			        $("#tr_"+id).remove();//移除当前的元素
+			        
+			        var json=JSON.parse(result);
+			        var pageData=json["pageData"];
+			        
+			        var last2tr=$("table tr").eq(-2);
+					 if(last2tr.size()==0){
+					      alert("指定的table id或行数不存在！");
+					     return;
+					 }
+					 if(pageData){
+						 reviewTableTr(pageData,last2tr);
+					 }else{
+						 page(json["currentPageIndex"]);
+					 }
+			        refreshPageIndex(json["pageCount"],json["currentPageIndex"]);
+			    });
+		}
 
 	  //
       function reviewTableTr(pageData,tr) {
@@ -278,15 +235,15 @@
 			 
 			 toAdd+="<td>"+nick_name+"</td>";
 			 toAdd+="<td><img src='"+pageData.thumb+"' alt=''   height='50' /></td>";
-			 toAdd+="<td>"+pageData["description"]+"</td>";
+			 toAdd+="<td style='word-wrap:break-word'>"+pageData["description"]+"</td>";
 			 toAdd+="<td>"+pageData["city"]+"</td>";
 			 toAdd+="<td>"+pageData["create_time"]+"</td>";
 			 toAdd+="<td>"+pageData["praise_count"]+"</td>";
-			 toAdd+="<td><div class='button-group'><a class='button border-green' href='javascript:void(0)'	onclick='return add("+pageData["id"]+")'><span class='icon-plus-square-o'></span>添加</a></div></td>";
+			 toAdd+="<td><div class='button-group'><a class='button border-main' href='javascript:void(0)'	onclick='return ignore("+pageData["id"]+")'><span class='icon-edit'></span>忽略</a><a class='button border-green' href='javascript:void(0)'	onclick='return add("+pageData["id"]+")'><span class='icon-plus-square-o'></span>添加</a></div></td>";
 			 toAdd+="</tr>";
 			 tr.after(toAdd);
 		}
-	  
+	 
 		$("#checkall").click(function() {
 			$("input[name='id[]']").each(function() {
 				if (this.checked) {

@@ -56,6 +56,9 @@ public class UserDynamic implements Serializable {
 	private int district_id;
 	@ColumnType
 	private User user;
+	
+	private long topic_id;
+	private String ip;
 
 	public long getId() {
 		return id;
@@ -216,6 +219,22 @@ public class UserDynamic implements Serializable {
 
 	public void setDistrict_id(int district_id) {
 		this.district_id = district_id;
+	}
+
+	public long getTopic_id() {
+		return topic_id;
+	}
+
+	public void setTopic_id(long topic_id) {
+		this.topic_id = topic_id;
+	}
+
+	public String getIp() {
+		return ip;
+	}
+
+	public void setIp(String ip) {
+		this.ip = ip;
 	}
 
 }

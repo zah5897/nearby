@@ -97,7 +97,10 @@ public class ImageController {
 	}
 	@RequestMapping("test")
 	public ModelMap test(HttpServletRequest request,String lat,String lng) {
-		AddressUtil.getAddressByIp(IPUtil.getIpAddress(request));
+		String ipResult=IPUtil.getIpAddress(request);
+		System.out.println(ipResult);
+		String[] result=AddressUtil.getAddressByIp(ipResult);
+		System.out.println(result);
 		return ResultUtil.getResultOKMap();
 	}
 }

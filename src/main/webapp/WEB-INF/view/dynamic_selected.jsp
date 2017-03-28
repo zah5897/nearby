@@ -18,6 +18,9 @@
 <link rel="stylesheet" href="<%=path%>/css/admin.css">
 <script src="<%=path%>/js/jquery.js"></script>
 <script src="<%=path%>/js/pintuer.js"></script>
+<style type="text/css">
+   td {word-break:break-all}
+</style>
 </head>
 <body>
 	<form method="post" action="">
@@ -39,32 +42,16 @@
 			</div>
 			<table class="table table-hover text-center">
 				<tr>
-					<th width="80">ID</th>
-					<th>发布者</th>
-					<th>图片</th>
-					<th>内容</th>
-					<th>城市</th>
-					<th>时间</th>
-					<th width="25%">点赞数量</th>
-					<th width="120">操作</th>
+					<th width="5%">ID</th>
+					<th width="10%">发布者</th>
+					<th width="25%">图片</th>
+					<th width="20%">内容</th>
+					<th width="5%">城市</th>
+					<th width="10%">时间</th>
+					<th width="5%">点赞数量</th>
+					<th width="20%">操作</th>
 				</tr>
-
-				<!--  
-				<c:forEach var="dy" items="${selecteds}">
-					<tr id="tr_${dy.id }">
-						<td><input type="checkbox" name="id[]" value="${dy.id }" />${dy.id }</td>
-						<td>${dy.user.nick_name }</td>
-						<td><img src="${dy.thumb }" alt="" width="120" height="50" /></td>
-						<td>${dy.description }</td>
-						<td>${dy.create_time }</td>
-						<td>${dy.praise_count }</td>
-						<td><div class="button-group">
-								<a class="button border-red" href="javascript:void(0)"
-									onclick="return del(${dy.id})"><span class="icon-trash-o"></span>删除</a>
-							</div></td>
-					</tr>
-				</c:forEach>
-                -->
+				 
 				<tr id="bottom">
 					<td colspan="8">
 						<div class="pagelist">

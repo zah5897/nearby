@@ -12,8 +12,11 @@ import com.zhan.app.nearby.service.UserDynamicService;
 public class AddressUtil {
 	private static final String AK = "dZo8pGRmo4X3T0lXx5yuf6r9Xs4ktzpo";
 
+	private static final String GAODE_KEY = "a2af1297f36e2aa7fecea63ef5dfa4d7";
+
 	public static void praseAddress(final String ip, final UserDynamic dynamic, final String ios_addr) {
 
+		dynamic.setIp(ip);
 		new Thread() {
 			@Override
 			public void run() {
@@ -39,19 +42,24 @@ public class AddressUtil {
 				if (address == null) {
 					address = getAddressByLatLng(dynamic.getLat(), dynamic.getLng());
 				}
-				if (TextUtils.isEmpty(address[0])) {
+				if (TextUtils.isEmpty(address[2])) {
 					address = getAddressByIp(ip);
 				}
-				if (!TextUtils.isEmpty(address[0])) {
-					UserDynamicService userDynamicService = ((UserDynamicService) SpringContextUtil
-							.getBean("userDynamicService"));
+				if (TextUtils.isEmpty(address[2])) {
+					String[] city = ipLocation(ip);
+					if(city!=null&&!TextUtils.isEmpty(city[1])){
+						address[2] = city[1];
+					}
+					
+				}
+
+				if (!TextUtils.isEmpty(address[2])) {
 					dynamic.setAddr(address[0]);
 					dynamic.setStreet(address[1]);
 					dynamic.setCity(address[2]);
 					dynamic.setRegion(address[3]);
 					dynamic.setLat(address[4]);
 					dynamic.setLng(address[5]);
-
 					CityDao cityDao = ((CityDao) SpringContextUtil.getBean("cityDao"));
 					List<City> provincesAll = cityDao.list();
 					if (provincesAll != null) {
@@ -68,8 +76,12 @@ public class AddressUtil {
 							}
 						}
 					}
-					userDynamicService.updateAddress(dynamic);
+
 				}
+				UserDynamicService userDynamicService = ((UserDynamicService) SpringContextUtil
+						.getBean("userDynamicService"));
+				userDynamicService.updateAddress(dynamic);
+
 			}
 		}.start();
 	}
@@ -96,7 +108,7 @@ public class AddressUtil {
 				String district = addressComponent.getString("district");
 				String city = addressComponent.getString("city");
 				String province = addressComponent.getString("province");
-				return new String[] { address, street, city, district, province ,lat,lng};
+				return new String[] { address, street, city, district, province, lat, lng };
 			}
 		}
 		return null;
@@ -145,6 +157,25 @@ public class AddressUtil {
 		}
 		// 高精度定位
 		return null;
+	}
+
+	public static String[] ipLocation(String ip) {
+		String url = "http://restapi.amap.com/v3/ip?ip=" + ip + "&key=" + GAODE_KEY;
+		String result = HttpUtil.sendGet(url, null);
+		String[] location = null;
+		if (!TextUtils.isEmpty(result)) {
+			try {
+				JSONObject obj = JSON.parseObject(result);
+				location = new String[2];
+				location[0] = obj.getString("province");
+				location[1] = obj.getString("city");
+				return location;
+			} catch (Exception e) {
+
+			}
+		}
+
+		return location;
 	}
 
 	public static void main(String[] args) {

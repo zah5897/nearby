@@ -25,6 +25,9 @@ public class ImageSaveUtils {
 	// 用户头像图片路径
 	public static final String FILE_ROOT_AVATAR_ORIGIN = "/avatar/origin/";
 	public static final String FILE_ROOT_AVATAR_THUMB = "/avatar/thumb/";
+	// 用户头像图片路径
+	public static final String FILE_ROOT_TOPIC_ORIGIN = "/topic_img/origin/";
+	public static final String FILE_ROOT_TOPIC_THUMB = "/topic_img/thumb/";
 
 	private static String getRootPath() {
 
@@ -60,6 +63,13 @@ public class ImageSaveUtils {
 
 	public static String getThumbImagesPath(ServletContext servletContext) {
 		return getRootPath() + FILE_ROOT_IMAGES_THUMB;
+	}
+	public static String getTopicOriginImagesPath(ServletContext servletContext) {
+		return getRootPath() + FILE_ROOT_TOPIC_ORIGIN;
+	}
+	
+	public static String getTopicThumbImagesPath(ServletContext servletContext) {
+		return getRootPath() + FILE_ROOT_TOPIC_THUMB;
 	}
 
 	public static String saveAvatar(MultipartFile file, ServletContext servletContext)
@@ -100,6 +110,27 @@ public class ImageSaveUtils {
 			file.transferTo(uploadFile);// 保存到一个目标文件中。
 
 			String thumbFile = getThumbImagesPath(servletContext) + fileShortName;
+			pressImageByWidth(uploadFile.getAbsolutePath(), PRESS_IMAGE_WIDTH, thumbFile);
+			return fileShortName;
+		}
+		return null;
+	}
+	public static String saveTopicImages(MultipartFile file, ServletContext servletContext)
+			throws IllegalStateException, IOException {
+		String filePath = getTopicOriginImagesPath(servletContext);
+		String shortName = file.getOriginalFilename();
+		if (!TextUtils.isEmpty(shortName)) {
+			String fileShortName = null;
+			if (shortName.contains(".")) {
+				fileShortName = UUID.randomUUID() + "." + shortName.split("\\.")[1];
+			} else {
+				fileShortName = UUID.randomUUID().toString() + ".jpg";
+			}
+			File uploadFile = new File(filePath + fileShortName);
+			uploadFile.mkdirs();
+			file.transferTo(uploadFile);// 保存到一个目标文件中。
+			
+			String thumbFile = getTopicThumbImagesPath(servletContext) + fileShortName;
 			pressImageByWidth(uploadFile.getAbsolutePath(), PRESS_IMAGE_WIDTH, thumbFile);
 			return fileShortName;
 		}

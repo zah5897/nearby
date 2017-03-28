@@ -2,6 +2,7 @@ package com.zhan.app.nearby.util;
 
 import java.util.List;
 
+import com.zhan.app.nearby.bean.Topic;
 import com.zhan.app.nearby.bean.User;
 import com.zhan.app.nearby.bean.UserDynamic;
 
@@ -46,6 +47,33 @@ public class ImagePathUtil {
 				dynamic.setOrigin(HOST_PROFIX + ImageSaveUtils.FILE_ROOT_IMAGES_ORIGIN + shortName);
 			}
 		}
+	}
+
+	public static void completeTopicImagePath(List<Topic> topics, boolean thumbAndOrigin) {
+
+		if (topics != null && topics.size() > 0) {
+			for (Topic topic : topics) {
+				completeTopicImagePath(topic,thumbAndOrigin);
+			}
+		}
+
+	}
+	public static void completeTopicImagePath(Topic topic, boolean thumbAndOrigin) {
+		String small = topic.getIcon();
+		String big = topic.getBig_icon();
+		if (!TextUtils.isEmpty(small)) {
+			topic.setIcon(HOST_PROFIX + ImageSaveUtils.FILE_ROOT_TOPIC_THUMB + small);
+            if(thumbAndOrigin){
+            	topic.setIcon_origin(HOST_PROFIX + ImageSaveUtils.FILE_ROOT_TOPIC_ORIGIN + small);
+            }
+		}
+		if (!TextUtils.isEmpty(big)) {
+			topic.setBig_icon(HOST_PROFIX + ImageSaveUtils.FILE_ROOT_TOPIC_THUMB + small);
+			if(thumbAndOrigin){
+				topic.setBig_icon_origin(HOST_PROFIX + ImageSaveUtils.FILE_ROOT_TOPIC_ORIGIN + small);
+			}
+		}
+		
 	}
 
 	// public static void main(String args[]){

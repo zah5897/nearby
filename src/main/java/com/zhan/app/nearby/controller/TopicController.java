@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.zhan.app.nearby.bean.Topic;
+import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.service.TopicService;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.ResultUtil;
@@ -38,6 +39,15 @@ public class TopicController {
 		Topic topic = topicService.top();
 		ImagePathUtil.completeTopicImagePath(topic, true);
 		result.put("topic", topic);
+		return result;
+	}
+
+	@RequestMapping("list_dynamics")
+	public ModelMap list_dynamic(long topic_id,long last_id,int page_size) {
+		ModelMap result = ResultUtil.getResultOKMap();
+		List<UserDynamic> dynamics = topicService.listDynamics(topic_id, last_id, page_size);
+		ImagePathUtil.completeImagePath(dynamics, true);
+		result.put("dynamics", dynamics);
 		return result;
 	}
 }

@@ -69,6 +69,23 @@ public class UserDynamicDao extends BaseDao {
 
 	}
 
+	public List<UserDynamic> getSelectedDynamicByTopic(long topic_id, ImageStatus status, long last_id, int page_size) {
+		String sql;
+		if (last_id < 1) {
+			sql = "select dynamic.* ,user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday,user.type from "
+					+ TABLE_USER_DYNAMIC + " dynamic left join " + TABLE_HOME_FOUND_SELECTED
+					+ " selected on dynamic.id=selected.dynamic_id left join t_user user on  dynamic.user_id=user.user_id  where selected.selected_state=? and dynamic.topic_id=?  order by dynamic.id desc limit ?";
+			return jdbcTemplate.query(sql, new Object[] { status.ordinal(), topic_id, page_size },
+					new DynamicMapper());
+		} else {
+			sql = "select dynamic.* ,user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday,user.type from "
+					+ TABLE_USER_DYNAMIC + " dynamic left join " + TABLE_HOME_FOUND_SELECTED
+					+ " selected on dynamic.id=selected.dynamic_id left join t_user user on  dynamic.user_id=user.user_id where selected.selected_state=? and dynamic.id<? and dynamic.topic_id=? order by dynamic.id desc limit ?";
+			return jdbcTemplate.query(sql, new Object[] { status.ordinal(), last_id, topic_id, page_size },
+					new DynamicMapper());
+		}
+	}
+
 	private String fiflterBlock() {
 		return " and dynamic.user_id not in (select with_user_id from t_user_relationship where user_id=? and relationship=?) ";
 	}
@@ -252,12 +269,12 @@ public class UserDynamicDao extends BaseDao {
 
 	}
 
-	public int getCityImageCount(long user_id,int city_id) {
+	public int getCityImageCount(long user_id, int city_id) {
 		String sql = "select count(*) from " + TABLE_USER_DYNAMIC + " dynamic left join " + TABLE_HOME_FOUND_SELECTED
 				+ " selected on dynamic.id=selected.dynamic_id "
 				+ " where selected.selected_state=? and (dynamic.city_id=? or dynamic.district_id=?) " + fiflterBlock();
-		return jdbcTemplate.queryForObject(sql, new Object[] { ImageStatus.SELECTED.ordinal(), city_id, city_id, user_id,
-				Relationship.BLACK.ordinal()}, Integer.class);
+		return jdbcTemplate.queryForObject(sql, new Object[] { ImageStatus.SELECTED.ordinal(), city_id, city_id,
+				user_id, Relationship.BLACK.ordinal() }, Integer.class);
 	}
 
 }

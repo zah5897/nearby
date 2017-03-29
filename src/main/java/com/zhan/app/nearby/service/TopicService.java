@@ -8,13 +8,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.zhan.app.nearby.bean.Topic;
+import com.zhan.app.nearby.bean.UserDynamic;
+import com.zhan.app.nearby.comm.ImageStatus;
 import com.zhan.app.nearby.dao.TopicDao;
+import com.zhan.app.nearby.dao.UserDynamicDao;
 
 @Service
 @Transactional("transactionManager")
 public class TopicService {
 	@Resource
 	private TopicDao topicDao;
+	@Resource
+	private UserDynamicDao userDynamicDao;
 
 	public void insert(Topic topic) {
 		long id = topicDao.insert(topic);
@@ -24,10 +29,13 @@ public class TopicService {
 	public List<Topic> list() {
 		return topicDao.list();
 	}
-	public  Topic top() {
+
+	public Topic top() {
 		return topicDao.top();
 	}
 
- 
+	public List<UserDynamic> listDynamics(long topic_id, long last_id, int page_size) {
+		return userDynamicDao.getSelectedDynamicByTopic(topic_id, ImageStatus.SELECTED, last_id, page_size);
+	}
 
 }

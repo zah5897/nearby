@@ -23,6 +23,13 @@ public class DynamicComment {
 	private Date comment_time;
 	@ColumnType
 	private User user;
+	
+	private long at_user_id;
+	private long at_comment_id;
+	@ColumnType
+	private User at_user;
+	
+	
 
 	public long getId() {
 		return id;
@@ -70,6 +77,30 @@ public class DynamicComment {
 
 	public void setUser(User user) {
 		this.user = user;
+	}
+
+	public long getAt_user_id() {
+		return at_user_id;
+	}
+
+	public void setAt_user_id(long at_user_id) {
+		this.at_user_id = at_user_id;
+	}
+
+	public User getAt_user() {
+		return at_user;
+	}
+
+	public void setAt_user(User at_user) {
+		this.at_user = at_user;
+	}
+
+	public long getAt_comment_id() {
+		return at_comment_id;
+	}
+
+	public void setAt_comment_id(long at_comment_id) {
+		this.at_comment_id = at_comment_id;
 	}
 
 }

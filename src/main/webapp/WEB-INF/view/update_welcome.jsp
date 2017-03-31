@@ -39,6 +39,20 @@
 			        }
 		    });
 	    }
+	    
+	    function pushMsg(){
+			var msg_push=$("#msg_push").val();
+			$.post("<%=path%>/manager/send_msg_to_all",{'msg':msg_push},function(result){
+				 var json=JSON.parse(result);
+			        if(json.code==0){
+			        	$("#msg_push").html("");
+			        	alert("submit success!");
+			        }else{
+			        	alert("submit fail!");
+			        }
+		    });
+	    }
+	    
 	</script>
 </head>
 <body>
@@ -70,6 +84,32 @@
         </div>
         <div class="field">
           <button id="modify_welome" class="button bg-main icon-check-square-o" onclick="modify()">保存</button>
+        </div>
+      </div>
+      </form>
+  </div>
+</div>
+
+<div class="panel admin-panel margin-top">
+  <div class="panel-head" id="add"><strong><span class="icon-pencil-square-o"></span>&nbsp;推送消息</strong></div>
+  <div class="body-content">
+       <form method="post" class="form-x" action="">   
+      <div class="form-group">
+        <div class="label">
+          <label>推送内容：</label>
+        </div>
+        <div class="field">
+          <input id="msg_push" type="text" class="input w50" name="title" value="" />
+          <div class="tips"></div>
+        </div>
+      </div>        
+       
+      <div class="form-group">
+        <div class="label">
+          <label></label>
+        </div>
+        <div class="field">
+          <button id="modify_welome" class="button bg-main icon-check-square-o" onclick="pushMsg()">提交</button>
         </div>
       </div>
       </form>

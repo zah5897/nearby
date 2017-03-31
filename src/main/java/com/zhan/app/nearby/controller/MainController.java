@@ -40,40 +40,7 @@ public class MainController {
 	 */
 	@RequestMapping("found")
 	public ModelMap found(Long user_id, Long last_id, Integer count, String lat, String lng, Integer city_id) {
-
-		if (last_id == null || last_id < 0) {
-			last_id = 0l;
-		}
-
-		int realCount;
-		if (count == null || count <= 0) {
-			realCount = 20;
-		} else {
-			realCount = count;
-		}
-
-		if (city_id == null || city_id < 0) {
-			city_id = 0;
-		}
-		if (user_id == null) {
-			user_id = 0l;
-		}
-
-		List<UserDynamic> dynamics = mainService.getHomeFoundSelected(user_id, last_id, realCount, city_id);
-		if (dynamics == null||dynamics.size()==0) {
-			int recommend_city_id = mainService.getMostByCity();
-			dynamics = mainService.getHomeFoundSelected(user_id, last_id, realCount, recommend_city_id); // 不需要like_state
-		}
-		ModelMap result = ResultUtil.getResultOKMap();
-		result.put("images", dynamics);
-		if (dynamics == null || dynamics.size() < realCount) {
-			result.put("hasMore", false);
-			result.put("last_id", 0);
-		} else {
-			result.put("hasMore", true);
-			result.put("last_id", dynamics.get(realCount - 1).getId());
-		}
-		return result;
+		return mainService.getHomeFoundSelected(user_id, last_id, count, city_id);
 	}
 
 	@RequestMapping("report")

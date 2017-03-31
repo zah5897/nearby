@@ -351,5 +351,16 @@ public class ManagerController {
 		managerService.delTopic(id);
 		return ResultUtil.getResultOKMap();
 	}
+	
+	@RequestMapping(value = "/send_msg_to_all")
+	public @ResponseBody ModelMap send_msg_to_all(String msg) {
+		if(TextUtils.isEmpty(msg)){
+			return ResultUtil.getResultMap(ERROR.ERR_PARAM);
+		}
+		managerService.sendMsgToAll(msg);
+		return ResultUtil.getResultOKMap();
+	}
 
+	
+	
 }

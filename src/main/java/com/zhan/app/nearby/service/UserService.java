@@ -218,4 +218,8 @@ public class UserService {
 	public void updateRelationship(long user_id, long with_user_id, Relationship relation) {
 		userDao.updateRelationship(user_id, with_user_id, relation);
 	}
+	
+	public List<Long> getAllUserIds(long last_id,int page){
+		return userDao.getAllUserIds(last_id,page);
+	}
 }

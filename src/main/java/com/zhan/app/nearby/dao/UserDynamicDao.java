@@ -31,59 +31,59 @@ public class UserDynamicDao extends BaseDao {
 	public long insertDynamic(UserDynamic dyanmic) {
 		return saveObj(jdbcTemplate, TABLE_USER_DYNAMIC, dyanmic);
 	}
+	
+	
+	public int getSelectedCityCount(int city_id){
+		String sql = "select count(*) from "
+				+ TABLE_USER_DYNAMIC + " dynamic left join " + TABLE_HOME_FOUND_SELECTED
+				+ " selected on dynamic.id=selected.dynamic_id  where selected.selected_state=?   and   dynamic.district_id=?";
+		return jdbcTemplate.queryForObject(sql, new Object[] { ImageStatus.SELECTED.ordinal(),   city_id },
+				Integer.class);
+	}
 
-	public List<UserDynamic> getHomeFoundSelected(long user_id, ImageStatus status, long last_id, int page_size,
-			int city_id) {
+	public List<UserDynamic> getHomeFoundSelected(long user_id,  long last_id, int page_size,
+			int city_id,boolean isSub) {
 		String sql;
 		if (user_id > 0) {
-			if (last_id < 1) {
-				sql = "select dynamic.*,coalesce((select relationship from t_like_dynamic t_like where t_like.dynamic_id=dynamic.id and t_like.user_id=?), '0') as like_state ,user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday ,user.type from "
+				sql = "select dynamic.*,"
+						+ "coalesce((select relationship from t_like_dynamic t_like where t_like.dynamic_id=dynamic.id and t_like.user_id=?), '0') as like_state ,"
+						+ "user.user_id  ,"
+						+ "user.nick_name ,"
+						+ "user.avatar,"
+						+ "user.sex ,"
+						+ "user.birthday ,"
+						+ "user.type "
+						+ "from "
 						+ TABLE_USER_DYNAMIC + " dynamic left join " + TABLE_HOME_FOUND_SELECTED
-						+ " selected on dynamic.id=selected.dynamic_id left join t_user user on  dynamic.user_id=user.user_id     where selected.selected_state=? and (dynamic.city_id=? or dynamic.district_id=?) "
+						+ " selected on dynamic.id=selected.dynamic_id left join t_user user on  dynamic.user_id=user.user_id  "
+						+ "where selected.selected_state=? and dynamic.id<? and "
+						+(isSub?"dynamic.district_id=? ":"dynamic.city_id=? ")
 						+ fiflterBlock() + "  order by dynamic.id desc limit ?";
-				return jdbcTemplate.query(sql, new Object[] { user_id, status.ordinal(), city_id, city_id, user_id,
-						Relationship.BLACK.ordinal(), page_size }, new DynamicMapper());
-			} else {
-				sql = "select dynamic.*,coalesce((select relationship from t_like_dynamic t_like where t_like.dynamic_id=dynamic.id and t_like.user_id=?), '0') as like_state ,user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday ,user.type from "
-						+ TABLE_USER_DYNAMIC + " dynamic left join " + TABLE_HOME_FOUND_SELECTED
-						+ " selected on dynamic.id=selected.dynamic_id left join t_user user on  dynamic.user_id=user.user_id   where selected.selected_state=? and dynamic.id<? and (dynamic.city_id=? or dynamic.district_id=?) "
-						+ fiflterBlock() + "  order by dynamic.id desc limit ?";
-				return jdbcTemplate.query(sql, new Object[] { user_id, status.ordinal(), last_id, city_id, city_id,
+				return jdbcTemplate.query(sql, new Object[] { user_id,ImageStatus.SELECTED.ordinal(), last_id<=0?Long.MAX_VALUE:last_id, city_id, city_id,
 						user_id, Relationship.BLACK.ordinal(), page_size }, new DynamicMapper());
-			}
 		} else {
-			if (last_id < 1) {
-				sql = "select dynamic.* ,user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday,user.type from "
+			 
+				sql = "select dynamic.* ,"
+						+ "user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday,user.type from "
 						+ TABLE_USER_DYNAMIC + " dynamic left join " + TABLE_HOME_FOUND_SELECTED
-						+ " selected on dynamic.id=selected.dynamic_id left join t_user user on  dynamic.user_id=user.user_id  where selected.selected_state=? and (dynamic.city_id=? or dynamic.district_id=?)  order by dynamic.id desc limit ?";
-				return jdbcTemplate.query(sql, new Object[] { status.ordinal(), city_id, city_id, page_size },
+						+ " selected on dynamic.id=selected.dynamic_id left join t_user user on  dynamic.user_id=user.user_id "
+						+ "where selected.selected_state=? and dynamic.id<? and "
+						+(isSub?"dynamic.district_id=? ":"dynamic.city_id=? ")
+						+ " order by dynamic.id desc limit ?";
+				return jdbcTemplate.query(sql, new Object[] { ImageStatus.SELECTED.ordinal(), last_id<=0?Long.MAX_VALUE:last_id, city_id, city_id, page_size },
 						new DynamicMapper());
-			} else {
-				sql = "select dynamic.* ,user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday,user.type from "
-						+ TABLE_USER_DYNAMIC + " dynamic left join " + TABLE_HOME_FOUND_SELECTED
-						+ " selected on dynamic.id=selected.dynamic_id left join t_user user on  dynamic.user_id=user.user_id where selected.selected_state=? and dynamic.id<? and (dynamic.city_id=? or dynamic.district_id=?) order by dynamic.id desc limit ?";
-				return jdbcTemplate.query(sql, new Object[] { status.ordinal(), last_id, city_id, city_id, page_size },
-						new DynamicMapper());
-			}
 		}
 
 	}
 
 	public List<UserDynamic> getSelectedDynamicByTopic(long topic_id, ImageStatus status, long last_id, int page_size) {
 		String sql;
-		if (last_id < 1) {
-			sql = "select dynamic.* ,user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday,user.type from "
-					+ TABLE_USER_DYNAMIC + " dynamic left join " + TABLE_HOME_FOUND_SELECTED
-					+ " selected on dynamic.id=selected.dynamic_id left join t_user user on  dynamic.user_id=user.user_id  where selected.selected_state=? and dynamic.topic_id=?  order by dynamic.id desc limit ?";
-			return jdbcTemplate.query(sql, new Object[] { status.ordinal(), topic_id, page_size },
-					new DynamicMapper());
-		} else {
+		 
 			sql = "select dynamic.* ,user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday,user.type from "
 					+ TABLE_USER_DYNAMIC + " dynamic left join " + TABLE_HOME_FOUND_SELECTED
 					+ " selected on dynamic.id=selected.dynamic_id left join t_user user on  dynamic.user_id=user.user_id where selected.selected_state=? and dynamic.id<? and dynamic.topic_id=? order by dynamic.id desc limit ?";
-			return jdbcTemplate.query(sql, new Object[] { status.ordinal(), last_id, topic_id, page_size },
+			return jdbcTemplate.query(sql, new Object[] { status.ordinal(), last_id<=0?Long.MAX_VALUE:last_id, topic_id, page_size },
 					new DynamicMapper());
-		}
 	}
 
 	private String fiflterBlock() {
@@ -159,20 +159,14 @@ public class UserDynamicDao extends BaseDao {
 
 	public List<DynamicComment> commentList(long dynamic_id, int count, long last_comment_id) {
 
-		if (last_comment_id > 0) {
-			String sql = "select comment.*,user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday ,user.type from "
+		 
+			String sql = "select comment.*,user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday ,user.type ,at_user.nick_name as at_user_nick_name from "
 					+ TABLE_DYNAMIC_COMMENT
-					+ " comment left join t_user user on comment.user_id=user.user_id where comment.dynamic_id=? and comment.id<? order by comment.id desc limit ?";
+					+ " comment left join t_user user on comment.user_id=user.user_id left join t_user at_user on comment.at_user_id=at_user.user_id where comment.dynamic_id=? and comment.id<? order by comment.id desc limit ?";
 
-			return jdbcTemplate.query(sql, new Object[] { dynamic_id, last_comment_id, count },
+			return jdbcTemplate.query(sql, new Object[] { dynamic_id, last_comment_id<=0?Long.MAX_VALUE:last_comment_id, count },
 					new DynamicCommentMapper());
-		} else {
-			String sql = "select comment.*,user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday ,user.type from "
-					+ TABLE_DYNAMIC_COMMENT
-					+ " comment left join t_user user on comment.user_id=user.user_id where comment.dynamic_id=?  order by comment.id desc limit ?";
-
-			return jdbcTemplate.query(sql, new Object[] { dynamic_id, count }, new DynamicCommentMapper());
-		}
+		 
 
 	}
 
@@ -269,12 +263,12 @@ public class UserDynamicDao extends BaseDao {
 
 	}
 
-	public int getCityImageCount(long user_id, int city_id) {
-		String sql = "select count(*) from " + TABLE_USER_DYNAMIC + " dynamic left join " + TABLE_HOME_FOUND_SELECTED
-				+ " selected on dynamic.id=selected.dynamic_id "
-				+ " where selected.selected_state=? and (dynamic.city_id=? or dynamic.district_id=?) " + fiflterBlock();
-		return jdbcTemplate.queryForObject(sql, new Object[] { ImageStatus.SELECTED.ordinal(), city_id, city_id,
-				user_id, Relationship.BLACK.ordinal() }, Integer.class);
-	}
+//	public int getCityImageCount(long user_id, int city_id) {
+//		String sql = "select count(*) from " + TABLE_USER_DYNAMIC + " dynamic left join " + TABLE_HOME_FOUND_SELECTED
+//				+ " selected on dynamic.id=selected.dynamic_id "
+//				+ " where selected.selected_state=? and (dynamic.city_id=? or dynamic.district_id=?) " + fiflterBlock();
+//		return jdbcTemplate.queryForObject(sql, new Object[] { ImageStatus.SELECTED.ordinal(), city_id, city_id,
+//				user_id, Relationship.BLACK.ordinal() }, Integer.class);
+//	}
 
 }

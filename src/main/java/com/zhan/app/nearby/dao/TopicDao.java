@@ -21,17 +21,22 @@ public class TopicDao extends BaseDao {
 	}
 
 	public List<Topic> list() {
-		return jdbcTemplate.query("select *from " + TABLE_NAME + " pre ", new Object[] {},
+		return jdbcTemplate.query("select *from " + TABLE_NAME + " order by id desc ", new Object[] {},
 				new BeanPropertyRowMapper<Topic>(Topic.class));
 	}
 
 	public Topic top() {
-	 List<Topic> topics=jdbcTemplate.query("select *from " + TABLE_NAME + " order by id desc limit 1", new Object[] {},
+		List<Topic> topics = jdbcTemplate.query("select *from " + TABLE_NAME + " order by id desc limit 1",
+				new Object[] {}, new BeanPropertyRowMapper<Topic>(Topic.class));
+		if (topics != null && topics.size() > 0) {
+			return topics.get(0);
+		}
+		return null;
+	}
+
+	public List<Topic> history(long current_topic_id) {
+		return jdbcTemplate.query("select *from " + TABLE_NAME + " where id<>? order by id desc ", new Object[] {current_topic_id},
 				new BeanPropertyRowMapper<Topic>(Topic.class));
-	 if(topics!=null&&topics.size()>0){
-		 return topics.get(0);
-	 }
-	 return null;
 	}
 
 }

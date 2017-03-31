@@ -29,6 +29,9 @@ public class TopicService {
 	public List<Topic> list() {
 		return topicDao.list();
 	}
+	public List<Topic> history(long current_topic_id) {
+		return topicDao.history(current_topic_id);
+	}
 
 	public Topic top() {
 		return topicDao.top();

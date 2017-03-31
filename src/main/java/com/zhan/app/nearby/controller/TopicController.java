@@ -42,8 +42,17 @@ public class TopicController {
 		return result;
 	}
 
+	@RequestMapping("history")
+	public ModelMap history(HttpServletRequest request,Long current_topic_id) {
+		ModelMap result = ResultUtil.getResultOKMap();
+		List<Topic> topics = topicService.history(current_topic_id==null?0:current_topic_id);
+		ImagePathUtil.completeTopicImagePath(topics, true);
+		result.put("topics", topics);
+		return result;
+	}
+
 	@RequestMapping("list_dynamics")
-	public ModelMap list_dynamic(long topic_id,long last_id,int page_size) {
+	public ModelMap list_dynamic(long topic_id, long last_id, int page_size) {
 		ModelMap result = ResultUtil.getResultOKMap();
 		List<UserDynamic> dynamics = topicService.listDynamics(topic_id, last_id, page_size);
 		ImagePathUtil.completeImagePath(dynamics, true);

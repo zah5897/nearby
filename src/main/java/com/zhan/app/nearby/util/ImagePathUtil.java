@@ -68,9 +68,9 @@ public class ImagePathUtil {
             }
 		}
 		if (!TextUtils.isEmpty(big)) {
-			topic.setBig_icon(HOST_PROFIX + ImageSaveUtils.FILE_ROOT_TOPIC_THUMB + small);
+			topic.setBig_icon(HOST_PROFIX + ImageSaveUtils.FILE_ROOT_TOPIC_THUMB + big);
 			if(thumbAndOrigin){
-				topic.setBig_icon_origin(HOST_PROFIX + ImageSaveUtils.FILE_ROOT_TOPIC_ORIGIN + small);
+				topic.setBig_icon_origin(HOST_PROFIX + ImageSaveUtils.FILE_ROOT_TOPIC_ORIGIN + big);
 			}
 		}
 		

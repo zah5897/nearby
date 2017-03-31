@@ -181,13 +181,22 @@ public class UserDao extends BaseDao {
 		return jdbcTemplate.update("update  t_user set city_id=? where user.user_id=?",
 				new Object[] { city_id, user_id });
 	}
-	public void updateRelationship(Long user_id, Long with_user_id,Relationship relationship) {
-		
-		int count=jdbcTemplate.queryForObject("select count(*) from t_user_relationship where user_id=? and with_user_id=?",new Object[]{user_id,with_user_id}, Integer.class);
-		if(count<1){
-			jdbcTemplate.update("insert into t_user_relationship values(?,?,?)",new Object[] { user_id, with_user_id ,relationship.ordinal()});
+
+	public void updateRelationship(Long user_id, Long with_user_id, Relationship relationship) {
+
+		int count = jdbcTemplate.queryForObject(
+				"select count(*) from t_user_relationship where user_id=? and with_user_id=?",
+				new Object[] { user_id, with_user_id }, Integer.class);
+		if (count < 1) {
+			jdbcTemplate.update("insert into t_user_relationship values(?,?,?)",
+					new Object[] { user_id, with_user_id, relationship.ordinal() });
 		}
-		 
+
+	}
+
+	public List<Long> getAllUserIds(long last_id,int page) {
+		List<Long> ids = jdbcTemplate.query("select user_id from t_user where user_id>? order by user_id limit ?", new Object[]{last_id,page}, new BeanPropertyRowMapper<Long>(Long.class));
+		return ids;
 	}
 
 }

@@ -25,6 +25,7 @@ public class DynamicMapper implements RowMapper<UserDynamic> {
 		dynamic.setCan_comment(rs.getString("can_comment"));
 		dynamic.setStreet(rs.getString("street"));
 		dynamic.setCity(rs.getString("city"));
+		dynamic.setTopic_id(rs.getLong("topic_id"));
 
 		try {
 			dynamic.setLike_state(rs.getInt("like_state"));

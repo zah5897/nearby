@@ -39,15 +39,18 @@ public class AddressUtil {
 					}
 
 				}
-				if (address == null) {
+				if (address == null&&!TextUtils.isEmpty(dynamic.getLat())) {
 					address = getAddressByLatLng(dynamic.getLat(), dynamic.getLng());
 				}
-				if (TextUtils.isEmpty(address[2])) {
+				if (address==null||TextUtils.isEmpty(address[2])) {
 					address = getAddressByIp(ip);
 				}
-				if (TextUtils.isEmpty(address[2])) {
+				if (address==null||TextUtils.isEmpty(address[2])) {
 					String[] city = ipLocation(ip);
 					if(city!=null&&!TextUtils.isEmpty(city[1])){
+						if(address==null){
+							address=new String[6];
+						}
 						address[2] = city[1];
 					}
 					
@@ -107,8 +110,8 @@ public class AddressUtil {
 				}
 				String district = addressComponent.getString("district");
 				String city = addressComponent.getString("city");
-				String province = addressComponent.getString("province");
-				return new String[] { address, street, city, district, province, lat, lng };
+//				String province = addressComponent.getString("province");
+				return new String[] { address, street, city, district, lat, lng };
 			}
 		}
 		return null;

@@ -1,15 +1,11 @@
 package com.zhan.app.nearby.controller;
 
-import java.util.List;
-
 import javax.annotation.Resource;
 
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.zhan.app.nearby.bean.City;
-import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.service.CityService;
 import com.zhan.app.nearby.service.DynamicMsgService;
 import com.zhan.app.nearby.service.MainService;
@@ -40,7 +36,8 @@ public class MainController {
 	 */
 	@RequestMapping("found")
 	public ModelMap found(Long user_id, Long last_id, Integer count, String lat, String lng, Integer city_id) {
-		return mainService.getHomeFoundSelected(user_id, last_id, count, city_id);
+		ModelMap re= mainService.getHomeFoundSelected(user_id, last_id, count, city_id);
+		return re;
 	}
 
 	@RequestMapping("report")

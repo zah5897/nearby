@@ -75,7 +75,7 @@ public class ManagerService {
 		managerDao.delTopic(id);
 	}
 
-	public void sendMsgToAll(String msg) {
+	public void sendMsgToAll(final String msg) {
 		new java.lang.Thread() {
 			public void run() {
 				int page_size = 20;

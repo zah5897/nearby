@@ -52,12 +52,12 @@ public class MainService {
 		if(city.getParent_id()>0){
 			int hasCount=userDynamicDao.getSelectedCityCount(city_id);
 			if(hasCount>=realCount){
-				dynamics=userDynamicDao.getHomeFoundSelected(user_id, last_id,page_size, city_id,true);
+				dynamics=userDynamicDao.getHomeFoundSelected(user_id, last_id,realCount, city_id,true);
 			}else{
-				dynamics=userDynamicDao.getHomeFoundSelected(user_id, last_id,page_size, city.getParent_id(),false);
+				dynamics=userDynamicDao.getHomeFoundSelected(user_id, last_id,realCount, city.getParent_id(),false);
 			}
 		}else{
-			dynamics=userDynamicDao.getHomeFoundSelected(user_id, last_id,page_size, city.getParent_id(),false);
+			dynamics=userDynamicDao.getHomeFoundSelected(user_id, last_id,realCount, city.getId(),false);
 		}
 		if (dynamics != null) {
 			for (UserDynamic dy : dynamics) {

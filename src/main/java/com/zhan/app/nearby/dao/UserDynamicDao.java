@@ -36,8 +36,8 @@ public class UserDynamicDao extends BaseDao {
 	public int getSelectedCityCount(int city_id){
 		String sql = "select count(*) from "
 				+ TABLE_USER_DYNAMIC + " dynamic left join " + TABLE_HOME_FOUND_SELECTED
-				+ " selected on dynamic.id=selected.dynamic_id  where selected.selected_state=?   and   dynamic.district_id=?";
-		return jdbcTemplate.queryForObject(sql, new Object[] { ImageStatus.SELECTED.ordinal(),   city_id },
+				+ " selected on dynamic.id=selected.dynamic_id  where selected.selected_state=?   and (dynamic.city_id=? or  dynamic.district_id=?)";
+		return jdbcTemplate.queryForObject(sql, new Object[] { ImageStatus.SELECTED.ordinal(),city_id,city_id },
 				Integer.class);
 	}
 
@@ -57,9 +57,9 @@ public class UserDynamicDao extends BaseDao {
 						+ TABLE_USER_DYNAMIC + " dynamic left join " + TABLE_HOME_FOUND_SELECTED
 						+ " selected on dynamic.id=selected.dynamic_id left join t_user user on  dynamic.user_id=user.user_id  "
 						+ "where selected.selected_state=? and dynamic.id<? and "
-						+(isSub?"dynamic.district_id=? ":"dynamic.city_id=? ")
+                        +cityIn(isSub)
 						+ fiflterBlock() + "  order by dynamic.id desc limit ?";
-				return jdbcTemplate.query(sql, new Object[] { user_id,ImageStatus.SELECTED.ordinal(), last_id<=0?Long.MAX_VALUE:last_id, city_id, city_id,
+				return jdbcTemplate.query(sql, new Object[] { user_id,ImageStatus.SELECTED.ordinal(), last_id<=0?Long.MAX_VALUE:last_id,city_id, city_id,
 						user_id, Relationship.BLACK.ordinal(), page_size }, new DynamicMapper());
 		} else {
 			 
@@ -68,9 +68,9 @@ public class UserDynamicDao extends BaseDao {
 						+ TABLE_USER_DYNAMIC + " dynamic left join " + TABLE_HOME_FOUND_SELECTED
 						+ " selected on dynamic.id=selected.dynamic_id left join t_user user on  dynamic.user_id=user.user_id "
 						+ "where selected.selected_state=? and dynamic.id<? and "
-						+(isSub?"dynamic.district_id=? ":"dynamic.city_id=? ")
+						+cityIn(isSub)
 						+ " order by dynamic.id desc limit ?";
-				return jdbcTemplate.query(sql, new Object[] { ImageStatus.SELECTED.ordinal(), last_id<=0?Long.MAX_VALUE:last_id, city_id, city_id, page_size },
+				return jdbcTemplate.query(sql, new Object[] { ImageStatus.SELECTED.ordinal(), last_id<=0?Long.MAX_VALUE:last_id,city_id, city_id, page_size },
 						new DynamicMapper());
 		}
 
@@ -88,6 +88,14 @@ public class UserDynamicDao extends BaseDao {
 
 	private String fiflterBlock() {
 		return " and dynamic.user_id not in (select with_user_id from t_user_relationship where user_id=? and relationship=?) ";
+	}
+	private String cityIn(boolean isSub) {
+		if(isSub){
+			return "  (dynamic.city_id =?  dynamic.district_id =? ) ";
+		}else{
+			return "  (dynamic.district_id in (select id from t_sys_city where parent_id=?) or dynamic.city_id in (select id from t_sys_city where parent_id=?) )";
+		}
+		
 	}
 
 	public int addHomeFoundSelected(long dynamic_id) {
@@ -193,9 +201,9 @@ public class UserDynamicDao extends BaseDao {
 	public void updateAddress(UserDynamic dynamic) {
 		jdbcTemplate.update(
 				"update " + TABLE_USER_DYNAMIC
-						+ " set addr=? ,street=?,city=?,region=? ,city_id=?,district_id=? where id=?",
+						+ " set addr=? ,street=?,city=?,region=? ,city_id=?,district_id=?, ip=? where id=?",
 				new Object[] { dynamic.getAddr(), dynamic.getStreet(), dynamic.getCity(), dynamic.getRegion(),
-						dynamic.getCity_id(), dynamic.getDistrict_id(), dynamic.getId() });
+						dynamic.getCity_id(), dynamic.getDistrict_id(),dynamic.getIp(), dynamic.getId() });
 	}
 
 	public void updateBrowserCount(long dynamic_id, int browser_count) {

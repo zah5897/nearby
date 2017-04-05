@@ -23,12 +23,14 @@ public class DynamicComment {
 	private Date comment_time;
 	@ColumnType
 	private User user;
-	
+	@JSONField(serialize = false)
 	private long at_user_id;
+	@JSONField(serialize = false)
 	private long at_comment_id;
 	@ColumnType
 	private User at_user;
-	
+	@ColumnType
+	private DynamicComment atComment;
 	
 
 	public long getId() {
@@ -101,6 +103,14 @@ public class DynamicComment {
 
 	public void setAt_comment_id(long at_comment_id) {
 		this.at_comment_id = at_comment_id;
+	}
+
+	public DynamicComment getAtComment() {
+		return atComment;
+	}
+
+	public void setAtComment(DynamicComment atComment) {
+		this.atComment = atComment;
 	}
 
 }

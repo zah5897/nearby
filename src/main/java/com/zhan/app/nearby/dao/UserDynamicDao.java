@@ -51,12 +51,15 @@ public class UserDynamicDao extends BaseDao {
 					+ "where selected.selected_state=? and dynamic.id<? and " + cityIn(isSub) + fiflterBlock()
 					+ "  order by dynamic.id desc limit ?";
 
-			return jdbcTemplate
-					.query(sql,
-							new Object[] { user_id, ImageStatus.SELECTED.ordinal(),
-									last_id <= 0 ? Long.MAX_VALUE : last_id, city_id, city_id, user_id,
-									Relationship.BLACK.ordinal(), page_size },
-							new DynamicMapper());
+			Object[] param;
+			if (isSub) {
+				param = new Object[] { user_id, ImageStatus.SELECTED.ordinal(), last_id <= 0 ? Long.MAX_VALUE : last_id,
+						city_id, city_id, user_id, Relationship.BLACK.ordinal(), page_size };
+			} else {
+				param = new Object[] { user_id, ImageStatus.SELECTED.ordinal(), last_id <= 0 ? Long.MAX_VALUE : last_id,
+						city_id, city_id, city_id, city_id, user_id, Relationship.BLACK.ordinal(), page_size };
+			}
+			return jdbcTemplate.query(sql, param, new DynamicMapper());
 		} else {
 
 			sql = "select dynamic.* ,"
@@ -65,8 +68,17 @@ public class UserDynamicDao extends BaseDao {
 					+ " selected on dynamic.id=selected.dynamic_id left join t_user user on  dynamic.user_id=user.user_id "
 					+ "where selected.selected_state=? and dynamic.id<? and " + cityIn(isSub)
 					+ " order by dynamic.id desc limit ?";
-			return jdbcTemplate.query(sql, new Object[] { ImageStatus.SELECTED.ordinal(),
-					last_id <= 0 ? Long.MAX_VALUE : last_id, city_id, city_id, page_size }, new DynamicMapper());
+
+			Object[] param;
+			if (isSub) {
+				param = new Object[] { ImageStatus.SELECTED.ordinal(), last_id <= 0 ? Long.MAX_VALUE : last_id, city_id,
+						city_id, page_size };
+			} else {
+				param = new Object[] { ImageStatus.SELECTED.ordinal(), last_id <= 0 ? Long.MAX_VALUE : last_id, city_id,
+						city_id, city_id, city_id, page_size };
+			}
+
+			return jdbcTemplate.query(sql, param, new DynamicMapper());
 		}
 
 	}
@@ -90,7 +102,7 @@ public class UserDynamicDao extends BaseDao {
 		if (isSub) {
 			return "  (dynamic.city_id =?  or dynamic.district_id =? ) ";
 		} else {
-			return "  (dynamic.district_id in (select id from t_sys_city where parent_id=?) or dynamic.city_id in (select id from t_sys_city where parent_id=?) )";
+			return "  (dynamic.city_id =?  or dynamic.district_id =? or dynamic.district_id in (select id from t_sys_city where parent_id=?) or dynamic.city_id in (select id from t_sys_city where parent_id=?) )";
 		}
 
 	}
@@ -155,18 +167,27 @@ public class UserDynamicDao extends BaseDao {
 
 	public DynamicComment loadComment(long dynamic_id, long comment_id) {
 
-		String sql = "select comment.*,user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.type from "
-				+ TABLE_DYNAMIC_COMMENT
-				+ " comment left join t_user user on comment.user_id=user.user_id where comment.dynamic_id=? and comment.id=?";
-
-		return jdbcTemplate.queryForObject(sql, new Object[] { dynamic_id, comment_id }, new DynamicCommentMapper());
+		String sql = "select c.*,u.nick_name,u.avatar,at_c.at_content," + "at_c.at_content," + "at_c.at_comment_time,"
+				+ "at_c.at_u_id," + "at_c.at_nick_name," + "at_c.at_avatar,"
+				+ "at_c.at_create_time from t_dynamic_comment c  left join t_user u on c.user_id=u.user_id "
+				+ "left join (select cc.id as at_commtent_id, " + "cc.content as at_content,"
+				+ "cc.comment_time as at_comment_time," + "cc.user_id as at_u_id ," + "au.nick_name as at_nick_name ,"
+				+ "au.avatar as at_avatar ," + "cc.comment_time as at_create_time "
+				+ "from t_dynamic_comment cc left join t_user au on cc.user_id=au.user_id  ) as at_c on c.at_comment_id=at_c.at_commtent_id   where c.dynamic_id=? and c.id=?";
+		List<DynamicComment> comments = jdbcTemplate.query(sql, new Object[] { dynamic_id, comment_id },
+				new DynamicCommentMapper());
+		return comments.get(0);
 	}
 
 	public List<DynamicComment> commentList(long dynamic_id, int count, long last_comment_id) {
 
-		String sql = "select comment.*,user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday ,user.type ,at_user.nick_name as at_user_nick_name from "
-				+ TABLE_DYNAMIC_COMMENT
-				+ " comment left join t_user user on comment.user_id=user.user_id left join t_user at_user on comment.at_user_id=at_user.user_id where comment.dynamic_id=? and comment.id<? order by comment.id desc limit ?";
+		String sql = "select c.*,u.nick_name,u.avatar,at_c.at_content," + "at_c.at_content," + "at_c.at_comment_time,"
+				+ "at_c.at_u_id," + "at_c.at_nick_name," + "at_c.at_avatar,"
+				+ "at_c.at_create_time from t_dynamic_comment c  left join t_user u on c.user_id=u.user_id "
+				+ "left join (select cc.id as at_commtent_id, " + "cc.content as at_content,"
+				+ "cc.comment_time as at_comment_time," + "cc.user_id as at_u_id ," + "au.nick_name as at_nick_name ,"
+				+ "au.avatar as at_avatar ," + "cc.comment_time as at_create_time "
+				+ "from t_dynamic_comment cc left join t_user au on cc.user_id=au.user_id  ) as at_c on c.at_comment_id=at_c.at_commtent_id   where c.dynamic_id=? and c.id<? order by c.id desc limit ?";
 
 		return jdbcTemplate.query(sql,
 				new Object[] { dynamic_id, last_comment_id <= 0 ? Long.MAX_VALUE : last_comment_id, count },

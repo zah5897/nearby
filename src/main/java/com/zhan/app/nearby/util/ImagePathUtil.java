@@ -2,6 +2,7 @@ package com.zhan.app.nearby.util;
 
 import java.util.List;
 
+import com.zhan.app.nearby.bean.DynamicComment;
 import com.zhan.app.nearby.bean.Topic;
 import com.zhan.app.nearby.bean.User;
 import com.zhan.app.nearby.bean.UserDynamic;
@@ -53,27 +54,46 @@ public class ImagePathUtil {
 
 		if (topics != null && topics.size() > 0) {
 			for (Topic topic : topics) {
-				completeTopicImagePath(topic,thumbAndOrigin);
+				completeTopicImagePath(topic, thumbAndOrigin);
 			}
 		}
 
 	}
+
+	public static void completeCommentImagePath(List<DynamicComment> comments, boolean thumbAndOrigin) {
+
+		if (comments != null && comments.size() > 0) {
+			for (DynamicComment comment : comments) {
+				completeCommentImagePath(comment,thumbAndOrigin);
+			}
+		}
+
+	}
+
+	public static void completeCommentImagePath(DynamicComment comment, boolean thumbAndOrigin) {
+		completeAvatarPath(comment.getUser(), thumbAndOrigin);
+		if (comment.getAtComment() != null) {
+			completeAvatarPath(comment.getAtComment().getUser(), thumbAndOrigin);
+		}
+
+	}
+
 	public static void completeTopicImagePath(Topic topic, boolean thumbAndOrigin) {
 		String small = topic.getIcon();
 		String big = topic.getBig_icon();
 		if (!TextUtils.isEmpty(small)) {
 			topic.setIcon(HOST_PROFIX + ImageSaveUtils.FILE_ROOT_TOPIC_THUMB + small);
-            if(thumbAndOrigin){
-            	topic.setIcon_origin(HOST_PROFIX + ImageSaveUtils.FILE_ROOT_TOPIC_ORIGIN + small);
-            }
+			if (thumbAndOrigin) {
+				topic.setIcon_origin(HOST_PROFIX + ImageSaveUtils.FILE_ROOT_TOPIC_ORIGIN + small);
+			}
 		}
 		if (!TextUtils.isEmpty(big)) {
 			topic.setBig_icon(HOST_PROFIX + ImageSaveUtils.FILE_ROOT_TOPIC_THUMB + big);
-			if(thumbAndOrigin){
+			if (thumbAndOrigin) {
 				topic.setBig_icon_origin(HOST_PROFIX + ImageSaveUtils.FILE_ROOT_TOPIC_ORIGIN + big);
 			}
 		}
-		
+
 	}
 
 	// public static void main(String args[]){

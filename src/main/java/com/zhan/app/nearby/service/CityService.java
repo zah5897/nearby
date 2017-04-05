@@ -114,6 +114,9 @@ public class CityService {
 	public City getFullCity(int city_id) {
 		return cityDao.getCityById(city_id);
 	}
+	public int getChildCount(int city_id) {
+		return cityDao.getChildCount(city_id);
+	}
 
 	public void reset_type() {
 		// 省

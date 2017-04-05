@@ -42,6 +42,7 @@ public class DynamicController {
 		ModelMap result;
 		if (id > 0) {
 			DynamicComment resultObj = userDynamicService.loadComment(comment.getDynamic_id(), id);
+			ImagePathUtil.completeCommentImagePath(resultObj, true);
 			result = ResultUtil.getResultOKMap();
 			result.put("comment", resultObj);
 			long userId = userDynamicService.getUserIdByDynamicId(comment.getDynamic_id());
@@ -67,6 +68,7 @@ public class DynamicController {
 		}
 		List<DynamicComment> comments = userDynamicService.commentList(dynamic_id, count, last_comment_id);
 		ModelMap result = ResultUtil.getResultOKMap();
+		ImagePathUtil.completeCommentImagePath(comments, true);
 		result.put("comments", comments);
 		long last_id = 0l;
 		if (comments != null && comments.size() > 0 && comments.size() == count) {

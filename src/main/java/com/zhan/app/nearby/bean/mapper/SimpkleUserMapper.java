@@ -41,7 +41,7 @@ public class SimpkleUserMapper implements RowMapper<User> {
 				user.setCity(city);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+//			e.printStackTrace();
 		}
 
 		return user;

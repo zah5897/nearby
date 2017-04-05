@@ -138,10 +138,10 @@ public class UserService {
 		if (user != null) {
 
 			if (user.getCity_id() > 0) {
-				user.setCity(cityService.getCity(user.getCity_id()));
+				user.setCity(cityService.getSimpleCity(user.getCity_id()));
 			}
 			if (user.getBirth_city_id() > 0) {
-				user.setBirth_city(cityService.getCity(user.getBirth_city_id()));
+				user.setBirth_city(cityService.getSimpleCity(user.getBirth_city_id()));
 			}
 
 			ImagePathUtil.completeAvatarPath(user, true); // 补全图片链接地址
@@ -174,7 +174,8 @@ public class UserService {
 				user.getNick_name(), user.getBirthday(), user.getSex(), user.getAvatar(), user.getLast_login_time());
 	}
 
-	public void uploadLocation(final String ip, final long user_id, String lat, String lng) {
+	public void uploadLocation(final String ip, final Long user_id, String lat, String lng) {
+		 
 		if (TextUtils.isEmpty(lat) || TextUtils.isEmpty(lng)) {
 			new Thread() {
 				@Override

@@ -43,13 +43,16 @@ public class MainService {
 		if (city_id == null || city_id < 0) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM,"city_id err");
 		}
-		City city=cityService.getCity(city_id);
+		City city=cityService.getFullCity(city_id);
 		if(city==null){
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM,"city not found");
 		}
 		
+		System.out.println("city name="+city.getName());
+		System.out.println("city parent_id="+city.getParent_id());
 		List<UserDynamic> dynamics;
 		if(city.getParent_id()>0){
+			
 			int hasCount=userDynamicDao.getSelectedCityCount(city_id);
 			if(hasCount>=realCount){
 				dynamics=userDynamicDao.getHomeFoundSelected(user_id, last_id,realCount, city_id,true);

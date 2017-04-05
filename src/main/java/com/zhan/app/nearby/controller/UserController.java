@@ -226,7 +226,7 @@ public class UserController {
 				}
 
 				if (user.getBirth_city_id() > 0) {
-					user.setBirth_city(cityService.getCity(user.getBirth_city_id()));
+					user.setBirth_city(cityService.getSimpleCity(user.getBirth_city_id()));
 				}
 
 				result.put("user", user);
@@ -511,15 +511,15 @@ public class UserController {
 	}
 
 	@RequestMapping("update_location")
-	public ModelMap update_location(HttpServletRequest request, long user_id, String lat, String lng,
+	public ModelMap update_location(HttpServletRequest request, Long user_id, String lat, String lng,
 			String ios_address) {
-		userService.uploadLocation(IPUtil.getIpAddress(request), user_id, lat, lng);
+		userService.uploadLocation(IPUtil.getIpAddress(request), user_id==null?0:user_id, lat, lng);
 		return ResultUtil.getResultOKMap();
 	}
 
 	@RequestMapping("add_token")
-	public ModelMap add_token(HttpServletRequest request, long user_id, String device_token, String zh_cn) {
-		userService.uploadToken(user_id, device_token, zh_cn);
+	public ModelMap add_token(HttpServletRequest request, Long user_id, String device_token, String zh_cn) {
+		userService.uploadToken(user_id==null?0:user_id, device_token, zh_cn);
 		return ResultUtil.getResultOKMap();
 	}
 

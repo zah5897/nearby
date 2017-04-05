@@ -32,6 +32,18 @@ public class CityDao extends BaseDao {
 		return jdbcTemplate.query("select *from " + TABLE_NAME + " where parent_id=? ", new Object[] {parent_id},
 				new BeanPropertyRowMapper<City>(City.class));
 	}
+	public City getCityById(int id) {
+		try{
+		List<City> cities= jdbcTemplate.query("select *from " + TABLE_NAME + " where id=? ", new Object[] {id},
+				new BeanPropertyRowMapper<City>(City.class));
+		if(cities!=null&&cities.size()>0){
+		return	cities.get(0);
+		}
+		}catch(Exception e){
+			
+		}
+		return null;
+	}
 
 	 
 	public void updateType(int id,int type){

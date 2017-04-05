@@ -52,12 +52,13 @@ public class CityService {
 					city.getChildren().add(cityPraent);
 
 				}
-				for (City city_child : provincesAll) {
-					if (city_child.getType() == 1 && city.getId() == city_child.getParent_id()) {
-						city.getChildren().add(city_child);
+				provinces.add(city);
+			}else{
+				for (City province : provinces) {
+					if (city.getParent_id()==province.getId()) {
+						province.getChildren().add(city);
 					}
 				}
-				provinces.add(city);
 			}
 		}
 		try {
@@ -106,42 +107,30 @@ public class CityService {
 		infoCacheService.clear(CITY_LIST);
 	}
 
-	public City getCity(int birth_city_id) {
-		// TODO Auto-generated method stub
-		List<City> all = list();
-		if (all != null && birth_city_id > 0) {
-			for (City c : all) {
-				if (c.getId() == birth_city_id) {
-					return c;
-				}
-				if (c.getChildren() != null) {
-					for (City child : c.getChildren()) {
-						if (child.getId() == birth_city_id) {
-							return child;
-						}
-					}
-				}
-			}
-		}
-		return null;
+	public City getSimpleCity(int birth_city_id) {
+		return cityDao.getCityById(birth_city_id);
+	}
+
+	public City getFullCity(int city_id) {
+		return cityDao.getCityById(city_id);
 	}
 
 	public void reset_type() {
-		//省
+		// 省
 		List<City> provincesAll = cityDao.listByParentId(0);
-		for(City city:provincesAll){
-			//市
+		for (City city : provincesAll) {
+			// 市
 			List<City> cities = cityDao.listByParentId(city.getId());
-			for(City cy:cities){
-				//去
+			for (City cy : cities) {
+				// 去
 				List<City> cs = cityDao.listByParentId(cy.getId());
-				for(City c:cs){
+				for (City c : cs) {
 					cityDao.updateType(c.getId(), 2);
 				}
 			}
-			
+
 		}
-		
+
 	}
 
 }

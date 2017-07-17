@@ -6,6 +6,7 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.zhan.app.nearby.comm.Relationship;
 import com.zhan.app.nearby.service.CityService;
 import com.zhan.app.nearby.service.DynamicMsgService;
 import com.zhan.app.nearby.service.MainService;
@@ -36,12 +37,45 @@ public class MainController {
 	 */
 	@RequestMapping("found")
 	public ModelMap found(Long user_id, Long last_id, Integer count, String lat, String lng, Integer city_id) {
-		ModelMap re= mainService.getHomeFoundSelected(user_id, last_id, count, city_id);
+		ModelMap re = mainService.getHomeFoundSelected(user_id, last_id, count, city_id);
 		return re;
+	}
+
+	@RequestMapping("foud_users")
+	public ModelMap foud_users(Long user_id, Integer count, Integer gender) {
+		return mainService.foud_users(user_id, count, gender);
 	}
 
 	@RequestMapping("report")
 	public ModelMap report(Long user_id, String token, Long dynamic_id) {
 		return ResultUtil.getResultOKMap();
+	}
+
+	/**
+	 * 喜欢某人
+	 * 
+	 * @param user_id
+	 * @param token
+	 * @param with_user_id
+	 *            被喜欢的某人
+	 * @return
+	 */
+	@RequestMapping("like")
+	public ModelMap like(long user_id, String token, String with_user_id) {
+		return mainService.changeRelationShip(user_id, token, with_user_id, Relationship.LIKE);
+	}
+
+	/**
+	 * 点击 X 忽略
+	 * 
+	 * @param user_id
+	 * @param token
+	 * @param with_user_id
+	 *            被忽略的用户id
+	 * @return
+	 */
+	@RequestMapping("ignore")
+	public ModelMap ignore(long user_id, String token, String with_user_id) {
+		return mainService.changeRelationShip(user_id, token, with_user_id, Relationship.IGNORE);
 	}
 }

@@ -85,7 +85,6 @@
 
 
 		<!-- log4j -->
-
 		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
@@ -197,8 +196,6 @@
             <artifactId>commons-lang3</artifactId>
             <version>3.3.2</version>
         </dependency>
-        
-        
         
 	</dependencies>
 	<build>

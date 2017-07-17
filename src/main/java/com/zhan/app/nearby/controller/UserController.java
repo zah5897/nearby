@@ -18,6 +18,7 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.multipart.support.DefaultMultipartHttpServletRequest;
 
 import com.zhan.app.nearby.bean.City;
+import com.zhan.app.nearby.bean.Tag;
 import com.zhan.app.nearby.bean.User;
 import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.cache.UserCacheService;
@@ -460,7 +461,7 @@ public class UserController {
 		userService.modify_info(user_id, nick_name, birthday, jobs, height, weight, signature, my_tags, interest,
 				favourite_animal, favourite_music, weekday_todo, footsteps, want_to_where, isNick_modify,
 				birth_city_id);
-		return detial_info(user_id, null, null);
+		return userService.getUserCenterData(token, user_id);
 	}
 
 	/**
@@ -479,7 +480,7 @@ public class UserController {
 		if (count == null || count <= 0) {
 			count = 4;
 		}
-		return UserDetailInfoUtil.getDetailInfo(userService, user_id, count);
+		return userService.getUserCenterData("", user_id);
 	}
 
 	@RequestMapping("dynamic")
@@ -513,13 +514,13 @@ public class UserController {
 	@RequestMapping("update_location")
 	public ModelMap update_location(HttpServletRequest request, Long user_id, String lat, String lng,
 			String ios_address) {
-		userService.uploadLocation(IPUtil.getIpAddress(request), user_id==null?0:user_id, lat, lng);
+		userService.uploadLocation(IPUtil.getIpAddress(request), user_id == null ? 0 : user_id, lat, lng);
 		return ResultUtil.getResultOKMap();
 	}
 
 	@RequestMapping("add_token")
 	public ModelMap add_token(HttpServletRequest request, Long user_id, String device_token, String zh_cn) {
-		userService.uploadToken(user_id==null?0:user_id, device_token, zh_cn);
+		userService.uploadToken(user_id == null ? 0 : user_id, device_token, zh_cn);
 		return ResultUtil.getResultOKMap();
 	}
 
@@ -607,8 +608,29 @@ public class UserController {
 	@RequestMapping("add_block")
 	public ModelMap set_city(Long user_id, String token, Long block_user_id) {
 		ModelMap result = ResultUtil.getResultOKMap();
-		if(user_id!=null&&user_id>0&&block_user_id!=null&&block_user_id>0){
+		if (user_id != null && user_id > 0 && block_user_id != null && block_user_id > 0) {
 			userService.updateRelationship(user_id, block_user_id, Relationship.BLACK);
+		}
+		return result;
+	}
+
+	@RequestMapping("center_page")
+	public ModelMap center_page(Long user_id, String token) {
+		return userService.getUserCenterData(token, user_id);
+	}
+
+	/**
+	 * 获取系统标签
+	 * 
+	 * @param type
+	 * @return
+	 */
+	@RequestMapping("tags")
+	public ModelMap getTags(int type) {
+		ModelMap result = ResultUtil.getResultOKMap();
+		List<Tag> tags = userService.getTagsByType(type);
+		if (tags != null) {
+			result.put("tags", tags);
 		}
 		return result;
 	}

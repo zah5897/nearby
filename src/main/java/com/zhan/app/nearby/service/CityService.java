@@ -29,7 +29,7 @@ public class CityService {
 
 	public List<City> list() {
 
-		List<City> provinces = null;
+ 		List<City> provinces = null;
 		try {
 			provinces = infoCacheService.getCities(CITY_LIST);
 		} catch (Exception e) {

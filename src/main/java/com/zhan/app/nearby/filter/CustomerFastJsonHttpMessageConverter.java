@@ -23,7 +23,7 @@ public class CustomerFastJsonHttpMessageConverter extends FastJsonHttpMessageCon
 		OutputStream out = outputMessage.getBody();
 		// String text = JSON.toJSONString(obj, mapping, super.getFeatures());
 		String text = JSON.toJSONString(obj, config, null, defaultDateFormat, JSON.DEFAULT_GENERATE_FEATURE,
-				super.getFeatures());
+				getFeatures());
 		byte[] bytes = text.getBytes(getCharset());
 		out.write(bytes);
 	}

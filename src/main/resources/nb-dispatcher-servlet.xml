@@ -15,7 +15,7 @@
 		<mvc:message-converters register-defaults="true">
 			<!-- 配置Fastjson支持 -->
 			<bean
-				class="com.zhan.app.nearby.filter.CustomerFastJsonHttpMessageConverter">
+				class="com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter">
 				<property name="supportedMediaTypes">
 					<list>
 						<value>text/html;charset=UTF-8</value>
@@ -30,10 +30,9 @@
 					<list>
 						<!-- <value>WriteMapNullValue</value> -->
 						<value>QuoteFieldNames</value>
-						<value>WriteDateUseDateFormat</value>
+						<value>WriteNullListAsEmpty</value>
 					</list>
 				</property>
-				<property name="defaultDateFormat" value="yyyy-MM-dd HH:mm"></property>
 			</bean>
 		</mvc:message-converters>
 	</mvc:annotation-driven>

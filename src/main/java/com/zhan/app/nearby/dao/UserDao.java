@@ -199,4 +199,10 @@ public class UserDao extends BaseDao {
 		return ids;
 	}
 
+	public List<User> getRandomUser(long user_id, int realCount,int gender) {
+		String sql="select * from t_user where user_id<>? and avatar<>? and sex<>? order by  RAND() limit ?";
+		List<User> users = jdbcTemplate.query(sql, new Object[]{user_id,"",gender,realCount}, new BeanPropertyRowMapper<User>(User.class));
+		return users;
+	}
+
 }

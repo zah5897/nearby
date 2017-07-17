@@ -9,6 +9,7 @@ import java.util.Map;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.zhan.app.nearby.annotation.ColumnType;
 import com.zhan.app.nearby.comm.UserType;
 import com.zhan.app.nearby.util.DateTimeUtil;
@@ -23,6 +24,7 @@ public class User {
 
 	@ColumnType
 	private long user_id;
+	@JsonIgnore
 	private String mobile;
 
 	@JSONField(serialize = false)
@@ -43,6 +45,7 @@ public class User {
 	@ColumnType // 忽略保存
 	private String origin_avatar;
 
+	@JSONField(format = "yyyy-MM-dd")
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	private Date birthday;
 	private String token;
@@ -68,14 +71,12 @@ public class User {
 	@ColumnType // 忽略保存
 
 	// @JsonIgnore
-	@JSONField(serialize = false)
 	private List<Tag> my_tags;
 	// @JsonIgnore
 	@JSONField(serialize = false)
 	private String interest_ids;
 	@ColumnType // 忽略保存
 	// @JsonIgnore
-	@JSONField(serialize = false)
 	private List<Tag> interest;
 
 	// @JsonIgnore
@@ -83,7 +84,6 @@ public class User {
 	private String animal_ids;
 	@ColumnType // 忽略保存
 	// @JsonIgnore
-	@JSONField(serialize = false)
 	private List<Tag> favourite_animal;
 
 	// @JsonIgnore
@@ -91,7 +91,6 @@ public class User {
 	private String music_ids;
 	@ColumnType // 忽略保存
 	// @JsonIgnore
-	@JSONField(serialize = false)
 	private List<Tag> favourite_music;
 	// @JsonIgnore
 	@JSONField(serialize = false)
@@ -99,7 +98,6 @@ public class User {
 	@ColumnType // 忽略保存
 
 	// @JsonIgnore
-	@JSONField(serialize = false)
 	private List<Tag> weekday_todo;
 
 	// @JsonIgnore
@@ -108,7 +106,6 @@ public class User {
 	@ColumnType // 忽略保存
 
 	// @JsonIgnore
-	@JSONField(serialize = false)
 	private List<Tag> footsteps;
 
 	// @JsonIgnore
@@ -131,26 +128,19 @@ public class User {
 	// @JsonIgnore
 	@JSONField(serialize = false)
 	private String device_token;
-	@JSONField(serialize=false)
+	@JSONField(serialize = false)
 	private int city_id;
 	private City city;
-	@JSONField(serialize=false)
+	@JSONField(serialize = false)
 	private int birth_city_id;
 	private City birth_city;
 
-	@JSONField(serialize=false)
+	@JSONField(serialize = false)
 	private String app_id;
 
-	
-	@JSONField(serialize=false)
+	@JSONField(serialize = false)
 	private Date last_login_time;
-	
-	
-	
-	
-	
-	
-	
+
 	public Date getLast_login_time() {
 		return last_login_time;
 	}
@@ -259,6 +249,7 @@ public class User {
 		this.name = name;
 	}
 
+	@JSONField(format = "yyyy-MM-dd")
 	public Date getBirthday() {
 		return birthday;
 	}
@@ -469,7 +460,7 @@ public class User {
 
 	public void setCity(City city) {
 		this.city = city;
-		if (city!=null) {
+		if (city != null) {
 			city.setChildren(null);
 		}
 	}
@@ -496,7 +487,7 @@ public class User {
 
 	public void setBirth_city(City birth_city) {
 		this.birth_city = birth_city;
-		if (birth_city!=null) {
+		if (birth_city != null) {
 			birth_city.setChildren(null);
 		}
 	}
@@ -531,11 +522,11 @@ public class User {
 		basicInfo.put("height", height != null ? height : new String());
 		basicInfo.put("images", images != null ? images : new ArrayList<UserDynamic>());
 		basicInfo.put("jobs", jobs != null ? jobs : new ArrayList<Tag>());
-		
-		if(city!=null){
+
+		if (city != null) {
 			basicInfo.put("city", city);
 		}
-		if(birth_city!=null){
+		if (birth_city != null) {
 			basicInfo.put("birth_city", birth_city);
 		}
 		return basicInfo;

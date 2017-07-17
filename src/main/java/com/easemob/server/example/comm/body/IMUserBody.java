@@ -7,13 +7,13 @@ import com.fasterxml.jackson.databind.node.ContainerNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
 public class IMUserBody implements BodyWrapper {
-	
+
 	private String userName;
-	
+
 	private String password;
-	
+
 	private String nickName;
-	
+
 	public IMUserBody(String userName, String password, String nickName) {
 		super();
 		this.userName = userName;
@@ -45,12 +45,11 @@ public class IMUserBody implements BodyWrapper {
 		this.nickName = nickName;
 	}
 
-	@Override
 	public ContainerNode<?> getBody() {
-		return JsonNodeFactory.instance.objectNode().put("username", userName).put("password", password).put("nickname", nickName);
+		return JsonNodeFactory.instance.objectNode().put("username", userName).put("password", password).put("nickname",
+				nickName);
 	}
 
-	@Override
 	public Boolean validate() {
 		return StringUtils.isNotBlank(userName) && StringUtils.isNotBlank(password);
 	}

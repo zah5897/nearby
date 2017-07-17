@@ -1,5 +1,6 @@
 package com.zhan.app.nearby.service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -8,17 +9,21 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.ModelMap;
 
 import com.easemob.server.example.Main;
+import com.zhan.app.nearby.bean.Tag;
 import com.zhan.app.nearby.bean.User;
 import com.zhan.app.nearby.cache.UserCacheService;
 import com.zhan.app.nearby.comm.Relationship;
+import com.zhan.app.nearby.dao.TagDao;
 import com.zhan.app.nearby.dao.UserDao;
 import com.zhan.app.nearby.exception.AppException;
 import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.util.AddressUtil;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.MD5Util;
+import com.zhan.app.nearby.util.ResultUtil;
 import com.zhan.app.nearby.util.TextUtils;
 
 @Service
@@ -27,9 +32,13 @@ public class UserService {
 	@Resource
 	private UserDao userDao;
 	@Resource
+	private TagDao tagDao;
+	@Resource
 	private UserCacheService userCacheService;
 	@Resource
 	private CityService cityService;
+	@Resource
+	private UserDynamicService userDynamicService;
 
 	public User getBasicUser(long id) {
 		return userDao.getUser(id);
@@ -109,7 +118,7 @@ public class UserService {
 			loginTime = lastLoginTime.getTime() / 1000 / 60 / 60 / 24;
 		}
 		if (now - loginTime >= 3) {
-			Main.sendTxtMessage(Main.SYS, new String[] { String.valueOf(user_id) },userCacheService.getWelcome(),
+			Main.sendTxtMessage(Main.SYS, new String[] { String.valueOf(user_id) }, userCacheService.getWelcome(),
 					new HashMap<String, String>());
 		}
 	}
@@ -175,7 +184,7 @@ public class UserService {
 	}
 
 	public void uploadLocation(final String ip, final Long user_id, String lat, String lng) {
-		 
+
 		if (TextUtils.isEmpty(lat) || TextUtils.isEmpty(lng)) {
 			new Thread() {
 				@Override
@@ -219,8 +228,172 @@ public class UserService {
 	public void updateRelationship(long user_id, long with_user_id, Relationship relation) {
 		userDao.updateRelationship(user_id, with_user_id, relation);
 	}
-	
-	public List<Long> getAllUserIds(long last_id,int page){
-		return userDao.getAllUserIds(last_id,page);
+
+	public List<Long> getAllUserIds(long last_id, int page) {
+		return userDao.getAllUserIds(last_id, page);
 	}
+
+	public ModelMap getUserCenterData(String token, Long user_id) {
+		if (user_id == null || user_id <= 0) {
+			return ResultUtil.getResultMap(ERROR.ERR_FAILED, "not login");
+		}
+		User user = userDao.getUserDetailInfo(user_id);
+		if (user == null) {
+			return ResultUtil.getResultMap(ERROR.ERR_FAILED, "not exist");
+		}
+		user.setImages(userDynamicService.getUserDynamic(user_id, 0, 5));
+		// //
+		// Map<String, Object> userJson = new HashMap<>();
+		// userJson.put("about_me", user);
+		// Map<String, Object> secret_me = new HashMap<String, Object>();
+		// userJson.put("secret_me", secret_me);
+		// userJson.put("my_tags", new HashMap<>());
+		// ModelMap result = ResultUtil.getResultOKMap();
+		// result.put("user", userJson);
+		setTagByIds(user);
+		return ResultUtil.getResultOKMap().addAttribute("user", user);
+	}
+
+	public List<Tag> getTagsByType(int type) {
+		return tagDao.getTagsByType(type);
+	}
+
+	public void setTagByIds(User user) {
+
+		String ids[];
+		List<Tag> tags = tagDao.getTags();
+		if (tags == null || tags.size() == 0) {
+			return;
+		}
+
+		// 补全 职属性
+		if (!TextUtils.isEmpty(user.getJob_ids())) {
+			ids = user.getJob_ids().split(",");
+			List<Tag> jobs = new ArrayList<Tag>();
+			for (String id : ids) {
+				try {
+					int tag_id = Integer.parseInt(id);
+					for (Tag tag : tags) {
+						if (tag.getType() == Tag.TYPE_JOB && tag.getId() == tag_id) {
+							jobs.add(tag);
+						}
+					}
+				} catch (NumberFormatException e) {
+					continue;
+				}
+			}
+			user.setJobs(jobs);
+		}
+		// // 补全我的标签
+		if (!TextUtils.isEmpty(user.getMy_tag_ids())) {
+			ids = user.getMy_tag_ids().split(",");
+			List<Tag> myTags = new ArrayList<Tag>();
+			for (String id : ids) {
+				try {
+					int tag_id = Integer.parseInt(id);
+					for (Tag tag : tags) {
+						if (tag.getType() == Tag.TYPE_TAG && tag.getId() == tag_id) {
+							myTags.add(tag);
+						}
+					}
+				} catch (NumberFormatException e) {
+					continue;
+				}
+			}
+			user.setMy_tags(myTags);
+		}
+		// 补全我的兴趣爱好
+		if (!TextUtils.isEmpty(user.getInterest_ids())) {
+			ids = user.getInterest_ids().split(",");
+			List<Tag> myInterest = new ArrayList<Tag>();
+			for (String id : ids) {
+				try {
+					int tag_id = Integer.parseInt(id);
+					for (Tag tag : tags) {
+						if (tag.getType() == Tag.TYPE_INTEREST && tag.getId() == tag_id) {
+							myInterest.add(tag);
+						}
+					}
+				} catch (NumberFormatException e) {
+					continue;
+				}
+			}
+			user.setInterest(myInterest);
+		}
+		// 补全我喜欢的动物
+		if (!TextUtils.isEmpty(user.getAnimal_ids())) {
+			ids = user.getAnimal_ids().split(",");
+			List<Tag> myAnimal = new ArrayList<Tag>();
+			for (String id : ids) {
+				try {
+					int tag_id = Integer.parseInt(id);
+					for (Tag tag : tags) {
+						if (tag.getType() == Tag.TYPE_LIKE_ANIMAL && tag.getId() == tag_id) {
+							myAnimal.add(tag);
+						}
+					}
+				} catch (NumberFormatException e) {
+					continue;
+				}
+			}
+			user.setFavourite_animal(myAnimal);
+		}
+		// 补全我喜欢的音乐
+		if (!TextUtils.isEmpty(user.getMusic_ids())) {
+			ids = user.getMusic_ids().split(",");
+			List<Tag> musics = new ArrayList<Tag>();
+			for (String id : ids) {
+				try {
+					int tag_id = Integer.parseInt(id);
+					for (Tag tag : tags) {
+						if (tag.getType() == Tag.TYPE_LIKE_MUSIC && tag.getId() == tag_id) {
+							musics.add(tag);
+						}
+					}
+				} catch (NumberFormatException e) {
+					continue;
+				}
+			}
+			user.setFavourite_music(musics);
+		}
+		// 补全周末想去干嘛
+		if (!TextUtils.isEmpty(user.getWeekday_todo_ids())) {
+			ids = user.getWeekday_todo_ids().split(",");
+			List<Tag> weekday = new ArrayList<Tag>();
+			for (String id : ids) {
+				try {
+					int tag_id = Integer.parseInt(id);
+					for (Tag tag : tags) {
+						if (tag.getType() == Tag.TYPE_WEEKDAY && tag.getId() == tag_id) {
+							weekday.add(tag);
+						}
+					}
+				} catch (NumberFormatException e) {
+					continue;
+				}
+			}
+			user.setWeekday_todo(weekday);
+		}
+		// 补全足迹
+		if (!TextUtils.isEmpty(user.getFootstep_ids()))
+
+		{
+			ids = user.getFootstep_ids().split(",");
+			List<Tag> footstep = new ArrayList<Tag>();
+			for (String id : ids) {
+				try {
+					int tag_id = Integer.parseInt(id);
+					for (Tag tag : tags) {
+						if (tag.getType() == Tag.TYPE_FOOTSTEPS && tag.getId() == tag_id) {
+							footstep.add(tag);
+						}
+					}
+				} catch (NumberFormatException e) {
+					continue;
+				}
+				user.setFootsteps(footstep);
+			}
+		}
+	}
+
 }

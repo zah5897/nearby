@@ -37,15 +37,15 @@ public class UserDynamicService {
 	}
 
 	public int praiseDynamic(long dynamic_id, boolean praise) {
-		int result=userDynamicDao.praiseDynamic(dynamic_id, praise);
-		if(result>0){
-			if(praise){
-               long user_id=userDynamicDao.getUserIdByDynamicId(dynamic_id);
-		        Map<String, String> ext = new HashMap<String, String>();
-				ext.put("dynamic_id",String.valueOf(dynamic_id));
-		        Main.sendTxtMessage(Main.SYS,new String[]{String.valueOf(user_id)}, "有人赞了你的图片！", ext);
+		int result = userDynamicDao.praiseDynamic(dynamic_id, praise);
+		if (result > 0) {
+			if (praise) {
+				long user_id = userDynamicDao.getUserIdByDynamicId(dynamic_id);
+				Map<String, String> ext = new HashMap<String, String>();
+				ext.put("dynamic_id", String.valueOf(dynamic_id));
+				Main.sendTxtMessage(String.valueOf(user_id), new String[] { String.valueOf(user_id) }, "有人赞了你的图片！", ext);
 			}
-		}		
+		}
 		return result;
 	}
 
@@ -56,14 +56,15 @@ public class UserDynamicService {
 	}
 
 	public long comment(DynamicComment comment) {
-		long id=userDynamicDao.comment(comment);
-		if(id>0){
-             long user_id=userDynamicDao.getUserIdByDynamicId(comment.getDynamic_id());
-             
-             Map<String, String> ext = new HashMap<String, String>();
-			 ext.put("comment_id",String.valueOf(comment.getId()));
-			 ext.put("dynamic_id",String.valueOf(comment.getDynamic_id()));
-             Main.sendTxtMessage(Main.SYS,new String[]{String.valueOf(user_id)}, "有人评论了你的图片，快去看看！", ext);
+		long id = userDynamicDao.comment(comment);
+		if (id > 0) {
+			long user_id = userDynamicDao.getUserIdByDynamicId(comment.getDynamic_id());
+
+			Map<String, String> ext = new HashMap<String, String>();
+			ext.put("comment_id", String.valueOf(comment.getId()));
+			ext.put("dynamic_id", String.valueOf(comment.getDynamic_id()));
+			String user_id_str = String.valueOf(user_id);
+			Main.sendTxtMessage(user_id_str, new String[] { user_id_str }, "有人评论了你的图片，快去看看！", ext);
 		}
 		return id;
 	}

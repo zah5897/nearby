@@ -20,6 +20,7 @@ public class DynamicComment {
 
 	private String content;
 	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+	@JSONField(format = "yyyy-MM-dd")
 	private Date comment_time;
 	@ColumnType
 	private User user;

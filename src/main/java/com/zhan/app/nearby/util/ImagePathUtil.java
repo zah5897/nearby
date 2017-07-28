@@ -29,6 +29,15 @@ public class ImagePathUtil {
 			user.setOrigin_avatar(HOST_PROFIX + ImageSaveUtils.FILE_ROOT_AVATAR_ORIGIN + avatar);
 		}
 	}
+	public static String[] completeAvatarPath(String avatar) {
+		String avatars[]=new String[2];
+		if (TextUtils.isEmpty(avatar)) {
+			return avatars;
+		}
+		avatars[0]=HOST_PROFIX + ImageSaveUtils.FILE_ROOT_AVATAR_THUMB + avatar;
+		avatars[1]=HOST_PROFIX + ImageSaveUtils.FILE_ROOT_AVATAR_ORIGIN + avatar;
+		return avatars;
+	}
 
 	public static void completeImagePath(List<UserDynamic> dynamics, boolean thumbAndOrigin) {
 

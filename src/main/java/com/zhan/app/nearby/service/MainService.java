@@ -1,6 +1,8 @@
 package com.zhan.app.nearby.service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
 
@@ -8,10 +10,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 
+import com.easemob.server.example.Main;
 import com.zhan.app.nearby.bean.City;
 import com.zhan.app.nearby.bean.User;
 import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.comm.ImageStatus;
+import com.zhan.app.nearby.comm.MessageAction;
 import com.zhan.app.nearby.comm.Relationship;
 import com.zhan.app.nearby.dao.UserDao;
 import com.zhan.app.nearby.dao.UserDynamicDao;
@@ -119,7 +123,7 @@ public class MainService {
 		return userDynamicDao.getMostCityID();
 	}
 
-	public ModelMap changeRelationShip(long user_id, String token, String with_user_id,Relationship ship) {
+	public ModelMap changeRelationShip(long user_id, String token, String with_user_id, Relationship ship) {
 		if (user_id < 0) {
 			return ResultUtil.getResultMap(ERROR.ERR_USER_NOT_EXIST);
 		}
@@ -131,10 +135,74 @@ public class MainService {
 				if (user_id == with_user || withUser == null) {
 					continue;
 				}
-				userDao.updateRelationship(user_id, with_user, ship);
+				changeRelationShip(user_id, withUser, ship);
 			} catch (NumberFormatException e) {
 			}
 		}
+		return ResultUtil.getResultOKMap();
+	}
+
+	public ModelMap changeRelationShip(long user_id, User with_user, Relationship ship) {
+		userDao.updateRelationship(user_id, with_user.getUser_id(), ship);
+		User user = userDao.getUserSimple(user_id).get(0);
+		// 判断对方是否也已经喜欢我了
+		if (ship == Relationship.LIKE) {
+			int count = userDao.isLikeMe(user_id, with_user.getUser_id());
+			if (count > 0) { // 对方喜欢我了，这个时候我也喜欢对方了，需要互相发消息
+				ImagePathUtil.completeAvatarPath(with_user, true);
+				ImagePathUtil.completeAvatarPath(user, true);
+
+				// 发送给对方
+				Map<String, String> ext = new HashMap<String, String>();
+				ext.put("nickname", user.getNick_name());
+				ext.put("avatar", user.getAvatar());
+				ext.put("origin_avatar", user.getOrigin_avatar());
+				Object result = Main.sendTxtMessage(String.valueOf(user.getUser_id()),
+						new String[] { String.valueOf(with_user.getUser_id()) }, "很高兴遇见你", ext);
+				if (result != null) {
+					System.out.println(result);
+				}
+
+				// 发送给自己
+
+				ext = new HashMap<String, String>();
+				ext.put("nickname", with_user.getNick_name());
+				ext.put("avatar", with_user.getAvatar());
+				ext.put("origin_avatar", with_user.getOrigin_avatar());
+				result = Main.sendTxtMessage(String.valueOf(with_user.getUser_id()),
+						new String[] { String.valueOf(user.getUser_id()) }, "很高兴遇见你", ext);
+				if (result != null) {
+					System.out.println(result);
+				}
+
+				// 系统推"附近有人喜欢了你"给对方
+
+				result = Main.sendTxtMessage("admin", new String[] { String.valueOf(with_user.getUser_id()) },
+						"附近有人喜欢了你！", ext);
+				if (result != null) {
+					System.out.println(result);
+				}
+
+			} else {
+				// 发现对方没喜欢我
+				// 需要申请添加好友
+				Object result = Main.addFriend(String.valueOf(user.getUser_id()),
+						String.valueOf(with_user.getUser_id()));
+				if (result != null) {
+					System.out.println(result);
+				}
+
+				Map<String, String> ext = new HashMap<String, String>();
+				ext.put("action", String.valueOf(MessageAction.ACTION_SOMEONE_LIKE_ME_TIP.ordinal()));
+
+				result = Main.sendCmdMessage("admin", new String[] { String.valueOf(with_user.getUser_id()) }, ext);
+				if (result != null) {
+					System.out.println(result);
+				}
+
+			}
+		}
+
 		return ResultUtil.getResultOKMap();
 	}
 

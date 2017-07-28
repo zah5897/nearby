@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -37,7 +38,6 @@ import com.zhan.app.nearby.util.RandomCodeUtil;
 import com.zhan.app.nearby.util.ResultUtil;
 import com.zhan.app.nearby.util.SMSHelper;
 import com.zhan.app.nearby.util.TextUtils;
-import com.zhan.app.nearby.util.UserDetailInfoUtil;
 
 @RestController
 @RequestMapping("/user")
@@ -615,10 +615,30 @@ public class UserController {
 	}
 
 	@RequestMapping("center_page")
-	public ModelMap center_page(Long user_id, String token) {
-		return userService.getUserCenterData(token, user_id);
+	public ModelMap center_page(Long user_id_for, String token) {
+		return userService.getUserCenterData(token, user_id_for);
 	}
 
+	/**
+	 * 获取系统标签
+	 * 
+	 * @param type
+	 * @return
+	 */
+	@RequestMapping("avatar/{user_id}")
+	public ModelMap getTags(@PathVariable long user_id) {
+		return userService.getUserAvatar(user_id);
+	}
+	/**
+	 * 获取系统标签
+	 * 
+	 * @param type
+	 * @return
+	 */
+	@RequestMapping("simple/{user_id}")
+	public ModelMap getSimpleUserInfo(@PathVariable long user_id) {
+		return userService.getUserSimple(user_id);
+	}
 	/**
 	 * 获取系统标签
 	 * 

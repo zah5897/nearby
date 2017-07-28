@@ -250,6 +250,8 @@ public class UserService {
 		// userJson.put("my_tags", new HashMap<>());
 		// ModelMap result = ResultUtil.getResultOKMap();
 		// result.put("user", userJson);
+
+		ImagePathUtil.completeAvatarPath(user, true);
 		setTagByIds(user);
 		return ResultUtil.getResultOKMap().addAttribute("user", user);
 	}
@@ -394,6 +396,22 @@ public class UserService {
 				user.setFootsteps(footstep);
 			}
 		}
+	}
+
+	public ModelMap getUserAvatar(long user_id) {
+		String avatar = userDao.getUserAvatar(user_id);
+		String[] avatars = ImagePathUtil.completeAvatarPath(avatar);
+		return ResultUtil.getResultOKMap().addAttribute("thumb", avatars[0]).addAttribute("origin", avatars[1]);
+	}
+
+	public ModelMap getUserSimple(long user_id) {
+		List<User> users = userDao.getUserSimple(user_id);
+		if (users != null && users.size() > 0) {
+			User u=users.get(0);
+			ImagePathUtil.completeAvatarPath(u,true);
+			return ResultUtil.getResultOKMap().addAttribute("user", u);
+		}
+		return ResultUtil.getResultOKMap().addAttribute("user", null);
 	}
 
 }

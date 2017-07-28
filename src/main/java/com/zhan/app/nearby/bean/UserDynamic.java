@@ -31,6 +31,7 @@ public class UserDynamic implements Serializable {
 	private String region;
 
 	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+	@JSONField(format = "yyyy-MM-dd")
 	private Date create_time;
 
 	@JSONField(serialize = false)

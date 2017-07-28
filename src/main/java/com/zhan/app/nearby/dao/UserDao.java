@@ -194,15 +194,29 @@ public class UserDao extends BaseDao {
 
 	}
 
-	public List<Long> getAllUserIds(long last_id,int page) {
-		List<Long> ids = jdbcTemplate.query("select user_id from t_user where user_id>? order by user_id limit ?", new Object[]{last_id,page}, new BeanPropertyRowMapper<Long>(Long.class));
+	public List<Long> getAllUserIds(long last_id, int page) {
+		List<Long> ids = jdbcTemplate.query("select user_id from t_user where user_id>? order by user_id limit ?",
+				new Object[] { last_id, page }, new BeanPropertyRowMapper<Long>(Long.class));
 		return ids;
 	}
 
-	public List<User> getRandomUser(long user_id, int realCount,int gender) {
-		String sql="select * from t_user where user_id<>? and avatar<>? and sex<>? order by  RAND() limit ?";
-		List<User> users = jdbcTemplate.query(sql, new Object[]{user_id,"",gender,realCount}, new BeanPropertyRowMapper<User>(User.class));
+	public List<User> getRandomUser(long user_id, int realCount, int gender) {
+		String sql = "select * from t_user where user_id<>? and avatar<>? and sex<>? order by  RAND() limit ?";
+		List<User> users = jdbcTemplate.query(sql, new Object[] { user_id, "", gender, realCount },
+				new BeanPropertyRowMapper<User>(User.class));
 		return users;
 	}
 
+	public String getUserAvatar(long user_id) {
+		String sql = "select avatar from t_user where user_id=?";
+		return jdbcTemplate.queryForObject(sql, new Object[] { user_id }, String.class);
+	}
+
+	public List<User> getUserSimple(long user_id) {
+		String sql = "select user_id,nick_name,sex,avatar,signature,birthday from t_user where user_id=?";
+		return jdbcTemplate.query(sql, new Object[] { user_id }, new BeanPropertyRowMapper<User>(User.class));
+	}
+	public int isLikeMe(long user_id, long with_user_id){
+		return jdbcTemplate.queryForObject("select count(*) from t_user_relationship where user_id=? and with_user_id=? and relationship=?",   new Object[] {with_user_id,user_id,Relationship.LIKE.ordinal()}, Integer.class);
+	}
 }

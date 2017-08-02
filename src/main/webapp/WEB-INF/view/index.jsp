@@ -13,7 +13,9 @@
     <title>后台管理中心</title>  
     <link rel="stylesheet" href="<%=path %>/css/pintuer.css">
     <link rel="stylesheet" href="<%=path %>/css/admin.css">
-    <script src="<%=path %>/js/jquery.js"></script>   
+    <link rel="stylesheet" href="<%=path%>/css/jquery.dialog.css">
+    <script src="<%=path%>/js/jquery.js"></script>
+    <script src="<%=path%>/js/jquery.dialog.js"></script>
 </head>
 <body style="background-color:#f2f9fd;">
 <div class="header bg-main">
@@ -62,6 +64,16 @@ $(function(){
 		$(this).addClass("on");
   })
 });
+
+
+function showOriginImg(img){
+	 var alt=$(img).attr("alt");
+     var parentdiv=$('<img></img>');        //创建一个父div
+     parentdiv.attr('src',alt);        //给父div设置id
+ 	 $(parentdiv).dialog({
+ 		title : "",
+ 	 });
+}
 </script>
 <ul class="bread">
   <li><a href="<%=path %>/manager/forword?path=welcome" target="right"  class="icon-home"> 首页</a></li>

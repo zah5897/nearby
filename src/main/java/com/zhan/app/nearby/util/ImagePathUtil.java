@@ -3,6 +3,7 @@ package com.zhan.app.nearby.util;
 import java.util.List;
 
 import com.zhan.app.nearby.bean.DynamicComment;
+import com.zhan.app.nearby.bean.Image;
 import com.zhan.app.nearby.bean.Topic;
 import com.zhan.app.nearby.bean.User;
 import com.zhan.app.nearby.bean.UserDynamic;
@@ -29,32 +30,52 @@ public class ImagePathUtil {
 			user.setOrigin_avatar(HOST_PROFIX + ImageSaveUtils.FILE_ROOT_AVATAR_ORIGIN + avatar);
 		}
 	}
+
 	public static String[] completeAvatarPath(String avatar) {
-		String avatars[]=new String[2];
+		String avatars[] = new String[2];
 		if (TextUtils.isEmpty(avatar)) {
 			return avatars;
 		}
-		avatars[0]=HOST_PROFIX + ImageSaveUtils.FILE_ROOT_AVATAR_THUMB + avatar;
-		avatars[1]=HOST_PROFIX + ImageSaveUtils.FILE_ROOT_AVATAR_ORIGIN + avatar;
+		avatars[0] = HOST_PROFIX + ImageSaveUtils.FILE_ROOT_AVATAR_THUMB + avatar;
+		avatars[1] = HOST_PROFIX + ImageSaveUtils.FILE_ROOT_AVATAR_ORIGIN + avatar;
 		return avatars;
 	}
 
-	public static void completeImagePath(List<UserDynamic> dynamics, boolean thumbAndOrigin) {
+	public static void completeDynamicsPath(List<UserDynamic> dynamics, boolean thumbAndOrigin) {
 
 		if (dynamics != null && dynamics.size() > 0) {
 			for (UserDynamic dynamic : dynamics) {
-				completeImagePath(dynamic, thumbAndOrigin);
+				completeDynamicPath(dynamic, thumbAndOrigin);
 			}
 		}
 	}
 
-	public static void completeImagePath(UserDynamic dynamic, boolean thumbAndOrigin) {
+	public static void completeDynamicPath(UserDynamic dynamic, boolean thumbAndOrigin) {
 
 		String shortName = dynamic.getLocal_image_name();
 		if (!TextUtils.isEmpty(shortName)) {
 			dynamic.setThumb(HOST_PROFIX + ImageSaveUtils.FILE_ROOT_IMAGES_THUMB + shortName);
 			if (thumbAndOrigin) {
 				dynamic.setOrigin(HOST_PROFIX + ImageSaveUtils.FILE_ROOT_IMAGES_ORIGIN + shortName);
+			}
+		}
+	}
+
+	public static void completeImagesPath(List<Image> images, boolean thumbAndOrigin) {
+		if (images != null && images.size() > 0) {
+			for (Image img : images) {
+				completeImagePath(img, thumbAndOrigin);
+			}
+		}
+	}
+
+	public static void completeImagePath(Image image, boolean thumbAndOrigin) {
+
+		String shortName = image.getLocal_image_name();
+		if (!TextUtils.isEmpty(shortName)) {
+			image.setThumb(HOST_PROFIX + ImageSaveUtils.FILE_ROOT_IMAGES_THUMB + shortName);
+			if (thumbAndOrigin) {
+				image.setOrigin(HOST_PROFIX + ImageSaveUtils.FILE_ROOT_IMAGES_ORIGIN + shortName);
 			}
 		}
 	}
@@ -73,7 +94,7 @@ public class ImagePathUtil {
 
 		if (comments != null && comments.size() > 0) {
 			for (DynamicComment comment : comments) {
-				completeCommentImagePath(comment,thumbAndOrigin);
+				completeCommentImagePath(comment, thumbAndOrigin);
 			}
 		}
 

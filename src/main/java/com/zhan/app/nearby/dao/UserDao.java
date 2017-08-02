@@ -11,6 +11,7 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import com.zhan.app.nearby.bean.Image;
 import com.zhan.app.nearby.bean.User;
 import com.zhan.app.nearby.bean.mapper.SimpkleUserMapper;
 import com.zhan.app.nearby.comm.Relationship;
@@ -216,7 +217,10 @@ public class UserDao extends BaseDao {
 		String sql = "select user_id,nick_name,sex,avatar,signature,birthday from t_user where user_id=?";
 		return jdbcTemplate.query(sql, new Object[] { user_id }, new BeanPropertyRowMapper<User>(User.class));
 	}
-	public int isLikeMe(long user_id, long with_user_id){
-		return jdbcTemplate.queryForObject("select count(*) from t_user_relationship where user_id=? and with_user_id=? and relationship=?",   new Object[] {with_user_id,user_id,Relationship.LIKE.ordinal()}, Integer.class);
+
+	public int isLikeMe(long user_id, long with_user_id) {
+		return jdbcTemplate.queryForObject(
+				"select count(*) from t_user_relationship where user_id=? and with_user_id=? and relationship=?",
+				new Object[] { with_user_id, user_id, Relationship.LIKE.ordinal() }, Integer.class);
 	}
 }

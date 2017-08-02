@@ -1,6 +1,9 @@
 package com.zhan.app.nearby.util;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
@@ -64,10 +67,11 @@ public class ImageSaveUtils {
 	public static String getThumbImagesPath(ServletContext servletContext) {
 		return getRootPath() + FILE_ROOT_IMAGES_THUMB;
 	}
+
 	public static String getTopicOriginImagesPath(ServletContext servletContext) {
 		return getRootPath() + FILE_ROOT_TOPIC_ORIGIN;
 	}
-	
+
 	public static String getTopicThumbImagesPath(ServletContext servletContext) {
 		return getRootPath() + FILE_ROOT_TOPIC_THUMB;
 	}
@@ -100,8 +104,13 @@ public class ImageSaveUtils {
 		String shortName = file.getOriginalFilename();
 		if (!TextUtils.isEmpty(shortName)) {
 			String fileShortName = null;
+			boolean isGif = false;
 			if (shortName.contains(".")) {
-				fileShortName = UUID.randomUUID() + "." + shortName.split("\\.")[1];
+				String endWith = shortName.split("\\.")[1];
+				if (endWith.equalsIgnoreCase("gif")) {
+					isGif = true;
+				}
+				fileShortName = UUID.randomUUID() + "." + endWith;
 			} else {
 				fileShortName = UUID.randomUUID().toString() + ".jpg";
 			}
@@ -110,11 +119,16 @@ public class ImageSaveUtils {
 			file.transferTo(uploadFile);// 保存到一个目标文件中。
 
 			String thumbFile = getThumbImagesPath(servletContext) + fileShortName;
-			pressImageByWidth(uploadFile.getAbsolutePath(), PRESS_IMAGE_WIDTH, thumbFile);
+			if (isGif) {
+				copyfile(uploadFile, new File(thumbFile), false);
+			} else {
+				pressImageByWidth(uploadFile.getAbsolutePath(), PRESS_IMAGE_WIDTH, thumbFile);
+			}
 			return fileShortName;
 		}
 		return null;
 	}
+
 	public static String saveTopicImages(MultipartFile file, ServletContext servletContext)
 			throws IllegalStateException, IOException {
 		String filePath = getTopicOriginImagesPath(servletContext);
@@ -129,7 +143,7 @@ public class ImageSaveUtils {
 			File uploadFile = new File(filePath + fileShortName);
 			uploadFile.mkdirs();
 			file.transferTo(uploadFile);// 保存到一个目标文件中。
-			
+
 			String thumbFile = getTopicThumbImagesPath(servletContext) + fileShortName;
 			pressImageByWidth(uploadFile.getAbsolutePath(), PRESS_IMAGE_WIDTH, thumbFile);
 			return fileShortName;
@@ -187,5 +201,40 @@ public class ImageSaveUtils {
 
 	public static void pressImageByWidth(String origin, int minWidth, String thumb) throws IOException {
 		ImageCompressUtil.resizeByWidth(origin, minWidth, thumb);
+	}
+
+	public static void copyfile(File fromFile, File toFile, Boolean rewrite) {
+		if (!fromFile.exists()) {
+			return;
+		}
+		if (!fromFile.isFile()) {
+			return;
+		}
+		if (!fromFile.canRead()) {
+			return;
+		}
+		if (!toFile.getParentFile().exists()) {
+			toFile.getParentFile().mkdirs();
+		}
+		if (toFile.exists() && rewrite) {
+			toFile.delete();
+		}
+		try {
+			FileInputStream fosfrom = new FileInputStream(fromFile);
+			FileOutputStream fosto = new FileOutputStream(toFile);
+
+			byte[] bt = new byte[1024];
+			int c;
+			while ((c = fosfrom.read(bt)) > 0) {
+				fosto.write(bt, 0, c);
+			}
+			// 关闭输入、输出流
+			fosfrom.close();
+			fosto.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }

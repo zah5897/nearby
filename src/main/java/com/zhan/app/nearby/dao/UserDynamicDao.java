@@ -10,6 +10,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import com.zhan.app.nearby.bean.DynamicComment;
+import com.zhan.app.nearby.bean.Image;
 import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.bean.UserDynamicRelationShip;
 import com.zhan.app.nearby.bean.mapper.DynamicCommentMapper;
@@ -79,7 +80,7 @@ public class UserDynamicDao extends BaseDao {
 
 	}
 
-	public List<UserDynamic> getHomeFoundSelectedRandom(long user_id,int size) {
+	public List<UserDynamic> getHomeFoundSelectedRandom(long user_id, int size) {
 		String sql;
 		if (user_id > 0) {
 			sql = "select dynamic.*,"
@@ -87,10 +88,10 @@ public class UserDynamicDao extends BaseDao {
 					+ "user.user_id  ," + "user.nick_name ," + "user.avatar," + "user.sex ," + "user.birthday ,"
 					+ "user.type " + "from " + TABLE_USER_DYNAMIC + " dynamic left join " + TABLE_HOME_FOUND_SELECTED
 					+ " selected on dynamic.id=selected.dynamic_id left join t_user user on  dynamic.user_id=user.user_id  "
-					+ "where selected.selected_state=? " + fiflterBlock()
-					+ "  order by RAND() limit ?";
+					+ "where selected.selected_state=? " + fiflterBlock() + "  order by RAND() limit ?";
 
-			Object[] param= new Object[] { user_id, ImageStatus.SELECTED.ordinal(),user_id, Relationship.BLACK.ordinal(), size };
+			Object[] param = new Object[] { user_id, ImageStatus.SELECTED.ordinal(), user_id,
+					Relationship.BLACK.ordinal(), size };
 			return jdbcTemplate.query(sql, param, new DynamicMapper());
 		} else {
 			sql = "select dynamic.* ,"
@@ -307,6 +308,12 @@ public class UserDynamicDao extends BaseDao {
 		String sql = "select c.city_id from (select count(*) as count, gb.* from t_user_dynamic gb group by gb.city_id) as c order by c.count desc limit 1";
 		return jdbcTemplate.queryForObject(sql, Integer.class);
 
+	}
+
+	// 获取用户发布的动态里面的图片
+	public List<Image> getUserImages(long user_id, long last_image_id, int count) {
+		return jdbcTemplate.query("select *from t_user_dynamic  where user_id=? and local_image_name<>? and id<? order by id desc limit ?",
+				new Object[] { user_id,"", last_image_id, count }, new BeanPropertyRowMapper<Image>(Image.class));
 	}
 
 	// public int getCityImageCount(long user_id, int city_id) {

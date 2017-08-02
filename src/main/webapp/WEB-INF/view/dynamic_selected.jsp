@@ -222,7 +222,7 @@
 			 nick_name=nick_name==undefined?"":nick_name;
 			 
 			 toAdd+="<td>"+nick_name+"</td>";
-			 toAdd+="<td><img src='"+pageData.thumb+"' alt=''   height='50' /></td>";
+			 toAdd+="<td><img  src='"+pageData.thumb+"' alt='"+pageData.origin+"'  height='50' onclick='show(this)'/></td>";
 			 toAdd+="<td>"+pageData["description"]+"</td>";
 			 toAdd+="<td>"+pageData["city"]+"</td>";
 			 toAdd+="<td>"+pageData["create_time"]+"</td>";
@@ -232,6 +232,9 @@
 			 tr.after(toAdd);
 		}
 	  
+	    function show(img){
+	    	parent.showOriginImg(img);
+	    }
 		$("#checkall").click(function() {
 			$("input[name='id[]']").each(function() {
 				if (this.checked) {
@@ -279,6 +282,11 @@
 						return true;
 					}
 				})
+				
+				function imgClick(url){  
+			     var obj = '<img src='+url+'/>';
+			     alert(obj); 
+		        }
 	</script>
 </body>
 </html>

@@ -91,7 +91,7 @@ public class ManagerController {
 		}
 		List<UserDynamic> dys = managerService.getHomeFoundSelected(pageIndex, 10);
 		if (dys != null && dys.size() > 0) {
-			ImagePathUtil.completeImagePath(dys, true);
+			ImagePathUtil.completeDynamicsPath(dys, true);
 		}
 
 		ModelMap reMap = ResultUtil.getResultOKMap();
@@ -115,7 +115,7 @@ public class ManagerController {
 
 		List<UserDynamic> dys = managerService.getUnSelected(pageIndex, 10);
 		if (dys != null && dys.size() > 0) {
-			ImagePathUtil.completeImagePath(dys, true);
+			ImagePathUtil.completeDynamicsPath(dys, true);
 		}
 		ModelMap reMap = ResultUtil.getResultOKMap();
 		reMap.put("selecteds", dys);
@@ -148,7 +148,7 @@ public class ManagerController {
 		r.put("pageCount", getPageCount(true));
 		if (dys != null && dys.size() > 0) {
 			UserDynamic dy = dys.get(dys.size() - 1);
-			ImagePathUtil.completeImagePath(dy, true);
+			ImagePathUtil.completeDynamicPath(dy, true);
 			r.put("pageData", dy);
 			r.put("currentPageIndex", currentPage);
 		} else {
@@ -176,7 +176,7 @@ public class ManagerController {
 		r.put("pageCount", getPageCount(true));
 		List<UserDynamic> dys = managerService.getHomeFoundSelected(currentPage, 10);
 		if (dys != null && dys.size() > 0) {
-			ImagePathUtil.completeImagePath(dys, true);
+			ImagePathUtil.completeDynamicsPath(dys, true);
 			if (len >= dys.size()) {
 				r.put("pageData", dys);
 			} else {
@@ -202,7 +202,7 @@ public class ManagerController {
 		if (dys != null && dys.size() > 0) {
 			UserDynamic dy = dys.get(dys.size() - 1);
 			if (dy.getId() < id) {
-				ImagePathUtil.completeImagePath(dy, true);
+				ImagePathUtil.completeDynamicPath(dy, true);
 				r.put("pageData", dy);
 			}
 			r.put("currentPageIndex", currentPage);
@@ -224,7 +224,7 @@ public class ManagerController {
 		if (dys != null && dys.size() > 0) {
 			UserDynamic dy = dys.get(dys.size() - 1);
 			if (dy.getId() < id) {
-				ImagePathUtil.completeImagePath(dy, true);
+				ImagePathUtil.completeDynamicPath(dy, true);
 				r.put("pageData", dy);
 			}
 			r.put("currentPageIndex", currentPage);
@@ -268,7 +268,7 @@ public class ManagerController {
 		r.put("pageCount", getPageCount(false));
 		List<UserDynamic> dys = managerService.getUnSelected(currentPage, 10);
 		if (dys != null && dys.size() > 0) {
-			ImagePathUtil.completeImagePath(dys, true);
+			ImagePathUtil.completeDynamicsPath(dys, true);
 			if (len >= dys.size()) {
 				r.put("pageData", dys);
 			} else {

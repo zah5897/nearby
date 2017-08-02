@@ -1,17 +1,15 @@
 package com.zhan.app.nearby.bean;
 
 import com.alibaba.fastjson.annotation.JSONField;
-import com.zhan.app.nearby.annotation.ColumnType;
 
 public class Image {
-	@ColumnType
-	private long id;
+	public long id; // 主键
+
 	@JSONField(serialize = false)
-	private long type_id;
-	@JSONField(serialize = false)
-	private short type;
-	private String thumb;
-	private String origin;
+	private String local_image_name;
+	
+	private String thumb; // 无关数据库，主要json展示 缩略图
+	private String origin; // 无关数据库，主要json展示 原始图
 
 	public long getId() {
 		return id;
@@ -21,20 +19,12 @@ public class Image {
 		this.id = id;
 	}
 
-	public long getType_id() {
-		return type_id;
+	public String getLocal_image_name() {
+		return local_image_name;
 	}
 
-	public void setType_id(long type_id) {
-		this.type_id = type_id;
-	}
-
-	public short getType() {
-		return type;
-	}
-
-	public void setType(short type) {
-		this.type = type;
+	public void setLocal_image_name(String local_image_name) {
+		this.local_image_name = local_image_name;
 	}
 
 	public String getThumb() {
@@ -52,5 +42,7 @@ public class Image {
 	public void setOrigin(String origin) {
 		this.origin = origin;
 	}
+
+   
 
 }

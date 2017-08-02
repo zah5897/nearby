@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 
 import com.easemob.server.example.Main;
+import com.zhan.app.nearby.bean.Image;
 import com.zhan.app.nearby.bean.Tag;
 import com.zhan.app.nearby.bean.User;
 import com.zhan.app.nearby.cache.UserCacheService;

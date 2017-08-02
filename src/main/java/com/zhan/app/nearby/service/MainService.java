@@ -110,7 +110,7 @@ public class MainService {
 				ImagePathUtil.completeAvatarPath(dy.getUser(), true);
 			}
 		}
-		ImagePathUtil.completeImagePath(dynamics, true);
+		ImagePathUtil.completeDynamicsPath(dynamics, true);
 		result.put("images", dynamics);
 		return result;
 	}

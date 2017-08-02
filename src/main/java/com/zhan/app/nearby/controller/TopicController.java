@@ -55,7 +55,7 @@ public class TopicController {
 	public ModelMap list_dynamic(long topic_id, long last_id, int page_size) {
 		ModelMap result = ResultUtil.getResultOKMap();
 		List<UserDynamic> dynamics = topicService.listDynamics(topic_id, last_id, page_size);
-		ImagePathUtil.completeImagePath(dynamics, true);
+		ImagePathUtil.completeDynamicsPath(dynamics, true);
 		result.put("dynamics", dynamics);
 		return result;
 	}

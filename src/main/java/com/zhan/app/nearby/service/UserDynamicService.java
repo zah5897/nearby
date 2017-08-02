@@ -9,16 +9,20 @@ import javax.servlet.ServletContext;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.ModelMap;
 
 import com.easemob.server.example.Main;
 import com.zhan.app.nearby.bean.DynamicComment;
+import com.zhan.app.nearby.bean.Image;
 import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.bean.UserDynamicRelationShip;
 import com.zhan.app.nearby.comm.LikeDynamicState;
 import com.zhan.app.nearby.dao.UserDao;
 import com.zhan.app.nearby.dao.UserDynamicDao;
+import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.ImageSaveUtils;
+import com.zhan.app.nearby.util.ResultUtil;
 
 @Service
 @Transactional("transactionManager")
@@ -43,7 +47,8 @@ public class UserDynamicService {
 				long user_id = userDynamicDao.getUserIdByDynamicId(dynamic_id);
 				Map<String, String> ext = new HashMap<String, String>();
 				ext.put("dynamic_id", String.valueOf(dynamic_id));
-				Main.sendTxtMessage(String.valueOf(user_id), new String[] { String.valueOf(user_id) }, "有人赞了你的图片！", ext);
+				Main.sendTxtMessage(String.valueOf(user_id), new String[] { String.valueOf(user_id) }, "有人赞了你的图片！",
+						ext);
 			}
 		}
 		return result;
@@ -51,7 +56,7 @@ public class UserDynamicService {
 
 	public List<UserDynamic> getUserDynamic(long user_id, long last_id, int count) {
 		List<UserDynamic> dynamics = userDynamicDao.getUserDynamic(user_id, last_id, count);
-		ImagePathUtil.completeImagePath(dynamics, true);
+		ImagePathUtil.completeDynamicsPath(dynamics, true);
 		return dynamics;
 	}
 
@@ -139,5 +144,24 @@ public class UserDynamicService {
 			}
 		}
 		return successid;
+	}
+
+	public ModelMap getUserImages(Long user_id, Long last_id, Integer count) {
+		if (user_id == null || user_id < 1) {
+			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "用户ID异常");
+		}
+		if (last_id == null || last_id <=0) {
+			last_id = Long.MAX_VALUE;
+		}
+		if (count == null || count <= 0) {
+			count = 5;
+		}
+		List<Image> userImages = userDynamicDao.getUserImages(user_id, last_id, count);
+		ImagePathUtil.completeImagesPath(userImages, true); // 补全图片路径
+		boolean hasMore = true;
+		if (userImages == null || userImages.size() < count) {
+			hasMore = false;
+		}
+		return ResultUtil.getResultOKMap().addAttribute("images", userImages).addAttribute("hasMore", hasMore);
 	}
 }

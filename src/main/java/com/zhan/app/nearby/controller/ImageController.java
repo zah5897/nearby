@@ -44,18 +44,17 @@ public class ImageController {
 	 * @return
 	 */
 	@RequestMapping("upload")
-	public ModelMap upload(DefaultMultipartHttpServletRequest multipartRequest, Long user_id, UserDynamic dynamic,String ios_addr) {
+	public ModelMap upload(DefaultMultipartHttpServletRequest multipartRequest, Long user_id, UserDynamic dynamic,
+			String ios_addr) {
 
 		if (user_id == null || user_id < 0) {
-			return ResultUtil.getResultMap(ERROR.ERR_PARAM,"用户id异常");
+			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "用户id异常");
 		}
-		
-		
-		if(userService.getBasicUser(user_id)==null){
-			return ResultUtil.getResultMap(ERROR.ERR_PARAM,"用户不存在");
+
+		if (userService.getBasicUser(user_id) == null) {
+			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "用户不存在");
 		}
-		
-		
+
 		if (multipartRequest != null) {
 			Iterator<String> iterator = multipartRequest.getFileNames();
 			while (iterator.hasNext()) {
@@ -68,18 +67,18 @@ public class ImageController {
 						dynamic.setCreate_time(new Date());
 						long id = userDynamicService.insertDynamic(dynamic);
 						dynamic.setId(id);
-						AddressUtil.praseAddress(IPUtil.getIpAddress(multipartRequest),dynamic,ios_addr);
-						
-						//预先放在首页推荐
-//						if (id > 0) {
-//							userDynamicService.addHomeFoundSelected(id);
-//						}
-						
-						ModelMap result=ResultUtil.getResultOKMap();
-						
-						UserDynamic dy = userDynamicService.detail(id,user_id);
-						if(dy!=null){
-							ImagePathUtil.completeImagePath(dy, true);
+						AddressUtil.praseAddress(IPUtil.getIpAddress(multipartRequest), dynamic, ios_addr);
+
+						// 预先放在首页推荐
+						// if (id > 0) {
+						// userDynamicService.addHomeFoundSelected(id);
+						// }
+
+						ModelMap result = ResultUtil.getResultOKMap();
+
+						UserDynamic dy = userDynamicService.detail(id, user_id);
+						if (dy != null) {
+							ImagePathUtil.completeDynamicPath(dy, true);
 							ImagePathUtil.completeAvatarPath(dy.getUser(), true);
 						}
 						result.put("detail", dy);
@@ -93,13 +92,14 @@ public class ImageController {
 			}
 
 		}
-		return ResultUtil.getResultMap(ERROR.ERR_PARAM,"无图片上传");
+		return ResultUtil.getResultMap(ERROR.ERR_PARAM, "无图片上传");
 	}
+
 	@RequestMapping("test")
-	public ModelMap test(HttpServletRequest request,String lat,String lng) {
-		String ipResult=IPUtil.getIpAddress(request);
+	public ModelMap test(HttpServletRequest request, String lat, String lng) {
+		String ipResult = IPUtil.getIpAddress(request);
 		System.out.println(ipResult);
-		String[] result=AddressUtil.getAddressByIp(ipResult);
+		String[] result = AddressUtil.getAddressByIp(ipResult);
 		System.out.println(result);
 		return ResultUtil.getResultOKMap();
 	}

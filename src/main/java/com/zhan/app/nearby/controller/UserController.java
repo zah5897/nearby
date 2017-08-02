@@ -19,6 +19,7 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.multipart.support.DefaultMultipartHttpServletRequest;
 
 import com.zhan.app.nearby.bean.City;
+import com.zhan.app.nearby.bean.Image;
 import com.zhan.app.nearby.bean.Tag;
 import com.zhan.app.nearby.bean.User;
 import com.zhan.app.nearby.bean.UserDynamic;
@@ -654,7 +655,7 @@ public class UserController {
 		}
 		return result;
 	}
-
+	
 	private City getDefaultCityId() {
 
 		City city = new City();

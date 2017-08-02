@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.zhan.app.nearby.bean.DynamicComment;
 import com.zhan.app.nearby.bean.DynamicMessage;
+import com.zhan.app.nearby.bean.Image;
 import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.comm.DynamicMsgType;
 import com.zhan.app.nearby.comm.LikeDynamicState;
@@ -89,7 +90,7 @@ public class DynamicController {
 		UserDynamic dynamic = userDynamicService.detail(dynamic_id, user_id);
 		ModelMap result;
 		if (dynamic != null) {
-			ImagePathUtil.completeImagePath(dynamic, true);
+			ImagePathUtil.completeDynamicPath(dynamic, true);
 			ImagePathUtil.completeAvatarPath(dynamic.getUser(), true);
 			userDynamicService.updateBrowserCount(dynamic.getId(), dynamic.getBrowser_count() + 1);
 			result = ResultUtil.getResultOKMap();
@@ -175,5 +176,19 @@ public class DynamicController {
 		result.put("delete_id", id);
 		return result;
 	}
+	
+	/**
+	 * 获取用户图片列表
+	 * 
+	 * @param user_id
+	 * @param last_image_id
+	 * @param count
+	 * @return
+	 */
+	@RequestMapping("list_image")
+	public ModelMap list_image(Long user_id, Long last_id, Integer count) {
+		return userDynamicService.getUserImages(user_id, last_id, count);
+	}
+	
 
 }

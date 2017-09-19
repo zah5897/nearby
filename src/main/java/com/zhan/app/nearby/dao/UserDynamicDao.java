@@ -9,6 +9,7 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import com.zhan.app.nearby.bean.City;
 import com.zhan.app.nearby.bean.DynamicComment;
 import com.zhan.app.nearby.bean.Image;
 import com.zhan.app.nearby.bean.UserDynamic;
@@ -40,8 +41,7 @@ public class UserDynamicDao extends BaseDao {
 				Integer.class);
 	}
 
-	public List<UserDynamic> getHomeFoundSelected(long user_id, long last_id, int page_size, int city_id,
-			boolean isSub) {
+	public List<UserDynamic> getHomeFoundSelected(long user_id, long last_id, int page_size, City city) {
 		String sql;
 		if (user_id > 0) {
 			sql = "select dynamic.*,"
@@ -49,13 +49,13 @@ public class UserDynamicDao extends BaseDao {
 					+ "user.user_id  ," + "user.nick_name ," + "user.avatar," + "user.sex ," + "user.birthday ,"
 					+ "user.type " + "from " + TABLE_USER_DYNAMIC + " dynamic left join " + TABLE_HOME_FOUND_SELECTED
 					+ " selected on dynamic.id=selected.dynamic_id left join t_user user on  dynamic.user_id=user.user_id  "
-					+ "where selected.selected_state=? and dynamic.id<? and " + cityIn(isSub) + fiflterBlock()
+					+ "where selected.selected_state=? and dynamic.id<? and " + cityIn(city) + fiflterBlock()
 					+ "  order by dynamic.id desc limit ?";
 
 			Object[] param;
 
 			param = new Object[] { user_id, ImageStatus.SELECTED.ordinal(), last_id <= 0 ? Long.MAX_VALUE : last_id,
-					city_id, city_id, user_id, Relationship.BLACK.ordinal(), page_size };
+					city.getId(), city.getId(), user_id, Relationship.BLACK.ordinal(), page_size };
 			return jdbcTemplate.query(sql, param, new DynamicMapper());
 		} else {
 
@@ -63,18 +63,11 @@ public class UserDynamicDao extends BaseDao {
 					+ "user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday,user.type from "
 					+ TABLE_USER_DYNAMIC + " dynamic left join " + TABLE_HOME_FOUND_SELECTED
 					+ " selected on dynamic.id=selected.dynamic_id left join t_user user on  dynamic.user_id=user.user_id "
-					+ "where selected.selected_state=? and dynamic.id<? and " + cityIn(isSub)
+					+ "where selected.selected_state=? and dynamic.id<? and " + cityIn(city)
 					+ " order by dynamic.id desc limit ?";
 
-			Object[] param;
-			if (isSub) {
-				param = new Object[] { ImageStatus.SELECTED.ordinal(), last_id <= 0 ? Long.MAX_VALUE : last_id, city_id,
-						city_id, page_size };
-			} else {
-				param = new Object[] { ImageStatus.SELECTED.ordinal(), last_id <= 0 ? Long.MAX_VALUE : last_id, city_id,
-						city_id, city_id, city_id, page_size };
-			}
-
+			Object[] param = new Object[] { ImageStatus.SELECTED.ordinal(), last_id <= 0 ? Long.MAX_VALUE : last_id,
+					city.getId(), city.getId(), page_size };
 			return jdbcTemplate.query(sql, param, new DynamicMapper());
 		}
 
@@ -120,13 +113,8 @@ public class UserDynamicDao extends BaseDao {
 		return " and dynamic.user_id not in (select with_user_id from t_user_relationship where user_id=? and relationship=?) ";
 	}
 
-	private String cityIn(boolean isSub) {
-		if (isSub) {
-			return "  (dynamic.city_id =?  or dynamic.district_id =? ) ";
-		} else {
-			return "  (dynamic.district_id in (select id from t_sys_city where parent_id=?) or dynamic.city_id in (select id from t_sys_city where parent_id=?) )";
-		}
-
+	private String cityIn(City city) {
+		return "   (dynamic.city_id=? or dynamic.district_id =?)";
 	}
 
 	public int addHomeFoundSelected(long dynamic_id) {
@@ -312,8 +300,9 @@ public class UserDynamicDao extends BaseDao {
 
 	// 获取用户发布的动态里面的图片
 	public List<Image> getUserImages(long user_id, long last_image_id, int count) {
-		return jdbcTemplate.query("select *from t_user_dynamic  where user_id=? and local_image_name<>? and id<? order by id desc limit ?",
-				new Object[] { user_id,"", last_image_id, count }, new BeanPropertyRowMapper<Image>(Image.class));
+		return jdbcTemplate.query(
+				"select *from t_user_dynamic  where user_id=? and local_image_name<>? and id<? order by id desc limit ?",
+				new Object[] { user_id, "", last_image_id, count }, new BeanPropertyRowMapper<Image>(Image.class));
 	}
 
 	// public int getCityImageCount(long user_id, int city_id) {

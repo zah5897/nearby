@@ -52,12 +52,12 @@ public class MainController {
 	}
 
 	/**
-	 * Ï²»¶Ä³ÈË
+	 * Ï²ï¿½ï¿½Ä³ï¿½ï¿½
 	 * 
 	 * @param user_id
 	 * @param token
 	 * @param with_user_id
-	 *            ±»Ï²»¶µÄÄ³ÈË
+	 *            ï¿½ï¿½Ï²ï¿½ï¿½ï¿½ï¿½Ä³ï¿½ï¿½
 	 * @return
 	 */
 	@RequestMapping("like")
@@ -65,13 +65,18 @@ public class MainController {
 		return mainService.changeRelationShip(user_id, token, with_user_id, Relationship.LIKE);
 	}
 
+	@RequestMapping("add_block")
+	public ModelMap add_block(long user_id, String token, String with_user_id) {
+		return mainService.changeRelationShip(user_id, token, with_user_id, Relationship.BLACK);
+	}
+
 	/**
-	 * µã»÷ X ºöÂÔ
+	 * ï¿½ï¿½ï¿½ X ï¿½ï¿½ï¿½ï¿½
 	 * 
 	 * @param user_id
 	 * @param token
 	 * @param with_user_id
-	 *            ±»ºöÂÔµÄÓÃ»§id
+	 *            ï¿½ï¿½ï¿½ï¿½ï¿½Ôµï¿½ï¿½Ã»ï¿½id
 	 * @return
 	 */
 	@RequestMapping("ignore")

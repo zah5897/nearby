@@ -2,6 +2,8 @@ package com.zhan.app.nearby.bean;
 
 import java.util.Date;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
 import com.alibaba.fastjson.annotation.JSONField;
 import com.zhan.app.nearby.annotation.ColumnType;
 import com.zhan.app.nearby.bean.property.MsgAttention;
@@ -16,7 +18,8 @@ public class DynamicMessage {
 	private long by_user_id;
 
 	private int type;
-
+	@JSONField(format = "yyyy-MM-dd HH:mm")
+	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
 	private Date create_time;
 
 	

@@ -51,11 +51,7 @@ public class MainService {
 		}
 		ModelMap result = ResultUtil.getResultOKMap();
 		List<User> users = userDao.getRandomUser(user_id, realCount, gender);
-		if (users != null) {
-			for (User u : users) {
-				ImagePathUtil.completeAvatarPath(u, true);
-			}
-		}
+		ImagePathUtil.completeAvatarsPath(users, true);
 		result.put("users", users);
 		return result;
 	}
@@ -82,14 +78,7 @@ public class MainService {
 		if (city == null) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "city not found");
 		}
-
-		List<UserDynamic> dynamics;
-
-		if (city.getParent_id() == 0) {
-			dynamics = userDynamicDao.getHomeFoundSelected(user_id, last_id, realCount, city_id, false);
-		} else {
-			dynamics = userDynamicDao.getHomeFoundSelected(user_id, last_id, realCount, city_id, true);
-		}
+		List<UserDynamic> dynamics = userDynamicDao.getHomeFoundSelected(user_id, last_id, realCount, city);
 
 		ModelMap result = ResultUtil.getResultOKMap();
 		if (dynamics == null || dynamics.size() < realCount) {
@@ -144,9 +133,9 @@ public class MainService {
 
 	public ModelMap changeRelationShip(long user_id, User with_user, Relationship ship) {
 		userDao.updateRelationship(user_id, with_user.getUser_id(), ship);
-		User user = userDao.getUserSimple(user_id).get(0);
 		// 判断对方是否也已经喜欢我了
 		if (ship == Relationship.LIKE) {
+			User user = userDao.getUserSimple(user_id).get(0);
 			int count = userDao.isLikeMe(user_id, with_user.getUser_id());
 			if (count > 0) { // 对方喜欢我了，这个时候我也喜欢对方了，需要互相发消息
 				ImagePathUtil.completeAvatarPath(with_user, true);
@@ -176,31 +165,36 @@ public class MainService {
 				}
 
 				// 系统推"附近有人喜欢了你"给对方
+				String msg = "附近有人喜欢了你！";
+				ext.put("msg", msg);
 
-				result = Main.sendTxtMessage("admin", new String[] { String.valueOf(with_user.getUser_id()) },
-						"附近有人喜欢了你！", ext);
-				if (result != null) {
-					System.out.println(result);
-				}
-
-			} else {
-				// 发现对方没喜欢我
-				// 需要申请添加好友
-				Object result = Main.addFriend(String.valueOf(user.getUser_id()),
-						String.valueOf(with_user.getUser_id()));
-				if (result != null) {
-					System.out.println(result);
-				}
-
-				Map<String, String> ext = new HashMap<String, String>();
-				ext.put("action", String.valueOf(MessageAction.ACTION_SOMEONE_LIKE_ME_TIP.ordinal()));
-
-				result = Main.sendCmdMessage("admin", new String[] { String.valueOf(with_user.getUser_id()) }, ext);
+				result = Main.sendTxtMessage(Main.SYS, new String[] { String.valueOf(with_user.getUser_id()) }, msg,
+						ext);
 				if (result != null) {
 					System.out.println(result);
 				}
 
 			}
+			// else {
+			// // 发现对方没喜欢我
+			// // 需要申请添加好友
+			// Object result = Main.addFriend(String.valueOf(user.getUser_id()),
+			// String.valueOf(with_user.getUser_id()));
+			// if (result != null) {
+			// System.out.println(result);
+			// }
+			//
+			// Map<String, String> ext = new HashMap<String, String>();
+			// ext.put("action",
+			// String.valueOf(MessageAction.ACTION_SOMEONE_LIKE_ME_TIP.ordinal()));
+			//
+			// result = Main.sendCmdMessage(Main.SYS, new String[] {
+			// String.valueOf(with_user.getUser_id()) }, ext);
+			// if (result != null) {
+			// System.out.println(result);
+			// }
+			//
+			// }
 		}
 
 		return ResultUtil.getResultOKMap();

@@ -19,7 +19,9 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.zhan.app.nearby.bean.ManagerUser;
 import com.zhan.app.nearby.bean.Topic;
+import com.zhan.app.nearby.bean.User;
 import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.service.ManagerService;
@@ -351,16 +353,65 @@ public class ManagerController {
 		managerService.delTopic(id);
 		return ResultUtil.getResultOKMap();
 	}
-	
+
 	@RequestMapping(value = "/send_msg_to_all")
 	public @ResponseBody ModelMap send_msg_to_all(String msg) {
-		if(TextUtils.isEmpty(msg)){
+		if (TextUtils.isEmpty(msg)) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM);
 		}
 		managerService.sendMsgToAll(msg);
 		return ResultUtil.getResultOKMap();
 	}
 
-	
-	
+	@RequestMapping(value = "/new_user_count")
+	public @ResponseBody ModelMap new_user_count() {
+		int count = managerService.newUserCount();
+		return ResultUtil.getResultOKMap().addAttribute("count", count);
+	}
+
+	@RequestMapping(value = "/list_new_user")
+	public @ResponseBody ModelMap list_new_user(int pageIndex) {
+
+		int count = managerService.newUserCount();
+
+		int pageCount = count / 10;
+		if (count % 10 > 0) {
+			pageCount += 1;
+		}
+
+		if (pageCount == 0) {
+			pageCount = 1;
+		}
+
+		if (pageIndex == 0) {
+			pageIndex = 1;
+		} else if (pageIndex < 0) {
+			pageIndex = pageCount;
+		} else if (pageIndex > pageCount) {
+			pageIndex = pageCount;
+		}
+		List<ManagerUser> users = managerService.listNewUser(pageIndex, 10);
+		ImagePathUtil.completeManagerUserAvatarsPath(users, true);
+		ModelMap reMap = ResultUtil.getResultOKMap();
+		reMap.put("users", users);
+		reMap.put("pageCount", pageCount);
+		reMap.put("currentPageIndex", pageIndex);
+		return reMap;
+	}
+
+	@RequestMapping(value = "/edit_user_from_found_list")
+	public @ResponseBody ModelMap edit_user_from_found_list(String ids,int state, int currentPage) {
+		if (TextUtils.isEmpty(ids)) {
+			return ResultUtil.getResultMap(ERROR.ERR_FAILED);
+		}
+		JSONArray idsArray = JSON.parseArray(ids);
+		int len = idsArray.size();
+		for (int i = 0; i < len; i++) {
+			String strId = idsArray.getString(i);
+			long id = Long.parseLong(strId);
+			managerService.editUserFromFound(id,state);
+		}
+		return list_new_user(currentPage);
+	}
+
 }

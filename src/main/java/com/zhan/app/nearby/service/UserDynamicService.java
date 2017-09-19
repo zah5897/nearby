@@ -47,8 +47,10 @@ public class UserDynamicService {
 				long user_id = userDynamicDao.getUserIdByDynamicId(dynamic_id);
 				Map<String, String> ext = new HashMap<String, String>();
 				ext.put("dynamic_id", String.valueOf(dynamic_id));
-				Main.sendTxtMessage(String.valueOf(user_id), new String[] { String.valueOf(user_id) }, "有人赞了你的图片！",
-						ext);
+
+				String msg = "有人赞了你的图片！";
+				ext.put("msg", msg);
+				Main.sendTxtMessage(Main.SYS, new String[] { String.valueOf(user_id) }, msg, ext);
 			}
 		}
 		return result;
@@ -69,7 +71,10 @@ public class UserDynamicService {
 			ext.put("comment_id", String.valueOf(comment.getId()));
 			ext.put("dynamic_id", String.valueOf(comment.getDynamic_id()));
 			String user_id_str = String.valueOf(user_id);
-			Main.sendTxtMessage(user_id_str, new String[] { user_id_str }, "有人评论了你的图片，快去看看！", ext);
+
+			String msg = "有人评论了你的图片，快去看看！";
+			ext.put("msg", msg);
+			Main.sendTxtMessage(Main.SYS, new String[] { user_id_str }, msg, ext);
 		}
 		return id;
 	}
@@ -150,7 +155,7 @@ public class UserDynamicService {
 		if (user_id == null || user_id < 1) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "用户ID异常");
 		}
-		if (last_id == null || last_id <=0) {
+		if (last_id == null || last_id <= 0) {
 			last_id = Long.MAX_VALUE;
 		}
 		if (count == null || count <= 0) {

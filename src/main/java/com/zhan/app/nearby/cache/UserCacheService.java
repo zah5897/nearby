@@ -9,7 +9,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import com.zhan.app.nearby.bean.User;
-import com.zhan.app.nearby.util.RedisKeys;
 import com.zhan.app.nearby.util.TextUtils;
 
 /**

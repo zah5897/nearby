@@ -8,9 +8,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.easemob.server.example.Main;
+import com.zhan.app.nearby.bean.ManagerUser;
 import com.zhan.app.nearby.bean.Topic;
+import com.zhan.app.nearby.bean.User;
 import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.cache.UserCacheService;
+import com.zhan.app.nearby.comm.FoundUserRelationship;
 import com.zhan.app.nearby.dao.ManagerDao;
 
 @Service
@@ -73,6 +76,17 @@ public class ManagerService {
 	public void delTopic(long id) {
 		// TODO Auto-generated method stub
 		managerDao.delTopic(id);
+	}
+
+	public int newUserCount() {
+		return managerDao.getNewUserCount();
+	}
+	public List<ManagerUser> listNewUser(int pageIndex, int pageSize) {
+		return managerDao.listNewUser(pageIndex, pageSize);
+	}
+	
+	public int editUserFromFound(long uid,int state) {
+		return managerDao.setUserFoundRelationshipState(uid,FoundUserRelationship.values()[state]);
 	}
 
 	public void sendMsgToAll(final String msg) {

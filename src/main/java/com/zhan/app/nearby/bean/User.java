@@ -136,10 +136,12 @@ public class User {
 	private City birth_city;
 
 	@JSONField(serialize = false)
-	private String app_id;
+	private String aid;
 
 	@JSONField(serialize = false)
 	private Date last_login_time;
+	@JSONField(serialize = false)
+	private Date create_time;
 
 	public Date getLast_login_time() {
 		return last_login_time;
@@ -149,12 +151,14 @@ public class User {
 		this.last_login_time = last_login_time;
 	}
 
-	public String getApp_id() {
-		return app_id;
+
+
+	public String getAid() {
+		return aid;
 	}
 
-	public void setApp_id(String app_id) {
-		this.app_id = app_id;
+	public void setAid(String aid) {
+		this.aid = aid;
 	}
 
 	public long getUser_id() {
@@ -490,6 +494,14 @@ public class User {
 		if (birth_city != null) {
 			birth_city.setChildren(null);
 		}
+	}
+
+	public Date getCreate_time() {
+		return create_time;
+	}
+
+	public void setCreate_time(Date create_time) {
+		this.create_time = create_time;
 	}
 
 	/**

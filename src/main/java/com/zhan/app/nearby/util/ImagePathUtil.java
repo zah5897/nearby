@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.zhan.app.nearby.bean.DynamicComment;
 import com.zhan.app.nearby.bean.Image;
+import com.zhan.app.nearby.bean.ManagerUser;
 import com.zhan.app.nearby.bean.Topic;
 import com.zhan.app.nearby.bean.User;
 import com.zhan.app.nearby.bean.UserDynamic;
@@ -28,6 +29,26 @@ public class ImagePathUtil {
 		user.setAvatar(HOST_PROFIX + ImageSaveUtils.FILE_ROOT_AVATAR_THUMB + avatar);
 		if (thumbAndOrigin) {
 			user.setOrigin_avatar(HOST_PROFIX + ImageSaveUtils.FILE_ROOT_AVATAR_ORIGIN + avatar);
+		}
+	}
+
+	public static void completeAvatarsPath(List<User> users, boolean thumbAndOrigin) {
+		if (users == null || users.size() == 0) {
+			return;
+		}
+		for (User user : users) {
+			completeAvatarPath(user, true);
+		}
+	}
+
+	public static void completeManagerUserAvatarsPath(List<ManagerUser> users, boolean thumbAndOrigin) {
+		if (users == null || users.size() == 0) {
+			return;
+		}
+		for (ManagerUser user : users) {
+			String[] avatars=completeAvatarPath(user.getAvatar());
+			user.setAvatar(avatars[0]);
+			user.setOrigin_avatar(avatars[1]);
 		}
 	}
 

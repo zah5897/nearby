@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
 
@@ -15,7 +16,10 @@ import com.easemob.server.example.Main;
 import com.zhan.app.nearby.bean.Image;
 import com.zhan.app.nearby.bean.Tag;
 import com.zhan.app.nearby.bean.User;
+import com.zhan.app.nearby.bean.UserDynamic;
+import com.zhan.app.nearby.bean.mapper.DynamicMapper;
 import com.zhan.app.nearby.cache.UserCacheService;
+import com.zhan.app.nearby.comm.ImageStatus;
 import com.zhan.app.nearby.comm.Relationship;
 import com.zhan.app.nearby.dao.TagDao;
 import com.zhan.app.nearby.dao.UserDao;
@@ -119,8 +123,10 @@ public class UserService {
 			loginTime = lastLoginTime.getTime() / 1000 / 60 / 60 / 24;
 		}
 		if (now - loginTime >= 3) {
-			Main.sendTxtMessage(Main.SYS, new String[] { String.valueOf(user_id) }, userCacheService.getWelcome(),
-					new HashMap<String, String>());
+			Map<String, String> ext = new HashMap<String, String>();
+			String msg = userCacheService.getWelcome();
+			ext.put("msg", msg);
+			Main.sendTxtMessage(Main.SYS, new String[] { String.valueOf(user_id) }, msg, ext);
 		}
 	}
 
@@ -408,11 +414,10 @@ public class UserService {
 	public ModelMap getUserSimple(long user_id) {
 		List<User> users = userDao.getUserSimple(user_id);
 		if (users != null && users.size() > 0) {
-			User u=users.get(0);
-			ImagePathUtil.completeAvatarPath(u,true);
+			User u = users.get(0);
+			ImagePathUtil.completeAvatarPath(u, true);
 			return ResultUtil.getResultOKMap().addAttribute("user", u);
 		}
 		return ResultUtil.getResultOKMap().addAttribute("user", null);
 	}
-
 }

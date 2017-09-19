@@ -9,9 +9,12 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import com.zhan.app.nearby.bean.ManagerUser;
 import com.zhan.app.nearby.bean.Topic;
+import com.zhan.app.nearby.bean.User;
 import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.bean.mapper.DynamicMapper;
+import com.zhan.app.nearby.comm.FoundUserRelationship;
 import com.zhan.app.nearby.comm.ImageStatus;
 
 @Repository("managerDao")
@@ -43,10 +46,10 @@ public class ManagerDao extends BaseDao {
 		String sql = "select dynamic.* ,user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday,user.type from "
 				+ TABLE_USER_DYNAMIC
 				+ " dynamic left join t_user user on  dynamic.user_id=user.user_id  where dynamic.id not in(select dynamic_id from "
-				+ TABLE_HOME_FOUND_SELECTED + " where selected_state=? or selected_state=? )   order by dynamic.id desc limit ?,?";
-		return jdbcTemplate.query(sql,
-				new Object[] { ImageStatus.SELECTED.ordinal(),ImageStatus.IGNORE.ordinal(), (pageIndex - 1) * pageSize, pageSize },
-				new DynamicMapper());
+				+ TABLE_HOME_FOUND_SELECTED
+				+ " where selected_state=? or selected_state=? )   order by dynamic.id desc limit ?,?";
+		return jdbcTemplate.query(sql, new Object[] { ImageStatus.SELECTED.ordinal(), ImageStatus.IGNORE.ordinal(),
+				(pageIndex - 1) * pageSize, pageSize }, new DynamicMapper());
 
 	}
 
@@ -60,7 +63,8 @@ public class ManagerDao extends BaseDao {
 		String sql = "select count(*) from " + TABLE_USER_DYNAMIC
 				+ " dynamic    where dynamic.id not in(select dynamic_id from " + TABLE_HOME_FOUND_SELECTED
 				+ " where selected_state=? or selected_state=?)";
-		return jdbcTemplate.queryForObject(sql, new Object[] { ImageStatus.SELECTED.ordinal(),ImageStatus.SELECTED.ordinal() }, Integer.class);
+		return jdbcTemplate.queryForObject(sql,
+				new Object[] { ImageStatus.SELECTED.ordinal(), ImageStatus.SELECTED.ordinal() }, Integer.class);
 	}
 
 	public int removeFromSelected(long id) {
@@ -80,12 +84,13 @@ public class ManagerDao extends BaseDao {
 		}
 		return 0;
 	}
+
 	public int ignore(long id) {
 		String checkHas = "select count(*) from " + TABLE_HOME_FOUND_SELECTED
 				+ " where dynamic_id=? and selected_state=?";
 		int count = jdbcTemplate.queryForObject(checkHas, new Object[] { id, ImageStatus.IGNORE.ordinal() },
 				Integer.class);
-		
+
 		if (count < 1) {
 			String sql = "insert into " + TABLE_HOME_FOUND_SELECTED + " values (?, ?)";
 			return jdbcTemplate.update(sql, new Object[] { id, ImageStatus.IGNORE.ordinal() });
@@ -98,12 +103,39 @@ public class ManagerDao extends BaseDao {
 	}
 
 	public List<Topic> loadTopic() {
-		return jdbcTemplate.query("select *from "+TABLE_TOPIC , new BeanPropertyRowMapper<Topic>(Topic.class));
+		return jdbcTemplate.query("select *from " + TABLE_TOPIC, new BeanPropertyRowMapper<Topic>(Topic.class));
 	}
 
 	public void delTopic(long id) {
-		// TODO Auto-generated method stub
-		 jdbcTemplate.update("delete  from "+TABLE_TOPIC+" where id=?",new Object[]{id});
+		jdbcTemplate.update("delete  from " + TABLE_TOPIC + " where id=?", new Object[] { id });
+	}
+
+	public int setUserFoundRelationshipState(long uid, FoundUserRelationship gone) {
+		String tableName = "t_found_user_relationship";
+		
+		if(gone==FoundUserRelationship.VISIBLE){
+			return jdbcTemplate.update("delete from "+tableName+" where uid=?",new Object[]{uid});
+		} 
+		int count = jdbcTemplate.queryForObject("select count(*) from t_found_user_relationship where uid=?",
+				new Object[] { uid }, int.class);
+		Object[] colVals = { uid, FoundUserRelationship.GONE.ordinal() };
+		if (count == 0) {
+			String[] columns = { "uid", "state" };
+			return saveObj(jdbcTemplate, tableName, columns, colVals);
+		} else {
+			return jdbcTemplate.update("update " + tableName + " set state=? where uid=?", colVals);
+		}
+	}
+
+	public int getNewUserCount() {
+		String sql = "select count(*) from t_user where to_days(create_time) = to_days(now());";
+		return jdbcTemplate.queryForObject(sql, int.class);
+	}
+
+	public List<ManagerUser> listNewUser(int pageIndex, int pageSize) {
+		String sql = "select user.user_id ,user.nick_name,user.avatar,user.sex,user.type,coalesce(ship.state,0) as state from t_user user left join t_found_user_relationship ship on user.user_id=ship.uid where to_days(user.create_time) = to_days(now()) order by user.user_id desc limit ?,?";
+		return jdbcTemplate.query(sql, new Object[] { (pageIndex - 1) * pageSize, pageSize },
+				new BeanPropertyRowMapper<ManagerUser>(ManagerUser.class));
 	}
 
 }

@@ -52,31 +52,26 @@ public class BaseDao {
 			e.printStackTrace();
 			return -1;
 		}
-
 	}
 
-	// protected int updateObj(JdbcTemplate jt, String tableName, Object obj) {
-	// int re = 0;
-	// try {
-	//
-	// //update t_person set name=? where id=?"
-	//
-	// String sql = " update " + tableName + " set ";
-	// Map<String, String> map = ObjectUtil.getProperty(obj);
-	// Set<String> set = map.keySet();
-	// for (String key : set) {
-	// sql += (key + ",");
-	// }
-	// sql += " tableName ) ";
-	// sql += " values ( ";
-	// for (String key : set) {
-	// sql += ("'" + map.get(key) + "',");
-	// }
-	// sql += ("'" + tableName + "' ) ");
-	// re = jt.update(sql);
-	// } catch (Exception e) {
-	// e.printStackTrace();
-	// }
-	// return re;
-	// }
+	protected int saveObj(JdbcTemplate jdbcTemplate, String tableName, String[] columns, Object[] colVals) {
+		String sql = " insert into " + tableName + " (";
+		String filedStr = "";
+		for (String key : columns) {
+			filedStr += (key + ",");
+		}
+		filedStr = filedStr.substring(0, filedStr.length() - 1);
+		filedStr += " ) ";
+
+		String values = " values ( ";
+		for (Object object : colVals) {
+			values += ("'" + object + "',");
+		}
+		values = values.substring(0, values.length() - 1);
+		values += " ) ";
+
+		sql += (filedStr + values);
+		return jdbcTemplate.update(sql);
+	}
+
 }

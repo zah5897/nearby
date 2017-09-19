@@ -65,13 +65,19 @@ public class UserController {
 	 * @return
 	 */
 	@RequestMapping("code")
-	public ModelMap code(HttpServletRequest request, String mobile) {
+	public ModelMap code(HttpServletRequest request, String mobile, Integer code_type) {
 		if (TextUtils.isEmpty(mobile)) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "手机号码不能为空");
 		}
 		int count = userService.getUserCountByMobile(mobile);
 		if (count > 0) {
 			return ResultUtil.getResultMap(ERROR.ERR_USER_EXIST, "该手机号码已注册");
+		}
+
+		String code = RandomCodeUtil.randomCode(6);
+		if (code_type != null && code_type == -1000) {
+			userCacheService.cacheValidateCode(mobile, code);
+			return ResultUtil.getResultOKMap().addAttribute("validate_code", code);
 		}
 
 		String cache = userCacheService.getCachevalideCode(mobile);
@@ -83,8 +89,6 @@ public class UserController {
 		// return ResultUtil.getResultMap(ERROR.ERR_FREUENT);
 		// }
 		ModelMap data = ResultUtil.getResultOKMap();
-		String code = RandomCodeUtil.randomCode(6);
-
 		boolean smsOK = SMSHelper.smsRegist(mobile, code);
 		if (smsOK) {
 			userCacheService.cacheValidateCode(mobile, code);
@@ -109,7 +113,7 @@ public class UserController {
 	 */
 
 	@RequestMapping("regist")
-	public ModelMap regist(HttpServletRequest request, User user, String code) {
+	public ModelMap regist(HttpServletRequest request, User user, String code, String aid) {
 
 		if (TextUtils.isEmpty(user.getMobile())) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "手机号码不能为空!");
@@ -544,7 +548,7 @@ public class UserController {
 			user = new User();
 			user.setMobile(device_id);
 			user.setDevice_token(device_token);
-			user.setApp_id(aid);
+			user.setAid(aid);
 			user.setLat(lat);
 			user.setLng(lng);
 			user.setZh_cn(zh_cn);
@@ -581,9 +585,9 @@ public class UserController {
 			user = new User();
 			user.setMobile(device_id);
 			user.setDevice_token(device_token);
-			user.setApp_id(aid);
 			user.setLat(lat);
 			user.setLng(lng);
+			user.setAid(aid);
 			user.setZh_cn(zh_cn);
 			user.setType((short) UserType.VISITOR.ordinal());
 			long user_id = userService.insertUser(user);
@@ -630,6 +634,7 @@ public class UserController {
 	public ModelMap getTags(@PathVariable long user_id) {
 		return userService.getUserAvatar(user_id);
 	}
+
 	/**
 	 * 获取系统标签
 	 * 
@@ -640,6 +645,7 @@ public class UserController {
 	public ModelMap getSimpleUserInfo(@PathVariable long user_id) {
 		return userService.getUserSimple(user_id);
 	}
+
 	/**
 	 * 获取系统标签
 	 * 
@@ -655,7 +661,7 @@ public class UserController {
 		}
 		return result;
 	}
-	
+
 	private City getDefaultCityId() {
 
 		City city = new City();

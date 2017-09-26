@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.zhan.app.nearby.bean.DynamicComment;
 import com.zhan.app.nearby.bean.DynamicMessage;
-import com.zhan.app.nearby.bean.Image;
 import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.comm.DynamicMsgType;
 import com.zhan.app.nearby.comm.LikeDynamicState;

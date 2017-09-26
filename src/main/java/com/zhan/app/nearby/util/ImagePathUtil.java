@@ -3,6 +3,7 @@ package com.zhan.app.nearby.util;
 import java.util.List;
 
 import com.zhan.app.nearby.bean.DynamicComment;
+import com.zhan.app.nearby.bean.Gift;
 import com.zhan.app.nearby.bean.Image;
 import com.zhan.app.nearby.bean.ManagerUser;
 import com.zhan.app.nearby.bean.Topic;
@@ -11,8 +12,8 @@ import com.zhan.app.nearby.bean.UserDynamic;
 
 public class ImagePathUtil {
 
-	public static String HOST_PROFIX = "http://app.weimobile.com/nearby";
-	// public static String HOST_PROFIX = "http://139.196.111.132:8080/love";
+//	public static String HOST_PROFIX = "http://app.weimobile.com/nearby";
+	public static String HOST_PROFIX = "http://127.0.0.1:8899/nearby";
 
 	public static void completeAvatarPath(User user, boolean thumbAndOrigin) {
 		String avatar = user.getAvatar();
@@ -118,7 +119,6 @@ public class ImagePathUtil {
 				completeCommentImagePath(comment, thumbAndOrigin);
 			}
 		}
-
 	}
 
 	public static void completeCommentImagePath(DynamicComment comment, boolean thumbAndOrigin) {
@@ -147,6 +147,23 @@ public class ImagePathUtil {
 
 	}
 
+	
+	public static void completeGiftPath(Gift gift, boolean thumbAndOrigin) {
+		String shortName = gift.getImage_url();
+		if (!TextUtils.isEmpty(shortName)) {
+			gift.setImage_url(HOST_PROFIX + ImageSaveUtils.FILE_ROOT_GIFT_THUMB + shortName);
+			if (thumbAndOrigin) {
+				gift.setOrigin_image_url(HOST_PROFIX + ImageSaveUtils.FILE_ROOT_GIFT_ORIGIN + shortName);
+			}
+		}
+	}
+	public static void completeGiftsPath(List<Gift> gifts, boolean thumbAndOrigin) {
+		if (gifts != null && gifts.size() > 0) {
+			for (Gift gift : gifts) {
+				completeGiftPath(gift, thumbAndOrigin);
+			}
+		}
+	}
 	// public static void main(String args[]){
 	// String url="http://139.196.111.132:8080/love/images/1234.png";
 	// String r=url.substring(url.lastIndexOf("/")+1, url.length());

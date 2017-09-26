@@ -56,6 +56,9 @@
 
 	<mvc:resources mapping="/avatar/origin/**" location="/nearby_image/avatar/origin/" />
 	<mvc:resources mapping="/avatar/thumb/**" location="/nearby_image/avatar/thumb/" />
+	
+	<mvc:resources mapping="/gift_img/origin/**" location="C:/data/zah/http/nearby_image/gift_img/origin/" />
+	<mvc:resources mapping="/gift_img/thumb/**" location="C:/data/zah/http/nearby_image/gift_img/thumb/" />
 
 
 	<bean id="SpringContextUtil" class="com.zhan.app.nearby.util.SpringContextUtil"></bean>

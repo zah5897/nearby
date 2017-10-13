@@ -12,8 +12,8 @@ import com.zhan.app.nearby.bean.UserDynamic;
 
 public class ImagePathUtil {
 
-//	public static String HOST_PROFIX = "http://app.weimobile.com/nearby";
-	public static String HOST_PROFIX = "http://127.0.0.1:8899/nearby";
+	public static String HOST_PROFIX = "http://app.weimobile.com/nearby";
+//	public static String HOST_PROFIX = "http://127.0.0.1:8899/nearby";
 
 	public static void completeAvatarPath(User user, boolean thumbAndOrigin) {
 		String avatar = user.getAvatar();

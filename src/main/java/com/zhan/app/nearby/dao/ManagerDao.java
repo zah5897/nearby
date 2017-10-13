@@ -73,6 +73,11 @@ public class ManagerDao extends BaseDao {
 		return jdbcTemplate.update(sql, new Object[] { id, ImageStatus.SELECTED.ordinal() });
 	}
 
+	public int removeUserDynamic(long id) {
+		String sql = "delete from " + TABLE_USER_DYNAMIC + " where id=?";
+		return jdbcTemplate.update(sql, new Object[] { id });
+	}
+
 	public int addToSelected(long id) {
 		String checkHas = "select count(*) from " + TABLE_HOME_FOUND_SELECTED
 				+ " where dynamic_id=? and selected_state=?";
@@ -113,10 +118,10 @@ public class ManagerDao extends BaseDao {
 
 	public int setUserFoundRelationshipState(long uid, FoundUserRelationship gone) {
 		String tableName = "t_found_user_relationship";
-		
-		if(gone==FoundUserRelationship.VISIBLE){
-			return jdbcTemplate.update("delete from "+tableName+" where uid=?",new Object[]{uid});
-		} 
+
+		if (gone == FoundUserRelationship.VISIBLE) {
+			return jdbcTemplate.update("delete from " + tableName + " where uid=?", new Object[] { uid });
+		}
 		int count = jdbcTemplate.queryForObject("select count(*) from t_found_user_relationship where uid=?",
 				new Object[] { uid }, int.class);
 		Object[] colVals = { uid, FoundUserRelationship.GONE.ordinal() };
@@ -130,12 +135,12 @@ public class ManagerDao extends BaseDao {
 
 	public int getNewUserCount() {
 		String sql = "select count(*) from t_user where type=? and  to_days(create_time) = to_days(now());";
-		return jdbcTemplate.queryForObject(sql,new Object[]{UserType.OFFIEC.ordinal()},int.class);
+		return jdbcTemplate.queryForObject(sql, new Object[] { UserType.OFFIEC.ordinal() }, int.class);
 	}
 
 	public List<ManagerUser> listNewUser(int pageIndex, int pageSize) {
 		String sql = "select user.user_id ,user.nick_name,user.avatar,user.sex,user.type,coalesce(ship.state,0) as state from t_user user left join t_found_user_relationship ship on user.user_id=ship.uid where  type=? and  to_days(user.create_time) = to_days(now()) order by user.user_id desc limit ?,?";
-		return jdbcTemplate.query(sql, new Object[] {UserType.OFFIEC.ordinal(), (pageIndex - 1) * pageSize, pageSize },
+		return jdbcTemplate.query(sql, new Object[] { UserType.OFFIEC.ordinal(), (pageIndex - 1) * pageSize, pageSize },
 				new BeanPropertyRowMapper<ManagerUser>(ManagerUser.class));
 	}
 

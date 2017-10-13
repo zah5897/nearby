@@ -141,6 +141,9 @@ public class ManagerController {
 		return pageCount == 0 ? 1 : pageCount;
 	}
 
+	
+	
+	
 	@RequestMapping(value = "/remove_from_selected")
 	public @ResponseBody ModelMap remove_from_selected(long id, int currentPage) {
 		managerService.removeFromSelected(id);
@@ -413,5 +416,23 @@ public class ManagerController {
 		}
 		return list_new_user(currentPage);
 	}
+	@RequestMapping(value = "/dynamic_del")
+	public @ResponseBody ModelMap dynamic_del(long id, int currentPage) {
+		managerService.removeUserDynamic(id);
+		ModelMap r = ResultUtil.getResultOKMap();
+		r.put("pageCount", getPageCount(false));
+		List<UserDynamic> dys = managerService.getUnSelected(currentPage, 10);
+		if (dys != null && dys.size() > 0) {
+			UserDynamic dy = dys.get(dys.size() - 1);
+			if (dy.getId() < id) {
+				ImagePathUtil.completeDynamicPath(dy, true);
+				r.put("pageData", dy);
+			}
+			r.put("currentPageIndex", currentPage);
+		} else {
+			r.put("currentPageIndex", currentPage - 1 > 0 ? currentPage - 1 : 1);
+		}
 
+		return r;
+	}
 }

@@ -216,6 +216,29 @@
 			    });
 		}
 
+		
+		function del(id) {
+			
+			$.post("<%=path%>/manager/dynamic_del",{id:id,currentPage:currentPage},function(result){
+		        $("#tr_"+id).remove();//移除当前的元素
+		        
+		        var json=JSON.parse(result);
+		        var pageData=json["pageData"];
+		        
+		        var last2tr=$("table tr").eq(-2);
+				 if(last2tr.size()==0){
+				      alert("指定的table id或行数不存在！");
+				     return;
+				 }
+				 if(pageData){
+					 reviewTableTr(pageData,last2tr);
+				 }else{
+					 page(json["currentPageIndex"]);
+				 }
+		        refreshPageIndex(json["pageCount"],json["currentPageIndex"]);
+		    });
+		 
+	}
 	  //
       function reviewTableTr(pageData,tr) {
 			 //获取table倒数第二行 $("#tab tr").eq(-2)
@@ -239,7 +262,7 @@
 			 toAdd+="<td>"+pageData["city"]+"</td>";
 			 toAdd+="<td>"+pageData["create_time"]+"</td>";
 			 toAdd+="<td>"+pageData["praise_count"]+"</td>";
-			 toAdd+="<td><div class='button-group'><a class='button border-main' href='javascript:void(0)'	onclick='return ignore("+pageData["id"]+")'><span class='icon-edit'></span>忽略</a><a class='button border-green' href='javascript:void(0)'	onclick='return add("+pageData["id"]+")'><span class='icon-plus-square-o'></span>添加</a></div></td>";
+			 toAdd+="<td><div class='button-group'><a class='button border-main' href='javascript:void(0)'	onclick='return ignore("+pageData["id"]+")'><span class='icon-edit'></span>忽略</a><a class='button border-green' href='javascript:void(0)'	onclick='return add("+pageData["id"]+")'><span class='icon-plus-square-o'></span>添加</a><a class='button border-red' href='javascript:void(0)'	onclick='return del("+pageData["id"]+")'><span class='icon-trash-o'></span>删除</a></div></td>";
 			 toAdd+="</tr>";
 			 tr.after(toAdd);
 		}

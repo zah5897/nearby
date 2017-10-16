@@ -20,6 +20,8 @@ import com.zhan.app.nearby.util.TextUtils;
 @Service
 public class UserCacheService {
 
+	
+	public static final String PERFIX_UPLOAD_TIME="last_upload_time";
 	@Resource
 	protected RedisTemplate<String, Serializable> redisTemplate;
 
@@ -130,5 +132,24 @@ public class UserCacheService {
 			e.printStackTrace();
 		}
 		return false;
+	}
+
+	public long getLastUploadTime(long user_id) {
+		Object lastTime=redisTemplate.opsForValue().get(PERFIX_UPLOAD_TIME+String.valueOf(user_id));
+		if(lastTime==null){
+			return 0;
+		}else{
+			return Long.parseLong(lastTime.toString());
+		}
+	}
+
+	public void setLastUploadTime(long user_id) {
+		try {
+			String key=PERFIX_UPLOAD_TIME+String.valueOf(user_id);
+			redisTemplate.opsForValue().set(key, String.valueOf(System.currentTimeMillis()/1000));
+			redisTemplate.expire(key, 1, TimeUnit.MINUTES);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 }

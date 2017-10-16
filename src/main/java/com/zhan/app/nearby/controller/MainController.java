@@ -2,11 +2,14 @@ package com.zhan.app.nearby.controller;
 
 import javax.annotation.Resource;
 
+import org.apache.log4j.Logger;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.zhan.app.nearby.cache.UserCacheService;
 import com.zhan.app.nearby.comm.Relationship;
+import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.service.CityService;
 import com.zhan.app.nearby.service.DynamicMsgService;
 import com.zhan.app.nearby.service.MainService;
@@ -25,7 +28,9 @@ public class MainController {
 	private DynamicMsgService dynamicMsgService;
 	@Resource
 	private CityService cityService;
-
+	@Resource
+	private UserCacheService userCacheService;
+	private static Logger log = Logger.getLogger(MainController.class);
 	/**
 	 * 发现
 	 * 
@@ -40,6 +45,26 @@ public class MainController {
 		ModelMap re = mainService.getHomeFoundSelected(user_id, last_id, count, city_id);
 		return re;
 	}
+	
+	
+	@RequestMapping("reset_city")
+	public ModelMap reset_city() {
+		
+		long last_time = userCacheService.getLastUploadTime(41);
+		long cur_time = System.currentTimeMillis() / 1000;
+		
+		
+		if(cur_time-last_time<60){
+			return ResultUtil.getResultMap(ERROR.ERR_FREUENT);
+		}
+		userCacheService.setLastUploadTime(41);
+		log.error("user_id="+41+",upload img log.");
+		
+		
+		ModelMap re = mainService.reset_city();
+		return re;
+	}
+	
 
 	@RequestMapping("foud_users")
 	public ModelMap foud_users(Long user_id, Integer count, Integer gender) {

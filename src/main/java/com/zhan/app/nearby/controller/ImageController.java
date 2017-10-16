@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.support.DefaultMultipartHttpServletRequest;
 
 import com.zhan.app.nearby.bean.UserDynamic;
+import com.zhan.app.nearby.cache.UserCacheService;
 import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.service.UserDynamicService;
 import com.zhan.app.nearby.service.UserService;
@@ -31,6 +32,9 @@ public class ImageController {
 
 	@Resource
 	private UserDynamicService userDynamicService;
+
+	@Resource
+	private UserCacheService userCacheService;
 
 	private static Logger log = Logger.getLogger(ImageController.class);
 
@@ -55,6 +59,17 @@ public class ImageController {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "用户不存在");
 		}
 
+		long last_time = userCacheService.getLastUploadTime(user_id);
+		long cur_time = System.currentTimeMillis() / 1000;
+		
+		
+		if(cur_time-last_time<60){
+			return ResultUtil.getResultMap(ERROR.ERR_FREUENT);
+		}
+		userCacheService.setLastUploadTime(user_id);
+		log.error("user_id="+user_id+",upload img log.");
+		
+		
 		if (multipartRequest != null) {
 			Iterator<String> iterator = multipartRequest.getFileNames();
 			while (iterator.hasNext()) {

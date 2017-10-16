@@ -39,21 +39,21 @@ public class AddressUtil {
 					}
 
 				}
-				if (address == null&&!TextUtils.isEmpty(dynamic.getLat())) {
+				if (address == null && !TextUtils.isEmpty(dynamic.getLat())) {
 					address = getAddressByLatLng(dynamic.getLat(), dynamic.getLng());
 				}
-				if (address==null||TextUtils.isEmpty(address[2])) {
+				if (address == null || TextUtils.isEmpty(address[2])) {
 					address = getAddressByIp(ip);
 				}
-				if (address==null||TextUtils.isEmpty(address[2])) {
+				if (address == null || TextUtils.isEmpty(address[2])) {
 					String[] city = ipLocation(ip);
-					if(city!=null&&!TextUtils.isEmpty(city[1])){
-						if(address==null){
-							address=new String[6];
+					if (city != null && !TextUtils.isEmpty(city[1])) {
+						if (address == null) {
+							address = new String[6];
 						}
 						address[2] = city[1];
 					}
-					
+
 				}
 
 				if (!TextUtils.isEmpty(address[2])) {
@@ -69,12 +69,26 @@ public class AddressUtil {
 						for (City city : provincesAll) {
 							if (dynamic.getCity().contains(city.getName())) {
 								dynamic.setCity_id(city.getId());
+								dynamic.setProvince_id(city.getId());
+								if (city.getParent_id() > 0) {
+									dynamic.setProvince_id(city.getParent_id());
+								}
 								break;
 							}
 						}
 						for (City city : provincesAll) {
 							if (city.getType() == 1 && dynamic.getRegion().contains(city.getName())) {
 								dynamic.setDistrict_id(city.getId());
+								if(city.getParent_id()>0){
+									if(dynamic.getCity_id()!=city.getParent_id()){
+										City parent_city=cityDao.getCityById(city.getParent_id());
+										dynamic.setCity_id(parent_city.getId());
+										dynamic.setProvince_id(parent_city.getId());
+										if(parent_city.getParent_id()>0){
+											dynamic.setProvince_id(parent_city.getParent_id());
+										}
+									}
+								}
 								break;
 							}
 						}
@@ -110,7 +124,7 @@ public class AddressUtil {
 				}
 				String district = addressComponent.getString("district");
 				String city = addressComponent.getString("city");
-//				String province = addressComponent.getString("province");
+				// String province = addressComponent.getString("province");
 				return new String[] { address, street, city, district, lat, lng };
 			}
 		}

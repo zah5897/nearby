@@ -200,4 +200,40 @@ public class MainService {
 		return ResultUtil.getResultOKMap();
 	}
 
+	public ModelMap reset_city() {
+		List<UserDynamic> dynamics = userDynamicDao.getAllDynamic();
+		if (dynamics != null) {
+			for (UserDynamic dynamic : dynamics) {
+				int province_id = 0;
+				int city_id = 0;
+				int district_id = 0;
+				if (dynamic.getDistrict_id() > 0) {
+					district_id = dynamic.getDistrict_id();
+					City curCity = cityService.getFullCity(dynamic.getDistrict_id());
+					if (curCity.getParent_id() > 0) {
+						City city = cityService.getFullCity(curCity.getParent_id());
+						city_id = city.getId();
+						if (city.getParent_id() > 0) {
+							City parent = cityService.getFullCity(city.getParent_id());
+							province_id = parent.getId();
+						} else {
+							province_id = city_id;
+						}
+					}
+				}else if(dynamic.getCity_id()>0){
+					City city = cityService.getFullCity(dynamic.getCity_id());
+					city_id=city.getId();
+					if(city.getParent_id()>0){
+						City parent = cityService.getFullCity(city.getParent_id());
+						province_id=parent.getId();
+					}else{
+						province_id=city_id;
+					}
+				}
+				userDynamicDao.updateCityId(dynamic.getId(),province_id,city_id,district_id);
+			}
+		}
+		return ResultUtil.getResultOKMap();
+	}
+
 }

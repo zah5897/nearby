@@ -49,6 +49,8 @@ public class UserDynamic implements Serializable {
 	@ColumnType // 客户端组合数据
 	private int like_state;
 
+	@JSONField(serialize = false)
+	private int province_id;
 	// @JsonIgnore
 	@JSONField(serialize = false)
 	private int city_id;
@@ -188,6 +190,14 @@ public class UserDynamic implements Serializable {
 
 	public void setLike_state(int like_state) {
 		this.like_state = like_state;
+	}
+
+	public int getProvince_id() {
+		return province_id;
+	}
+
+	public void setProvince_id(int province_id) {
+		this.province_id = province_id;
 	}
 
 	public String getCity() {

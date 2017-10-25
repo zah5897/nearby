@@ -207,7 +207,7 @@ public class UserDao extends BaseDao {
 	}
 
 	public List<User> getRandomUser(long user_id, int realCount, int gender) {
-		String sql = "select * from t_user where user_id not in (select uid from t_found_user_relationship where state=?) and  user_id<>? and avatar<>? and sex<>? order by  RAND() limit ?";
+		String sql = "select * from t_user where user_id not in (select uid from t_found_user_relationship where state=? order by uid desc) and  user_id<>? and avatar<>? and sex<>? order by  RAND() limit ?";
 		List<User> users = jdbcTemplate.query(sql, new Object[] {FoundUserRelationship.GONE.ordinal(), user_id, "", gender, realCount },
 				new BeanPropertyRowMapper<User>(User.class));
 		return users;

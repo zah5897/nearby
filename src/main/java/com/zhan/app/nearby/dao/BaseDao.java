@@ -54,6 +54,34 @@ public class BaseDao {
 		}
 	}
 
+	protected int saveObjSimple(JdbcTemplate jdbcTemplate, String tableName, Object obj) {
+		try {
+			String sql = " insert into " + tableName + " (";
+			Map<String, String> map = ObjectUtil.getProperty(obj);
+
+			String filedStr = "";
+			Set<String> set = map.keySet();
+			for (String key : set) {
+				filedStr += (key + ",");
+			}
+			filedStr = filedStr.substring(0, filedStr.length() - 1);
+			filedStr += " ) ";
+
+			String values = " values ( ";
+			for (String key : set) {
+				values += ("'" + map.get(key) + "',");
+			}
+			values = values.substring(0, values.length() - 1);
+			values += " ) ";
+
+			sql += (filedStr + values);
+			return jdbcTemplate.update(sql);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return 0;
+		}
+	}
+
 	protected int saveObj(JdbcTemplate jdbcTemplate, String tableName, String[] columns, Object[] colVals) {
 		String sql = " insert into " + tableName + " (";
 		String filedStr = "";

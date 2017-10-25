@@ -34,7 +34,7 @@
     <li><a href="<%=path %>/manager/forword?path=new_user_list" target="right"><span class="icon-caret-right"></span>新增用户</a></li>
     <li><a href="<%=path %>/manager/forword?path=gift_manager" target="right"><span class="icon-caret-right"></span>礼物管理</a></li>
   
-    <li><a href="<%=path %>/manager/forword?path=update_welcome" target="right"><span class="icon-caret-right"></span>系统设置</a></li>
+    <li><a href="<%=path %>/manager/forword?path=vip_manager" target="right"><span class="icon-caret-right"></span>系统设置</a></li>
        <!-- 
     <li><a href="<%=path %>/manager/forword?path=info" target="right"><span class="icon-caret-right"></span>网站设置</a></li>
     <li><a href="<%=path %>/manager/forword?path=pass" target="right"><span class="icon-caret-right"></span>修改密码</a></li>
@@ -45,6 +45,14 @@
     -->
   </ul>   
   
+   <h2><span class="icon-user"></span>会员管理</h2>
+   <ul style="display:block">
+    <li><a href="<%=path %>/manager/forword?path=vip_manager" target="right"><span class="icon-caret-right"></span>会员类型</a></li>
+  </ul>   
+   <h2><span class="icon-user"></span>金币管理</h2>
+   <ul style="display:block">
+    <li><a href="<%=path %>/manager/forword?path=rule_manager" target="right"><span class="icon-caret-right"></span>金币购买规则项</a></li>
+  </ul>   
   <!--
   <h2><span class="icon-pencil-square-o"></span>栏目管理</h2>
   <ul>

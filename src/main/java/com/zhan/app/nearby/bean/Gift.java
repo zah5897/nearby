@@ -6,8 +6,8 @@ public class Gift {
     @ColumnType
 	private long id;
 	private String name;
-	private float price;
-	private float old_price;
+	private int price;
+	private int old_price;
 	private String image_url;
 	private String description;
 	private String remark;
@@ -35,14 +35,15 @@ public class Gift {
 	public float getPrice() {
 		return price;
 	}
-	public void setPrice(float price) {
-		this.price = price;
-	}
-	public float getOld_price() {
+	 
+	public int getOld_price() {
 		return old_price;
 	}
-	public void setOld_price(float old_price) {
+	public void setOld_price(int old_price) {
 		this.old_price = old_price;
+	}
+	public void setPrice(int price) {
+		this.price = price;
 	}
 	public String getOrigin_image_url() {
 		return origin_image_url;

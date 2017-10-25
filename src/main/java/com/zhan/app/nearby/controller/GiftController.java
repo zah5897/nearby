@@ -26,6 +26,7 @@ public class GiftController {
 	public ModelMap list() {
 		return giftService.list();
 	}
+
 	@RequestMapping("del")
 	public ModelMap del(long id) {
 		return giftService.delete(id);
@@ -50,7 +51,15 @@ public class GiftController {
 		}
 		return giftService.save(gift);
 	}
+
+	@RequestMapping("buy")
+	public ModelMap buy(int gift_id, long user_id,String aid) {
+		return giftService.buy(gift_id,user_id,aid);
+	}
 	
 	
-	
+	@RequestMapping("own")
+	public ModelMap own(long user_id,String aid) {
+		return giftService.own(user_id,aid);
+	}
 }

@@ -646,6 +646,20 @@ public class UserController {
 		return userService.getUserSimple(user_id);
 	}
 
+	
+	/**
+	 * 获取系统标签
+	 * 
+	 * @param type
+	 * @return
+	 */
+	@RequestMapping("property")
+	public ModelMap getUserProperty(long user_id,String aid) {
+		return userService.getUserProperty(user_id,aid);
+	}
+	
+	
+	
 	/**
 	 * 获取系统标签
 	 * 

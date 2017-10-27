@@ -2,7 +2,6 @@ package com.zhan.app.nearby.service;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import javax.annotation.Resource;
 
@@ -14,14 +13,10 @@ import org.springframework.ui.ModelMap;
 
 import com.zhan.app.nearby.bean.Gift;
 import com.zhan.app.nearby.bean.GiftOwn;
-import com.zhan.app.nearby.bean.User;
-import com.zhan.app.nearby.controller.ImageController;
 import com.zhan.app.nearby.dao.GiftDao;
 import com.zhan.app.nearby.exception.ERROR;
-import com.zhan.app.nearby.util.HttpsUtil;
+import com.zhan.app.nearby.util.HttpService;
 import com.zhan.app.nearby.util.ImagePathUtil;
-import com.zhan.app.nearby.util.JSONUtil;
-import com.zhan.app.nearby.util.PropertiesUtil;
 import com.zhan.app.nearby.util.ResultUtil;
 
 @Service
@@ -29,7 +24,6 @@ import com.zhan.app.nearby.util.ResultUtil;
 public class GiftService {
 
 	public static final int LIMIT_COUNT = 5;
-	private String MODULE_PAY_URL;
 	@Resource
 	private GiftDao giftDao;
 	private static Logger log = Logger.getLogger(GiftService.class);
@@ -67,27 +61,13 @@ public class GiftService {
 		if (TextUtils.isEmpty(aid)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NOT_EXIST, "app not exist");
 		}
-		if (TextUtils.isEmpty(MODULE_PAY_URL)) {
-			Properties prop = PropertiesUtil.load("config.properties");
-			String value = PropertiesUtil.getProperty(prop, "MODULE_PAY_URL");
-			MODULE_PAY_URL = value;
-		}
-		String result = null;
-		try {
-			result = HttpsUtil.sendHttpsPost(MODULE_PAY_URL + "?user_id=" + user_id + "&aid=" + aid + "&int_amount="
-					+ gift.getPrice() + "&ext=" + gift_id);
-		} catch (Exception e) {
-			log.error("购买失败" + e.getMessage());
-		}
-		if (!TextUtils.isEmpty(result)) {
-			Map<?, ?> map = JSONUtil.jsonToMap(result);
-			if (map.get("code").toString().equals("0")) {
-				GiftOwn ownGift = giftDao.getOwnGift(user_id, gift_id);
-				if (ownGift != null) {
-					giftDao.updateOwnCount(user_id, gift_id, ownGift.getCount() + 1);
-				} else {
-					giftDao.addOwn(user_id, gift_id);
-				}
+		Map<?, ?> map = HttpService.buy(user_id, aid, gift.getPrice(), gift_id);
+		if (map.get("code").toString().equals("0")) {
+			GiftOwn ownGift = giftDao.getOwnGift(user_id, gift_id);
+			if (ownGift != null) {
+				giftDao.updateOwnCount(user_id, gift_id, ownGift.getCount() + 1);
+			} else {
+				giftDao.addOwn(user_id, gift_id);
 			}
 			return ResultUtil.getResultOKMap();
 		}

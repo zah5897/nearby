@@ -58,6 +58,29 @@ public class DateTimeUtil {
 		return null;
 	}
 
+	public static Date getVipEndDate(Date now, int monthCount) {
+		Calendar c = Calendar.getInstance();
+		c.setTime(now);
+		int nowMonth = c.get(c.MONTH);// 当前月份0开始
+		int nowYear = c.get(c.YEAR); // 当前年
+
+		int endYear = nowYear;
+		int endMonth = nowMonth;
+		int endDay = c.get(c.DAY_OF_MONTH);
+
+		if (monthCount == 12) { // 直接跨年
+			endYear = nowYear + 1;
+		} else if (nowMonth + monthCount > 11) {
+			endYear = nowYear + 1;
+			endMonth = (nowMonth + monthCount) - 11;
+		} else {
+			endMonth = nowMonth + monthCount;
+		}
+		c.clear();
+		c.set(endYear, endMonth, endDay);
+		return c.getTime();
+	}
+
 	// public static void main(String[] args) throws ParseException {
 	// Calendar c = Calendar.getInstance();
 	// SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");

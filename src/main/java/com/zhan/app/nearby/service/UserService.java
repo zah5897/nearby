@@ -420,4 +420,8 @@ public class UserService {
 		}
 		return ResultUtil.getResultOKMap().addAttribute("user", null);
 	}
+
+	public ModelMap getUserProperty(long user_id,String aid) {
+		return null;
+	}
 }

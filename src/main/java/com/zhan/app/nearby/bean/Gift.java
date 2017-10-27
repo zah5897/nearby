@@ -32,7 +32,7 @@ public class Gift {
 	public void setImage_url(String image_url) {
 		this.image_url = image_url;
 	}
-	public float getPrice() {
+	public int getPrice() {
 		return price;
 	}
 	 

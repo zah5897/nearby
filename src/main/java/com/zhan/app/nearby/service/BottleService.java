@@ -7,9 +7,14 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.ModelMap;
 
 import com.zhan.app.nearby.bean.Bottle;
+import com.zhan.app.nearby.bean.VipUser;
 import com.zhan.app.nearby.dao.BottleDao;
+import com.zhan.app.nearby.dao.VipDao;
+import com.zhan.app.nearby.exception.ERROR;
+import com.zhan.app.nearby.util.ResultUtil;
 
 @Service
 @Transactional("transactionManager")
@@ -19,6 +24,8 @@ public class BottleService {
 
 	@Resource
 	private BottleDao bottleDao;
+	@Resource
+	private VipDao vipDao;
 
 	public Bottle getBottleFromPool(long user_id) {
 
@@ -29,8 +36,22 @@ public class BottleService {
 		return null;
 	}
 
-	public List<Bottle> getBottles(long user_id, long last_id, int page_size) {
-		return bottleDao.getBottles(user_id, last_id, page_size);
+	public ModelMap getBottles(long user_id, long last_id, int page_size, Integer look_sex) {
+		ModelMap result = ResultUtil.getResultOKMap();
+		List<Bottle> bolltes = null;
+		if (look_sex == null) {
+			bolltes = bottleDao.getBottles(user_id, last_id, page_size);
+		} else {
+			VipUser vip = vipDao.loadUserVip(user_id);
+			if (vip == null) {
+				return ResultUtil.getResultMap(ERROR.ERR_NOT_VIP);
+			} else if (vip.getDayDiff() < 0) {
+				return ResultUtil.getResultMap(ERROR.ERR_VIP_EXPIRE);
+			}
+			bolltes = bottleDao.getBottlesByGender(user_id, last_id, page_size, look_sex == null ? -1 : look_sex);
+		}
+		result.addAttribute("bottles", bolltes);
+		return result;
 	}
 
 	public boolean existBottles(String content, String img) {
@@ -51,5 +72,19 @@ public class BottleService {
 
 	public Bottle getBottleDetial(long bottle_id) {
 		return bottleDao.getBottleById(bottle_id);
+	}
+
+	public List<Bottle> getMineBottles(long user_id, long last_id, int page_size) {
+		return bottleDao.getMineBottles(user_id, last_id, page_size);
+	}
+
+	public ModelMap delete(long user_id, long bottle_id) {
+		int result = bottleDao.delete(user_id, bottle_id);
+		if (result > 0) {
+			Bottle bottle = new Bottle();
+			bottle.setId(bottle_id);
+			return ResultUtil.getResultOKMap().addAttribute("bottle", bottle);
+		}
+		return ResultUtil.getResultMap(ERROR.ERR_FAILED);
 	}
 }

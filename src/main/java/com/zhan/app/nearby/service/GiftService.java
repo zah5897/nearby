@@ -49,32 +49,34 @@ public class GiftService {
 		return ResultUtil.getResultOKMap().addAttribute("id", id);
 	}
 
-	public ModelMap buy(int gift_id, long user_id, String aid) {
+	public ModelMap loadOwn(long user_id, String aid) {
+		return ResultUtil.getResultOKMap().addAttribute("gifts", giftDao.getOwnGifts(user_id));
+	}
 
-		if (gift_id == 0 || user_id == 0) {
+	// -----------客户端使用-----------------------
+	// 赠送礼物（用户购买后直接赠送）
+	public ModelMap give(long user_id, long to_user_id, int gift_id, String aid, int count) {
+		if (gift_id == 0 || user_id == 0 || to_user_id == 0 || TextUtils.isEmpty(aid) || count <= 0) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM);
 		}
 		Gift gift = giftDao.load(gift_id);
 		if (gift == null) {
 			return ResultUtil.getResultMap(ERROR.ERR_NOT_EXIST, "该礼物不存在");
 		}
-		if (TextUtils.isEmpty(aid)) {
-			return ResultUtil.getResultMap(ERROR.ERR_NOT_EXIST, "app not exist");
-		}
-		Map<?, ?> map = HttpService.buy(user_id, aid, gift.getPrice(), gift_id);
-		if (map.get("code").toString().equals("0")) {
-			GiftOwn ownGift = giftDao.getOwnGift(user_id, gift_id);
-			if (ownGift != null) {
-				giftDao.updateOwnCount(user_id, gift_id, ownGift.getCount() + 1);
+		Map<?, ?> map = HttpService.buy(user_id, aid, gift.getPrice() * count, gift_id);
+		int code = (int) map.get("code");
+		if (code == 0) {
+			int i = giftDao.addOwn(to_user_id, gift_id, user_id, count);
+			if (i == 1) {
+				return ResultUtil.getResultOKMap();
 			} else {
-				giftDao.addOwn(user_id, gift_id);
+				return ResultUtil.getResultMap(ERROR.ERR_SYS);
 			}
-			return ResultUtil.getResultOKMap();
+		} else {
+			ERROR error = ERROR.ERR_FAILED;
+			error.setValue(code);
+			error.setErrorMsg(map.get("msg").toString());
+			return ResultUtil.getResultMap(error);
 		}
-		return ResultUtil.getResultMap(ERROR.ERR_FAILED);
-	}
-
-	public ModelMap own(long user_id, String aid) {
-		return ResultUtil.getResultOKMap().addAttribute("gifts", giftDao.getOwnGifts(user_id));
 	}
 }

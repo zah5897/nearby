@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 
 import com.easemob.server.example.Main;
+import com.zhan.app.nearby.bean.DynamicMessage;
 import com.zhan.app.nearby.bean.Image;
 import com.zhan.app.nearby.bean.Tag;
 import com.zhan.app.nearby.bean.User;
@@ -421,7 +422,12 @@ public class UserService {
 		return ResultUtil.getResultOKMap().addAttribute("user", null);
 	}
 
-	public ModelMap getUserProperty(long user_id,String aid) {
+	public ModelMap getUserProperty(long user_id, String aid) {
 		return null;
+	}
+
+	public ModelMap getUserDynamicMsgs(long user_id, String aid) {
+		List<DynamicMessage> msgs = userDao.getUserDynamicMsgs(user_id);
+		return ResultUtil.getResultOKMap().addAttribute("msgs", msgs);
 	}
 }

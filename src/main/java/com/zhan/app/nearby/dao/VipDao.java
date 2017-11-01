@@ -75,5 +75,4 @@ public class VipDao extends BaseDao {
 		 return jdbcTemplate.update("update "+TABLE_NAME_VIP_USER+" set last_order_no=?,end_time=? where user_id=? and vip_id=?",new Object[]{userVip.getLast_order_no(),userVip.getEnd_time(),userVip.getUser_id(),userVip.getVip_id()});
 		
 	}
-	
 }

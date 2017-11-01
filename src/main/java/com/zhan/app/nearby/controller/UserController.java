@@ -19,7 +19,6 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.multipart.support.DefaultMultipartHttpServletRequest;
 
 import com.zhan.app.nearby.bean.City;
-import com.zhan.app.nearby.bean.Image;
 import com.zhan.app.nearby.bean.Tag;
 import com.zhan.app.nearby.bean.User;
 import com.zhan.app.nearby.bean.UserDynamic;
@@ -28,6 +27,7 @@ import com.zhan.app.nearby.comm.Relationship;
 import com.zhan.app.nearby.comm.UserType;
 import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.service.CityService;
+import com.zhan.app.nearby.service.DynamicMsgService;
 import com.zhan.app.nearby.service.UserDynamicService;
 import com.zhan.app.nearby.service.UserService;
 import com.zhan.app.nearby.util.DateTimeUtil;
@@ -56,6 +56,7 @@ public class UserController {
 	@Resource
 	private CityService cityService;
 
+	
 	/**
 	 * 获取注册用的短信验证码
 	 * 
@@ -646,7 +647,6 @@ public class UserController {
 		return userService.getUserSimple(user_id);
 	}
 
-	
 	/**
 	 * 获取系统标签
 	 * 
@@ -654,12 +654,10 @@ public class UserController {
 	 * @return
 	 */
 	@RequestMapping("property")
-	public ModelMap getUserProperty(long user_id,String aid) {
-		return userService.getUserProperty(user_id,aid);
+	public ModelMap getUserProperty(long user_id, String aid) {
+		return userService.getUserProperty(user_id, aid);
 	}
-	
-	
-	
+
 	/**
 	 * 获取系统标签
 	 * 

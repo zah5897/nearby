@@ -23,6 +23,15 @@ public class DynamicMsgService {
 	@Resource
 	private RedisTemplate<String, String> redisTemplate;
 
+	/**
+	 * 
+	 * @param type
+	 * @param by_user_id 消息触发者
+	 * @param dynamic_id
+	 * @param user_id 目标用户
+	 * @param content
+	 * @return
+	 */
 	public long insertActionMsg(DynamicMsgType type, long by_user_id, long dynamic_id, long user_id, String content) {
 		DynamicMessage msg = new DynamicMessage();
 		msg.setUser_id(user_id);
@@ -32,12 +41,12 @@ public class DynamicMsgService {
 		msg.setContent(content);
 		msg.setCreate_time(new Date());
 		long id = dynamicMsgDao.insert(msg);
-		PushUtils.commentMsg(redisTemplate, id, type, user_id, dynamic_id);
+		PushUtils.pushActionMsg(redisTemplate, id, type, user_id, dynamic_id);
 		return id;
 	}
 
-	public List<DynamicMessage> msg_list(Long user_id, long last_id) {
-		List<DynamicMessage> msgs = dynamicMsgDao.loadMsg(user_id, last_id);
+	public List<DynamicMessage> msg_list(Long user_id, long last_id,int type) {
+		List<DynamicMessage> msgs = dynamicMsgDao.loadMsg(user_id, last_id,type);
 		if (msgs != null) {
 			for (DynamicMessage message : msgs) {
 				ImagePathUtil.completeAvatarPath(message.getUser(), true);

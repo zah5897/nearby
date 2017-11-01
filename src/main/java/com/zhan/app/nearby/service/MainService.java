@@ -14,6 +14,7 @@ import com.easemob.server.example.Main;
 import com.zhan.app.nearby.bean.City;
 import com.zhan.app.nearby.bean.User;
 import com.zhan.app.nearby.bean.UserDynamic;
+import com.zhan.app.nearby.comm.DynamicMsgType;
 import com.zhan.app.nearby.comm.ImageStatus;
 import com.zhan.app.nearby.comm.MessageAction;
 import com.zhan.app.nearby.comm.Relationship;
@@ -31,6 +32,9 @@ public class MainService {
 	@Resource
 	private UserDao userDao;
 
+	@Resource
+	private DynamicMsgService dynamicMsgService;
+	
 	@Resource
 	CityService cityService;
 
@@ -135,6 +139,7 @@ public class MainService {
 		userDao.updateRelationship(user_id, with_user.getUser_id(), ship);
 		// 判断对方是否也已经喜欢我了
 		if (ship == Relationship.LIKE) {
+			dynamicMsgService.insertActionMsg(DynamicMsgType.TYPE_MEET, user_id, -1, with_user.getUser_id(), "有人喜欢了你");
 			User user = userDao.getUserSimple(user_id).get(0);
 			int count = userDao.isLikeMe(user_id, with_user.getUser_id());
 			if (count > 0) { // 对方喜欢我了，这个时候我也喜欢对方了，需要互相发消息
@@ -175,26 +180,6 @@ public class MainService {
 				}
 
 			}
-			// else {
-			// // 发现对方没喜欢我
-			// // 需要申请添加好友
-			// Object result = Main.addFriend(String.valueOf(user.getUser_id()),
-			// String.valueOf(with_user.getUser_id()));
-			// if (result != null) {
-			// System.out.println(result);
-			// }
-			//
-			// Map<String, String> ext = new HashMap<String, String>();
-			// ext.put("action",
-			// String.valueOf(MessageAction.ACTION_SOMEONE_LIKE_ME_TIP.ordinal()));
-			//
-			// result = Main.sendCmdMessage(Main.SYS, new String[] {
-			// String.valueOf(with_user.getUser_id()) }, ext);
-			// if (result != null) {
-			// System.out.println(result);
-			// }
-			//
-			// }
 		}
 
 		return ResultUtil.getResultOKMap();
@@ -220,17 +205,17 @@ public class MainService {
 							province_id = city_id;
 						}
 					}
-				}else if(dynamic.getCity_id()>0){
+				} else if (dynamic.getCity_id() > 0) {
 					City city = cityService.getFullCity(dynamic.getCity_id());
-					city_id=city.getId();
-					if(city.getParent_id()>0){
+					city_id = city.getId();
+					if (city.getParent_id() > 0) {
 						City parent = cityService.getFullCity(city.getParent_id());
-						province_id=parent.getId();
-					}else{
-						province_id=city_id;
+						province_id = parent.getId();
+					} else {
+						province_id = city_id;
 					}
 				}
-				userDynamicDao.updateCityId(dynamic.getId(),province_id,city_id,district_id);
+				userDynamicDao.updateCityId(dynamic.getId(), province_id, city_id, district_id);
 			}
 		}
 		return ResultUtil.getResultOKMap();

@@ -94,7 +94,7 @@ function add_gift(){
 			 }
 			 var jsonStr=JSON.stringify(pageData);
 			 var toAdd="<tr id='tr_"+pageData["id"]+"'>";
-			 toAdd+="<td><img src='"+pageData.image_url+"' alt='' width='100' height='40' /></td>";
+			 toAdd+="<td><img src='"+pageData.image_url+"' alt='' width='100' height='100' /></td>";
 			 toAdd+="<td>"+pageData.name+"</td>";
 			 toAdd+= "<td>"+pageData.price+"</td>";
 			 toAdd+= "<td>"+pageData.old_price+"</td>";

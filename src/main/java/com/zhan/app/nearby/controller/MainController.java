@@ -23,13 +23,11 @@ public class MainController {
 	private MainService mainService;
 	@Resource
 	private UserDynamicService userDynamicService;
-
-	@Resource
-	private DynamicMsgService dynamicMsgService;
 	@Resource
 	private CityService cityService;
 	@Resource
 	private UserCacheService userCacheService;
+	
 	private static Logger log = Logger.getLogger(MainController.class);
 	/**
 	 * 发现

@@ -1,7 +1,6 @@
 package com.zhan.app.nearby.controller;
 
 import java.util.Iterator;
-import java.util.List;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -51,36 +50,10 @@ public class BottleController {
 		return ResultUtil.getResultOKMap().addAttribute("bottle", bottle);
 	}
 
-	@RequestMapping("get_one")
-	public ModelMap get_one(Long user_id) {
-		Bottle bottle = bottleService.getBottleFromPool(user_id == null ? 0 : user_id);
-		ModelMap result = ResultUtil.getResultOKMap();
-		result.put("bottle", bottle);
-		return result;
-	}
-
-	@RequestMapping("catch")
-	public ModelMap catchBottl(Long user_id) {
-		Bottle bottle = bottleService.getBottleFromPool(user_id == null ? 0 : user_id);
-		ModelMap result = ResultUtil.getResultOKMap();
-		result.put("bottle", bottle);
-		return result;
-	}
-
-	@RequestMapping("main_refresh")
-	public ModelMap main_refresh(Long user_id) {
-		List<Bottle> bottles = bottleService.getBottlesFromPool(user_id == null ? 0 : user_id);
-		ModelMap result = ResultUtil.getResultOKMap();
-		result.put("bottles", bottles);
-		return result;
-	}
-
 	@RequestMapping("list")
-	public ModelMap list(Long user_id, Long last_id, Integer page_size) {
-		List<Bottle> bottles = bottleService.getBottles(user_id==null?0:user_id, last_id==null?0:last_id, page_size==null?5:page_size);
-		ModelMap result = ResultUtil.getResultOKMap();
-		result.put("bottles", bottles);
-		return result;
+	public ModelMap list(Long user_id, Long last_id, Integer page_size, Integer look_sex) {
+		return bottleService.getBottles(user_id == null ? 0 : user_id, last_id == null ? 0 : last_id,
+				page_size == null ? 5 : page_size, look_sex);
 	}
 
 	@RequestMapping("load")
@@ -89,5 +62,18 @@ public class BottleController {
 		ModelMap result = ResultUtil.getResultOKMap();
 		result.put("bottle", bottle);
 		return result;
+	}
+
+	@RequestMapping("mine")
+	public ModelMap mine(long user_id, Long last_id, Integer page_size) {
+		ModelMap result = ResultUtil.getResultOKMap();
+		result.put("bottles", bottleService.getMineBottles(user_id, last_id == null ? 0 : last_id,
+				page_size == null ? 20 : page_size));
+		return result;
+	}
+
+	@RequestMapping("delete")
+	public ModelMap delete(long user_id, long bottle_id) {
+		return bottleService.delete(user_id, bottle_id);
 	}
 }

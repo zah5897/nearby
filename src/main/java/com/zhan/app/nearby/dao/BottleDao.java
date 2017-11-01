@@ -78,8 +78,27 @@ public class BottleDao extends BaseDao {
 						user.setUser_id(rs.getLong("user_id"));
 						user.setNick_name(rs.getString("nick_name"));
 						user.setBirthday(rs.getDate("birthday"));
-						user.setAvatar(rs.getString("avatar")); 
-						ImagePathUtil.completeAvatarPath(user,true);
+						user.setAvatar(rs.getString("avatar"));
+						ImagePathUtil.completeAvatarPath(user, true);
+						bottle.setSender(user);
+						return bottle;
+					}
+				});
+	}
+
+	public List<Bottle> getBottlesByGender(long user_id, long last_id, int limit, int gender) {
+		String sql = "select b.*,u.nick_name,u.avatar,u.birthday from t_bottle b left join t_user u on b.user_id=u.user_id where b.user_id<>? and b.id>? and u.sex=? order by b.id desc limit ?";
+		return jdbcTemplate.query(sql, new Object[] { user_id, last_id, gender, limit },
+				new BeanPropertyRowMapper<Bottle>(Bottle.class) {
+					@Override
+					public Bottle mapRow(ResultSet rs, int rowNumber) throws SQLException {
+						Bottle bottle = super.mapRow(rs, rowNumber);
+						User user = new User();
+						user.setUser_id(rs.getLong("user_id"));
+						user.setNick_name(rs.getString("nick_name"));
+						user.setBirthday(rs.getDate("birthday"));
+						user.setAvatar(rs.getString("avatar"));
+						ImagePathUtil.completeAvatarPath(user, true);
 						bottle.setSender(user);
 						return bottle;
 					}
@@ -120,4 +139,14 @@ public class BottleDao extends BaseDao {
 		return sender;
 	}
 
+	public List<Bottle> getMineBottles(long user_id, long last_id, int page_size) {
+		long real_last_id = last_id <= 0 ? Integer.MAX_VALUE : last_id;
+		return jdbcTemplate.query("select *from " + TABLE_BOTTLE + "  where user_id=? and id<? order by id desc limit ?", new Object[]{user_id,real_last_id,page_size},new BeanPropertyRowMapper<Bottle>(Bottle.class));
+	}
+
+	
+	public int delete(long user_id,long bottle_id){
+		jdbcTemplate.update("delete from "+TABLE_BOTTLE_POOL+" where user_id=? and bottle_id=?",new Object[]{user_id,bottle_id});
+		return jdbcTemplate.update("delete from "+TABLE_BOTTLE+" where user_id=? and id=?",new Object[]{user_id,bottle_id});
+	}
 }

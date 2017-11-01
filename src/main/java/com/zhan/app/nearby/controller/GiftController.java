@@ -18,7 +18,7 @@ import com.zhan.app.nearby.util.ImageSaveUtils;
 @RestController
 @RequestMapping("/gift")
 public class GiftController {
-
+	// -------------管理后台使用----------------------
 	@Resource
 	private GiftService giftService;
 
@@ -52,14 +52,16 @@ public class GiftController {
 		return giftService.save(gift);
 	}
 
-	@RequestMapping("buy")
-	public ModelMap buy(int gift_id, long user_id,String aid) {
-		return giftService.buy(gift_id,user_id,aid);
+	// 获取送到的礼物列表
+	@RequestMapping("received")
+	public ModelMap received(long user_id, String aid) {
+		return giftService.loadOwn(user_id, aid);
 	}
-	
-	
-	@RequestMapping("own")
-	public ModelMap own(long user_id,String aid) {
-		return giftService.own(user_id,aid);
+
+	// -----------------客户端使用---------------
+	@RequestMapping("send")
+	public ModelMap send(long user_id, long to_user_id, int gift_id, String aid, int count) {
+		return giftService.give(user_id, to_user_id, gift_id, aid, count);
 	}
+
 }

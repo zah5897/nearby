@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -86,10 +87,9 @@ public class GiftDao extends BaseDao {
 				new Object[] { newCount, user_id, gift_id });
 	}
 
-	public int addOwn(long user_id, int gift_id) {
-		String sql = "insert into t_gift_own (user_id,gift_id,count)  values ( '" + user_id + "','" + gift_id
-				+ "','1')";
-		return jdbcTemplate.update(sql);
+	public int addOwn(long user_id, int gift_id, long from_user_id, int count) {
+		String sql = "insert into t_gift_own (user_id,gift_id,count,from_uid,give_time)  values (?,?,?,?,?)";
+		return jdbcTemplate.update(sql, new Object[] { user_id, gift_id, count, from_user_id, new Date() });
 	}
 
 }

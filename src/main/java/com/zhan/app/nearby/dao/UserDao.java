@@ -12,6 +12,8 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import com.mysql.fabric.xmlrpc.base.Data;
+import com.zhan.app.nearby.bean.DynamicComment;
+import com.zhan.app.nearby.bean.DynamicMessage;
 import com.zhan.app.nearby.bean.Image;
 import com.zhan.app.nearby.bean.User;
 import com.zhan.app.nearby.bean.mapper.DynamicMapper;
@@ -208,7 +210,8 @@ public class UserDao extends BaseDao {
 
 	public List<User> getRandomUser(long user_id, int realCount, int gender) {
 		String sql = "select * from t_user where user_id not in (select uid from t_found_user_relationship where state=? order by uid desc) and  user_id<>? and avatar<>? and sex<>? order by  RAND() limit ?";
-		List<User> users = jdbcTemplate.query(sql, new Object[] {FoundUserRelationship.GONE.ordinal(), user_id, "", gender, realCount },
+		List<User> users = jdbcTemplate.query(sql,
+				new Object[] { FoundUserRelationship.GONE.ordinal(), user_id, "", gender, realCount },
 				new BeanPropertyRowMapper<User>(User.class));
 		return users;
 	}
@@ -227,5 +230,15 @@ public class UserDao extends BaseDao {
 		return jdbcTemplate.queryForObject(
 				"select count(*) from t_user_relationship where user_id=? and with_user_id=? and relationship=?",
 				new Object[] { with_user_id, user_id, Relationship.LIKE.ordinal() }, Integer.class);
+	}
+
+	/**
+	 * 获取用户的动态消息（例如表白信等）
+	 * 
+	 * @param user_id
+	 * @return
+	 */
+	public List<DynamicMessage> getUserDynamicMsgs(long user_id) {
+		return null;
 	}
 }

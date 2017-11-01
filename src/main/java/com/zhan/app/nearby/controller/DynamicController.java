@@ -1,5 +1,6 @@
 package com.zhan.app.nearby.controller;
 
+import java.awt.TrayIcon.MessageType;
 import java.util.Date;
 import java.util.List;
 
@@ -102,7 +103,7 @@ public class DynamicController {
 	}
 
 	@RequestMapping("msg_list")
-	public ModelMap msg_list(Long user_id, Long last_id) {
+	public ModelMap msg_list(Long user_id, Long last_id,Integer type) {
 		if (user_id == null || user_id < 1) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "user_id参数异常：user_id=" + user_id);
 		}
@@ -110,7 +111,7 @@ public class DynamicController {
 		if (last_id == null) {
 			last_id = 0l;
 		}
-		List<DynamicMessage> msgs = dynamicMsgService.msg_list(user_id, last_id);
+		List<DynamicMessage> msgs = dynamicMsgService.msg_list(user_id, last_id,type==null?0:1);
 		ModelMap result = ResultUtil.getResultOKMap();
 		result.put("msgs", msgs);
 		return result;

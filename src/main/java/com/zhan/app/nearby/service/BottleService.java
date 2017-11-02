@@ -10,11 +10,14 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 
 import com.zhan.app.nearby.bean.Bottle;
+import com.zhan.app.nearby.bean.User;
 import com.zhan.app.nearby.bean.VipUser;
 import com.zhan.app.nearby.dao.BottleDao;
 import com.zhan.app.nearby.dao.VipDao;
 import com.zhan.app.nearby.exception.ERROR;
+import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.ResultUtil;
+import com.zhan.app.nearby.util.TextUtils;
 
 @Service
 @Transactional("transactionManager")
@@ -74,8 +77,24 @@ public class BottleService {
 		return bottleDao.getBottleById(bottle_id);
 	}
 
-	public List<Bottle> getMineBottles(long user_id, long last_id, int page_size) {
-		return bottleDao.getMineBottles(user_id, last_id, page_size);
+	public ModelMap getMineBottles(long user_id, long last_id, int page_size) {
+		List<Bottle> bottles = bottleDao.getMineBottles(user_id, last_id, page_size);
+		if (bottles != null) {
+			for (Bottle bottle : bottles) {
+				List<User> users = bottleDao.getScanUserList(bottle.getId());
+				if (users == null) {
+					users = bottleDao.getRandomScanUserList(10);
+				} else if (users.size() < 10) {
+					List<User> last_user = bottleDao.getRandomScanUserList(10 - users.size());
+					users.addAll(last_user);
+				}
+				ImagePathUtil.completeAvatarsPath(users, false);
+				bottle.setScan_user_list(users);
+			}
+		}
+		ModelMap result = ResultUtil.getResultOKMap();
+		result.put("bottles", bottles);
+		return result;
 	}
 
 	public ModelMap delete(long user_id, long bottle_id) {
@@ -86,5 +105,19 @@ public class BottleService {
 			return ResultUtil.getResultOKMap().addAttribute("bottle", bottle);
 		}
 		return ResultUtil.getResultMap(ERROR.ERR_FAILED);
+	}
+
+	public ModelMap scan(long user_id, String bottle_id) {
+		if (!TextUtils.isEmpty(bottle_id)) {
+			String[] bottle_ids = bottle_id.split(",");
+			for (String id : bottle_ids) {
+				try {
+					long bid = Long.parseLong(id);
+					bottleDao.logScan(user_id, bid);
+				} catch (Exception e) {
+				}
+			}
+		}
+		return ResultUtil.getResultOKMap().addAttribute("ids", bottle_id);
 	}
 }

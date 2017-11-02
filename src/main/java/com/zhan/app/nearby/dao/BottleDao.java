@@ -2,12 +2,14 @@ package com.zhan.app.nearby.dao;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Resource;
 
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.RowMapperResultSetExtractor;
 import org.springframework.stereotype.Repository;
 
@@ -141,12 +143,48 @@ public class BottleDao extends BaseDao {
 
 	public List<Bottle> getMineBottles(long user_id, long last_id, int page_size) {
 		long real_last_id = last_id <= 0 ? Integer.MAX_VALUE : last_id;
-		return jdbcTemplate.query("select *from " + TABLE_BOTTLE + "  where user_id=? and id<? order by id desc limit ?", new Object[]{user_id,real_last_id,page_size},new BeanPropertyRowMapper<Bottle>(Bottle.class));
+		return jdbcTemplate.query(
+				"select *from " + TABLE_BOTTLE + "  where user_id=? and id<? order by id desc limit ?",
+				new Object[] { user_id, real_last_id, page_size }, new BeanPropertyRowMapper<Bottle>(Bottle.class));
 	}
 
-	
-	public int delete(long user_id,long bottle_id){
-		jdbcTemplate.update("delete from "+TABLE_BOTTLE_POOL+" where user_id=? and bottle_id=?",new Object[]{user_id,bottle_id});
-		return jdbcTemplate.update("delete from "+TABLE_BOTTLE+" where user_id=? and id=?",new Object[]{user_id,bottle_id});
+	public int delete(long user_id, long bottle_id) {
+		jdbcTemplate.update("delete from " + TABLE_BOTTLE_POOL + " where user_id=? and bottle_id=?",
+				new Object[] { user_id, bottle_id });
+		return jdbcTemplate.update("delete from " + TABLE_BOTTLE + " where user_id=? and id=?",
+				new Object[] { user_id, bottle_id });
+	}
+
+	public int logScan(long user_id, long bottle_id) {
+		String sql = "insert into t_bottle_scan (bottle_id,user_id,create_time)  values (?,?,?)";
+		return jdbcTemplate.update(sql, new Object[] { bottle_id, user_id, new Date() });
+	}
+
+	public List<User> getScanUserList(long bottle_id) {
+		String sql = "select user.user_id,user.nick_name,user.avatar from t_bottle_scan scan left join t_user user on scan.user_id=user.user_id where scan.bottle_id=? order by scan.create_time";
+		return jdbcTemplate.query(sql, new Object[] { bottle_id }, new RowMapper<User>() {
+			@Override
+			public User mapRow(ResultSet rs, int rowNum) throws SQLException {
+				User user = new User();
+				user.setUser_id(rs.getLong("user_id"));
+				user.setNick_name(rs.getString("nick_name"));
+				user.setAvatar(rs.getString("avatar"));
+				return user;
+			}
+		});
+	}
+
+	public List<User> getRandomScanUserList(int limit) {
+		String sql = "select user_id,nick_name,avatar from t_user where avatar<>? order by user_id desc limit ?";
+		return jdbcTemplate.query(sql, new Object[] { null,limit }, new RowMapper<User>() {
+			@Override
+			public User mapRow(ResultSet rs, int rowNum) throws SQLException {
+				User user = new User();
+				user.setUser_id(rs.getLong("user_id"));
+				user.setNick_name(rs.getString("nick_name"));
+				user.setAvatar(rs.getString("avatar"));
+				return user;
+			}
+		});
 	}
 }

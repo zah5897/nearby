@@ -1,6 +1,7 @@
 package com.zhan.app.nearby.bean;
 
 import java.util.Date;
+import java.util.List;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -21,6 +22,8 @@ public class Bottle {
 	private long user_id;
 	@ColumnType
 	private User sender;
+	@ColumnType
+	private List<User> scan_user_list;
 	public long getId() {
 		return id;
 	}
@@ -57,7 +60,12 @@ public class Bottle {
 	public void setSender(User sender) {
 		this.sender = sender;
 	}
-	
+	public List<User> getScan_user_list() {
+		return scan_user_list;
+	}
+	public void setScan_user_list(List<User> scan_user_list) {
+		this.scan_user_list = scan_user_list;
+	}
 	
 	
 	

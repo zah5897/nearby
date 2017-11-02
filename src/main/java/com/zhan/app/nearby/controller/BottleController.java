@@ -66,10 +66,12 @@ public class BottleController {
 
 	@RequestMapping("mine")
 	public ModelMap mine(long user_id, Long last_id, Integer page_size) {
-		ModelMap result = ResultUtil.getResultOKMap();
-		result.put("bottles", bottleService.getMineBottles(user_id, last_id == null ? 0 : last_id,
-				page_size == null ? 20 : page_size));
-		return result;
+		return bottleService.getMineBottles(user_id, last_id == null ? 0 : last_id, page_size == null ? 20 : page_size);
+	}
+
+	@RequestMapping("scan")
+	public ModelMap scan(long user_id, String bottle_id) {
+		return bottleService.scan(user_id, bottle_id);
 	}
 
 	@RequestMapping("delete")

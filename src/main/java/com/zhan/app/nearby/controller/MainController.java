@@ -84,13 +84,13 @@ public class MainController {
 	 * @return
 	 */
 	@RequestMapping("like")
-	public ModelMap like(long user_id, String token, String with_user_id) {
-		return mainService.changeRelationShip(user_id, token, with_user_id, Relationship.LIKE);
+	public ModelMap like(long user_id, String token, String with_user_id,String content) {
+		return mainService.changeRelationShip(user_id, token, with_user_id, Relationship.LIKE,content);
 	}
 
 	@RequestMapping("add_block")
 	public ModelMap add_block(long user_id, String token, String with_user_id) {
-		return mainService.changeRelationShip(user_id, token, with_user_id, Relationship.BLACK);
+		return mainService.changeRelationShip(user_id, token, with_user_id, Relationship.BLACK,null);
 	}
 
 	/**
@@ -104,6 +104,6 @@ public class MainController {
 	 */
 	@RequestMapping("ignore")
 	public ModelMap ignore(long user_id, String token, String with_user_id) {
-		return mainService.changeRelationShip(user_id, token, with_user_id, Relationship.IGNORE);
+		return mainService.changeRelationShip(user_id, token, with_user_id, Relationship.IGNORE,null);
 	}
 }

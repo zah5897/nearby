@@ -13,12 +13,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.zhan.app.nearby.bean.DynamicComment;
 import com.zhan.app.nearby.bean.DynamicMessage;
+import com.zhan.app.nearby.bean.User;
 import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.comm.DynamicMsgType;
 import com.zhan.app.nearby.comm.LikeDynamicState;
 import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.service.DynamicMsgService;
 import com.zhan.app.nearby.service.UserDynamicService;
+import com.zhan.app.nearby.service.UserService;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.ResultUtil;
 import com.zhan.app.nearby.util.TextUtils;
@@ -31,6 +33,8 @@ public class DynamicController {
 
 	@Resource
 	private DynamicMsgService dynamicMsgService;
+	@Resource
+	private UserService userService;
 
 	@RequestMapping("comment")
 	public ModelMap comment(DynamicComment comment) {
@@ -134,7 +138,7 @@ public class DynamicController {
 				if (count > 0) {
 					userDynamicService.updateLikeState(user_id, dy_id, LikeDynamicState.LIKE);
 					long userId = userDynamicService.getUserIdByDynamicId(dy_id);
-					dynamicMsgService.insertActionMsg(DynamicMsgType.TYPE_PRAISE, user_id, dy_id, userId, null);
+					dynamicMsgService.insertActionMsg(DynamicMsgType.TYPE_PRAISE, user_id, dy_id, userId, "有人喜欢了你的动态");
 				}
 
 			} catch (NumberFormatException e) {

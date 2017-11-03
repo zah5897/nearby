@@ -4,14 +4,12 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import org.apache.log4j.Logger;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import com.zhan.app.nearby.bean.ManagerUser;
 import com.zhan.app.nearby.bean.Topic;
-import com.zhan.app.nearby.bean.User;
 import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.bean.mapper.DynamicMapper;
 import com.zhan.app.nearby.comm.FoundUserRelationship;
@@ -27,7 +25,7 @@ public class ManagerDao extends BaseDao {
 	public static final String TABLE_TOPIC = "t_topic";
 	@Resource
 	private JdbcTemplate jdbcTemplate;
-	private static Logger log = Logger.getLogger(ManagerDao.class);
+//	private static Logger log = Logger.getLogger(ManagerDao.class);
 
 	public long insertDynamic(UserDynamic dyanmic) {
 		return saveObj(jdbcTemplate, TABLE_USER_DYNAMIC, dyanmic);

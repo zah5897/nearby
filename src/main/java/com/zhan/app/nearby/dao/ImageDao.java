@@ -18,12 +18,12 @@ public class ImageDao extends BaseDao {
 
 	public List<Tag> getTagsByType(int type) {
 		return jdbcTemplate.query("select *from " + TABLE_USER_IMAGES + " where type=?", new Object[] { type },
-				new BeanPropertyRowMapper(Tag.class));
+				new BeanPropertyRowMapper<Tag>(Tag.class));
 	}
 
 	public List<Tag> getTags() {
 		return jdbcTemplate.query("select *from " + TABLE_USER_IMAGES, new Object[] {},
-				new BeanPropertyRowMapper(Tag.class));
+				new BeanPropertyRowMapper<Tag>(Tag.class));
 	}
 
 	// @SuppressWarnings({ "unchecked", "rawtypes" })

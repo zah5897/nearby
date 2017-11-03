@@ -10,12 +10,10 @@ import javax.annotation.Resource;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.RowMapperResultSetExtractor;
 import org.springframework.stereotype.Repository;
 
 import com.zhan.app.nearby.bean.Bottle;
 import com.zhan.app.nearby.bean.User;
-import com.zhan.app.nearby.util.ImageCompressUtil;
 import com.zhan.app.nearby.util.ImagePathUtil;
 
 @Repository("bottleDao")

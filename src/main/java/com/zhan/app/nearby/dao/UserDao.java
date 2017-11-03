@@ -11,15 +11,10 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import com.mysql.fabric.xmlrpc.base.Data;
-import com.zhan.app.nearby.bean.DynamicComment;
 import com.zhan.app.nearby.bean.DynamicMessage;
-import com.zhan.app.nearby.bean.Image;
 import com.zhan.app.nearby.bean.User;
-import com.zhan.app.nearby.bean.mapper.DynamicMapper;
 import com.zhan.app.nearby.bean.mapper.SimpkleUserMapper;
 import com.zhan.app.nearby.comm.FoundUserRelationship;
-import com.zhan.app.nearby.comm.ImageStatus;
 import com.zhan.app.nearby.comm.Relationship;
 import com.zhan.app.nearby.comm.UserType;
 import com.zhan.app.nearby.util.DateTimeUtil;
@@ -112,7 +107,7 @@ public class UserDao extends BaseDao {
 
 	public User getUserDetailInfo(long user_id) {
 		List<User> list = jdbcTemplate.query("select *from t_user user where user.user_id=?", new Object[] { user_id },
-				new BeanPropertyRowMapper(User.class));
+				new BeanPropertyRowMapper<User>(User.class));
 		if (list != null && list.size() > 0) {
 			return list.get(0);
 		} else {

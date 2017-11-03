@@ -10,7 +10,6 @@ import org.springframework.stereotype.Repository;
 
 import com.zhan.app.nearby.bean.DynamicMessage;
 import com.zhan.app.nearby.bean.mapper.DynamicMsgMapper;
-import com.zhan.app.nearby.comm.DynamicMsgType;
 import com.zhan.app.nearby.comm.MsgState;
 import com.zhan.app.nearby.comm.Relationship;
 

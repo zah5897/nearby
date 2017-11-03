@@ -122,7 +122,7 @@ public class UserInfoDao extends BaseDao {
 
 	public User getUserInfo(long user_id) {
 		List<User> list = jdbcTemplate.query("select *from t_user user where user.user_id=?", new Object[] { user_id },
-				new BeanPropertyRowMapper(User.class));
+				new BeanPropertyRowMapper<User>(User.class));
 		if (list != null && list.size() > 0) {
 			return list.get(0);
 		} else {
@@ -134,13 +134,13 @@ public class UserInfoDao extends BaseDao {
 	public List<Image> getUserImages(long user_id) {
 		return jdbcTemplate.query(
 				"select *from " + TABLE_USER_IMAGES + " user where user_id=? order by id desc limit 5",
-				new Object[] { user_id }, new BeanPropertyRowMapper(Image.class));
+				new Object[] { user_id }, new BeanPropertyRowMapper<Image>(Image.class));
 	}
 	//可分页
 	public List<Image> getUserImages(long user_id,long last_image_id,int count) {
 		return jdbcTemplate.query(
 				"select *from " + TABLE_USER_IMAGES + " user where user_id=? and id>? order by id desc limit ?",
-				new Object[] { user_id,last_image_id ,count}, new BeanPropertyRowMapper(Image.class));
+				new Object[] { user_id,last_image_id ,count}, new BeanPropertyRowMapper<Image>(Image.class));
 	}
 
 	public int deleteImage(long user_id, long id) {

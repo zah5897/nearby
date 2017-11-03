@@ -117,6 +117,8 @@ public class GiftDao extends BaseDao {
 				 
 				 ImagePathUtil.completeAvatarPath(sender, true);
 				 own.setSender(sender);
+				 
+				 ImagePathUtil.completeGiftPath(own, true);
 				return own;
 			}
 		});

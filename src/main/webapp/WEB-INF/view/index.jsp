@@ -53,6 +53,10 @@
    <ul style="display:block">
     <li><a href="<%=path %>/manager/forword?path=rule_manager" target="right"><span class="icon-caret-right"></span>金币购买规则项</a></li>
   </ul>   
+   <h2><span class="icon-user"></span>兑现管理</h2>
+   <ul style="display:block">
+    <li><a href="<%=path %>/manager/forword?path=exchange_manager" target="right"><span class="icon-caret-right"></span>兑现审批</a></li>
+  </ul> 
   <!--
   <h2><span class="icon-pencil-square-o"></span>栏目管理</h2>
   <ul>

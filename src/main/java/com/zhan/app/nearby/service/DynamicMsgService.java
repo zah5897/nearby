@@ -110,7 +110,7 @@ public class DynamicMsgService {
 				System.out.println(result);
 			}
 		}
-		return ResultUtil.getResultOKMap();
+		return ResultUtil.getResultOKMap().addAttribute("id", msg_id);
 	}
 
 	public ModelMap noticeList(Long last_id) {

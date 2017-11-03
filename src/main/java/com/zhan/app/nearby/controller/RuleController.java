@@ -4,11 +4,9 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.zhan.app.nearby.bean.Vip;
 import com.zhan.app.nearby.service.RuleService;
 
 @RestController

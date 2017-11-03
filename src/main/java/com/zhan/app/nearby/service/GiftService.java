@@ -79,4 +79,8 @@ public class GiftService {
 			return ResultUtil.getResultMap(error);
 		}
 	}
+
+	public List<GiftOwn> loadGiftGiveList(Long last_id) {
+		return giftDao.loadGiftNotice(last_id==null?0:last_id);
+	}
 }

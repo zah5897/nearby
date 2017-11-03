@@ -1,26 +1,21 @@
 package com.zhan.app.nearby.dao;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import javax.annotation.Resource;
 
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.PreparedStatementCreator;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import com.zhan.app.nearby.bean.Gift;
 import com.zhan.app.nearby.bean.GiftOwn;
-import com.zhan.app.nearby.util.ObjectUtil;
+import com.zhan.app.nearby.bean.User;
+import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.TextUtils;
 
 @Repository("giftDao")
@@ -90,6 +85,41 @@ public class GiftDao extends BaseDao {
 	public int addOwn(long user_id, int gift_id, long from_user_id, int count) {
 		String sql = "insert into t_gift_own (user_id,gift_id,count,from_uid,give_time)  values (?,?,?,?,?)";
 		return jdbcTemplate.update(sql, new Object[] { user_id, gift_id, count, from_user_id, new Date() });
+	}
+
+	public List<GiftOwn> loadGiftNotice(long last_id) {
+		String ownSql="(select owner.*,ownUser.nick_name as owner_name,ownUser.avatar as owner_avatar from t_gift_own owner left join t_user ownUser on  owner.user_id=ownUser.user_id) as owner";
+		String heSql="(select gift.gift_id,gift.from_uid,he.nick_name as he_name,he.avatar as he_avatar from t_gift_own gift left join t_user he on  gift.from_uid=he.user_id) as giver";
+		String sql="select owner.*,giver.*,gift.* from "+ownSql+" left join "+heSql+" on owner.from_uid=giver.from_uid left join t_gift gift on owner.gift_id=gift.id order by owner.give_time desc";
+		return jdbcTemplate.query(sql,new RowMapper<GiftOwn>(){
+			@Override
+			public GiftOwn mapRow(ResultSet rs, int rowNum) throws SQLException {
+				GiftOwn own=new GiftOwn();
+				own.setUser_id(rs.getLong("user_id"));
+				own.setId(rs.getLong("gift_id"));
+				own.setName(rs.getString("name"));
+
+				own.setImage_url(rs.getString("image_url"));
+				own.setGive_time(rs.getTimestamp("give_time"));
+				own.setCount(rs.getInt("count"));
+				
+				 User receiver=new User();
+				 receiver.setUser_id(rs.getLong("user_id"));
+				 receiver.setNick_name(rs.getString("owner_name"));
+				 receiver.setAvatar(rs.getString("owner_avatar"));
+				 ImagePathUtil.completeAvatarPath(receiver, true);
+				 own.setReceiver(receiver);
+				 
+				 User sender=new User();
+				 sender.setUser_id(rs.getLong("from_uid"));
+				 sender.setNick_name(rs.getString("he_name"));
+				 sender.setAvatar(rs.getString("he_avatar"));
+				 
+				 ImagePathUtil.completeAvatarPath(sender, true);
+				 own.setSender(sender);
+				return own;
+			}
+		});
 	}
 
 }

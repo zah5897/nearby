@@ -27,7 +27,6 @@ import com.zhan.app.nearby.comm.Relationship;
 import com.zhan.app.nearby.comm.UserType;
 import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.service.CityService;
-import com.zhan.app.nearby.service.DynamicMsgService;
 import com.zhan.app.nearby.service.UserDynamicService;
 import com.zhan.app.nearby.service.UserService;
 import com.zhan.app.nearby.util.DateTimeUtil;
@@ -413,7 +412,7 @@ public class UserController {
 			}
 		}
 
-		int code = userService.updateAvatar(user_id, newAcatar);
+		userService.updateAvatar(user_id, newAcatar);
 		ModelMap result = ResultUtil.getResultOKMap();
 		user.set_ua(null);
 		ImagePathUtil.completeAvatarPath(user, true); // 补全图片链接地址

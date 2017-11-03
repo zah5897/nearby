@@ -1,6 +1,5 @@
 package com.zhan.app.nearby.controller;
 
-import java.awt.TrayIcon.MessageType;
 import java.util.Date;
 import java.util.List;
 
@@ -13,7 +12,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.zhan.app.nearby.bean.DynamicComment;
 import com.zhan.app.nearby.bean.DynamicMessage;
-import com.zhan.app.nearby.bean.User;
 import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.comm.DynamicMsgType;
 import com.zhan.app.nearby.comm.LikeDynamicState;
@@ -159,7 +157,7 @@ public class DynamicController {
 		for (String id : dy_ids) {
 			try {
 				long dy_id = Long.parseLong(id);
-				int count = userDynamicService.praiseDynamic(dy_id, false);
+				userDynamicService.praiseDynamic(dy_id, false);
 				userDynamicService.updateLikeState(user_id, dy_id, LikeDynamicState.UNLIKE);
 			} catch (NumberFormatException e) {
 			}

@@ -87,11 +87,16 @@ public class GiftDao extends BaseDao {
 		return jdbcTemplate.update(sql, new Object[] { user_id, gift_id, count, from_user_id, new Date() });
 	}
 
-	public List<GiftOwn> loadGiftNotice(long last_id) {
-		String ownSql="(select owner.*,ownUser.nick_name as owner_name,ownUser.avatar as owner_avatar from t_gift_own owner left join t_user ownUser on  owner.user_id=ownUser.user_id) as owner";
-		String heSql="(select gift.gift_id,gift.from_uid,he.nick_name as he_name,he.avatar as he_avatar from t_gift_own gift left join t_user he on  gift.from_uid=he.user_id) as giver";
-		String sql="select owner.*,giver.*,gift.* from "+ownSql+" left join "+heSql+" on owner.from_uid=giver.from_uid left join t_gift gift on owner.gift_id=gift.id order by owner.give_time desc";
-		return jdbcTemplate.query(sql,new RowMapper<GiftOwn>(){
+	public List<GiftOwn> loadGiftNotice(int page,int count) {
+		String sql="select go.*,re.nick_name as re_name,re.avatar as re_avatar,se.nick_name as se_name,se.avatar as se_avatar,g.name,g.image_url"
+				+ " from t_gift_own go left join t_gift g on g.id=go.gift_id "
+				+ " left join t_user re on re.user_id=go.user_id "
+				+ " left join t_user se on se.user_id=go.from_uid "
+				+ " order by give_time desc limit ?,?";
+		
+		
+		int offset=(page-1)*count;
+		return jdbcTemplate.query(sql, new Object[]{offset,count},new RowMapper<GiftOwn>(){
 			@Override
 			public GiftOwn mapRow(ResultSet rs, int rowNum) throws SQLException {
 				GiftOwn own=new GiftOwn();
@@ -105,15 +110,15 @@ public class GiftDao extends BaseDao {
 				
 				 User receiver=new User();
 				 receiver.setUser_id(rs.getLong("user_id"));
-				 receiver.setNick_name(rs.getString("owner_name"));
-				 receiver.setAvatar(rs.getString("owner_avatar"));
+				 receiver.setNick_name(rs.getString("re_name"));
+				 receiver.setAvatar(rs.getString("re_avatar"));
 				 ImagePathUtil.completeAvatarPath(receiver, true);
 				 own.setReceiver(receiver);
 				 
 				 User sender=new User();
 				 sender.setUser_id(rs.getLong("from_uid"));
-				 sender.setNick_name(rs.getString("he_name"));
-				 sender.setAvatar(rs.getString("he_avatar"));
+				 sender.setNick_name(rs.getString("se_name"));
+				 sender.setAvatar(rs.getString("se_avatar"));
 				 
 				 ImagePathUtil.completeAvatarPath(sender, true);
 				 own.setSender(sender);

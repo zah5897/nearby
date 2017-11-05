@@ -53,6 +53,10 @@ public class GiftController {
 	}
 
 	// 获取送到的礼物列表
+	@RequestMapping("own")
+	public ModelMap own(long user_id, String aid) {
+		return giftService.loadOwn(user_id, aid);
+	}
 	@RequestMapping("received")
 	public ModelMap received(long user_id, String aid) {
 		return giftService.loadOwn(user_id, aid);

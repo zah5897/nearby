@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.zhan.app.nearby.bean.DynamicMessage;
+import com.zhan.app.nearby.bean.GiftOwn;
 import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.service.DynamicMsgService;
 import com.zhan.app.nearby.service.GiftService;
@@ -23,7 +24,7 @@ public class MsgController {
 
 	@Resource
 	private GiftService giftService;
-	
+
 	@RequestMapping("delete")
 	public ModelMap delete(Long user_id, long msg_id) {
 		dynamicMsgService.delete(msg_id);
@@ -68,11 +69,23 @@ public class MsgController {
 		return dynamicMsgService.replay(user_id, msg_id);
 	}
 
-	
 	@RequestMapping("notice")
-	public ModelMap notice(Long last_id) {
-		giftService.loadGiftGiveList(last_id);
-		return dynamicMsgService.noticeList(last_id);
+	public ModelMap notice(Integer page, Integer count) {
+		if (page == null || page <=0) {
+			page = 1;
+		}
+		if (count == null || count <= 0) {
+			count = 20;
+		}
+		List<GiftOwn> notices = giftService.loadGiftGiveList(page, count);
+
+		ModelMap result = ResultUtil.getResultOKMap();
+		if (notices == null || notices.size() < count) {
+			result.addAttribute("hasMore", false);
+		} else {
+			result.addAttribute("hasMore", true);
+		}
+		return result.addAttribute("notice", notices);
 	}
-	
+
 }

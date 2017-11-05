@@ -80,7 +80,7 @@ public class GiftService {
 		}
 	}
 
-	public List<GiftOwn> loadGiftGiveList(Long last_id) {
-		return giftDao.loadGiftNotice(last_id==null?0:last_id);
+	public List<GiftOwn> loadGiftGiveList(int page,int count) {
+		return giftDao.loadGiftNotice(page,count);
 	}
 }

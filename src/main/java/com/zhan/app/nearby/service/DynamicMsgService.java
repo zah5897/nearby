@@ -85,8 +85,8 @@ public class DynamicMsgService {
 		if (msg.getType() == DynamicMsgType.TYPE_MEET.ordinal()
 				|| msg.getType() == DynamicMsgType.TYPE_EXPRESS.ordinal()) {
 			userDao.updateRelationship(user_id, msg.getBy_user_id(), Relationship.LIKE);
-			
-			User me=userDao.getUserSimple(user_id).get(0);
+
+			User me = userDao.getUserSimple(user_id).get(0);
 			// 发送给对方
 			Map<String, String> ext = new HashMap<String, String>();
 			ext.put("nickname", me.getNick_name());
@@ -99,22 +99,18 @@ public class DynamicMsgService {
 			}
 
 			// 发送给自己
-			User he=userDao.getUserSimple(msg.getBy_user_id()).get(0);
+			User he = userDao.getUserSimple(msg.getBy_user_id()).get(0);
 			ext = new HashMap<String, String>();
 			ext.put("nickname", he.getNick_name());
 			ext.put("avatar", he.getAvatar());
 			ext.put("origin_avatar", he.getOrigin_avatar());
-			result = Main.sendTxtMessage(String.valueOf(he.getUser_id()),
-					new String[] { String.valueOf(user_id) }, "很高兴遇见你", ext);
+			result = Main.sendTxtMessage(String.valueOf(he.getUser_id()), new String[] { String.valueOf(user_id) },
+					"很高兴遇见你", ext);
 			if (result != null) {
 				System.out.println(result);
 			}
 		}
 		return ResultUtil.getResultOKMap().addAttribute("id", msg_id);
-	}
-
-	public ModelMap noticeList(Long last_id) {
-		return ResultUtil.getResultOKMap().addAttribute("notice", giftService.loadGiftGiveList(last_id==null?0:last_id));
 	}
 
 }

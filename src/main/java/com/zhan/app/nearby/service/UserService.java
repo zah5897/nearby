@@ -18,15 +18,18 @@ import com.zhan.app.nearby.bean.Image;
 import com.zhan.app.nearby.bean.Tag;
 import com.zhan.app.nearby.bean.User;
 import com.zhan.app.nearby.bean.UserDynamic;
+import com.zhan.app.nearby.bean.VipUser;
 import com.zhan.app.nearby.bean.mapper.DynamicMapper;
 import com.zhan.app.nearby.cache.UserCacheService;
 import com.zhan.app.nearby.comm.ImageStatus;
 import com.zhan.app.nearby.comm.Relationship;
 import com.zhan.app.nearby.dao.TagDao;
 import com.zhan.app.nearby.dao.UserDao;
+import com.zhan.app.nearby.dao.VipDao;
 import com.zhan.app.nearby.exception.AppException;
 import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.util.AddressUtil;
+import com.zhan.app.nearby.util.HttpService;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.MD5Util;
 import com.zhan.app.nearby.util.ResultUtil;
@@ -46,6 +49,9 @@ public class UserService {
 	@Resource
 	private UserDynamicService userDynamicService;
 
+	@Resource
+	private VipDao vipDao;
+	
 	public User getBasicUser(long id) {
 		return userDao.getUser(id);
 	}
@@ -430,4 +436,20 @@ public class UserService {
 		List<DynamicMessage> msgs = userDao.getUserDynamicMsgs(user_id);
 		return ResultUtil.getResultOKMap().addAttribute("msgs", msgs);
 	}
+	
+	public int loadUserCoins(String aid,long user_id){
+		Map<?, ?> map = HttpService.queryUserCoins(user_id, aid);
+		int code = (int) map.get("code");
+		if (code == 0) {
+			return (int) map.get("all_coins");
+		} else {
+			return 0;
+		}
+	}
+
+	public VipUser loadUserVipInfo(String aid, long user_id) {
+		return vipDao.loadUserVip(user_id);
+	}
+	
+	
 }

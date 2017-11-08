@@ -201,7 +201,7 @@ public class UserController {
 	 * @return
 	 */
 	@RequestMapping("login")
-	public ModelMap loginByMobile(String mobile, String password, String _ua) {
+	public ModelMap loginByMobile(String mobile, String password, String _ua,String aid) {
 
 		if (TextUtils.isEmpty(mobile)) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "手机号码不能为空!");
@@ -236,6 +236,8 @@ public class UserController {
 				}
 
 				result.put("user", user);
+				result.put("all_coins", userService.loadUserCoins(aid, user.getUser_id()));
+				result.put("vip", userService.loadUserVipInfo(aid, user.getUser_id()));
 				return result;
 			} else {
 				return ResultUtil.getResultMap(ERROR.ERR_PASSWORD);
@@ -312,7 +314,7 @@ public class UserController {
 	 * @return
 	 */
 	@RequestMapping("reset_password")
-	public ModelMap reset_password(String mobile, String password, String code, String _ua) {
+	public ModelMap reset_password(String mobile, String password, String code, String _ua,String aid) {
 
 		if (TextUtils.isEmpty(mobile)) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "手机号码为空");
@@ -332,7 +334,7 @@ public class UserController {
 			md5Pwd = MD5Util.getMd5(password);
 			userService.updatePassword(mobile, md5Pwd);
 			userCacheService.clearCode(mobile); // 清理缓存
-			return loginByMobile(mobile, password, _ua);
+			return loginByMobile(mobile, password, _ua,aid);
 		} catch (NoSuchAlgorithmException e) {
 			e.printStackTrace();
 			return ResultUtil.getResultMap(ERROR.ERR_SYS, "新密码设置异常");

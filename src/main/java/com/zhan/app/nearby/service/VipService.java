@@ -1,6 +1,5 @@
 package com.zhan.app.nearby.service;
 
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -9,12 +8,10 @@ import java.util.Properties;
 import javax.annotation.Resource;
 
 import org.apache.log4j.Logger;
-import org.joda.time.DateTime;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 
-import com.zhan.app.nearby.bean.User;
 import com.zhan.app.nearby.bean.Vip;
 import com.zhan.app.nearby.bean.VipUser;
 import com.zhan.app.nearby.dao.VipDao;

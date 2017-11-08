@@ -15,6 +15,7 @@ public class HttpService {
 
 	private static String MODULE_RULE_URL;
 	private static String MODULE_PAY_URL;
+	private static String MODULE_COINS_QUERY_URL;
 	private static Logger log = Logger.getLogger(HttpService.class);
 
 	
@@ -86,6 +87,26 @@ public class HttpService {
 					+ int_amount + "&ext=" + gift_id);
 		} catch (Exception e) {
 			log.error("购买失败" + e.getMessage());
+		}
+		if (!TextUtils.isEmpty(result)) {
+			return JSONUtil.jsonToMap(result);
+		}
+	   return null;
+	}
+	
+	
+	
+	
+	//----------------------查询用户coins-------------------------
+	public static Map<?, ?> queryUserCoins(long user_id,String aid) {
+		if (TextUtils.isEmpty(MODULE_COINS_QUERY_URL)) {
+			MODULE_COINS_QUERY_URL = loadProperty("MODULE_COINS_QUERY_URL");
+		}
+		String result = null;
+		try {
+			result = HttpUtil.sendHttpsPost(MODULE_COINS_QUERY_URL + "?user_id=" + user_id + "&aid=" + aid);
+		} catch (Exception e) {
+			log.error("查询用户金币失败" + e.getMessage());
 		}
 		if (!TextUtils.isEmpty(result)) {
 			return JSONUtil.jsonToMap(result);

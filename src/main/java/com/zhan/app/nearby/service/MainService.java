@@ -12,6 +12,7 @@ import org.springframework.ui.ModelMap;
 
 import com.easemob.server.example.Main;
 import com.zhan.app.nearby.bean.City;
+import com.zhan.app.nearby.bean.MeiLi;
 import com.zhan.app.nearby.bean.User;
 import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.comm.DynamicMsgType;
@@ -35,7 +36,10 @@ public class MainService {
 
 	@Resource
 	private DynamicMsgService dynamicMsgService;
-	
+
+	@Resource
+	private GiftService giftService;
+
 	@Resource
 	CityService cityService;
 
@@ -117,7 +121,8 @@ public class MainService {
 		return userDynamicDao.getMostCityID();
 	}
 
-	public ModelMap changeRelationShip(long user_id, String token, String with_user_id, Relationship ship,String content) {
+	public ModelMap changeRelationShip(long user_id, String token, String with_user_id, Relationship ship,
+			String content) {
 		if (user_id < 0) {
 			return ResultUtil.getResultMap(ERROR.ERR_USER_NOT_EXIST);
 		}
@@ -129,23 +134,25 @@ public class MainService {
 				if (user_id == with_user || withUser == null) {
 					continue;
 				}
-				changeRelationShip(user_id, withUser, ship,content);
+				changeRelationShip(user_id, withUser, ship, content);
 			} catch (NumberFormatException e) {
 			}
 		}
 		return ResultUtil.getResultOKMap();
 	}
 
-	public ModelMap changeRelationShip(long user_id, User with_user, Relationship ship,String content) {
+	public ModelMap changeRelationShip(long user_id, User with_user, Relationship ship, String content) {
 		userDao.updateRelationship(user_id, with_user.getUser_id(), ship);
 		// 判断对方是否也已经喜欢我了
 		if (ship == Relationship.LIKE) {
-			if(!TextUtils.isEmpty(content)){
-				dynamicMsgService.insertActionMsg(DynamicMsgType.TYPE_EXPRESS, user_id, -1, with_user.getUser_id(), content);
-			}else{
-				dynamicMsgService.insertActionMsg(DynamicMsgType.TYPE_MEET, user_id, -1, with_user.getUser_id(), "有人喜欢了你");
+			if (!TextUtils.isEmpty(content)) {
+				dynamicMsgService.insertActionMsg(DynamicMsgType.TYPE_EXPRESS, user_id, -1, with_user.getUser_id(),
+						content);
+			} else {
+				dynamicMsgService.insertActionMsg(DynamicMsgType.TYPE_MEET, user_id, -1, with_user.getUser_id(),
+						"有人喜欢了你");
 			}
-			
+
 			User user = userDao.getUserSimple(user_id).get(0);
 			int count = userDao.isLikeMe(user_id, with_user.getUser_id());
 			if (count > 0) { // 对方喜欢我了，这个时候我也喜欢对方了，需要互相发消息
@@ -225,6 +232,11 @@ public class MainService {
 			}
 		}
 		return ResultUtil.getResultOKMap();
+	}
+
+	public ModelMap meiliList(int type) {
+		List<MeiLi> meili = giftService.loadMeiLi(type);
+		return ResultUtil.getResultOKMap().addAttribute("rank_list", meili);
 	}
 
 }

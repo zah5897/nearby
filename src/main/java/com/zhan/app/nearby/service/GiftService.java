@@ -13,6 +13,7 @@ import org.springframework.ui.ModelMap;
 
 import com.zhan.app.nearby.bean.Gift;
 import com.zhan.app.nearby.bean.GiftOwn;
+import com.zhan.app.nearby.bean.MeiLi;
 import com.zhan.app.nearby.dao.GiftDao;
 import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.util.HttpService;
@@ -80,7 +81,18 @@ public class GiftService {
 		}
 	}
 
-	public List<GiftOwn> loadGiftGiveList(int page,int count) {
-		return giftDao.loadGiftNotice(page,count);
+	public List<GiftOwn> loadGiftGiveList(int page, int count) {
+		return giftDao.loadGiftNotice(page, count);
+	}
+
+	public List<MeiLi> loadMeiLi(int type) {
+		if (type == 0) {
+			return giftDao.loadTodayMeiLi();
+		} else if (type == 1) {
+			return giftDao.loadTotalMeiLi();
+		} else {
+			return giftDao.loadTuHao();
+		}
+
 	}
 }

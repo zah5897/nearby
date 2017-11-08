@@ -91,18 +91,17 @@ public class MainController {
 	public ModelMap add_block(long user_id, String token, String with_user_id) {
 		return mainService.changeRelationShip(user_id, token, with_user_id, Relationship.BLACK,null);
 	}
-
-	/**
-	 * ��� X ����
-	 * 
-	 * @param user_id
-	 * @param token
-	 * @param with_user_id
-	 *            �����Ե��û�id
-	 * @return
-	 */
+	 
 	@RequestMapping("ignore")
 	public ModelMap ignore(long user_id, String token, String with_user_id) {
 		return mainService.changeRelationShip(user_id, token, with_user_id, Relationship.IGNORE,null);
 	}
+	
+	
+	@RequestMapping("rank_list")
+	public ModelMap meili(int type) {
+		return mainService.meiliList(type);
+	}
+	
+	
 }

@@ -14,6 +14,7 @@ import org.springframework.stereotype.Repository;
 
 import com.zhan.app.nearby.bean.Gift;
 import com.zhan.app.nearby.bean.GiftOwn;
+import com.zhan.app.nearby.bean.MeiLi;
 import com.zhan.app.nearby.bean.User;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.TextUtils;
@@ -87,19 +88,17 @@ public class GiftDao extends BaseDao {
 		return jdbcTemplate.update(sql, new Object[] { user_id, gift_id, count, from_user_id, new Date() });
 	}
 
-	public List<GiftOwn> loadGiftNotice(int page,int count) {
-		String sql="select go.*,re.nick_name as re_name,re.avatar as re_avatar,se.nick_name as se_name,se.avatar as se_avatar,g.name,g.image_url"
+	public List<GiftOwn> loadGiftNotice(int page, int count) {
+		String sql = "select go.*,re.nick_name as re_name,re.avatar as re_avatar,se.nick_name as se_name,se.avatar as se_avatar,g.name,g.image_url"
 				+ " from t_gift_own go left join t_gift g on g.id=go.gift_id "
-				+ " left join t_user re on re.user_id=go.user_id "
-				+ " left join t_user se on se.user_id=go.from_uid "
+				+ " left join t_user re on re.user_id=go.user_id " + " left join t_user se on se.user_id=go.from_uid "
 				+ " order by give_time desc limit ?,?";
-		
-		
-		int offset=(page-1)*count;
-		return jdbcTemplate.query(sql, new Object[]{offset,count},new RowMapper<GiftOwn>(){
+
+		int offset = (page - 1) * count;
+		return jdbcTemplate.query(sql, new Object[] { offset, count }, new RowMapper<GiftOwn>() {
 			@Override
 			public GiftOwn mapRow(ResultSet rs, int rowNum) throws SQLException {
-				GiftOwn own=new GiftOwn();
+				GiftOwn own = new GiftOwn();
 				own.setUser_id(rs.getLong("user_id"));
 				own.setId(rs.getLong("gift_id"));
 				own.setName(rs.getString("name"));
@@ -107,26 +106,109 @@ public class GiftDao extends BaseDao {
 				own.setImage_url(rs.getString("image_url"));
 				own.setGive_time(rs.getTimestamp("give_time"));
 				own.setCount(rs.getInt("count"));
-				
-				 User receiver=new User();
-				 receiver.setUser_id(rs.getLong("user_id"));
-				 receiver.setNick_name(rs.getString("re_name"));
-				 receiver.setAvatar(rs.getString("re_avatar"));
-				 ImagePathUtil.completeAvatarPath(receiver, true);
-				 own.setReceiver(receiver);
-				 
-				 User sender=new User();
-				 sender.setUser_id(rs.getLong("from_uid"));
-				 sender.setNick_name(rs.getString("se_name"));
-				 sender.setAvatar(rs.getString("se_avatar"));
-				 
-				 ImagePathUtil.completeAvatarPath(sender, true);
-				 own.setSender(sender);
-				 
-				 ImagePathUtil.completeGiftPath(own, true);
+
+				User receiver = new User();
+				receiver.setUser_id(rs.getLong("user_id"));
+				receiver.setNick_name(rs.getString("re_name"));
+				receiver.setAvatar(rs.getString("re_avatar"));
+				ImagePathUtil.completeAvatarPath(receiver, true);
+				own.setReceiver(receiver);
+
+				User sender = new User();
+				sender.setUser_id(rs.getLong("from_uid"));
+				sender.setNick_name(rs.getString("se_name"));
+				sender.setAvatar(rs.getString("se_avatar"));
+
+				ImagePathUtil.completeAvatarPath(sender, true);
+				own.setSender(sender);
+
+				ImagePathUtil.completeGiftPath(own, true);
 				return own;
 			}
 		});
 	}
 
+	/**
+	 * 获取今日魅力榜
+	 * 
+	 * @return
+	 */
+	public List<MeiLi> loadTodayMeiLi() {
+		String t_total_meili = "select m.*,u.nick_name,u.avatar from t_meili_today m left join t_user u on m.user_id=u.user_id ";
+		List<MeiLi> meilis = jdbcTemplate.query(t_total_meili, new RowMapper<MeiLi>() {
+
+			@Override
+			public MeiLi mapRow(ResultSet rs, int rowNum) throws SQLException {
+				MeiLi m = new MeiLi();
+				m.setValue(rs.getInt("total_meili"));
+
+				User user = new User();
+				user.setUser_id(rs.getLong("user_id"));
+				user.setNick_name(rs.getString("nick_name"));
+				user.setAvatar(rs.getString("avatar"));
+				m.setUser(user);
+				return m;
+			}
+
+		});
+		return meilis;
+	}
+
+	/**
+	 * 获取魅力总榜
+	 * 
+	 * @return
+	 */
+	public List<MeiLi> loadTotalMeiLi() {
+		// (select @rowno:=0) t
+		String t_total_meili = "select m.*,u.nick_name,u.avatar from t_meili_total m left join t_user u on m.user_id=u.user_id ";
+		List<MeiLi> meilis = jdbcTemplate.query(t_total_meili, new RowMapper<MeiLi>() {
+
+			@Override
+			public MeiLi mapRow(ResultSet rs, int rowNum) throws SQLException {
+				MeiLi m = new MeiLi();
+				m.setValue(rs.getInt("total_meili"));
+
+				User user = new User();
+				user.setUser_id(rs.getLong("user_id"));
+				user.setNick_name(rs.getString("nick_name"));
+				user.setAvatar(rs.getString("avatar"));
+				m.setUser(user);
+				return m;
+			}
+
+		});
+		return meilis;
+	}
+
+	/**
+	 * 获取土豪榜
+	 * 
+	 * @return
+	 */
+	public List<MeiLi> loadTuHao() {
+
+		String t_gift_send_amount = "select send.from_uid as user_id,send.count*g.price as amount from t_gift_own send left join t_gift g on send.gift_id=g.id";
+		String t_tuhao_total = "select sum(amount) as tuhao_val ,send.user_id from ("+t_gift_send_amount+") as send group by send.user_id";
+
+		
+		String leftJoinUser="select tuhao.*,u.nick_name,u.avatar from ("+t_tuhao_total+") tuhao left join t_user u on tuhao.user_id=u.user_id order by tuhao_val desc";
+		List<MeiLi> meilis = jdbcTemplate.query(leftJoinUser, new RowMapper<MeiLi>() {
+
+			@Override
+			public MeiLi mapRow(ResultSet rs, int rowNum) throws SQLException {
+				MeiLi m = new MeiLi();
+				m.setValue(rs.getInt("tuhao_val"));
+
+				User user = new User();
+				user.setUser_id(rs.getLong("user_id"));
+				user.setNick_name(rs.getString("nick_name"));
+				user.setAvatar(rs.getString("avatar"));
+				m.setUser(user);
+				return m;
+			}
+
+		});
+		return meilis;
+	}
 }

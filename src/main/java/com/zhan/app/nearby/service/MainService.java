@@ -234,9 +234,20 @@ public class MainService {
 		return ResultUtil.getResultOKMap();
 	}
 
-	public ModelMap meiliList(int type) {
-		List<MeiLi> meili = giftService.loadMeiLi(type);
-		return ResultUtil.getResultOKMap().addAttribute("rank_list", meili);
+	public ModelMap meiliList(int type, Integer pageIndex, Integer count) {
+
+		if (pageIndex == null || pageIndex <= 0) {
+			pageIndex = 1;
+		}
+
+		if (count == null) {
+			count = 20;
+		}
+		List<MeiLi> meili = giftService.loadMeiLi(type,pageIndex,count);
+		// 这个地方的rank_list字段用 users
+
+		return ResultUtil.getResultOKMap().addAttribute("users", meili);
+		// return ResultUtil.getResultOKMap().addAttribute("rank_list", meili);
 	}
 
 }

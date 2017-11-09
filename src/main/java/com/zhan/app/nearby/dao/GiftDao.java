@@ -130,12 +130,14 @@ public class GiftDao extends BaseDao {
 
 	/**
 	 * 获取今日魅力榜
+	 * @param count 
+	 * @param pageIndex 
 	 * 
 	 * @return
 	 */
-	public List<MeiLi> loadTodayMeiLi() {
-		String t_total_meili = "select m.*,u.nick_name,u.avatar from t_meili_today m left join t_user u on m.user_id=u.user_id ";
-		List<MeiLi> meilis = jdbcTemplate.query(t_total_meili, new RowMapper<MeiLi>() {
+	public List<MeiLi> loadTodayMeiLi(int pageIndex, int count) {
+		String t_total_meili = "select m.*,u.nick_name,u.avatar from t_meili_today m left join t_user u on m.user_id=u.user_id limit ?,?";
+		List<MeiLi> meilis = jdbcTemplate.query(t_total_meili,new Object[]{(pageIndex-1)*count,count}, new RowMapper<MeiLi>() {
 
 			@Override
 			public MeiLi mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -156,13 +158,15 @@ public class GiftDao extends BaseDao {
 
 	/**
 	 * 获取魅力总榜
+	 * @param count 
+	 * @param pageIndex 
 	 * 
 	 * @return
 	 */
-	public List<MeiLi> loadTotalMeiLi() {
+	public List<MeiLi> loadTotalMeiLi(int pageIndex, int count) {
 		// (select @rowno:=0) t
-		String t_total_meili = "select m.*,u.nick_name,u.avatar from t_meili_total m left join t_user u on m.user_id=u.user_id ";
-		List<MeiLi> meilis = jdbcTemplate.query(t_total_meili, new RowMapper<MeiLi>() {
+		String t_total_meili = "select m.*,u.nick_name,u.avatar from t_meili_total m left join t_user u on m.user_id=u.user_id limit ?,?";
+		List<MeiLi> meilis = jdbcTemplate.query(t_total_meili,new Object[]{(pageIndex-1)*count,count}, new RowMapper<MeiLi>() {
 
 			@Override
 			public MeiLi mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -183,17 +187,19 @@ public class GiftDao extends BaseDao {
 
 	/**
 	 * 获取土豪榜
+	 * @param count 
+	 * @param pageIndex 
 	 * 
 	 * @return
 	 */
-	public List<MeiLi> loadTuHao() {
+	public List<MeiLi> loadTuHao(int pageIndex, int count) {
 
 		String t_gift_send_amount = "select send.from_uid as user_id,send.count*g.price as amount from t_gift_own send left join t_gift g on send.gift_id=g.id";
 		String t_tuhao_total = "select sum(amount) as tuhao_val ,send.user_id from ("+t_gift_send_amount+") as send group by send.user_id";
 
 		
-		String leftJoinUser="select tuhao.*,u.nick_name,u.avatar from ("+t_tuhao_total+") tuhao left join t_user u on tuhao.user_id=u.user_id order by tuhao_val desc";
-		List<MeiLi> meilis = jdbcTemplate.query(leftJoinUser, new RowMapper<MeiLi>() {
+		String leftJoinUser="select tuhao.*,u.nick_name,u.avatar from ("+t_tuhao_total+") tuhao left join t_user u on tuhao.user_id=u.user_id order by tuhao_val desc limit ?,?";
+		List<MeiLi> meilis = jdbcTemplate.query(leftJoinUser,new Object[]{(pageIndex-1)*count,count}, new RowMapper<MeiLi>() {
 
 			@Override
 			public MeiLi mapRow(ResultSet rs, int rowNum) throws SQLException {

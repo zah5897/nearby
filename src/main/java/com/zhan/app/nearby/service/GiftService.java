@@ -85,13 +85,13 @@ public class GiftService {
 		return giftDao.loadGiftNotice(page, count);
 	}
 
-	public List<MeiLi> loadMeiLi(int type) {
+	public List<MeiLi> loadMeiLi(int type,int pageIndex,int count) {
 		if (type == 0) {
-			return giftDao.loadTodayMeiLi();
+			return giftDao.loadTodayMeiLi(pageIndex,count);
 		} else if (type == 1) {
-			return giftDao.loadTotalMeiLi();
+			return giftDao.loadTotalMeiLi(pageIndex,count);
 		} else {
-			return giftDao.loadTuHao();
+			return giftDao.loadTuHao(pageIndex,count);
 		}
 
 	}

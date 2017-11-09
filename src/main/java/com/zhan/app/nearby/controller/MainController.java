@@ -99,8 +99,8 @@ public class MainController {
 	
 	
 	@RequestMapping("rank_list")
-	public ModelMap meili(int type) {
-		return mainService.meiliList(type);
+	public ModelMap meili(int type,Integer page,Integer count) {
+		return mainService.meiliList(type,page,count);
 	}
 	
 	

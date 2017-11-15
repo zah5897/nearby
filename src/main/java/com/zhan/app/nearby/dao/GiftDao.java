@@ -24,7 +24,8 @@ public class GiftDao extends BaseDao {
 	public static final String TABLE_NAME = "t_gift";
 	@Resource
 	private JdbcTemplate jdbcTemplate;
-
+	@Resource
+	private VipDao vipDao;
 	public long insert(Gift gift) {
 		long id = saveObj(jdbcTemplate, TABLE_NAME, gift);
 		gift.setId(id);
@@ -143,12 +144,17 @@ public class GiftDao extends BaseDao {
 			public MeiLi mapRow(ResultSet rs, int rowNum) throws SQLException {
 				MeiLi m = new MeiLi();
 				m.setValue(rs.getInt("total_meili"));
+				m.setShanbei(rs.getInt("amount"));
+				m.setBe_like_count(rs.getInt("like_count"));
 
 				User user = new User();
 				user.setUser_id(rs.getLong("user_id"));
 				user.setNick_name(rs.getString("nick_name"));
 				user.setAvatar(rs.getString("avatar"));
+				ImagePathUtil.completeAvatarPath(user, true);
 				m.setUser(user);
+				
+				m.setIs_vip(vipDao.isVip(user.getUser_id()));
 				return m;
 			}
 
@@ -172,12 +178,18 @@ public class GiftDao extends BaseDao {
 			public MeiLi mapRow(ResultSet rs, int rowNum) throws SQLException {
 				MeiLi m = new MeiLi();
 				m.setValue(rs.getInt("total_meili"));
-
+				m.setShanbei(rs.getInt("amount"));
+				m.setBe_like_count(rs.getInt("like_count"));
+				
 				User user = new User();
 				user.setUser_id(rs.getLong("user_id"));
 				user.setNick_name(rs.getString("nick_name"));
 				user.setAvatar(rs.getString("avatar"));
+				ImagePathUtil.completeAvatarPath(user, true);
 				m.setUser(user);
+				
+				m.setIs_vip(vipDao.isVip(user.getUser_id()));
+				
 				return m;
 			}
 
@@ -210,7 +222,10 @@ public class GiftDao extends BaseDao {
 				user.setUser_id(rs.getLong("user_id"));
 				user.setNick_name(rs.getString("nick_name"));
 				user.setAvatar(rs.getString("avatar"));
+				ImagePathUtil.completeAvatarPath(user, true);
 				m.setUser(user);
+				
+				m.setIs_vip(vipDao.isVip(user.getUser_id()));
 				return m;
 			}
 

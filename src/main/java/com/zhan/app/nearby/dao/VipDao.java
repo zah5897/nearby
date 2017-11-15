@@ -53,25 +53,35 @@ public class VipDao extends BaseDao {
 		}
 		return null;
 	}
-	
-	
-	
-	//-------------user vip--------------
+
+	// -------------user vip--------------
 	public VipUser loadUserVip(long user_id) {
-		List<VipUser> vipUsers = jdbcTemplate.query("select vip.*,TIMESTAMPDIFF(DAY,now(),vip.end_time) as dayDiff from " + TABLE_NAME_VIP_USER + " vip where vip.user_id=?",
+		List<VipUser> vipUsers = jdbcTemplate.query(
+				"select vip.*,TIMESTAMPDIFF(DAY,now(),vip.end_time) as dayDiff from " + TABLE_NAME_VIP_USER
+						+ " vip where vip.user_id=?",
 				new Object[] { user_id }, new BeanPropertyRowMapper<VipUser>(VipUser.class));
 		if (vipUsers != null && vipUsers.size() > 0) {
-               return vipUsers.get(0);
+			return vipUsers.get(0);
 		}
 		return null;
 	}
 
+	public boolean isVip(long user_id) {
+		int count = jdbcTemplate.queryForObject(
+				"select count(*) from " + TABLE_NAME_VIP_USER + " vip where vip.user_id=?", new Object[] { user_id },
+				Integer.class);
+		return count>0;
+	}
+
 	public int delUserVip(long user_id) {
-		return jdbcTemplate.update("delete from "+TABLE_NAME_VIP_USER+" where user_id=?",new Object[] { user_id });
+		return jdbcTemplate.update("delete from " + TABLE_NAME_VIP_USER + " where user_id=?", new Object[] { user_id });
 	}
 
 	public int updateUserVip(VipUser userVip) {
-		 return jdbcTemplate.update("update "+TABLE_NAME_VIP_USER+" set last_order_no=?,end_time=? where user_id=? and vip_id=?",new Object[]{userVip.getLast_order_no(),userVip.getEnd_time(),userVip.getUser_id(),userVip.getVip_id()});
-		
+		return jdbcTemplate.update(
+				"update " + TABLE_NAME_VIP_USER + " set last_order_no=?,end_time=? where user_id=? and vip_id=?",
+				new Object[] { userVip.getLast_order_no(), userVip.getEnd_time(), userVip.getUser_id(),
+						userVip.getVip_id() });
+
 	}
 }

@@ -439,6 +439,9 @@ public class UserService {
 	
 	public int loadUserCoins(String aid,long user_id){
 		Map<?, ?> map = HttpService.queryUserCoins(user_id, aid);
+		if(map==null){
+			return 0;
+		}
 		int code = (int) map.get("code");
 		if (code == 0) {
 			return (int) map.get("all_coins");

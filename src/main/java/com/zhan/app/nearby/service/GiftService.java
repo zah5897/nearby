@@ -51,7 +51,9 @@ public class GiftService {
 	}
 
 	public ModelMap loadOwn(long user_id, String aid) {
-		return ResultUtil.getResultOKMap().addAttribute("gifts", giftDao.getOwnGifts(user_id));
+		List<GiftOwn> gifs=giftDao.getOwnGifts(user_id);
+		ImagePathUtil.completeGiftsOwnPath(gifs, true);
+		return ResultUtil.getResultOKMap().addAttribute("gifts", gifs);
 	}
 
 	// -----------客户端使用-----------------------

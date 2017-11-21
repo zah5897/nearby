@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.zhan.app.nearby.bean.DynamicComment;
 import com.zhan.app.nearby.bean.Gift;
+import com.zhan.app.nearby.bean.GiftOwn;
 import com.zhan.app.nearby.bean.Image;
 import com.zhan.app.nearby.bean.ManagerUser;
 import com.zhan.app.nearby.bean.Topic;
@@ -158,6 +159,13 @@ public class ImagePathUtil {
 		}
 	}
 	public static void completeGiftsPath(List<Gift> gifts, boolean thumbAndOrigin) {
+		if (gifts != null && gifts.size() > 0) {
+			for (Gift gift : gifts) {
+				completeGiftPath(gift, thumbAndOrigin);
+			}
+		}
+	}
+	public static void completeGiftsOwnPath(List<GiftOwn> gifts, boolean thumbAndOrigin) {
 		if (gifts != null && gifts.size() > 0) {
 			for (Gift gift : gifts) {
 				completeGiftPath(gift, thumbAndOrigin);

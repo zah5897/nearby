@@ -191,7 +191,7 @@ public class UserDao extends BaseDao {
 				"select count(*) from t_user_relationship where user_id=? and with_user_id=?",
 				new Object[] { user_id, with_user_id }, Integer.class);
 		if (count < 1) {
-			jdbcTemplate.update("insert into t_user_relationship values(?,?,?)",
+			jdbcTemplate.update("insert into t_user_relationship (user_id,with_user_id,relationship) values(?,?,?)",
 					new Object[] { user_id, with_user_id, relationship.ordinal() });
 		}
 

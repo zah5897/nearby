@@ -22,7 +22,6 @@ import com.zhan.app.nearby.dao.UserDao;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.PushUtils;
 import com.zhan.app.nearby.util.ResultUtil;
-import com.zhan.app.nearby.util.TextUtils;
 
 @Service
 @Transactional("transactionManager")

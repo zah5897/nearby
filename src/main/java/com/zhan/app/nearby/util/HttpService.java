@@ -7,9 +7,7 @@ import java.util.Properties;
 import org.apache.http.util.TextUtils;
 import org.apache.log4j.Logger;
 
-import com.zhan.app.nearby.bean.GiftOwn;
 import com.zhan.app.nearby.exception.ERROR;
-import com.zhan.app.nearby.service.RuleService;
 
 public class HttpService {
 

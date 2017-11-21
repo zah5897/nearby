@@ -32,18 +32,16 @@ public class FileBizImp {
 		long time=System.currentTimeMillis();
 		int wh=160;
 		String bigPath="C:/Users/zah/Desktop/6c9e8024-5233-4eaa-b0c3-4e17a5dc4bc7.jpg";
-		String smallMy="C:/Users/zah/Desktop/thumb/my_6c9e8024-5233-4eaa-b0c3-4e17a5dc4bc7.jpg";
+//		String smallMy="C:/Users/zah/Desktop/thumb/my_6c9e8024-5233-4eaa-b0c3-4e17a5dc4bc7.jpg";
 		String smallazh="C:/Users/zah/Desktop/thumb/azhou_6c9e8024-5233-4eaa-b0c3-4e17a5dc4bc7.jpg";
 		try {
 			cutImage(bigPath,smallazh,wh);
 		} catch (IOException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 //		try {
 //			ImageSaveUtils.pressImageByWidth(bigPath,wh,smallMy);
 //		} catch (IOException e) {
-//			// TODO Auto-generated catch block
 //			e.printStackTrace();
 //		}
 		System.err.println(System.currentTimeMillis()-time);

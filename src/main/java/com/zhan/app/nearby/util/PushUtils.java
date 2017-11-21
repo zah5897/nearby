@@ -12,8 +12,8 @@ public class PushUtils {
 
 	public static int TYPE = 1; // 开发模式
 
-	public static void pushActionMsg(final RedisTemplate<String, String> redisTemplate,final long msg_id, final DynamicMsgType type, final long user_id,
-			final long id) {
+	public static void pushActionMsg(final RedisTemplate<String, String> redisTemplate, final long msg_id,
+			final DynamicMsgType type, final long user_id, final long id) {
 
 		new Thread() {
 			public void run() {
@@ -40,7 +40,7 @@ public class PushUtils {
 					object.put("time", System.currentTimeMillis() / 1000 / 60); // 精度分钟
 					object.put("type", TYPE);
 					object.put("msg_id", msg_id);
-					long id = redisTemplate.opsForList().leftPush(KEY_NEARBY_PUSH, object.toJSONString());
+					redisTemplate.opsForList().leftPush(KEY_NEARBY_PUSH, object.toJSONString());
 				} catch (Exception e) {
 
 				}

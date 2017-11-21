@@ -14,14 +14,10 @@ import org.springframework.ui.ModelMap;
 
 import com.easemob.server.example.Main;
 import com.zhan.app.nearby.bean.DynamicMessage;
-import com.zhan.app.nearby.bean.Image;
 import com.zhan.app.nearby.bean.Tag;
 import com.zhan.app.nearby.bean.User;
-import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.bean.VipUser;
-import com.zhan.app.nearby.bean.mapper.DynamicMapper;
 import com.zhan.app.nearby.cache.UserCacheService;
-import com.zhan.app.nearby.comm.ImageStatus;
 import com.zhan.app.nearby.comm.Relationship;
 import com.zhan.app.nearby.dao.TagDao;
 import com.zhan.app.nearby.dao.UserDao;
@@ -88,7 +84,6 @@ public class UserService {
 		// Object resutl = Main.registUser(String.valueOf(id), password,
 		// user.getNick_name());
 		// } catch (NoSuchAlgorithmException e) {
-		// // TODO Auto-generated catch block
 		// e.printStackTrace();
 		// }
 		// }

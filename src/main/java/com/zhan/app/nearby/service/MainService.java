@@ -16,8 +16,6 @@ import com.zhan.app.nearby.bean.MeiLi;
 import com.zhan.app.nearby.bean.User;
 import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.comm.DynamicMsgType;
-import com.zhan.app.nearby.comm.ImageStatus;
-import com.zhan.app.nearby.comm.MessageAction;
 import com.zhan.app.nearby.comm.Relationship;
 import com.zhan.app.nearby.dao.UserDao;
 import com.zhan.app.nearby.dao.UserDynamicDao;

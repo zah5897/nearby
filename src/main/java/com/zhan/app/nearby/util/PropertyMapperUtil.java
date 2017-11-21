@@ -20,7 +20,8 @@ public class PropertyMapperUtil {
 			ColumnType ignore = f.getAnnotation(ColumnType.class);
 			if (ignore != null && ignore.value() == Type.QUERY_OBJECT) {
 			} else {
-				Object result = invokeMethod(bean, f, rs);
+			    invokeMethod(bean, f, rs);
+//				Object result = invokeMethod(bean, f, rs);
 			}
 		}
 		return bean;
@@ -43,16 +44,12 @@ public class PropertyMapperUtil {
 		} catch (NoSuchMethodException e) {
 			return " can't find 'get" + methodName + "' method";
 		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (InvocationTargetException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return result;

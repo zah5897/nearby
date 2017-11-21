@@ -52,7 +52,6 @@ public class DateTimeUtil {
 		try {
 			return sdf.parse(strDate);
 		} catch (ParseException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return null;
@@ -61,12 +60,12 @@ public class DateTimeUtil {
 	public static Date getVipEndDate(Date now, int monthCount) {
 		Calendar c = Calendar.getInstance();
 		c.setTime(now);
-		int nowMonth = c.get(c.MONTH);// 当前月份0开始
-		int nowYear = c.get(c.YEAR); // 当前年
+		int nowMonth = c.get(Calendar.MONTH);// 当前月份0开始
+		int nowYear = c.get(Calendar.YEAR); // 当前年
 
 		int endYear = nowYear;
 		int endMonth = nowMonth;
-		int endDay = c.get(c.DAY_OF_MONTH);
+		int endDay = c.get(Calendar.DAY_OF_MONTH);
 
 		if (monthCount == 12) { // 直接跨年
 			endYear = nowYear + 1;

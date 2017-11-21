@@ -77,6 +77,7 @@ public class GiftService {
 			ERROR error = ERROR.ERR_FAILED;
 			error.setValue(code);
 			error.setErrorMsg(map.get("msg").toString());
+			log.error("礼物购买失败 code="+code);
 			return ResultUtil.getResultMap(error);
 		}
 	}

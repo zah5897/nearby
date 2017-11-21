@@ -37,7 +37,6 @@ public class MD5Util {
 			System.out.println("MD5_32:"+getMd5("15"));
 			System.out.println("MD5_16:"+getMd5_16("26"));
 		} catch (NoSuchAlgorithmException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

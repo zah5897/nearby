@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.easemob.server.example.Main;
 import com.zhan.app.nearby.bean.ManagerUser;
 import com.zhan.app.nearby.bean.Topic;
-import com.zhan.app.nearby.bean.User;
 import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.cache.UserCacheService;
 import com.zhan.app.nearby.comm.FoundUserRelationship;
@@ -76,7 +75,6 @@ public class ManagerService {
 	}
 
 	public void delTopic(long id) {
-		// TODO Auto-generated method stub
 		managerDao.delTopic(id);
 	}
 
@@ -121,7 +119,6 @@ public class ManagerService {
 					try {
 						Thread.sleep(50);
 					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				}

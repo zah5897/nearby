@@ -123,7 +123,6 @@ public class HttpClientRestAPIInvoker implements RestAPIInvoker {
         	((HttpEntityEnclosingRequestBase) request).setEntity(new StringEntity(body.getBody().toString(), "UTF-8"));
         }
 		buildHeader(request, header);
-		// TODO query
 		
         try {
 			response = client.execute(request);

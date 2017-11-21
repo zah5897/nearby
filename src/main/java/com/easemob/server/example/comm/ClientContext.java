@@ -182,7 +182,6 @@ public class ClientContext {
 	}
 	
 	private ClientContext initFromStaticClass() {
-		// TODO
 		return null;
 	}
 

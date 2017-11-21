@@ -6,10 +6,6 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.Map;
-
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
 
 public class HttpUtil {
 	/**

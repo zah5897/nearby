@@ -48,7 +48,6 @@ public class ImageSaveUtils {
 			try {
 				props.load(in);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			IMAGE_ROOT_PATH = props.getProperty("IMAGE_SAVE_PATH");

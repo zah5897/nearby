@@ -16,6 +16,7 @@ import com.zhan.app.nearby.bean.Gift;
 import com.zhan.app.nearby.bean.GiftOwn;
 import com.zhan.app.nearby.bean.MeiLi;
 import com.zhan.app.nearby.bean.User;
+import com.zhan.app.nearby.comm.Relationship;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.TextUtils;
 
@@ -231,5 +232,14 @@ public class GiftDao extends BaseDao {
 
 		});
 		return meilis;
+	}
+
+	public int getUserMeiLiVal(long user_id) {
+		String t_total_meili = "select total_meili  from t_meili_total where user_id=?";
+		return jdbcTemplate.queryForObject(t_total_meili,new Object[]{user_id},Integer.class);
+	}
+	public int getUserBeLikeVal(long user_id) {
+		String beLikeCount = "select count(*) from t_user_relationship where with_user_id=? and relationship=? group by with_user_id";
+		return jdbcTemplate.queryForObject(beLikeCount,new Object[]{user_id,Relationship.LIKE.ordinal()},Integer.class);
 	}
 }

@@ -102,6 +102,24 @@ public class MainController {
 	public ModelMap meili(int type,Integer page,Integer count) {
 		return mainService.meiliList(type,page,count);
 	}
+	 
+	//提现历史记录
+	@RequestMapping("exchange_history")
+	public ModelMap exchange_history(long user_id,String aid) {
+		return mainService.exchange_history(user_id,aid);
+	}
+	
+	
+	//扇贝兑换钻石
+	@RequestMapping("exchange_diamond")
+	public ModelMap exchange_diamond(long user_id,String aid,int coins) {
+		return mainService.exchange_diamond(user_id,aid,coins);
+	}
+	//钻石兑换RMB
+	@RequestMapping("exchange_rmb")
+	public ModelMap exchange_rmb(long user_id,String aid,int diamond) {
+		return mainService.exchange_rmb(user_id,aid,diamond);
+	}
 	
 	
 }

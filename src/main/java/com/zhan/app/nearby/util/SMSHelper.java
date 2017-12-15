@@ -12,6 +12,7 @@ public class SMSHelper {
 	public  static boolean smsResetPwd(String mobile, String code){
 		return sms("155218", mobile, code);
 	}
+	@SuppressWarnings("unchecked")
 	private static boolean sms(String tempId,String mobile, String code) {
 		HashMap<String, Object> result = null;
 		CCPRestSmsSDK restAPI = new CCPRestSmsSDK();

@@ -45,6 +45,9 @@ public class UserService {
 	@Resource
 	private UserDynamicService userDynamicService;
 
+	
+	@Resource
+	private GiftService giftService;
 	@Resource
 	private VipDao vipDao;
 	
@@ -242,7 +245,7 @@ public class UserService {
 		return userDao.getAllUserIds(last_id, page);
 	}
 
-	public ModelMap getUserCenterData(String token, Long user_id) {
+	public ModelMap getUserCenterData(String token,String aid, Long user_id) {
 		if (user_id == null || user_id <= 0) {
 			return ResultUtil.getResultMap(ERROR.ERR_FAILED, "not login");
 		}
@@ -262,7 +265,16 @@ public class UserService {
 
 		ImagePathUtil.completeAvatarPath(user, true);
 		setTagByIds(user);
-		return ResultUtil.getResultOKMap().addAttribute("user", user);
+		
+		
+		
+		
+		ModelMap r=ResultUtil.getResultOKMap();
+		r.addAttribute("user", user);
+		r.addAttribute("meili", giftService.getUserMeiLiVal(user_id));
+		r.addAttribute("coins", giftService.getUserCoins(aid, user_id));
+		r.addAttribute("like_count", giftService.getUserBeLikeVal(user_id));
+		return r;
 	}
 
 	public List<Tag> getTagsByType(int type) {

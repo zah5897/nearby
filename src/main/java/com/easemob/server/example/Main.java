@@ -15,6 +15,7 @@ import com.easemob.server.example.comm.wrapper.BodyWrapper;
 import com.easemob.server.example.comm.wrapper.ResponseWrapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+@SuppressWarnings("unused")
 public class Main {
 	private static EasemobRestAPIFactory factory;
 	public static final String SYS="admin";

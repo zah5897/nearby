@@ -29,6 +29,10 @@ public class GiftService {
 	private GiftDao giftDao;
 	private static Logger log = Logger.getLogger(GiftService.class);
 
+	
+	@Resource
+	private UserService userService;
+	
 	public ModelMap save(Gift gift) {
 		if (gift.getId() > 0) {
 			giftDao.update(gift);
@@ -96,6 +100,24 @@ public class GiftService {
 		} else {
 			return giftDao.loadTuHao(pageIndex,count);
 		}
-
 	}
+	
+	//获取用户魅力值
+	public int getUserMeiLiVal(long user_id){
+		return giftDao.getUserMeiLiVal(user_id);
+	}
+	
+	//获取用户财富值
+	public int getUserCoins(String aid,long user_id){
+		return userService.loadUserCoins(aid, user_id);
+	}
+	
+	//获取用户被喜欢
+	public int getUserBeLikeVal(long user_id){
+		return giftDao.getUserBeLikeVal(user_id);
+	
+	}
+	
+	
+	
 }

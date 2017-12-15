@@ -24,6 +24,7 @@ public class Bottle {
 	private User sender;
 	@ColumnType
 	private List<User> scan_user_list;
+	private int view_nums;
 	public long getId() {
 		return id;
 	}
@@ -65,6 +66,12 @@ public class Bottle {
 	}
 	public void setScan_user_list(List<User> scan_user_list) {
 		this.scan_user_list = scan_user_list;
+	}
+	public int getView_nums() {
+		return view_nums;
+	}
+	public void setView_nums(int view_nums) {
+		this.view_nums = view_nums;
 	}
 	
 	

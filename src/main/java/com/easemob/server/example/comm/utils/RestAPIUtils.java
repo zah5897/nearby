@@ -28,6 +28,7 @@ import org.glassfish.jersey.media.multipart.MultiPartFeature;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 
+@SuppressWarnings("deprecation")
 public class RestAPIUtils {
     /**
      * Obtain a JerseyClient whit SSL
@@ -82,7 +83,7 @@ public class RestAPIUtils {
      * @param isSSL if the request is protected by ssl
      * @return HttpClient instance
      */
-    public static HttpClient getHttpClient(boolean isSSL) {
+	public static HttpClient getHttpClient(boolean isSSL) {
         CloseableHttpClient client = null;
 
         if(isSSL) {

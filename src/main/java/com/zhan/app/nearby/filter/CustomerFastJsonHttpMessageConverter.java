@@ -17,6 +17,7 @@ public class CustomerFastJsonHttpMessageConverter extends FastJsonHttpMessageCon
 
 	private String defaultDateFormat;
 
+	@SuppressWarnings("deprecation")
 	@Override
 	protected void writeInternal(Object obj, HttpOutputMessage outputMessage)
 			throws IOException, HttpMessageNotWritableException {

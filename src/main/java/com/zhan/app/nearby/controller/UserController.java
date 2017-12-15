@@ -27,6 +27,7 @@ import com.zhan.app.nearby.comm.Relationship;
 import com.zhan.app.nearby.comm.UserType;
 import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.service.CityService;
+import com.zhan.app.nearby.service.GiftService;
 import com.zhan.app.nearby.service.UserDynamicService;
 import com.zhan.app.nearby.service.UserService;
 import com.zhan.app.nearby.util.DateTimeUtil;
@@ -54,7 +55,6 @@ public class UserController {
 
 	@Resource
 	private CityService cityService;
-
 	
 	/**
 	 * 获取注册用的短信验证码
@@ -443,7 +443,7 @@ public class UserController {
 	 * @return
 	 */
 	@RequestMapping("modify_info")
-	public ModelMap modify_info(long user_id, String token, String nick_name, String birthday, String jobs,
+	public ModelMap modify_info(long user_id,String aid, String token, String nick_name, String birthday, String jobs,
 			String height, String weight, String signature, String my_tags, String interest, String favourite_animal,
 			String favourite_music, String weekday_todo, String footsteps, String want_to_where,
 			Integer birth_city_id) {
@@ -468,7 +468,7 @@ public class UserController {
 		userService.modify_info(user_id, nick_name, birthday, jobs, height, weight, signature, my_tags, interest,
 				favourite_animal, favourite_music, weekday_todo, footsteps, want_to_where, isNick_modify,
 				birth_city_id);
-		return userService.getUserCenterData(token, user_id);
+		return userService.getUserCenterData(token,aid, user_id);
 	}
 
 	/**
@@ -480,14 +480,14 @@ public class UserController {
 	 * @return
 	 */
 	@RequestMapping("detial_info")
-	public ModelMap detial_info(Long user_id, Long user_id_for, Integer count) {
+	public ModelMap detial_info(Long user_id,String aid, Long user_id_for, Integer count) {
 		if (user_id_for != null && user_id_for > 0) {
 			user_id = user_id_for;
 		}
 		if (count == null || count <= 0) {
 			count = 4;
 		}
-		return userService.getUserCenterData("", user_id);
+		return userService.getUserCenterData("",aid, user_id);
 	}
 
 	@RequestMapping("dynamic")
@@ -622,10 +622,15 @@ public class UserController {
 	}
 
 	@RequestMapping("center_page")
-	public ModelMap center_page(Long user_id_for, String token) {
-		return userService.getUserCenterData(token, user_id_for);
+	public ModelMap center_page(Long user_id_for, String token,String aid) {
+		return userService.getUserCenterData(token,aid, user_id_for);
 	}
 
+	@RequestMapping("center_page/{user_id_for}")
+	public ModelMap center_page_path(@PathVariable Long user_id_for, String token,String aid) {
+		return userService.getUserCenterData(token,aid, user_id_for);
+	}
+	
 	/**
 	 * 获取系统标签
 	 * 

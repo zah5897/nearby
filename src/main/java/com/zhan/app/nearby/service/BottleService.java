@@ -47,7 +47,7 @@ public class BottleService {
 		} else {
 			VipUser vip = vipDao.loadUserVip(user_id);
 			if (vip == null) {
-				return ResultUtil.getResultMap(ERROR.ERR_NOT_VIP);
+				return ResultUtil.getResultMap(ERROR.ERR_NOT_VIP,"普通用户获取瓶子");
 			} else if (vip.getDayDiff() < 0) {
 				return ResultUtil.getResultMap(ERROR.ERR_VIP_EXPIRE);
 			}

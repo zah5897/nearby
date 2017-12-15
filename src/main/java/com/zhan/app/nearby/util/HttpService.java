@@ -74,22 +74,41 @@ public class HttpService {
 	}
 //-------------------购买-------------------------------
 	
-	
-	public static Map<?, ?> buy(long user_id,String aid,int int_amount,int gift_id) {
+    /**
+     * 购买礼物	
+     * @param user_id
+     * @param aid
+     * @param int_amount
+     * @param gift_id
+     * @return
+     */
+ 	public static Map<?, ?> buy(long user_id,String aid,int int_amount,int gift_id) {
+	   return minusCoins(user_id,aid,int_amount,gift_id);
+	}
+ 	
+ 	/**
+ 	 * 消耗金币
+ 	 * @param user_id
+ 	 * @param aid
+ 	 * @param int_amount
+ 	 * @param ext
+ 	 * @return
+ 	 */
+	public static Map<?, ?> minusCoins(long user_id,String aid,int int_amount,Object ext) {
 		if (TextUtils.isEmpty(MODULE_PAY_URL)) {
 			MODULE_PAY_URL = loadProperty("MODULE_PAY_URL");
 		}
 		String result = null;
 		try {
 			result = HttpUtil.sendHttpsPost(MODULE_PAY_URL + "?user_id=" + user_id + "&aid=" + aid + "&int_amount="
-					+ int_amount + "&ext=" + gift_id);
+					+ int_amount + "&ext=" + ext);
 		} catch (Exception e) {
 			log.error("购买失败" + e.getMessage());
 		}
 		if (!TextUtils.isEmpty(result)) {
 			return JSONUtil.jsonToMap(result);
 		}
-	   return null;
+		return null;
 	}
 	
 	

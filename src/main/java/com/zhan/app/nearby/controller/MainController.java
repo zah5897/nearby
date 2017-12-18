@@ -105,8 +105,8 @@ public class MainController {
 	 
 	//提现历史记录
 	@RequestMapping("exchange_history")
-	public ModelMap exchange_history(long user_id,String aid) {
-		return mainService.exchange_history(user_id,aid);
+	public ModelMap exchange_history(long user_id,String aid,Integer page_index,Integer count) {
+		return mainService.exchange_history(user_id,aid,page_index,count);
 	}
 	
 	

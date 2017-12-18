@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.validation.BeanPropertyBindingResult;
 
 import com.zhan.app.nearby.bean.Exchange;
+import com.zhan.app.nearby.comm.ExchangeState;
 
 @Repository("systemDao")
 public class SystemDao extends BaseDao {
@@ -68,7 +69,14 @@ public class SystemDao extends BaseDao {
           saveObjSimple(jdbcTemplate, "t_exchange_history", exchange);		
 	}
 	
-	public List<Exchange> loadExchangeHistory(long user_id, String aid){
-		return jdbcTemplate.query("select *from  t_exchange_history where user_id=? and aid=?",new Object[]{user_id,aid} ,new BeanPropertyRowMapper<Exchange>(Exchange.class));
+	public List<Exchange> loadExchangeHistory(long user_id, String aid,int pageIndex,int count){
+		return jdbcTemplate.query("select *from  t_exchange_history where user_id=? and aid=? limit ?,?",new Object[]{user_id,aid,(pageIndex-1)*count,count} ,new BeanPropertyRowMapper<Exchange>(Exchange.class));
 	}
+	
+	public Integer getTotalExchangeRmmbByState(long user_id,String aid,ExchangeState state){
+		Integer total=
+		 jdbcTemplate.queryForObject("select sum(rmb_fen) from  t_exchange_history where user_id=? and aid=? and state=?",new Object[]{user_id,aid,state.ordinal()} ,Integer.class);
+		return total;
+	}
+	
 }

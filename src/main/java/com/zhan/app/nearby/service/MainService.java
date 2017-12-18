@@ -267,8 +267,24 @@ public class MainService {
 		// return ResultUtil.getResultOKMap().addAttribute("rank_list", meili);
 	}
 
-	public ModelMap exchange_history(long user_id, String aid) {
-		return ResultUtil.getResultOKMap().addAttribute("exchange_histories", systemDao.loadExchangeHistory(user_id,aid));
+	public ModelMap exchange_history(long user_id, String aid,Integer page_index,Integer count) {
+		if(page_index==null){
+			page_index=1;
+		}
+		
+		if(page_index<1){
+			page_index=1;
+		}
+		if(count==null){
+			count=20;
+		}
+		
+		ModelMap result=ResultUtil.getResultOKMap();
+		if(page_index==1){
+			Integer totalRMB=systemDao.getTotalExchangeRmmbByState(user_id, aid, ExchangeState.EXCHANGED);
+			result.put("total_exchange_rmb_fen",totalRMB!=null?totalRMB:0);
+		}
+		return result.addAttribute("exchange_histories", systemDao.loadExchangeHistory(user_id,aid,page_index,count));
 	}
 
 	public ModelMap exchange_diamond(long user_id, String aid, int coins) {

@@ -15,6 +15,7 @@ import org.springframework.web.multipart.support.DefaultMultipartHttpServletRequ
 
 import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.cache.UserCacheService;
+import com.zhan.app.nearby.comm.DynamicState;
 import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.service.UserDynamicService;
 import com.zhan.app.nearby.service.UserService;
@@ -78,6 +79,7 @@ public class ImageController {
 					try {
 						String imagePath = ImageSaveUtils.saveUserImages(file, multipartRequest.getServletContext());
 						dynamic.setUser_id(user_id);
+						dynamic.setState(DynamicState.T_CREATE.ordinal());
 						dynamic.setLocal_image_name(imagePath);
 						dynamic.setCreate_time(new Date());
 						long id = userDynamicService.insertDynamic(dynamic);

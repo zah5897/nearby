@@ -5,7 +5,9 @@ import java.util.Date;
 import com.alibaba.fastjson.annotation.JSONField;
 
 public class Exchange {
+	@JSONField(serialize = false)
 	private long user_id;
+	@JSONField(serialize = false)
 	private String aid;
 	private int diamond_count;
 	private int rmb_fen;

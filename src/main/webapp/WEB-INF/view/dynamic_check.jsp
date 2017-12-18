@@ -26,15 +26,16 @@
 	<form method="post" action="">
 		<div class="panel admin-panel">
 			<div class="panel-head">
-				<strong class="icon-reorder"> 管理动态</strong>
+				<strong class="icon-reorder">&nbsp;待审核动态管理</strong>
 			</div>
 			<div class="padding border-bottom">
 				<ul class="search">
 					<li>
 						<button type="button" class="button border-green" id="checkall">
-							<span class="icon-check"></span>全选</button>
-						<button type="button" id="add_batch" class="button border-yellow">
-							<span class="icon-plus-square-o"></span>批量添加
+							<span class="icon-check"></span>全选
+						</button>
+						<button type="button" id="del_batch" class='button border-green'>
+							<span class="icon-trash-o"></span>批量核审
 						</button>
 					</li>
 				</ul>
@@ -50,14 +51,22 @@
 					<th width="5%">点赞数量</th>
 					<th width="20%">操作</th>
 				</tr>
+				 
 				<tr id="bottom">
 					<td colspan="8">
 						<div class="pagelist">
 							<a href="javascript:void(0)" onclick="return previous()">上一页</a>
-							 
 							<a id="next_flag" href="javascript:void(0)"
 								onclick="return next()">下一页</a> <a href="javascript:void(0)"
 								onclick="return page(-1)">尾页</a>
+							<!--  
+							<a href="javascript:void(0)" onclick="return previous()">上一页</a>
+							<a href="javascript:void(0)" onclick="page(1)"><span class="current">1</span></a>
+							<a href="javascript:void(0)">2</a>
+							<a href="javascript:void(0)">3</a>
+							<a href="javascript:void(0)" onclick="return next()">下一页</a>
+							<a href="javascript:void(0)" onclick="return end()">尾页</a>
+							-->
 						</div>
 					</td>
 				</tr>
@@ -71,7 +80,7 @@
 	    var pageCount = 100;
 	    //默认加载第一页
 	    $(document).ready(function(){ 
-		     page(1);
+		   page(1);
 		}); 
 		
 	    //前一页
@@ -94,7 +103,7 @@
 			if (currentPage == index) {
 				return false;
 			}
-			$.post("<%=path%>/manager/unselected_dynamic_list",{'pageIndex':index},function(result){
+			$.post("<%=path%>/manager/list_dynamic_by_state",{'pageIndex':index,'state':0},function(result){
 				 var json=JSON.parse(result);
 			        if(json.code==0){
 			        	$("table tr[id*='tr_'").each(function(i){
@@ -120,6 +129,8 @@
 					}
 					reviewTableTr(pageData[i],tr);
 				}
+			}else{
+				page(json["currentPageIndex"]);
 			}
 			refreshPageIndex(json["pageCount"],json["currentPageIndex"]);		
 		}
@@ -156,27 +167,24 @@
 				}
 				
 			}
-			$("a.pg_flag").each(function(){
+			
+			 $("a.pg_flag").each(function(){
 				 this.remove();//移除当前的元素
 			 })
 			nextAflag.before(pageIndexHtml);
-			
 		}
-		
-		
+		 
 		
 		function getItem(currentPage,i){
 			 if(i==currentPage){
-         		  return "<a  class='pg_flag' href='javascript:void(0)' onclick='return page("+i+")'><span class='current'>"+i+"</span></a>";
-         	  }else{
-         		  return "<a class='pg_flag' href='javascript:void(0)' onclick='return page("+i+")'>"+i+"</a>";
-         	  }
+          		  return "<a  class='pg_flag' href='javascript:void(0)' onclick='return page("+i+")'><span class='current'>"+i+"</span></a>";
+          	  }else{
+          		  return "<a class='pg_flag' href='javascript:void(0)' onclick='return page("+i+")'>"+i+"</a>";
+          	  }
 		}
 		
-		 
-		
-		function add(id) {
-				$.post("<%=path%>/manager/add_to_selected",{id:id,currentPage:currentPage},function(result){
+		function verify(id) {
+				$.post("<%=path%>/manager/verify_batch_singl",{id:id,currentPage:currentPage},function(result){
 			        $("#tr_"+id).remove();//移除当前的元素
 			        
 			        var json=JSON.parse(result);
@@ -195,8 +203,8 @@
 			        refreshPageIndex(json["pageCount"],json["currentPageIndex"]);
 			    });
 		}
-		function ignore(id) {
-				$.post("<%=path%>/manager/ignore",{id:id,currentPage:currentPage},function(result){
+		function illegal(id) {
+				$.post("<%=path%>/manager/dy_illegal",{id:id,currentPage:currentPage},function(result){
 			        $("#tr_"+id).remove();//移除当前的元素
 			        
 			        var json=JSON.parse(result);
@@ -216,57 +224,12 @@
 			    });
 		}
 
-		
-		function del(id) {
-			
-			$.post("<%=path%>/manager/dynamic_del",{id:id,currentPage:currentPage},function(result){
-		        $("#tr_"+id).remove();//移除当前的元素
-		        
-		        var json=JSON.parse(result);
-		        var pageData=json["pageData"];
-		        
-		        var last2tr=$("table tr").eq(-2);
-				 if(last2tr.size()==0){
-				      alert("指定的table id或行数不存在！");
-				     return;
-				 }
-				 if(pageData){
-					 reviewTableTr(pageData,last2tr);
-				 }else{
-					 page(json["currentPageIndex"]);
-				 }
-		        refreshPageIndex(json["pageCount"],json["currentPageIndex"]);
-		    });
-		 
-	}
-		function illegal(id) {
-			
-			$.post("<%=path%>/manager/illegal_unselected",{id:id,currentPage:currentPage},function(result){
-		        $("#tr_"+id).remove();//移除当前的元素
-		        
-		        var json=JSON.parse(result);
-		        var pageData=json["pageData"];
-		        
-		        var last2tr=$("table tr").eq(-2);
-				 if(last2tr.size()==0){
-				      alert("指定的table id或行数不存在！");
-				     return;
-				 }
-				 if(pageData){
-					 reviewTableTr(pageData,last2tr);
-				 }else{
-					 page(json["currentPageIndex"]);
-				 }
-		        refreshPageIndex(json["pageCount"],json["currentPageIndex"]);
-		    });
-		 
-	}
 	  //
       function reviewTableTr(pageData,tr) {
 			 //获取table倒数第二行 $("#tab tr").eq(-2)
 			 //var last2tr=$("table tr").eq(row);
 			 
-    	     var currentItem=$("tr#tr_"+pageData["id"]);
+			 var currentItem=$("tr#tr_"+pageData["id"]);
 			 
 			 if(currentItem.length>0){
 				 return;
@@ -279,19 +242,18 @@
 			 nick_name=nick_name==undefined?"":nick_name;
 			 
 			 toAdd+="<td>"+nick_name+"</td>";
-			 toAdd+="<td><img src='"+pageData.thumb+"' alt='"+pageData.origin+"'   height='50' onclick='show(this)'/></td>";
-			 toAdd+="<td style='word-wrap:break-word'>"+pageData["description"]+"</td>";
+			 toAdd+="<td><img  src='"+pageData.thumb+"' alt='"+pageData.origin+"'  height='50' onclick='show(this)'/></td>";
+			 toAdd+="<td>"+pageData["description"]+"</td>";
 			 toAdd+="<td>"+pageData["city"]+"</td>";
 			 toAdd+="<td>"+pageData["create_time"]+"</td>";
 			 toAdd+="<td>"+pageData["praise_count"]+"</td>";
-			 toAdd+="<td><div class='button-group'><a class='button border-main' href='javascript:void(0)'	onclick='return ignore("+pageData["id"]+")'><span class='icon-edit'></span>忽略</a><a class='button border-green' href='javascript:void(0)'	onclick='return add("+pageData["id"]+")'><span class='icon-plus-square-o'></span>添加到首页</a><a class='button border-red' href='javascript:void(0)'	onclick='return del("+pageData["id"]+")'><span class='icon-trash-o'></span>删除</a><a class='button border-yellow' href='javascript:void(0)'	onclick='return illegal("+pageData["id"]+")'><span class='icon-trash-o'></span>违规</a></div></td>";
+			 toAdd+="<td><div class='button-group'><a class='button border-green' href='javascript:void(0)'	onclick='return verify("+pageData["id"]+")'><span class='icon-trash-o'></span>审核通过</a><a class='button border-yellow' href='javascript:void(0)'	onclick='return illegal("+pageData["id"]+")'><span class='icon-trash-o'></span>违规</a></div></td>";
 			 toAdd+="</tr>";
 			 tr.after(toAdd);
 		}
 	  
-	  
-        function show(img){  
-		    parent.showOriginImg(img);
+	    function show(img){
+	    	parent.showOriginImg(img);
 	    }
 		$("#checkall").click(function() {
 			$("input[name='id[]']").each(function() {
@@ -302,17 +264,19 @@
 				}
 			});
 		})
-		$("#add_batch").click(function() {
+		$("#del_batch").click(function() {
 			var chk_value =[]; 
 			$('input[name="id[]"]:checked').each(function(){ 
 			    chk_value.push($(this).val()); 
 			});
 			if(chk_value.length>0){
 				    var ids=JSON.stringify(chk_value);
-					$.post("<%=path%>/manager/add_batch_to_selected", {
+					$.post("<%=path%>/manager/verify_batch", {
 							ids : ids,
 							currentPage : currentPage
 						}, function(result) {
+							// $("#tr_"+id).remove();//移除当前的元素
+							//reviewTableTr(result);
 
 							var json = JSON.parse(result);
 							var pageData = json["pageData"];
@@ -338,6 +302,11 @@
 						return true;
 					}
 				})
+				
+				function imgClick(url){  
+			     var obj = '<img src='+url+'/>';
+			     alert(obj); 
+		        }
 	</script>
 </body>
 </html>

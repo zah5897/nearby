@@ -22,6 +22,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.zhan.app.nearby.bean.ManagerUser;
 import com.zhan.app.nearby.bean.Topic;
 import com.zhan.app.nearby.bean.UserDynamic;
+import com.zhan.app.nearby.comm.DynamicState;
 import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.service.ManagerService;
 import com.zhan.app.nearby.util.ImagePathUtil;
@@ -140,9 +141,16 @@ public class ManagerController {
 		return pageCount == 0 ? 1 : pageCount;
 	}
 
-	
-	
-	
+	private int getPageCountByState(int state) {
+		int count = managerService.getPageCountByState(state);
+		int pageCount = count / 10;
+		if (count % 10 > 0) {
+			pageCount += 1;
+		}
+
+		return pageCount == 0 ? 1 : pageCount;
+	}
+
 	@RequestMapping(value = "/remove_from_selected")
 	public @ResponseBody ModelMap remove_from_selected(long id, int currentPage) {
 		managerService.removeFromSelected(id);
@@ -402,7 +410,7 @@ public class ManagerController {
 	}
 
 	@RequestMapping(value = "/edit_user_from_found_list")
-	public @ResponseBody ModelMap edit_user_from_found_list(String ids,int state, int currentPage) {
+	public @ResponseBody ModelMap edit_user_from_found_list(String ids, int state, int currentPage) {
 		if (TextUtils.isEmpty(ids)) {
 			return ResultUtil.getResultMap(ERROR.ERR_FAILED);
 		}
@@ -411,10 +419,11 @@ public class ManagerController {
 		for (int i = 0; i < len; i++) {
 			String strId = idsArray.getString(i);
 			long id = Long.parseLong(strId);
-			managerService.editUserFromFound(id,state);
+			managerService.editUserFromFound(id, state);
 		}
 		return list_new_user(currentPage);
 	}
+
 	@RequestMapping(value = "/dynamic_del")
 	public @ResponseBody ModelMap dynamic_del(long id, int currentPage) {
 		managerService.removeUserDynamic(id);
@@ -434,4 +443,188 @@ public class ManagerController {
 
 		return r;
 	}
+	//未选中首页内执行违规操作
+	@RequestMapping(value = "/illegal_unselected")
+	public @ResponseBody ModelMap illegal_unselected(long id, int currentPage) {
+		managerService.updateDynamicState(id, DynamicState.T_ILLEGAL);
+		ModelMap r = ResultUtil.getResultOKMap();
+		r.put("pageCount", getPageCount(false));
+		List<UserDynamic> dys = managerService.getUnSelected(currentPage, 10);
+		if (dys != null && dys.size() > 0) {
+			UserDynamic dy = dys.get(dys.size() - 1);
+			if (dy.getId() < id) {
+				ImagePathUtil.completeDynamicPath(dy, true);
+				r.put("pageData", dy);
+			}
+			r.put("currentPageIndex", currentPage);
+		} else {
+			r.put("currentPageIndex", currentPage - 1 > 0 ? currentPage - 1 : 1);
+		}
+		return r;
+	}
+
+	// 动态违规接口
+	@RequestMapping(value = "/dy_illegal")
+	public @ResponseBody ModelMap dy_illegal(long id, int currentPage) {
+		managerService.updateDynamicState(id,DynamicState.T_ILLEGAL);
+		ModelMap r = ResultUtil.getResultOKMap();
+
+		List<UserDynamic> dys = managerService.getDyanmicByState(currentPage, 10, DynamicState.T_CREATE);
+		r.put("pageCount", getPageCountByState(DynamicState.T_CREATE.ordinal()));
+		if (dys != null && dys.size() > 0) {
+			UserDynamic dy = dys.get(dys.size() - 1);
+			ImagePathUtil.completeDynamicPath(dy, true);
+			r.put("pageData", dy);
+			r.put("currentPageIndex", currentPage);
+		} else {
+			r.put("currentPageIndex", currentPage - 1 > 0 ? currentPage - 1 : 1);
+		}
+		return r;
+	}
+
+	// 根据状态列出动态
+	@RequestMapping(value = "/list_dynamic_by_state")
+	public @ResponseBody ModelMap list_dynamic_by_state(int pageIndex, int state) {
+		int pageCount = getPageCountByState(state);
+		if (pageIndex == 0) {
+			pageIndex = 1;
+		} else if (pageIndex < 0) {
+			pageIndex = pageCount;
+		}
+		List<UserDynamic> dys = managerService.getDyanmicByState(pageIndex, 10,DynamicState.values()[state]);
+		if (dys != null && dys.size() > 0) {
+			ImagePathUtil.completeDynamicsPath(dys, true);
+		}
+
+		ModelMap reMap = ResultUtil.getResultOKMap();
+		reMap.put("selecteds", dys);
+		reMap.put("pageCount", pageCount);
+		reMap.put("currentPageIndex", pageIndex);
+		return reMap;
+	}
+
+	   // 批量审核通过
+		@RequestMapping(value = "/verify_batch")
+		public @ResponseBody ModelMap verify_batch(String ids, int currentPage) {
+
+			if (TextUtils.isEmpty(ids)) {
+				return ResultUtil.getResultMap(ERROR.ERR_FAILED);
+			}
+			JSONArray idsArray = JSON.parseArray(ids);
+
+			int len = idsArray.size();
+			for (int i = 0; i < len; i++) {
+				String strId = idsArray.getString(i);
+				long id = Long.parseLong(strId);
+				managerService.updateDynamicState(id,DynamicState.T_FORMAL);
+			}
+			ModelMap r = ResultUtil.getResultOKMap();
+			r.put("pageCount", getPageCountByState(DynamicState.T_CREATE.ordinal()));
+			List<UserDynamic> dys = managerService.getDyanmicByState(currentPage, 10,DynamicState.T_CREATE);
+			if (dys != null && dys.size() > 0) {
+				ImagePathUtil.completeDynamicsPath(dys, true);
+				if (len >= dys.size()) {
+					r.put("pageData", dys);
+				} else {
+					int from = dys.size() - len;
+					List<UserDynamic> subList = dys.subList(from, dys.size());
+					r.put("pageData", subList);
+				}
+				r.put("currentPageIndex", currentPage);
+			} else {
+				r.put("currentPageIndex", currentPage - 1 > 0 ? currentPage - 1 : 1);
+			}
+			return r;
+		}
+		
+		// 批量审核通过
+		@RequestMapping(value = "/verify_batch_singl")
+		public @ResponseBody ModelMap verify_batch_singl(long id, int currentPage) {
+			
+			managerService.updateDynamicState(id,DynamicState.T_FORMAL);
+			ModelMap r = ResultUtil.getResultOKMap();
+			r.put("pageCount", getPageCountByState(DynamicState.T_CREATE.ordinal()));
+			List<UserDynamic> dys = managerService.getDyanmicByState(currentPage, 10,DynamicState.T_CREATE);
+			if (dys != null && dys.size() > 0) {
+				UserDynamic dy = dys.get(dys.size() - 1);
+				ImagePathUtil.completeDynamicPath(dy, true);
+				r.put("pageData", dy);
+				r.put("currentPageIndex", currentPage);
+			} else {
+				r.put("currentPageIndex", currentPage - 1 > 0 ? currentPage - 1 : 1);
+			}
+			return r;
+		}
+		
+		
+		// 删除违规动态（多个）
+		@RequestMapping(value = "/removes_illegal_dynamics")
+		public @ResponseBody ModelMap removes_illegal_dynamics(String ids, int currentPage) {
+
+			if (TextUtils.isEmpty(ids)) {
+				return ResultUtil.getResultMap(ERROR.ERR_FAILED);
+			}
+			JSONArray idsArray = JSON.parseArray(ids);
+
+			int len = idsArray.size();
+			for (int i = 0; i < len; i++) {
+				String strId = idsArray.getString(i);
+				long id = Long.parseLong(strId);
+				managerService.removeDyanmicByState(id, DynamicState.T_ILLEGAL);
+			}
+			ModelMap r = ResultUtil.getResultOKMap();
+			r.put("pageCount", getPageCountByState(DynamicState.T_ILLEGAL.ordinal()));
+			List<UserDynamic> dys = managerService.getDyanmicByState(currentPage, 10,DynamicState.T_ILLEGAL);
+			if (dys != null && dys.size() > 0) {
+				ImagePathUtil.completeDynamicsPath(dys, true);
+				if (len >= dys.size()) {
+					r.put("pageData", dys);
+				} else {
+					int from = dys.size() - len;
+					List<UserDynamic> subList = dys.subList(from, dys.size());
+					r.put("pageData", subList);
+				}
+				r.put("currentPageIndex", currentPage);
+			} else {
+				r.put("currentPageIndex", currentPage - 1 > 0 ? currentPage - 1 : 1);
+			}
+			return r;
+		}
+		// 删除违规动态（单个）
+		@RequestMapping(value = "/removes_illegal_dynamic")
+		public @ResponseBody ModelMap removes_illegal_dynamic(long id, int currentPage) {
+			managerService.removeDyanmicByState(id, DynamicState.T_ILLEGAL);
+			ModelMap r = ResultUtil.getResultOKMap();
+
+			List<UserDynamic> dys = managerService.getDyanmicByState(currentPage, 10,DynamicState.T_ILLEGAL);
+			r.put("pageCount", getPageCountByState(DynamicState.T_ILLEGAL.ordinal()));
+			if (dys != null && dys.size() > 0) {
+				UserDynamic dy = dys.get(dys.size() - 1);
+				ImagePathUtil.completeDynamicPath(dy, true);
+				r.put("pageData", dy);
+				r.put("currentPageIndex", currentPage);
+			} else {
+				r.put("currentPageIndex", currentPage - 1 > 0 ? currentPage - 1 : 1);
+			}
+			return r;
+		}
+
+		// 违规动态恢复到待审核区
+				@RequestMapping(value = "/backToCheck")
+				public @ResponseBody ModelMap backToCheck(long id, int currentPage) {
+					managerService.updateDynamicState(id, DynamicState.T_CREATE);
+					ModelMap r = ResultUtil.getResultOKMap();
+
+					List<UserDynamic> dys = managerService.getDyanmicByState(currentPage, 10,DynamicState.T_ILLEGAL);
+					r.put("pageCount", getPageCountByState(DynamicState.T_ILLEGAL.ordinal()));
+					if (dys != null && dys.size() > 0) {
+						UserDynamic dy = dys.get(dys.size() - 1);
+						ImagePathUtil.completeDynamicPath(dy, true);
+						r.put("pageData", dy);
+						r.put("currentPageIndex", currentPage);
+					} else {
+						r.put("currentPageIndex", currentPage - 1 > 0 ? currentPage - 1 : 1);
+					}
+					return r;
+				}
 }

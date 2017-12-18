@@ -12,6 +12,7 @@ import com.zhan.app.nearby.bean.ManagerUser;
 import com.zhan.app.nearby.bean.Topic;
 import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.cache.UserCacheService;
+import com.zhan.app.nearby.comm.DynamicState;
 import com.zhan.app.nearby.comm.FoundUserRelationship;
 import com.zhan.app.nearby.dao.ManagerDao;
 
@@ -28,9 +29,17 @@ public class ManagerService {
 	public int getHomeFoundSelectedCount() {
 		return managerDao.getHomeFoundSelectedCount();
 	}
+	
+	public int getPageCountByState(int state) {
+		return managerDao.getPageCountByState(state);
+	}
 
 	public List<UserDynamic> getHomeFoundSelected(int pageIndex, int pageSize) {
 		return managerDao.getHomeFoundSelected(pageIndex, pageSize);
+	}
+	//根据状态获取动态
+	public List<UserDynamic> getDyanmicByState(int pageIndex, int pageSize,DynamicState state) {
+		return managerDao.getDyanmicByState(pageIndex, pageSize,state);
 	}
 
 	public int getUnSelectedCount() {
@@ -43,6 +52,10 @@ public class ManagerService {
 
 	public int removeFromSelected(long id) {
 		return managerDao.removeFromSelected(id);
+	}
+	
+	public int removeDyanmicByState(long id,DynamicState state) {
+		return managerDao.removeDyanmicByState(id,state);
 	}
 	public int removeUserDynamic(long id) {
 		return managerDao.removeUserDynamic(id);
@@ -125,4 +138,12 @@ public class ManagerService {
 			}
 		}.start();
 	}
+	
+	
+	
+	//动态审核违规
+	public int updateDynamicState(long id,DynamicState state) {
+		return managerDao.updateDynamicState(id, state);
+	}
+	
 }

@@ -29,7 +29,9 @@
   <h2><span class="icon-user"></span>基本设置</h2>
   <ul style="display:block">
     <li><a href="<%=path %>/manager/forword?path=dynamic_selected" target="right"><span class="icon-caret-right"></span>首页推荐</a></li>
-    <li><a href="<%=path %>/manager/forword?path=dynamic_unselected" target="right"><span class="icon-caret-right"></span>用户动态</a></li>
+    <li><a href="<%=path %>/manager/forword?path=dynamic_unselected" target="right"><span class="icon-caret-right"></span>非首页动态(已过审)</a></li>
+    <li><a href="<%=path %>/manager/forword?path=dynamic_check" target="right"><span class="icon-caret-right"></span>待审核动态</a></li>
+    <li><a href="<%=path %>/manager/forword?path=dynamic_illegal" target="right"><span class="icon-caret-right"></span>违规动态</a></li>
     <li><a href="<%=path %>/manager/forword?path=topic_manager" target="right"><span class="icon-caret-right"></span>话题管理</a></li>
     <li><a href="<%=path %>/manager/forword?path=new_user_list" target="right"><span class="icon-caret-right"></span>新增用户</a></li>
     <li><a href="<%=path %>/manager/forword?path=gift_manager" target="right"><span class="icon-caret-right"></span>礼物管理</a></li>

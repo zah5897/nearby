@@ -12,6 +12,7 @@ import com.zhan.app.nearby.bean.ManagerUser;
 import com.zhan.app.nearby.bean.Topic;
 import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.bean.mapper.DynamicMapper;
+import com.zhan.app.nearby.comm.DynamicState;
 import com.zhan.app.nearby.comm.FoundUserRelationship;
 import com.zhan.app.nearby.comm.ImageStatus;
 import com.zhan.app.nearby.comm.UserType;
@@ -41,12 +42,21 @@ public class ManagerDao extends BaseDao {
 
 	}
 
+	public List<UserDynamic> getDyanmicByState(int pageIndex, int pageSize,DynamicState state) {
+		String sql = "select dynamic.* ,user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday,user.type from "
+				+ TABLE_USER_DYNAMIC + " dynamic  left join t_user user on  dynamic.user_id=user.user_id  where dynamic.state=?   order by dynamic.id desc limit ?,?";
+		return jdbcTemplate.query(sql,
+				new Object[] { state.ordinal(), (pageIndex - 1) * pageSize, pageSize },
+				new DynamicMapper());
+
+	}
+
 	public List<UserDynamic> getUnSelected(int pageIndex, int pageSize) {
 		String sql = "select dynamic.* ,user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday,user.type from "
 				+ TABLE_USER_DYNAMIC
 				+ " dynamic left join t_user user on  dynamic.user_id=user.user_id  where dynamic.id not in(select dynamic_id from "
 				+ TABLE_HOME_FOUND_SELECTED
-				+ " where selected_state=? or selected_state=? )   order by dynamic.id desc limit ?,?";
+				+ " where selected_state=? or selected_state=? )  and dynamic.state=1  order by dynamic.id desc limit ?,?";
 		return jdbcTemplate.query(sql, new Object[] { ImageStatus.SELECTED.ordinal(), ImageStatus.IGNORE.ordinal(),
 				(pageIndex - 1) * pageSize, pageSize }, new DynamicMapper());
 
@@ -54,14 +64,18 @@ public class ManagerDao extends BaseDao {
 
 	public int getHomeFoundSelectedCount() {
 		String sql = "select  count(*) from " + TABLE_USER_DYNAMIC + " dynamic left join " + TABLE_HOME_FOUND_SELECTED
-				+ " selected on dynamic.id=selected.dynamic_id    where selected.selected_state=?";
+				+ " selected on dynamic.id=selected.dynamic_id    where selected.selected_state=? and dynamic.state=1 ";
 		return jdbcTemplate.queryForObject(sql, new Object[] { ImageStatus.SELECTED.ordinal() }, Integer.class);
 	}
-
+	public int getPageCountByState(int state) {
+		String sql = "select  count(*) from " + TABLE_USER_DYNAMIC + " where state=?";
+		return jdbcTemplate.queryForObject(sql, new Object[] {state }, Integer.class);
+	}
+    //获取未选中的（前提为被审核通过的）
 	public int getUnSelectedCount() {
 		String sql = "select count(*) from " + TABLE_USER_DYNAMIC
 				+ " dynamic    where dynamic.id not in(select dynamic_id from " + TABLE_HOME_FOUND_SELECTED
-				+ " where selected_state=? or selected_state=?)";
+				+ " where selected_state=? or selected_state=?) and dynamic.state=1 ";
 		return jdbcTemplate.queryForObject(sql,
 				new Object[] { ImageStatus.SELECTED.ordinal(), ImageStatus.SELECTED.ordinal() }, Integer.class);
 	}
@@ -69,6 +83,17 @@ public class ManagerDao extends BaseDao {
 	public int removeFromSelected(long id) {
 		String sql = "delete from " + TABLE_HOME_FOUND_SELECTED + " where dynamic_id=? and selected_state=?";
 		return jdbcTemplate.update(sql, new Object[] { id, ImageStatus.SELECTED.ordinal() });
+	}
+	
+	public int removeDyanmicByState(long id,DynamicState state) {
+		String sql = "delete from " + TABLE_USER_DYNAMIC + " where id=? and state=?";
+		return jdbcTemplate.update(sql, new Object[] { id, state.ordinal() });
+	}
+	
+	//修改动态的状态
+	public int updateDynamicState(long id,DynamicState state) {
+		String sql = "update  t_user_dynamic set state=? where id=? ";
+		return jdbcTemplate.update(sql, new Object[] { state.ordinal(),id});
 	}
 
 	public int removeUserDynamic(long id) {

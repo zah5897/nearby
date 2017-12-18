@@ -63,6 +63,8 @@ public class UserDynamic implements Serializable {
 	private long topic_id;
 	private String ip;
 
+	
+	private int state;
 	public long getId() {
 		return id;
 	}
@@ -246,6 +248,14 @@ public class UserDynamic implements Serializable {
 
 	public void setIp(String ip) {
 		this.ip = ip;
+	}
+
+	public int getState() {
+		return state;
+	}
+
+	public void setState(int state) {
+		this.state = state;
 	}
 
 }

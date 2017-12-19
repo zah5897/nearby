@@ -300,6 +300,7 @@ public class MainService {
 			ERROR error = ERROR.ERR_FAILED;
 			error.setValue(code);
 			error.setErrorMsg("钻石兑换失败");
+			//modify exchange fun. to test git.
 			return ResultUtil.getResultMap(error);
 		}
 	}

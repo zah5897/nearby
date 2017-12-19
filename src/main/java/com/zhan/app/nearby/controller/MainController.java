@@ -121,5 +121,4 @@ public class MainController {
 		return mainService.exchange_rmb(user_id,aid,diamond);
 	}
 	
-	
 }

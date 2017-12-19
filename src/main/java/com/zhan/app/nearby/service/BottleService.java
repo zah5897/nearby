@@ -68,7 +68,7 @@ public class BottleService {
 	public void insert(Bottle bottle) {
 		bottle.setCreate_time(new Date());
 		bottleDao.insert(bottle);
-		if (bottle.getUser_id() > 0) {
+		if (bottle.getId() > 0) {
 			bottleDao.insertToPool(bottle);
 		}
 	}

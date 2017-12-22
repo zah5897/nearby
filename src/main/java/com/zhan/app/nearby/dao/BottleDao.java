@@ -49,7 +49,7 @@ public class BottleDao extends BaseDao {
 	}
 
 	public int insertToPool(Bottle bottle) {
-		String sql = "insert into " + TABLE_BOTTLE_POOL + " (bottle_id,user_id,type,create_time) vaules(?,?,?,?)";
+		String sql = "insert into " + TABLE_BOTTLE_POOL + " (bottle_id,user_id,type,create_time) values (?,?,?,?)";
 		return jdbcTemplate.update(sql,
 				new Object[] { bottle.getId(), bottle.getUser_id(), bottle.getType(), bottle.getCreate_time() });
 	}

@@ -24,6 +24,7 @@ public class Bottle {
 	private User sender;
 	@ColumnType
 	private List<User> scan_user_list;
+	@ColumnType
 	private int view_nums;
 	public long getId() {
 		return id;

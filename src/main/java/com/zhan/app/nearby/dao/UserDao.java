@@ -210,6 +210,16 @@ public class UserDao extends BaseDao {
 				new BeanPropertyRowMapper<User>(User.class));
 		return users;
 	}
+	
+	
+	public List<User> getRandomMeetBottleUser(int realCount) {
+		String sql = "select * from t_user where user_id not in (select uid from t_found_user_relationship where state=? order by uid desc)  and avatar<>?  order by  RAND() limit ?";
+		List<User> users = jdbcTemplate.query(sql,
+				new Object[] { FoundUserRelationship.GONE.ordinal(), "", realCount },
+				new BeanPropertyRowMapper<User>(User.class));
+		return users;
+	}
+	
 
 	public String getUserAvatar(long user_id) {
 		String sql = "select avatar from t_user where user_id=?";

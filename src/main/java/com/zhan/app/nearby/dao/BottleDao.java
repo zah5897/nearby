@@ -15,6 +15,7 @@ import org.springframework.stereotype.Repository;
 import com.zhan.app.nearby.bean.Bottle;
 import com.zhan.app.nearby.bean.City;
 import com.zhan.app.nearby.bean.User;
+import com.zhan.app.nearby.bean.type.BottleType;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.TextUtils;
 
@@ -167,9 +168,9 @@ public class BottleDao extends BaseDao {
 	public List<Bottle> getMineBottles(long user_id, long last_id, int page_size) {
 		long real_last_id = last_id <= 0 ? Integer.MAX_VALUE : last_id;
 		String sql="select bottle.*,coalesce(bs.view_nums,0) as view_nums from " + TABLE_BOTTLE + " bottle left join t_bottle_scan_nums bs on bottle.id=bs.bottle_id "
-				+ "  where bottle.user_id=? and bottle.id<? order by bottle.id desc limit ?";
+				+ "  where bottle.user_id=? and bottle.id<? and bottle.type<>? order by bottle.id desc limit ?";
 		return jdbcTemplate.query(sql,
-				new Object[] { user_id, real_last_id, page_size }, new BeanPropertyRowMapper<Bottle>(Bottle.class));
+				new Object[] { user_id, real_last_id,BottleType.MEET.ordinal(), page_size }, new BeanPropertyRowMapper<Bottle>(Bottle.class));
 	}
 
 	public int delete(long user_id, long bottle_id) {
@@ -216,6 +217,12 @@ public class BottleDao extends BaseDao {
 	
 	private String getAgeSql(){
 		return " (year(now())-year(u.birthday)-1) + ( DATE_FORMAT(u.birthday, '%m%d') <= DATE_FORMAT(NOW(), '%m%d') ) as age ";
+	}
+
+	public boolean isExistMeetTypeBottle(long user_id) {
+		int pool_count=jdbcTemplate.queryForObject("select count(*) from t_bottle_pool where user_id=? and type=?", new Object[] {user_id,BottleType.MEET.ordinal()},Integer.class);
+		int bottle_count=jdbcTemplate.queryForObject("select count(*) from t_bottle where user_id=? and type=?", new Object[] {user_id,BottleType.MEET.ordinal()},Integer.class);
+		return pool_count>0||bottle_count>0;
 	}
 	
 }

@@ -25,6 +25,7 @@ import com.zhan.app.nearby.dao.VipDao;
 import com.zhan.app.nearby.exception.AppException;
 import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.util.AddressUtil;
+import com.zhan.app.nearby.util.DateTimeUtil;
 import com.zhan.app.nearby.util.HttpService;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.MD5Util;
@@ -253,6 +254,9 @@ public class UserService {
 		if (user == null) {
 			return ResultUtil.getResultMap(ERROR.ERR_FAILED, "not exist");
 		}
+		
+		user.setAge(DateTimeUtil.getAge(user.getBirthday()));
+		
 		user.setImages(userDynamicService.getUserDynamic(user_id, 0, 5));
 		// //
 		// Map<String, Object> userJson = new HashMap<>();

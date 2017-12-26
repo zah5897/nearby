@@ -12,6 +12,7 @@ import org.springframework.ui.ModelMap;
 import com.zhan.app.nearby.bean.Bottle;
 import com.zhan.app.nearby.bean.User;
 import com.zhan.app.nearby.bean.VipUser;
+import com.zhan.app.nearby.bean.type.BottleType;
 import com.zhan.app.nearby.dao.BottleDao;
 import com.zhan.app.nearby.dao.VipDao;
 import com.zhan.app.nearby.exception.ERROR;
@@ -53,6 +54,13 @@ public class BottleService {
 			}
 			bolltes = bottleDao.getBottlesByGender(user_id, last_id, page_size, look_sex == null ? -1 : look_sex);
 		}
+		
+		for(Bottle bottle:bolltes) {
+			if(bottle.getType()==BottleType.MEET.ordinal()) {
+				ImagePathUtil.completeAvatarPath(bottle.getSender(), true);
+			}
+		}
+		
 		result.addAttribute("bottles", bolltes);
 		return result;
 	}
@@ -119,5 +127,9 @@ public class BottleService {
 			}
 		}
 		return ResultUtil.getResultOKMap().addAttribute("ids", bottle_id);
+	}
+	
+	public boolean isExistMeetTypeBottle(long user_id) {
+		return bottleDao.isExistMeetTypeBottle(user_id);
 	}
 }

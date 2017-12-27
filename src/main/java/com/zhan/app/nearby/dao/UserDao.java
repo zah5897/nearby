@@ -19,6 +19,7 @@ import com.zhan.app.nearby.comm.Relationship;
 import com.zhan.app.nearby.comm.UserType;
 import com.zhan.app.nearby.util.DateTimeUtil;
 import com.zhan.app.nearby.util.SQLUtil;
+import com.zhan.app.nearby.util.TextUtils;
 
 @Repository("userDao")
 public class UserDao extends BaseDao {
@@ -45,6 +46,33 @@ public class UserDao extends BaseDao {
 	public List<?> getList() {
 		List<User> list = jdbcTemplate.query("select *from t_user user", new SimpkleUserMapper());
 		return list;
+	}
+	/**
+	 * 根据类型获取用户
+	 * @param pageSize
+	 * @param currentPage
+	 * @param type
+	 * @return
+	 */
+	public List<User> getUsers(int pageSize, int currentPage,int type,String keyword) {
+		if(TextUtils.isEmpty(keyword)) {
+			return  jdbcTemplate.query("select *from t_user  where type=? order by user_id desc limit ?,?",new Object[] {type,(currentPage-1)*pageSize,pageSize}, new BeanPropertyRowMapper<User>(User.class));
+		}else {
+			return jdbcTemplate.query("select *from t_user  where type=? and nick_name like ? order by user_id desc limit ?,?",new Object[] {type,"%"+keyword+"%",(currentPage-1)*pageSize,pageSize}, new BeanPropertyRowMapper<User>(User.class));
+		}
+	}
+	/**
+	 * 获取所有用户
+	 * @param pageSize
+	 * @param currentPage
+	 * @return
+	 */
+	public List<User> getUsers(int pageSize, int currentPage,String keyword) {
+		if(TextUtils.isEmpty(keyword)) {
+			return jdbcTemplate.query("select *from t_user order by user_id desc limit ?,?",new Object[] {(currentPage-1)*pageSize,pageSize}, new BeanPropertyRowMapper<User>(User.class));
+		}else {
+			return jdbcTemplate.query("select *from t_user where nick_name like ? order by user_id desc limit ?,?",new Object[] {"%"+keyword+"%",(currentPage-1)*pageSize,pageSize}, new BeanPropertyRowMapper<User>(User.class));
+		}
 	}
 
 	public User findUserByMobile(String mobile) {
@@ -245,5 +273,50 @@ public class UserDao extends BaseDao {
 	 */
 	public List<DynamicMessage> getUserDynamicMsgs(long user_id) {
 		return null;
+	}
+
+	/**
+	 * 获取用户总数
+	 * @return
+	 */
+	public int getUserSize(String keyword) {
+		if(TextUtils.isEmpty(keyword)) {
+			return jdbcTemplate.queryForObject("select count(*) from t_user", Integer.class);
+		}else {
+			return jdbcTemplate.queryForObject("select count(*) from t_user where nick_name like ?",new Object[] {"%"+keyword+"%"}, Integer.class);
+		}
+		
+	}
+	 /**
+	  * 根据类型获取用户总数
+	  * @param type
+	  * @return
+	  */
+	public int getUserSize(int type,String keyword) {
+		if(TextUtils.isEmpty(keyword)) {
+			return jdbcTemplate.queryForObject("select count(*) from t_user where type=?",new Object[] {type}, Integer.class);
+		}else {
+			return jdbcTemplate.queryForObject("select count(*) from t_user where type=? and nick_name like ?",new Object[] {type,"%"+keyword+"%"}, Integer.class);
+		}
+		
+	}
+
+	/**
+	 * 获取发现黑名单用户
+	 * @param pageSize
+	 * @param pageIndex
+	 * @return
+	 */
+	public List<User> getFoundBlackUsers(int pageSize, int pageIndex) {
+		String sql="select u.* from t_found_user_relationship bu left join t_user u on bu.uid=u.user_id  where bu.state=? order by bu.uid desc limit ?,?";
+		return jdbcTemplate.query(sql,new Object[] {FoundUserRelationship.GONE.ordinal(),(pageIndex-1)*pageSize,pageSize} ,new BeanPropertyRowMapper<User>(User.class));
+	}
+
+	/**
+	 * 获取发现用户黑名单总数
+	 * @return
+	 */
+	public int getFoundBlackUsers() {
+		 return jdbcTemplate.queryForObject("select count(*) from t_found_user_relationship where state=?",new Object[] {FoundUserRelationship.GONE.ordinal()}, Integer.class);
 	}
 }

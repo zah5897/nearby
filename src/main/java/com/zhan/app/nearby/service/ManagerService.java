@@ -1,5 +1,6 @@
 package com.zhan.app.nearby.service;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -10,11 +11,13 @@ import org.springframework.transaction.annotation.Transactional;
 import com.easemob.server.example.Main;
 import com.zhan.app.nearby.bean.ManagerUser;
 import com.zhan.app.nearby.bean.Topic;
+import com.zhan.app.nearby.bean.User;
 import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.cache.UserCacheService;
 import com.zhan.app.nearby.comm.DynamicState;
 import com.zhan.app.nearby.comm.FoundUserRelationship;
 import com.zhan.app.nearby.dao.ManagerDao;
+import com.zhan.app.nearby.dao.UserDao;
 
 @Service
 @Transactional("transactionManager")
@@ -91,11 +94,24 @@ public class ManagerService {
 		managerDao.delTopic(id);
 	}
 
-	public int newUserCount() {
-		return managerDao.getNewUserCount();
+	/**
+	 * 根据时间限制获取新增用户数量
+	 * @param type
+	 * @return
+	 */
+	public int newUserCount(int type) {
+		return managerDao.getNewUserCount(type);
 	}
-	public List<ManagerUser> listNewUser(int pageIndex, int pageSize) {
-		return managerDao.listNewUser(pageIndex, pageSize);
+	
+	/**
+	 * 根据限制获取新增用户
+	 * @param pageIndex
+	 * @param pageSize
+	 * @param type
+	 * @return
+	 */
+	public List<ManagerUser> listNewUser(int pageIndex, int pageSize,int type) {
+		return managerDao.listNewUser(pageIndex, pageSize,type);
 	}
 	
 	public int editUserFromFound(long uid,int state) {
@@ -144,6 +160,42 @@ public class ManagerService {
 	//动态审核违规
 	public int updateDynamicState(long id,DynamicState state) {
 		return managerDao.updateDynamicState(id, state);
+	}
+
+	/**
+	 * 获取所有用户
+	 * @param pageSize
+	 * @param currentPage
+	 * @return
+	 */
+	public List<User> getAllUser(int pageSize, int currentPage,int type,String keyword) {
+		return userService.getAllUser(pageSize,currentPage,type,keyword);
+	}
+
+	/**
+	 * 获取用户总数
+	 * @return
+	 */
+	public int getUserSize(int type,String keyword) {
+		return userService.getUserSize(type,keyword);
+	}
+
+	/**
+	 * 获取发现黑名单用户
+	 * @param pageSize
+	 * @param pageIndex
+	 * @return
+	 */
+	public List<User> getFoundBlackUsers(int pageSize, int pageIndex) {
+		return userService.getFoundBlackUsers(pageSize,pageIndex);
+	}
+
+	/**
+	 * 获取黑名单总数
+	 * @return
+	 */
+	public int getFoundBlackUsers() {
+		return userService.getFoundBlackUsers();
 	}
 	
 }

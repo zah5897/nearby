@@ -1,5 +1,6 @@
 package com.zhan.app.nearby.dao;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -156,13 +157,38 @@ public class ManagerDao extends BaseDao {
 		}
 	}
 
-	public int getNewUserCount() {
-		String sql = "select count(*) from t_user where type=? and  to_days(create_time) = to_days(now());";
+	/**
+	 * 根据限制条件获取新增用户总数
+	 * @param type
+	 * @return
+	 */
+	public int getNewUserCount(int type) {
+		String sql="";
+		if(type==-1) { //今日
+			sql = "select count(*) from t_user where type=? and  to_days(create_time) = to_days(now())";
+		}else if(type==0){
+			sql = "select count(*) from t_user where type=? and  to_days(create_time) >= (to_days(now())-2)";
+		}else if(type==1) {
+			sql = "select count(*) from t_user where type=? and  to_days(create_time) >= (to_days(now())-7)";
+		}else if(type==2) {
+			sql = "select count(*) from t_user where type=? and  to_days(create_time) >= (to_days(now())-30)";
+		}
 		return jdbcTemplate.queryForObject(sql, new Object[] { UserType.OFFIEC.ordinal() }, int.class);
 	}
 
-	public List<ManagerUser> listNewUser(int pageIndex, int pageSize) {
-		String sql = "select user.user_id ,user.nick_name,user.avatar,user.sex,user.type,coalesce(ship.state,0) as state from t_user user left join t_found_user_relationship ship on user.user_id=ship.uid where  type=? and  to_days(user.create_time) = to_days(now()) order by user.user_id desc limit ?,?";
+	public List<ManagerUser> listNewUser(int pageIndex, int pageSize,int type) {
+		
+		String sql="select user.user_id ,user.nick_name,user.avatar,user.sex,user.type,coalesce(ship.state,0) as state from t_user user left join t_found_user_relationship ship on user.user_id=ship.uid where  type=? and";
+		if(type==-1) { //今日
+			sql += "  to_days(create_time) = to_days(now())";
+		}else if(type==0){
+			sql += " to_days(create_time) >= (to_days(now())-2)";
+		}else if(type==1) {
+			sql += " to_days(create_time) >= (to_days(now())-7)";
+		}else if(type==2) {
+			sql += " to_days(create_time) >= (to_days(now())-30)";
+		}
+		sql+= " order by user.user_id desc limit ?,?";
 		return jdbcTemplate.query(sql, new Object[] { UserType.OFFIEC.ordinal(), (pageIndex - 1) * pageSize, pageSize },
 				new BeanPropertyRowMapper<ManagerUser>(ManagerUser.class));
 	}

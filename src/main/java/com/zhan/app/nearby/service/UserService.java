@@ -464,6 +464,50 @@ public class UserService {
 	public VipUser loadUserVipInfo(String aid, long user_id) {
 		return vipDao.loadUserVip(user_id);
 	}
+
+	/**
+	 * 获取用户列表
+	 * @param pageSize
+	 * @param currentPage
+	 * @return
+	 */
+	public List<User> getAllUser(int pageSize, int currentPage,int type,String keyword) {
+		if(type==-1) {
+			 return userDao.getUsers(pageSize,currentPage,keyword);
+		}else {
+			 return userDao.getUsers(pageSize,currentPage,type,keyword);
+		}
+	}
+	/**
+	 * 获取用户总数
+	 * @return
+	 */
+	public int getUserSize(int type,String keyword) {
+	     if(type==-1) {
+	    	 return userDao.getUserSize(keyword);
+	     }else {
+	    	 return userDao.getUserSize(type,keyword);
+	     }
+	}
+
+	/**
+	 * 获取发现黑名单用户
+	 * @param pageSize
+	 * @param pageIndex
+	 * @return
+	 */
+	public List<User> getFoundBlackUsers(int pageSize, int pageIndex) {
+		 return userDao.getFoundBlackUsers(pageSize,pageIndex);
+	}
+
+	/**
+	 * 获取黑名单总数
+	 * @return
+	 */
+	public int getFoundBlackUsers() {
+		// TODO Auto-generated method stub
+		return userDao.getFoundBlackUsers();
+	}
 	
 	
 }

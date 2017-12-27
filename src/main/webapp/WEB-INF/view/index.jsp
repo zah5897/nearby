@@ -28,24 +28,24 @@
   <div class="leftnav-title"><strong><span class="icon-list"></span>菜单列表</strong></div>
   <h2><span class="icon-user"></span>基本设置</h2>
   <ul style="display:block">
-    <li><a href="<%=path %>/manager/forword?path=dynamic_selected" target="right"><span class="icon-caret-right"></span>首页推荐</a></li>
+    <li><a href="<%=path %>/manager/forword?path=dynamic_selected" target="right"><span class="icon-caret-right"></span>首页推荐动态</a></li>
     <li><a href="<%=path %>/manager/forword?path=dynamic_unselected" target="right"><span class="icon-caret-right"></span>非首页动态(已过审)</a></li>
     <li><a href="<%=path %>/manager/forword?path=dynamic_check" target="right"><span class="icon-caret-right"></span>待审核动态</a></li>
     <li><a href="<%=path %>/manager/forword?path=dynamic_illegal" target="right"><span class="icon-caret-right"></span>违规动态</a></li>
     <li><a href="<%=path %>/manager/forword?path=topic_manager" target="right"><span class="icon-caret-right"></span>话题管理</a></li>
-    <li><a href="<%=path %>/manager/forword?path=new_user_list" target="right"><span class="icon-caret-right"></span>新增用户</a></li>
+   
     <li><a href="<%=path %>/manager/forword?path=gift_manager" target="right"><span class="icon-caret-right"></span>礼物管理</a></li>
-  
-    <li><a href="<%=path %>/manager/forword?path=vip_manager" target="right"><span class="icon-caret-right"></span>系统设置</a></li>
-       <!-- 
-    <li><a href="<%=path %>/manager/forword?path=info" target="right"><span class="icon-caret-right"></span>网站设置</a></li>
-    <li><a href="<%=path %>/manager/forword?path=pass" target="right"><span class="icon-caret-right"></span>修改密码</a></li>
-    <li><a href="<%=path %>/manager/forword?path=page" target="right"><span class="icon-caret-right"></span>单页管理</a></li>  
-    <li><a href="<%=path %>/manager/forword?path=adv" target="right"><span class="icon-caret-right"></span>首页轮播</a></li>   
-    <li><a href="<%=path %>/manager/forword?path=book" target="right"><span class="icon-caret-right"></span>留言管理</a></li>     
-    <li><a href="<%=path %>/manager/forword?path=column" target="right"><span class="icon-caret-right"></span>栏目管理</a></li>
-    -->
+   
   </ul>   
+  
+   <h2><span class="icon-user"></span>用户管理</h2>
+   <ul style="display:block">
+    <li><a href="<%=path %>/manager/forword?path=user_all" target="right"><span class="icon-caret-right"></span>所有用户</a></li>
+    <li><a href="<%=path %>/manager/forword?path=user_new" target="right"><span class="icon-caret-right"></span>新增用户</a></li>
+    <li><a href="<%=path %>/manager/forword?path=user_found_black_list" target="right"><span class="icon-caret-right"></span>发现用户黑名单</a></li>
+    <li><a href="<%=path %>/manager/forword?path=user_meet_bottle_recommend" target="right"><span class="icon-caret-right"></span>邂逅瓶推荐用户</a></li>
+  </ul>  
+  
   
    <h2><span class="icon-user"></span>会员管理</h2>
    <ul style="display:block">

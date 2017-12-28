@@ -16,6 +16,9 @@ public class DateTimeUtil {
 	}
 
 	public static String parse(Date result) {
+		if(result==null) {
+			return null;
+		}
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		return sdf.format(result);
 	}

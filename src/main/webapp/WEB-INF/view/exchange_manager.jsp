@@ -4,7 +4,7 @@
 <%
 	String path = request.getContextPath();
 %>
-<!-- 兑现审批页面 -->
+
 <!DOCTYPE html>
 <html lang="UTF-8">
 <head>
@@ -26,47 +26,44 @@
 	<form method="post" action="">
 		<div class="panel admin-panel">
 			<div class="panel-head">
-				<strong class="icon-reorder">&nbsp;管理动态</strong>
+				<strong class="icon-reorder">&nbsp;提现管理</strong>
 			</div>
+			
 			<div class="padding border-bottom">
+			   
 				<ul class="search">
-					<li>
-						<button type="button" class="button border-green" id="checkall">
-							<span class="icon-check"></span>全选
-						</button>
-						<button type="button" id="del_batch" class="button border-red">
-							<span class="icon-trash-o"></span>批量删除
-						</button>
-					</li>
+				 <li> 类型：</li>
+				  <li>
+				    <select id="user_type" name="user_type" class="input" onchange="changeType(this)"  style="line-height:17px;display:inline-block" >
+                          <option value="1">所有提现</option>
+                          <option value="2"  selected = "selected">待处理提现</option>
+                          <option value="3">已审核处理</option>
+                      </select>
+				  </li>
 				</ul>
 			</div>
+			
+		 
+			
 			<table class="table table-hover text-center">
 				<tr>
-					<th width="5%">ID</th>
-					<th width="10%">发布者</th>
-					<th width="25%">图片</th>
-					<th width="20%">内容</th>
-					<th width="5%">城市</th>
-					<th width="10%">时间</th>
-					<th width="5%">点赞数量</th>
-					<th width="20%">操作</th>
+					<th width="5%">用户ID</th>
+					<th width="10%">用户昵称</th>
+					<th width="10%">钻石数量</th>
+					<th width="10%">对应RMB金额</th>
+					<th width="10%">状态</th>
+					<th width="15%">提交申请时间</th>
+					<th width="15%">处理时间</th>
+					<th width="25%">处理</th>
 				</tr>
-				 
 				<tr id="bottom">
 					<td colspan="8">
 						<div class="pagelist">
 							<a href="javascript:void(0)" onclick="return previous()">上一页</a>
 							<a id="next_flag" href="javascript:void(0)"
-								onclick="return next()">下一页</a> <a href="javascript:void(0)"
-								onclick="return page(-1)">尾页</a>
-							<!--  
-							<a href="javascript:void(0)" onclick="return previous()">上一页</a>
-							<a href="javascript:void(0)" onclick="page(1)"><span class="current">1</span></a>
-							<a href="javascript:void(0)">2</a>
-							<a href="javascript:void(0)">3</a>
-							<a href="javascript:void(0)" onclick="return next()">下一页</a>
-							<a href="javascript:void(0)" onclick="return end()">尾页</a>
-							-->
+								onclick="next()">下一页</a>
+							<a href="javascript:void(0)"
+								onclick="end()">尾页</a>
 						</div>
 					</td>
 				</tr>
@@ -75,35 +72,39 @@
 	</form>
 	<script type="text/javascript">
 	    //页面索引记录
-	    var currentPage = 0;
+	    var currentPageIndex = 0;
 	    var pageSize = 10;
 	    var pageCount = 100;
+	    var type=2;
 	    //默认加载第一页
 	    $(document).ready(function(){ 
-		   page(1);
+		    page(1);
 		}); 
 		
+	     
 	    //前一页
 		function previous() {
-			if (currentPage-1<1) {
-                return false;
+			if(currentPageIndex>1){
+				page(currentPageIndex-1);
 			}
-			page(currentPage-1)
 		}
 	    //前一页
 		function next() {
-			if (currentPage+1>pageCount) {
-                return false;
+			if(currentPageIndex<pageCount){
+				page(currentPageIndex+1);
 			}
-			page(currentPage+1)
 		}
+	    
+	    function end(){
+	    	page(pageCount);
+	    }
 	    
 	     //获取对应页面
 		function page(index) {
-			if (currentPage == index) {
+			if (currentPageIndex == index) {
 				return false;
 			}
-			$.post("<%=path%>/manager/selected_dynamic_list",{'pageIndex':index},function(result){
+			$.post("<%=path%>/manager/list_exchange_history",{'pageIndex':index,'pageSize':pageSize,'type':type},function(result){
 				 var json=JSON.parse(result);
 			        if(json.code==0){
 			        	$("table tr[id*='tr_'").each(function(i){
@@ -118,7 +119,7 @@
 
 		//刷新表格
 		function refreshTable(json){
-			var pageData=json["selecteds"];
+			var pageData=json["exchanges"];
 			if(pageData){
 				for(var i=0;i<pageData.length;i++){
 					var tr;
@@ -130,44 +131,23 @@
 					reviewTableTr(pageData[i],tr);
 				}
 			}else{
-				page(json["currentPageIndex"]);
+				alert("no data.");
 			}
-			refreshPageIndex(json["pageCount"],json["currentPageIndex"]);		
+			currentPageIndex=json["currentPageIndex"]
+			if(currentPageIndex==1){
+				pageCount=json["pageCount"];
+			}
+			refreshPageIndex();		
 		}
 		
-		function refreshPageIndex(page_count,currentPageIndex){
-			currentPage=currentPageIndex;
-			this.pageCount=page_count;
-			
+		function refreshPageIndex(){
 			var pageIndexHtml="";
 			var nextAflag=$("a#next_flag").eq(0);
-			if(currentPage<=pageSize){
-				var end=pageSize;
-				if(pageCount<pageSize){
-					end=pageCount;
-				} 
-                  for(var i=1;i<=end;i++){
-                	  pageIndexHtml+=getItem(currentPage,i);
-                  }				
-			}else{
-				//11
-				
-				if(currentPage==pageCount){
-					for(var i=pageCount-pageSize+1;i<=pageCount;i++){
-	                	  pageIndexHtml+=getItem(currentPage,i);
-	                  }	
-				}else if(currentPage+5>pageCount){
-					for(var i=pageCount-pageSize+1;i<=pageCount;i++){
-	                	  pageIndexHtml+=getItem(currentPage,i);
-	                  }	
-				}else{
-					for(var i=pageCount-4;i<=pageCount+5;i++){
-	                	  pageIndexHtml+=getItem(currentPage,i);
-	                  }	
-				}
-				
-			}
-			
+			var  startIndex=getStartIndex();
+			var  endIndex=getEndIndex(startIndex);
+			 for(var i=startIndex;i<=endIndex;i++){
+           	   pageIndexHtml+=getPageIndexItem(i);
+             }		
 			 $("a.pg_flag").each(function(){
 				 this.remove();//移除当前的元素
 			 })
@@ -175,118 +155,101 @@
 		}
 		 
 		
-		function getItem(currentPage,i){
-			 if(i==currentPage){
+		function getPageIndexItem(i){
+			 if(i==currentPageIndex){
           		  return "<a  class='pg_flag' href='javascript:void(0)' onclick='return page("+i+")'><span class='current'>"+i+"</span></a>";
           	  }else{
           		  return "<a class='pg_flag' href='javascript:void(0)' onclick='return page("+i+")'>"+i+"</a>";
           	  }
 		}
-		
-		function del(id) {
-				$.post("<%=path%>/manager/remove_from_selected",{id:id,currentPage:currentPage},function(result){
-			        $("#tr_"+id).remove();//移除当前的元素
-			        
-			        var json=JSON.parse(result);
-			        var pageData=json["pageData"];
-			        
-			        var last2tr=$("table tr").eq(-2);
-					 if(last2tr.size()==0){
-					      alert("指定的table id或行数不存在！");
-					     return;
-					 }
-					 if(pageData){
-						 reviewTableTr(pageData,last2tr);
-					 }else{
-						 page(json["currentPageIndex"]);
-					 }
-			        refreshPageIndex(json["pageCount"],json["currentPageIndex"]);
-			    });
+		function getStartIndex(){
+		   if(currentPageIndex-2>0){
+			   return currentPageIndex-2;
+		   }else{
+			   return 1;
+		   }
 		}
-
+		function getEndIndex(startIndex){
+			if(startIndex+4>pageCount){
+				return pageCount;
+			}else{
+				return startIndex+4;
+			}
+		}
 	  //
       function reviewTableTr(pageData,tr) {
-			 //获取table倒数第二行 $("#tab tr").eq(-2)
-			 //var last2tr=$("table tr").eq(row);
-			 
 			 var currentItem=$("tr#tr_"+pageData["id"]);
-			 
 			 if(currentItem.length>0){
 				 return;
 			 }
+			 var id=pageData['id'];
 			 
-			 var toAdd="<tr id='tr_"+pageData["id"]+"'>";
-			 toAdd+="<td><input type='checkbox' name='id[]' value='"+pageData["id"]+"' />"+pageData["id"]+"</td>";
-			 
-			 var nick_name=pageData.user.nick_name;
+			 var toAdd="<tr id='tr_"+id+"'>";
+			 toAdd+="<td><input type='checkbox' name='id[]' value='"+id+"' />"+pageData["user_id"]+"</td>";
+			 var nick_name=pageData.nick_name;
 			 nick_name=nick_name==undefined?"":nick_name;
-			 
 			 toAdd+="<td>"+nick_name+"</td>";
-			 toAdd+="<td><img  src='"+pageData.thumb+"' alt='"+pageData.origin+"'  height='50' onclick='show(this)'/></td>";
-			 toAdd+="<td>"+pageData["description"]+"</td>";
-			 toAdd+="<td>"+pageData["city"]+"</td>";
-			 toAdd+="<td>"+pageData["create_time"]+"</td>";
-			 toAdd+="<td>"+pageData["praise_count"]+"</td>";
-			 toAdd+="<td><div class='button-group'><a class='button border-red' href='javascript:void(0)'	onclick='return del("+pageData["id"]+")'><span class='icon-trash-o'></span>删除</a></div></td>";
-			 toAdd+="</tr>";
+			 //用户类型
+			 toAdd+="<td>"+pageData.diamond_count+"</td>";
+			 toAdd+="<td>"+pageData.rmb_fen+"</td>";
+			 
+			 
+			 var stateStr;
+			 if(pageData.state==0){
+				 stateStr="<font color='orange'>等待处理</font>";
+			 }else if(pageData.state==1){
+				 stateStr="<font color='green'>审核通过</font>";
+			 }else if(pageData.state==2){
+				 stateStr="<font color='red'>已被拒绝</font>";
+			 }else{
+				 stateStr="<font color='green'>已通过，正在打款</font>";
+			 }
+			 toAdd+="<td>"+stateStr+"</td>";
+			 
+			 toAdd+="<td>"+pageData.create_time+"</td>";
+			 
+			 if(pageData.finish_time){
+				 toAdd+="<td>"+pageData.finish_time+"</td>"; 
+			 }else{
+				 toAdd+="<td>#</td>";
+			 }
+			 
+			
+			 
+			 //操作单元格
+			  toAdd+="<td><div class='button-group'>";
+			  
+			  
+			  if(pageData.state==0){
+				  toAdd+="<a class='button border-main' href='javascript:void(0)'	onclick='return handleExchange("+id+",true)'><span class='icon-edit'></span>同意体现</a>";
+				  toAdd+="<a class='button border-yellow' href='javascript:void(0)'	onclick='return handleExchange("+id+",false)'><span class='icon-edit'></span>拒绝提现</a>";
+			  } 
+			  toAdd+="</div></td></tr>";
 			 tr.after(toAdd);
 		}
+	    
 	  
-	    function show(img){
-	    	parent.showOriginImg(img);
-	    }
-		$("#checkall").click(function() {
-			$("input[name='id[]']").each(function() {
-				if (this.checked) {
-					this.checked = false;
-				} else {
-					this.checked = true;
-				}
-			});
-		})
-		$("#del_batch").click(function() {
-			var chk_value =[]; 
-			$('input[name="id[]"]:checked').each(function(){ 
-			    chk_value.push($(this).val()); 
-			});
-			if(chk_value.length>0){
-				    var ids=JSON.stringify(chk_value);
-					$.post("<%=path%>/manager/removes_from_selected", {
-							ids : ids,
-							currentPage : currentPage
-						}, function(result) {
-							// $("#tr_"+id).remove();//移除当前的元素
-							//reviewTableTr(result);
-
-							var json = JSON.parse(result);
-							var pageData = json["pageData"];
-							for (var i = 0; i < chk_value.length; i++) {
-								$("#tr_" + chk_value[i]).remove();//移除当前的元素
-							}
-							if (pageData) {
-								var last2tr = $("table tr").eq(-2);
-								if (last2tr.size() == 0) {
-									alert("指定的table id或行数不存在！");
-									return;
-								}
-								for (var i = 0; i < pageData.length; i++) {
-									var dy = pageData[i];
-									reviewTableTr(dy, last2tr);
-								}
-							} else {
-								page(json["currentPageIndex"]);
-							}
-							refreshPageIndex(json["pageCount"],
-									json["currentPageIndex"]);
-						});
-						return true;
-					}
-				})
-				
-				function imgClick(url){  
-			     var obj = '<img src='+url+'/>';
-			     alert(obj); 
-		        }
+	  function handleExchange(id,agreeOrReject){
+		  $.post("<%=path%>/manager/exchange_handle",{'id':id,'agreeOrReject':agreeOrReject,'type':type,'pageIndex':currentPageIndex,'pageSize':pageSize},function(result){
+				 var json=JSON.parse(result);
+				 if(json.code==0){
+			        	$("table tr[id*='tr_'").each(function(i){
+				        	this.remove();//移除当前的元素
+				        })
+			        	refreshTable(json);
+			        }
+		    });
+	  }
+	  
+		 
+		function changeType(selectView){
+		   var	typeSelect=$('#user_type option:selected') .val();
+		   if(type!=typeSelect){
+			   type=typeSelect;
+			   currentPageIndex=0;
+			   page(1);
+		   }
+		}
 	</script>
 </body>
 </html>

@@ -137,8 +137,7 @@ public class User {
 
 	@JSONField(serialize = false)
 	private String aid;
-
-	@JSONField(serialize = false)
+	@JSONField(format = "yyyy-MM-dd HH:mm:ss")
 	private Date last_login_time;
 	@JSONField(serialize = false)
 	private Date create_time;

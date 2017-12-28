@@ -374,11 +374,11 @@ public class ManagerController {
 		return ResultUtil.getResultOKMap();
 	}
 
-	//获取新增用户
+	// 获取新增用户
 	@RequestMapping(value = "/list_new_user")
-	public @ResponseBody ModelMap list_new_user(int pageIndex,int pageSize,int type) {
+	public @ResponseBody ModelMap list_new_user(int pageIndex, int pageSize, int type) {
 		ModelMap reMap = ResultUtil.getResultOKMap();
-		if(pageIndex==1) {
+		if (pageIndex == 1) {
 			int count = managerService.newUserCount(type);
 			int pageCount = count / pageSize;
 			if (count % pageSize > 0) {
@@ -390,27 +390,28 @@ public class ManagerController {
 			reMap.put("pageCount", pageCount);
 			reMap.put("totalCount", count);
 		}
-		List<ManagerUser> users = managerService.listNewUser(pageIndex, pageSize,type);
+		List<ManagerUser> users = managerService.listNewUser(pageIndex, pageSize, type);
 		ImagePathUtil.completeManagerUserAvatarsPath(users, true);
 		reMap.put("users", users);
 		reMap.put("currentPageIndex", pageIndex);
 		return reMap;
 	}
 
-//	@RequestMapping(value = "/edit_user_from_found_list")
-//	public @ResponseBody ModelMap edit_user_from_found_list(String ids, int state, int currentPage) {
-//		if (TextUtils.isEmpty(ids)) {
-//			return ResultUtil.getResultMap(ERROR.ERR_FAILED);
-//		}
-//		JSONArray idsArray = JSON.parseArray(ids);
-//		int len = idsArray.size();
-//		for (int i = 0; i < len; i++) {
-//			String strId = idsArray.getString(i);
-//			long id = Long.parseLong(strId);
-//			managerService.editUserFromFound(id, state);
-//		}
-//		return list_new_user(currentPage);
-//	}
+	// @RequestMapping(value = "/edit_user_from_found_list")
+	// public @ResponseBody ModelMap edit_user_from_found_list(String ids, int
+	// state, int currentPage) {
+	// if (TextUtils.isEmpty(ids)) {
+	// return ResultUtil.getResultMap(ERROR.ERR_FAILED);
+	// }
+	// JSONArray idsArray = JSON.parseArray(ids);
+	// int len = idsArray.size();
+	// for (int i = 0; i < len; i++) {
+	// String strId = idsArray.getString(i);
+	// long id = Long.parseLong(strId);
+	// managerService.editUserFromFound(id, state);
+	// }
+	// return list_new_user(currentPage);
+	// }
 
 	@RequestMapping(value = "/dynamic_del")
 	public @ResponseBody ModelMap dynamic_del(long id, int currentPage) {
@@ -619,19 +620,18 @@ public class ManagerController {
 
 	// 获取所有用户
 	@RequestMapping(value = "/list_user_all")
-	public @ResponseBody ModelMap list_user_all(int pageSize, int pageIndex,int type,String keyword) {
+	public @ResponseBody ModelMap list_user_all(int pageSize, int pageIndex, int type, String keyword) {
 		ModelMap r = ResultUtil.getResultOKMap();
-		List<User> users = managerService.getAllUser(pageSize, pageIndex,type,keyword);
-		
-		
-		if(pageIndex==1) {
-			int totalSize = managerService.getUserSize(type,keyword);
-			int  pageCount = totalSize / pageSize;
+		List<User> users = managerService.getAllUser(pageSize, pageIndex, type, keyword);
+
+		if (pageIndex == 1) {
+			int totalSize = managerService.getUserSize(type, keyword);
+			int pageCount = totalSize / pageSize;
 			if (totalSize % 10 > 0) {
 				pageCount += 1;
 			}
-			if(pageCount==0) {
-				pageCount=1;
+			if (pageCount == 0) {
+				pageCount = 1;
 			}
 			r.put("pageCount", pageCount);
 		}
@@ -641,72 +641,98 @@ public class ManagerController {
 		return r;
 	}
 
-	   // 获取所有发现用户黑名单
-		@RequestMapping(value = "/list_user_found_black")
-		public @ResponseBody ModelMap list_user_found_black(int pageSize, int pageIndex) {
-			ModelMap r = ResultUtil.getResultOKMap();
-			List<User> users = managerService.getFoundBlackUsers(pageSize, pageIndex);
-			
-			
-			if(pageIndex==1) {
-				int totalSize = managerService.getFoundBlackUsers();
-				int  pageCount = totalSize / pageSize;
-				if (totalSize % 10 > 0) {
-					pageCount += 1;
-				}
-				if(pageCount==0) {
-					pageCount=1;
-				}
-				r.put("pageCount", pageCount);
+	// 获取所有发现用户黑名单
+	@RequestMapping(value = "/list_user_found_black")
+	public @ResponseBody ModelMap list_user_found_black(int pageSize, int pageIndex) {
+		ModelMap r = ResultUtil.getResultOKMap();
+		List<User> users = managerService.getFoundBlackUsers(pageSize, pageIndex);
+
+		if (pageIndex == 1) {
+			int totalSize = managerService.getFoundBlackUsers();
+			int pageCount = totalSize / pageSize;
+			if (totalSize % 10 > 0) {
+				pageCount += 1;
 			}
-			ImagePathUtil.completeAvatarsPath(users, true);
-			r.put("users", users);
-			r.put("currentPageIndex", pageIndex);
-			return r;
-		}
-		
-		
-		// 获取所有用户
-		@RequestMapping(value = "/list_user_meet_bottle_recommend")
-		public @ResponseBody ModelMap list_user_meet_bottle_recommend(int pageSize, int pageIndex,String keyword) {
-			ModelMap r = ResultUtil.getResultOKMap();
-			List<User> users = managerService.getAllMeetBottleRecommendUser(pageSize, pageIndex,keyword);
-			
-			
-			if(pageIndex==1) {
-				int totalSize = managerService.getMeetBottleRecommendUserSize(keyword);
-				int  pageCount = totalSize / pageSize;
-				if (totalSize % 10 > 0) {
-					pageCount += 1;
-				}
-				if(pageCount==0) {
-					pageCount=1;
-				}
-				r.put("pageCount", pageCount);
+			if (pageCount == 0) {
+				pageCount = 1;
 			}
-			ImagePathUtil.completeAvatarsPath(users, true);
-			r.put("users", users);
-			r.put("currentPageIndex", pageIndex);
-			return r;
+			r.put("pageCount", pageCount);
 		}
-		// 添加到发现用户黑名单
-		@RequestMapping(value = "/edit_user_found_black")
-		public @ResponseBody ModelMap addToUserFoundBlack(long user_id,int fun,Integer pageSize, Integer pageIndex) {
-			managerService.editUserFoundBlack(user_id, fun);
-			if(fun==0) {
-				return list_user_found_black(pageSize,pageIndex);
+		ImagePathUtil.completeAvatarsPath(users, true);
+		r.put("users", users);
+		r.put("currentPageIndex", pageIndex);
+		return r;
+	}
+
+	// 获取所有用户
+	@RequestMapping(value = "/list_user_meet_bottle_recommend")
+	public @ResponseBody ModelMap list_user_meet_bottle_recommend(int pageSize, int pageIndex, String keyword) {
+		ModelMap r = ResultUtil.getResultOKMap();
+		List<User> users = managerService.getAllMeetBottleRecommendUser(pageSize, pageIndex, keyword);
+
+		if (pageIndex == 1) {
+			int totalSize = managerService.getMeetBottleRecommendUserSize(keyword);
+			int pageCount = totalSize / pageSize;
+			if (totalSize % 10 > 0) {
+				pageCount += 1;
 			}
-			return ResultUtil.getResultOKMap();
-		}
-		// 添加到邂逅瓶待选
-		@RequestMapping(value = "/edit_user_meet_bottle_recomend")
-		public @ResponseBody ModelMap addToUserMeetBottle(long user_id,int fun,Integer pageSize, Integer pageIndex,String keyword) {
-			managerService.editUserMeetBottle(user_id,fun);
-			if(fun==0) {
-				return list_user_meet_bottle_recommend(pageSize,pageIndex,keyword);
+			if (pageCount == 0) {
+				pageCount = 1;
 			}
-			return ResultUtil.getResultOKMap();
+			r.put("pageCount", pageCount);
 		}
-		
-		
+		ImagePathUtil.completeAvatarsPath(users, true);
+		r.put("users", users);
+		r.put("currentPageIndex", pageIndex);
+		return r;
+	}
+
+	// 添加到发现用户黑名单
+	@RequestMapping(value = "/edit_user_found_black")
+	public @ResponseBody ModelMap addToUserFoundBlack(long user_id, int fun, Integer pageSize, Integer pageIndex) {
+		managerService.editUserFoundBlack(user_id, fun);
+		if (fun == 0) {
+			return list_user_found_black(pageSize, pageIndex);
+		}
+		return ResultUtil.getResultOKMap();
+	}
+
+	// 添加到邂逅瓶待选
+	@RequestMapping(value = "/edit_user_meet_bottle_recomend")
+	public @ResponseBody ModelMap addToUserMeetBottle(long user_id, int fun, Integer pageSize, Integer pageIndex,
+			String keyword) {
+		managerService.editUserMeetBottle(user_id, fun);
+		if (fun == 0) {
+			return list_user_meet_bottle_recommend(pageSize, pageIndex, keyword);
+		}
+		return ResultUtil.getResultOKMap();
+	}
+
+	// 获取提现申请记录
+	@RequestMapping(value = "/list_exchange_history")
+	public @ResponseBody ModelMap list_exchange_history(int pageSize, int pageIndex, int type) {
+		ModelMap r = ResultUtil.getResultOKMap();
+		List<Object> exchanges = managerService.getExchangeHistory(pageSize, pageIndex, type);
+		if (pageIndex == 1) {
+			int totalSize = managerService.getExchangeHistorySize(type);
+			int pageCount = totalSize / pageSize;
+			if (totalSize % 10 > 0) {
+				pageCount += 1;
+			}
+			if (pageCount == 0) {
+				pageCount = 1;
+			}
+			r.put("pageCount", pageCount);
+		}
+		r.put("exchanges", exchanges);
+		r.put("currentPageIndex", pageIndex);
+		return r;
+	}
+
+	@RequestMapping(value = "/exchange_handle")
+	public @ResponseBody ModelMap exchange_handle(int id, boolean agreeOrReject, int pageSize, int pageIndex,
+			int type) {
+		managerService.handleExchange(id, agreeOrReject);
+		return list_exchange_history(pageSize, pageIndex, type);
+	}
 }

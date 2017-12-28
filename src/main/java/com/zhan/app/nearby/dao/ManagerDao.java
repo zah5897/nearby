@@ -1,12 +1,18 @@
 package com.zhan.app.nearby.dao;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
 
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.RowMapperResultSetExtractor;
 import org.springframework.stereotype.Repository;
 
 import com.zhan.app.nearby.bean.ManagerUser;
@@ -14,9 +20,11 @@ import com.zhan.app.nearby.bean.Topic;
 import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.bean.mapper.DynamicMapper;
 import com.zhan.app.nearby.comm.DynamicState;
+import com.zhan.app.nearby.comm.ExchangeState;
 import com.zhan.app.nearby.comm.FoundUserRelationship;
 import com.zhan.app.nearby.comm.ImageStatus;
 import com.zhan.app.nearby.comm.UserType;
+import com.zhan.app.nearby.util.DateTimeUtil;
 
 @Repository("managerDao")
 public class ManagerDao extends BaseDao {
@@ -228,6 +236,69 @@ public class ManagerDao extends BaseDao {
 		
 		
 		return 1;
+	}
+
+	/**
+	 * 获取提现记录
+	 * @param pageSize
+	 * @param pageIndex
+	 * @param type
+	 */
+	public List<Object> getExchangeHistory(int pageSize, int pageIndex, int type) {
+		String sql=null;
+		Object[] args=null;
+		if(type==1) {
+			sql="select ex.*,u.nick_name as nick_name from t_exchange_history ex left join t_user u on ex.user_id=u.user_id  order by create_time limit ?,?";
+			args=new Object[] {(pageIndex-1)*pageSize,pageSize};
+		}else if(type==2) {
+			sql="select ex.*,u.nick_name as nick_name from t_exchange_history ex left join t_user u on ex.user_id=u.user_id where ex.state=? order by create_time limit ?,?";
+			args=new Object[] {ExchangeState.IN_EXCHANGE.ordinal(),(pageIndex-1)*pageSize,pageSize};
+		}else {
+			sql="select ex.*,u.nick_name as nick_name from t_exchange_history ex left join t_user u on ex.user_id=u.user_id where ex.state<>? order by create_time limit ?,?";
+			args=new Object[] {ExchangeState.IN_EXCHANGE.ordinal(),(pageIndex-1)*pageSize,pageSize};
+		}
+		RowMapper<Object> mapper=new RowMapper<Object>() {
+
+			@Override
+			public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
+				HashMap<String, Object> ex=new HashMap<String, Object>();
+				ex.put("id", rs.getInt("id"));
+				ex.put("user_id", rs.getLong("user_id"));
+				ex.put("nick_name", rs.getString("nick_name"));
+				
+				ex.put("diamond_count", rs.getInt("diamond_count"));
+				ex.put("create_time",DateTimeUtil.parse(rs.getTimestamp("create_time")));
+				ex.put("rmb_fen", rs.getInt("rmb_fen"));
+				ex.put("finish_time",DateTimeUtil.parse(rs.getTimestamp("finish_time")));
+				ex.put("state", rs.getInt("state"));
+				return ex;
+			}
+		};
+		return  jdbcTemplate.query(sql, args,mapper);
+	}
+
+	/**
+	 * 获取提现数量
+	 * @param type
+	 * @return
+	 */
+	public int getExchangeHistorySize(int type) {
+		if(type==1) {
+			return jdbcTemplate.queryForObject("select count(*) from t_exchange_history where state=?",new Object[] {type}, Integer.class);
+		}else if(type==2) {
+			return jdbcTemplate.queryForObject("select count(*) from t_exchange_history where state=?",new Object[] {ExchangeState.IN_EXCHANGE.ordinal()}, Integer.class);
+		}else {
+			return jdbcTemplate.queryForObject("select count(*) from t_exchange_history where state<>?",new Object[] {ExchangeState.IN_EXCHANGE.ordinal()}, Integer.class);
+		}
+	}
+
+	/**
+	 * 修改提现申请状态
+	 * @param id
+	 * @param agreeWait
+	 */
+	public int updateExchageState(int id, ExchangeState agreeWait) {
+		return jdbcTemplate.update("update t_exchange_history set state=? where id=?",new Object[] {agreeWait.ordinal(),id});
 	}
 
 }

@@ -15,6 +15,7 @@ import com.zhan.app.nearby.bean.User;
 import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.cache.UserCacheService;
 import com.zhan.app.nearby.comm.DynamicState;
+import com.zhan.app.nearby.comm.ExchangeState;
 import com.zhan.app.nearby.comm.FoundUserRelationship;
 import com.zhan.app.nearby.dao.ManagerDao;
 import com.zhan.app.nearby.dao.UserDao;
@@ -221,6 +222,38 @@ public class ManagerService {
 	public void editUserMeetBottle(long user_id,int fun) {
 		managerDao.editUserMeetBottle(user_id,fun);
 		
+	}
+
+	/**
+	 * 获取提现记录
+	 * @param pageSize
+	 * @param pageIndex
+	 * @return
+	 */
+	public List<Object> getExchangeHistory(int pageSize, int pageIndex,int type) {
+		return managerDao.getExchangeHistory(pageSize,pageIndex,type);
+	}
+
+	/**
+	 * 获取提现总记录数
+	 * @return
+	 */
+	public int getExchangeHistorySize(int type) {
+		return managerDao.getExchangeHistorySize(type);
+	}
+
+	/**
+	 * 处理提现申请
+	 * @param id
+	 * @param agreeOrReject
+	 * @return
+	 */
+	public boolean handleExchange(int id, boolean agreeOrReject) {
+		if(agreeOrReject) {
+			return managerDao.updateExchageState(id,ExchangeState.AGREE_WAIT)==1;
+		}else {
+			return managerDao.updateExchageState(id,ExchangeState.REJECT)==1;
+		}
 	}
 	
 }

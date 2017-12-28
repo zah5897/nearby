@@ -56,6 +56,7 @@
 					<th width="10%">昵称</th>
 					<th width="15%">头像</th>
 					<th width="5%">性别</th>
+					<th width="5%">类型</th>
 					<th width="30%">操作</th>
 				</tr>
 				<tr id="bottom">
@@ -197,8 +198,21 @@
 		function edit_fun(user_id){
 			alert(user_id);
 		}
+		function add_to_found_black_list(user_id){
+			$.post("<%=path%>/manager/edit_user_found_black",{'user_id':user_id,'fun':1},function(result){
+				 var json=JSON.parse(result);
+			        if(json.code==0){
+			        	 alert("操作成功！");
+			        }
+		    });
+		}
 		function add_to_meet_bottle(user_id){
-			alert(user_id);
+			$.post("<%=path%>/manager/edit_user_meet_bottle_recomend",{'user_id':user_id,'fun':1},function(result){
+				 var json=JSON.parse(result);
+			        if(json.code==0){
+			        	 alert("操作成功！");
+			        }
+		    });
 		}
 	  //
       function reviewTableTr(pageData,tr) {
@@ -221,13 +235,24 @@
 			 }
 			
 			 toAdd+="<td>"+(pageData["sex"]==0?"女":"男")+"</td>";
+			 //用户类型
+			 var type=pageData["type"];
+			 var typeStr;
+			 if(type==0){
+				 typeStr="游客用户" 
+			 }else if(type==1){
+				 typeStr="正式用户" 
+			 }else{
+				 typeStr="非正式用户" 
+			 }
+			 toAdd+="<td>"+typeStr+"</td>";
 			 
 			 //操作单元格
 			  toAdd+="<td><div class='button-group'>";
 			  
 			  toAdd+="<a class='button border-main' href='javascript:void(0)'	onclick='return edit_fun("+user_id+")'><span class='icon-edit'></span>编辑限制</a>";
-			  toAdd+="<a class='button border-main' href='javascript:void(0)'	onclick='return add_to_meet_bottle("+user_id+")'><span class='icon-edit'></span>发现推荐</a>";
-			  toAdd+="<a class='button border-main' href='javascript:void(0)'	onclick='return add_to_meet_bottle("+user_id+")'><span class='icon-edit'></span>添加到邂逅瓶待选区</a>";
+			  toAdd+="<a class='button border-main' href='javascript:void(0)'	onclick='return add_to_meet_bottle("+user_id+")'><span class='icon-edit'></span>加入邂逅瓶待选区</a>";
+			  toAdd+="<a class='button border-yellow' href='javascript:void(0)'	onclick='return add_to_found_black_list("+user_id+")'><span class='icon-edit'></span>加入发现黑名单</a>";
 			  
 			  toAdd+="</div></td></tr>";
 			 tr.after(toAdd);

@@ -197,5 +197,30 @@ public class ManagerService {
 	public int getFoundBlackUsers() {
 		return userService.getFoundBlackUsers();
 	}
+
+	public List<User> getAllMeetBottleRecommendUser(int pageSize, int pageIndex, String keyword) {
+		return userService.getAllMeetBottleRecommendUser(pageSize,pageIndex,keyword);
+	}
+
+	public int getMeetBottleRecommendUserSize(String keyword) {
+		return userService.getMeetBottleRecommendUserSize(keyword);
+	}
+
+	/**
+	 * 添加到发现用户黑名单
+	 * @param user_id
+	 */
+	public void editUserFoundBlack(long user_id,int fun) {
+		managerDao.editUserFoundBlack(user_id,fun);
+	}
+
+	/**
+	 * 添加到邂逅瓶待选用户区
+	 * @param user_id
+	 */
+	public void editUserMeetBottle(long user_id,int fun) {
+		managerDao.editUserMeetBottle(user_id,fun);
+		
+	}
 	
 }

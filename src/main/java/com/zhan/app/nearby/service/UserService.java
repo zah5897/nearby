@@ -508,6 +508,14 @@ public class UserService {
 		// TODO Auto-generated method stub
 		return userDao.getFoundBlackUsers();
 	}
+
+	public List<User> getAllMeetBottleRecommendUser(int pageSize, int pageIndex, String keyword) {
+		return userDao.getAllMeetBottleRecommendUser(pageSize,pageIndex,keyword);
+	}
+
+	public int getMeetBottleRecommendUserSize(String keyword) {
+		return userDao.getMeetBottleRecommendUserSize(keyword);
+	}
 	
 	
 }

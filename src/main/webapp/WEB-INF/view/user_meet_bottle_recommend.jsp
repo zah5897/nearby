@@ -26,22 +26,16 @@
 	<form method="post" action="">
 		<div class="panel admin-panel">
 			<div class="panel-head">
-				<strong class="icon-reorder">&nbsp;新增用户</strong>
+				<strong class="icon-reorder">&nbsp;邂逅瓶推荐用户</strong>
 			</div>
 			
 			<div class="padding border-bottom">
 			   
 				<ul class="search">
-				 <li> 时间筛选：</li>
 				  <li>
-				    <select id="user_type" name="user_type" class="input" onchange="changeType(this)"  style="line-height:17px;display:inline-block">
-                          <option value="-1">今日新增</option>
-                          <option value="0">近两日新增</option>
-                          <option value="1">近7日新增</option>
-                          <option value="2">近30日新增</option>
-                      </select>
-				  </li>
-				   <li id="new_count"></li>
+			         <input type="text" placeholder="请输入用户昵称" name="keywords" class="input" style="width:250px; line-height:17px;display:inline-block" />
+                     <a href="javascript:void(0)" class="button border-main icon-search" onclick="doSearch()" > 搜索</a>
+                   </li> 
 				</ul>
 			</div>
 			
@@ -53,7 +47,6 @@
 					<th width="10%">昵称</th>
 					<th width="15%">头像</th>
 					<th width="5%">性别</th>
-		            <th width="5%">类型</th>
 					<th width="30%">操作</th>
 				</tr>
 				<tr id="bottom">
@@ -76,6 +69,7 @@
 	    var pageSize = 10;
 	    var pageCount = 100;
 	    var type=-1;
+	    var keyword;
 	    //默认加载第一页
 	    $(document).ready(function(){ 
 		    page(1);
@@ -100,13 +94,29 @@
 	    	page(pageCount);
 	    }
 	    
-	   
+	    function doSearch(){
+	    	alert('search');
+	    	var key=$("[name='keywords']").val().replace(/^\s+|\s+$/g,"");
+	    	if(keyword==''){
+	    		if(key==''){
+	    			alert('key is empty');
+		    		return;
+		    	}
+	    	}
+	    	if(keyword==key){
+	    		alert('key equas keyword');
+	    		return;
+	    	}
+	    	keyword=key;
+	    	currentPageIndex=0;
+	    	page(1);
+	    }
 	     //获取对应页面
 		function page(index) {
 			if (currentPageIndex == index) {
 				return false;
 			}
-			$.post("<%=path%>/manager/list_new_user",{'pageIndex':index,'pageSize':pageSize,'type':type},function(result){
+			$.post("<%=path%>/manager/list_user_meet_bottle_recommend",{'pageIndex':index,'pageSize':pageSize,'keyword':keyword},function(result){
 				 var json=JSON.parse(result);
 			        if(json.code==0){
 			        	$("table tr[id*='tr_'").each(function(i){
@@ -138,7 +148,6 @@
 			currentPageIndex=json["currentPageIndex"]
 			if(currentPageIndex==1){
 				pageCount=json["pageCount"];
-				$("#new_count").text("对应新增用户数量："+json["totalCount"])
 			}
 			refreshPageIndex();		
 		}
@@ -179,11 +188,16 @@
 				return startIndex+4;
 			}
 		}
-		function edit_fun(user_id){
-			alert(user_id);
-		}
-		function add_to_meet_bottle(user_id){
-			alert(user_id);
+		function del_from_meet_bottle(user_id){
+			$.post("<%=path%>/manager/edit_user_meet_bottle_recomend",{'user_id':user_id,'fun':0,'pageIndex':currentPageIndex,'pageSize':pageSize,'keyword':keyword},function(result){
+				 var json=JSON.parse(result);
+				 if(json.code==0){
+			        	$("table tr[id*='tr_'").each(function(i){
+				        	this.remove();//移除当前的元素
+				        })
+			        	refreshTable(json);
+			        }
+		    });
 		}
 	  //
       function reviewTableTr(pageData,tr) {
@@ -207,24 +221,10 @@
 			
 			 toAdd+="<td>"+(pageData["sex"]==0?"女":"男")+"</td>";
 			 
-			 //用户类型
-			 var type=pageData["type"];
-			 var typeStr;
-			 if(type==0){
-				 typeStr="游客用户" 
-			 }else if(type==1){
-				 typeStr="正式用户" 
-			 }else{
-				 typeStr="非正式用户" 
-			 }
-			 toAdd+="<td>"+typeStr+"</td>";
-			 
 			 //操作单元格
 			  toAdd+="<td><div class='button-group'>";
 			  
-			  //toAdd+="<a class='button border-main' href='javascript:void(0)'	onclick='return edit_fun("+user_id+")'><span class='icon-edit'></span>编辑限制</a>";
-			  //toAdd+="<a class='button border-main' href='javascript:void(0)'	onclick='return add_to_meet_bottle("+user_id+")'><span class='icon-edit'></span>发现推荐</a>";
-			  //toAdd+="<a class='button border-main' href='javascript:void(0)'	onclick='return add_to_meet_bottle("+user_id+")'><span class='icon-edit'></span>添加到邂逅瓶待选区</a>";
+			  toAdd+="<a class='button border-yellow' href='javascript:void(0)'	onclick='return del_from_meet_bottle("+user_id+")'><span class='icon-edit'></span>移除邂逅瓶待选区</a>";
 			  
 			  toAdd+="</div></td></tr>";
 			 tr.after(toAdd);

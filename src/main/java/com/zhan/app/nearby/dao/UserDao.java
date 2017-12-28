@@ -241,9 +241,9 @@ public class UserDao extends BaseDao {
 	
 	
 	public List<User> getRandomMeetBottleUser(int realCount) {
-		String sql = "select * from t_user where user_id not in (select uid from t_found_user_relationship where state=? order by uid desc)  and avatar<>?  order by  RAND() limit ?";
+		String sql = "select u.* from t_user_meet_bottle_recommend mb  left join t_user u on mb.uid=u.user_id order by  RAND() limit ?";
 		List<User> users = jdbcTemplate.query(sql,
-				new Object[] { FoundUserRelationship.GONE.ordinal(), "", realCount },
+				new Object[] {realCount},
 				new BeanPropertyRowMapper<User>(User.class));
 		return users;
 	}
@@ -318,5 +318,29 @@ public class UserDao extends BaseDao {
 	 */
 	public int getFoundBlackUsers() {
 		 return jdbcTemplate.queryForObject("select count(*) from t_found_user_relationship where state=?",new Object[] {FoundUserRelationship.GONE.ordinal()}, Integer.class);
+	}
+
+	/**
+	 * 获取邂逅瓶推荐用户
+	 * @param pageSize
+	 * @param pageIndex
+	 * @param keyword
+	 * @return
+	 */
+	public List<User> getAllMeetBottleRecommendUser(int pageSize, int pageIndex, String keyword) {
+		if(TextUtils.isEmpty(keyword)) {
+			return jdbcTemplate.query("select u.* from t_user_meet_bottle_recommend mb left join t_user u on mb.uid=u.user_id order by mb.uid desc limit ?,?",new Object[] {(pageIndex-1)*pageSize,pageSize},new BeanPropertyRowMapper<User>(User.class));
+		}else {
+			return jdbcTemplate.query("select u.* from t_user_meet_bottle_recommend mb left join t_user u on mb.uid=u.user_id where u.nick_name like ? order by mb.uid desc limit ?,?",new Object[] {"%"+keyword+"%",(pageIndex-1)*pageSize,pageSize},new BeanPropertyRowMapper<User>(User.class));
+		}
+		
+	}
+
+	public int getMeetBottleRecommendUserSize(String keyword) {
+		if(TextUtils.isEmpty(keyword)) {
+			return jdbcTemplate.queryForObject("select count(*) from t_user_meet_bottle_recommend", Integer.class);
+		}else {
+			return jdbcTemplate.queryForObject("select count(*) from t_user_meet_bottle_recommend mb left join t_user u on mb.uid=u.user_id where u.nick_name like ?",new Object[] {"%"+keyword+"%"},Integer.class);
+		}
 	}
 }

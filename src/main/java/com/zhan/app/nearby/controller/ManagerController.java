@@ -625,7 +625,7 @@ public class ManagerController {
 		
 		
 		if(pageIndex==1) {
-			int totalSize = managerService.getUserSize(type,keyword) / pageSize;
+			int totalSize = managerService.getUserSize(type,keyword);
 			int  pageCount = totalSize / pageSize;
 			if (totalSize % 10 > 0) {
 				pageCount += 1;
@@ -641,7 +641,7 @@ public class ManagerController {
 		return r;
 	}
 
-	// 获取所有用户
+	   // 获取所有发现用户黑名单
 		@RequestMapping(value = "/list_user_found_black")
 		public @ResponseBody ModelMap list_user_found_black(int pageSize, int pageIndex) {
 			ModelMap r = ResultUtil.getResultOKMap();
@@ -649,7 +649,7 @@ public class ManagerController {
 			
 			
 			if(pageIndex==1) {
-				int totalSize = managerService.getFoundBlackUsers() / pageSize;
+				int totalSize = managerService.getFoundBlackUsers();
 				int  pageCount = totalSize / pageSize;
 				if (totalSize % 10 > 0) {
 					pageCount += 1;
@@ -664,4 +664,49 @@ public class ManagerController {
 			r.put("currentPageIndex", pageIndex);
 			return r;
 		}
+		
+		
+		// 获取所有用户
+		@RequestMapping(value = "/list_user_meet_bottle_recommend")
+		public @ResponseBody ModelMap list_user_meet_bottle_recommend(int pageSize, int pageIndex,String keyword) {
+			ModelMap r = ResultUtil.getResultOKMap();
+			List<User> users = managerService.getAllMeetBottleRecommendUser(pageSize, pageIndex,keyword);
+			
+			
+			if(pageIndex==1) {
+				int totalSize = managerService.getMeetBottleRecommendUserSize(keyword);
+				int  pageCount = totalSize / pageSize;
+				if (totalSize % 10 > 0) {
+					pageCount += 1;
+				}
+				if(pageCount==0) {
+					pageCount=1;
+				}
+				r.put("pageCount", pageCount);
+			}
+			ImagePathUtil.completeAvatarsPath(users, true);
+			r.put("users", users);
+			r.put("currentPageIndex", pageIndex);
+			return r;
+		}
+		// 添加到发现用户黑名单
+		@RequestMapping(value = "/edit_user_found_black")
+		public @ResponseBody ModelMap addToUserFoundBlack(long user_id,int fun,Integer pageSize, Integer pageIndex) {
+			managerService.editUserFoundBlack(user_id, fun);
+			if(fun==0) {
+				return list_user_found_black(pageSize,pageIndex);
+			}
+			return ResultUtil.getResultOKMap();
+		}
+		// 添加到邂逅瓶待选
+		@RequestMapping(value = "/edit_user_meet_bottle_recomend")
+		public @ResponseBody ModelMap addToUserMeetBottle(long user_id,int fun,Integer pageSize, Integer pageIndex,String keyword) {
+			managerService.editUserMeetBottle(user_id,fun);
+			if(fun==0) {
+				return list_user_meet_bottle_recommend(pageSize,pageIndex,keyword);
+			}
+			return ResultUtil.getResultOKMap();
+		}
+		
+		
 }

@@ -193,4 +193,41 @@ public class ManagerDao extends BaseDao {
 				new BeanPropertyRowMapper<ManagerUser>(ManagerUser.class));
 	}
 
+	/**
+	 * 添加到发现用户黑名单
+	 * @param user_id
+	 * @return
+	 */
+	public int editUserFoundBlack(long user_id,int fun) {
+		if(fun==1) {
+		String checkHas = "select count(*) from t_found_user_relationship where uid=? and state=?";
+		int count = jdbcTemplate.queryForObject(checkHas, new Object[] { user_id, FoundUserRelationship.GONE.ordinal()},
+				Integer.class);
+		if (count < 1) {
+			String sql = "insert into t_found_user_relationship values (?, ?)";
+			return jdbcTemplate.update(sql, new Object[] { user_id, FoundUserRelationship.GONE.ordinal() });
+		}
+		}else {
+			return jdbcTemplate.update("delete from t_found_user_relationship where uid=?", new Object[] { user_id});
+		}
+		return 1;
+	}
+
+	public int editUserMeetBottle(long user_id,int fun) {
+		if(fun==1) {
+			String checkHas = "select count(*) from t_user_meet_bottle_recommend where uid=?";
+			int count = jdbcTemplate.queryForObject(checkHas, new Object[] { user_id},
+					Integer.class);
+			if (count < 1) {
+				String sql = "insert into t_user_meet_bottle_recommend values (?)";
+				return jdbcTemplate.update(sql, new Object[] { user_id});
+			}
+		}else {
+			return jdbcTemplate.update("delete from t_user_meet_bottle_recommend where uid=?", new Object[] { user_id});
+		}
+		
+		
+		return 1;
+	}
+
 }

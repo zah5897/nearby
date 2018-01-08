@@ -8,8 +8,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.zhan.app.nearby.bean.Bottle;
-import com.zhan.app.nearby.bean.User;
 import com.zhan.app.nearby.bean.type.BottleType;
+import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.dao.UserDao;
 import com.zhan.app.nearby.service.BottleService;
 import com.zhan.app.nearby.util.SpringContextUtil;
@@ -22,9 +22,9 @@ public class TimerTask {
 	@Scheduled(cron = "0 0/5 * * * ?") // 每5分钟执行一次
 	public void injectMeetBottle() {
 		UserDao userDao = SpringContextUtil.getBean("userDao");
-		List<User> users = userDao.getRandomMeetBottleUser(10);
+		List<BaseUser> users = userDao.getRandomMeetBottleUser(10);
 		BottleService bottleService = SpringContextUtil.getBean("bottleService");
-		for (User u : users) {
+		for (BaseUser u : users) {
 			if(!bottleService.isExistMeetTypeBottle(u.getUser_id())) {//说明不存在
 				
 				Bottle bottle=new Bottle();

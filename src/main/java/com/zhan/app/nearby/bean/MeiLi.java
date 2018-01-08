@@ -1,5 +1,7 @@
 package com.zhan.app.nearby.bean;
 
+import com.zhan.app.nearby.bean.user.BaseUser;
+
 /**
  * 魅力排行榜数据
  * 
@@ -10,7 +12,7 @@ public class MeiLi {
 	private int value;
 	private int shanbei;
 	private int be_like_count;
-	private User user;
+	private BaseUser user;
 	
 	private boolean is_vip;
 	
@@ -25,11 +27,13 @@ public class MeiLi {
 		this.value = value;
 	}
 
-	public User getUser() {
+ 
+
+	public BaseUser getUser() {
 		return user;
 	}
 
-	public void setUser(User user) {
+	public void setUser(BaseUser user) {
 		this.user = user;
 	}
 

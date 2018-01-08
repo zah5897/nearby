@@ -18,9 +18,10 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import com.zhan.app.nearby.bean.Image;
-import com.zhan.app.nearby.bean.User;
 import com.zhan.app.nearby.bean.mapper.FateUserMapper;
 import com.zhan.app.nearby.bean.mapper.FoundUserMapper;
+import com.zhan.app.nearby.bean.user.BaseUser;
+import com.zhan.app.nearby.bean.user.DetailUser;
 import com.zhan.app.nearby.comm.Relationship;
 import com.zhan.app.nearby.util.DateTimeUtil;
 
@@ -120,9 +121,9 @@ public class UserInfoDao extends BaseDao {
 		}
 	}
 
-	public User getUserInfo(long user_id) {
-		List<User> list = jdbcTemplate.query("select *from t_user user where user.user_id=?", new Object[] { user_id },
-				new BeanPropertyRowMapper<User>(User.class));
+	public DetailUser getUserInfo(long user_id) {
+		List<DetailUser> list = jdbcTemplate.query("select *from t_user user where user.user_id=?", new Object[] { user_id },
+				new BeanPropertyRowMapper<DetailUser>(DetailUser.class));
 		if (list != null && list.size() > 0) {
 			return list.get(0);
 		} else {
@@ -148,7 +149,7 @@ public class UserInfoDao extends BaseDao {
 				new Object[] { user_id, id });
 	}
 
-	public List<User> getRandUsers(long user_id,String lat, String lng, int count) {
+	public List<DetailUser> getRandUsers(long user_id,String lat, String lng, int count) {
 		String disc = " ROUND(6378.138*2*ASIN(SQRT(POW(SIN((?*PI()/180-lat*PI()/180)/2),2)+COS(?*PI()/180)*COS(lat*PI()/180)*POW(SIN((?*PI()/180-lng*PI()/180)/2),2)))*1000) AS juli";
 		return jdbcTemplate.query(
 				"select user_id,avatar, nick_name,type,birthday,job_ids,lat,lng,interest_ids, " + disc
@@ -165,11 +166,11 @@ public class UserInfoDao extends BaseDao {
 		jdbcTemplate.update(sql, new Object[] { user_id, with_user_id, relation_ship });
 	}
 
-	public List<User> getLikeMeUsers(long user_id, long last_user_id, int page_size) {
+	public List<BaseUser> getLikeMeUsers(long user_id, long last_user_id, int page_size) {
 		return jdbcTemplate.query("select user.user_id,user.nick_name,user.avatar,user.sex  from t_user user right join t_relationship rp on user.user_id=rp.user_id where rp.with_user_id=? and relationship=? and user.user_id>? order by user.user_id  limit ?", new Object[] { user_id, Relationship.LIKE.ordinal(), last_user_id, page_size }, new FateUserMapper());
 	}
 	
-	public List<User> getOnlyLikeMeUsers(long user_id, long last_user_id, int page_size) {
+	public List<BaseUser> getOnlyLikeMeUsers(long user_id, long last_user_id, int page_size) {
 		return jdbcTemplate.query("select user.user_id,user.nick_name,user.avatar,user.sex  "
 				+ "from t_user user,"
 				+ "t_relationship onlyLm "
@@ -180,7 +181,7 @@ public class UserInfoDao extends BaseDao {
 				+ "user.user_id>? "
 				+ "order by user.user_id  limit ?", new Object[] { user_id, Relationship.LIKE.ordinal(),user_id,Relationship.LIKE.ordinal(), last_user_id, page_size }, new FateUserMapper());
 	}
-	public List<User> getLikeEachUsers(long user_id, long last_user_id, int page_size) {
+	public List<BaseUser> getLikeEachUsers(long user_id, long last_user_id, int page_size) {
 		
 		String sql="select friend.user_id ,user.nick_name ,user.avatar,user.sex,user.type "
 				+ "from t_relationship me,"

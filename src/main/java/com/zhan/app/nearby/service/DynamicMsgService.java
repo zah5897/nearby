@@ -14,7 +14,7 @@ import org.springframework.ui.ModelMap;
 
 import com.easemob.server.example.Main;
 import com.zhan.app.nearby.bean.DynamicMessage;
-import com.zhan.app.nearby.bean.User;
+import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.comm.DynamicMsgType;
 import com.zhan.app.nearby.comm.Relationship;
 import com.zhan.app.nearby.dao.DynamicMsgDao;
@@ -85,7 +85,7 @@ public class DynamicMsgService {
 				|| msg.getType() == DynamicMsgType.TYPE_EXPRESS.ordinal()) {
 			userDao.updateRelationship(user_id, msg.getBy_user_id(), Relationship.LIKE);
 
-			User me = userDao.getUserSimple(user_id).get(0);
+			BaseUser me = userDao.getUserSimple(user_id).get(0);
 			// 发送给对方
 			Map<String, String> ext = new HashMap<String, String>();
 			ext.put("nickname", me.getNick_name());
@@ -98,7 +98,7 @@ public class DynamicMsgService {
 			}
 
 			// 发送给自己
-			User he = userDao.getUserSimple(msg.getBy_user_id()).get(0);
+			BaseUser he = userDao.getUserSimple(msg.getBy_user_id()).get(0);
 			ext = new HashMap<String, String>();
 			ext.put("nickname", he.getNick_name());
 			ext.put("avatar", he.getAvatar());

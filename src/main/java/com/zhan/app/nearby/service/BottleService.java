@@ -10,9 +10,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 
 import com.zhan.app.nearby.bean.Bottle;
-import com.zhan.app.nearby.bean.User;
 import com.zhan.app.nearby.bean.VipUser;
 import com.zhan.app.nearby.bean.type.BottleType;
+import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.dao.BottleDao;
 import com.zhan.app.nearby.dao.VipDao;
 import com.zhan.app.nearby.exception.ERROR;
@@ -31,6 +31,9 @@ public class BottleService {
 	@Resource
 	private VipDao vipDao;
 
+	
+	@Resource
+	private UserService userService;
 	public Bottle getBottleFromPool(long user_id) {
 
 		List<Bottle> bottles = bottleDao.getBottleRandomInPool(user_id, 1);
@@ -89,11 +92,16 @@ public class BottleService {
 		List<Bottle> bottles = bottleDao.getMineBottles(user_id, last_id, page_size);
 		if (bottles != null) {
 			for (Bottle bottle : bottles) {
-				List<User> users = bottleDao.getScanUserList(bottle.getId());
-				if (users == null) {
-					users = bottleDao.getRandomScanUserList(10);
-				} else if (users.size() < 10) {
-					List<User> last_user = bottleDao.getRandomScanUserList(10 - users.size());
+				List<BaseUser> users = bottleDao.getScanUserList(bottle.getId(),8);
+				if(users==null||users.size()<8) {
+					String gender=userService.getUserGenderByID(user_id);
+					int gen;
+					if("0".equals(gender)) {
+						gen=1;
+					}else {
+						gen=0;
+					}
+					List<BaseUser> last_user = bottleDao.getRandomScanUserList(users==null?8:8-users.size(),gen);
 					users.addAll(last_user);
 				}
 				ImagePathUtil.completeAvatarsPath(users, false);

@@ -12,10 +12,11 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
+import com.fasterxml.jackson.databind.deser.Deserializers.Base;
 import com.zhan.app.nearby.bean.Gift;
 import com.zhan.app.nearby.bean.GiftOwn;
 import com.zhan.app.nearby.bean.MeiLi;
-import com.zhan.app.nearby.bean.User;
+import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.comm.Relationship;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.TextUtils;
@@ -109,14 +110,14 @@ public class GiftDao extends BaseDao {
 				own.setGive_time(rs.getTimestamp("give_time"));
 				own.setCount(rs.getInt("count"));
 
-				User receiver = new User();
+				BaseUser receiver = new BaseUser();
 				receiver.setUser_id(rs.getLong("user_id"));
 				receiver.setNick_name(rs.getString("re_name"));
 				receiver.setAvatar(rs.getString("re_avatar"));
 				ImagePathUtil.completeAvatarPath(receiver, true);
 				own.setReceiver(receiver);
 
-				User sender = new User();
+				BaseUser sender = new BaseUser();
 				sender.setUser_id(rs.getLong("from_uid"));
 				sender.setNick_name(rs.getString("se_name"));
 				sender.setAvatar(rs.getString("se_avatar"));
@@ -148,7 +149,7 @@ public class GiftDao extends BaseDao {
 				m.setShanbei(rs.getInt("amount"));
 				m.setBe_like_count(rs.getInt("like_count"));
 
-				User user = new User();
+				BaseUser user = new BaseUser();
 				user.setUser_id(rs.getLong("user_id"));
 				user.setNick_name(rs.getString("nick_name"));
 				user.setAvatar(rs.getString("avatar"));
@@ -182,7 +183,7 @@ public class GiftDao extends BaseDao {
 				m.setShanbei(rs.getInt("amount"));
 				m.setBe_like_count(rs.getInt("like_count"));
 				
-				User user = new User();
+				BaseUser user = new BaseUser();
 				user.setUser_id(rs.getLong("user_id"));
 				user.setNick_name(rs.getString("nick_name"));
 				user.setAvatar(rs.getString("avatar"));
@@ -219,7 +220,7 @@ public class GiftDao extends BaseDao {
 				MeiLi m = new MeiLi();
 				m.setValue(rs.getInt("tuhao_val"));
 
-				User user = new User();
+				BaseUser user = new BaseUser();
 				user.setUser_id(rs.getLong("user_id"));
 				user.setNick_name(rs.getString("nick_name"));
 				user.setAvatar(rs.getString("avatar"));

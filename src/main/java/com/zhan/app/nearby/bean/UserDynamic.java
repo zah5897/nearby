@@ -7,6 +7,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.zhan.app.nearby.annotation.ColumnType;
+import com.zhan.app.nearby.bean.user.BaseUser;
 
 public class UserDynamic implements Serializable {
 	/**
@@ -58,7 +59,7 @@ public class UserDynamic implements Serializable {
 	@JSONField(serialize = false)
 	private int district_id;
 	@ColumnType
-	private User user;
+	private BaseUser user;
 	
 	private long topic_id;
 	private String ip;
@@ -162,13 +163,15 @@ public class UserDynamic implements Serializable {
 		this.local_image_name = local_image_name;
 	}
 
-	public User getUser() {
+
+	public BaseUser getUser() {
 		return user;
 	}
 
-	public void setUser(User user) {
+	public void setUser(BaseUser user) {
 		this.user = user;
 	}
+
 
 	public String getStreet() {
 		return street;

@@ -15,8 +15,8 @@ import com.easemob.server.example.Main;
 import com.zhan.app.nearby.bean.City;
 import com.zhan.app.nearby.bean.Exchange;
 import com.zhan.app.nearby.bean.MeiLi;
-import com.zhan.app.nearby.bean.User;
 import com.zhan.app.nearby.bean.UserDynamic;
+import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.comm.DynamicMsgType;
 import com.zhan.app.nearby.comm.ExchangeState;
 import com.zhan.app.nearby.comm.Relationship;
@@ -64,7 +64,7 @@ public class MainService {
 			gender = -1;
 		}
 		ModelMap result = ResultUtil.getResultOKMap();
-		List<User> users = userDao.getRandomUser(user_id, realCount, gender);
+		List<BaseUser> users = userDao.getRandomUser(user_id, realCount, gender);
 		ImagePathUtil.completeAvatarsPath(users, true);
 		result.put("users", users);
 		return result;
@@ -135,7 +135,7 @@ public class MainService {
 		for (String id : with_ids) {
 			try {
 				long with_user = Long.parseLong(id);
-				User withUser = userDao.getUser(with_user);
+				BaseUser withUser = userDao.getUser(with_user);
 				if (user_id == with_user || withUser == null) {
 					continue;
 				}
@@ -146,11 +146,11 @@ public class MainService {
 		return ResultUtil.getResultOKMap();
 	}
 
-	public ModelMap changeRelationShip(long user_id, User with_user, Relationship ship, String content) {
+	public ModelMap changeRelationShip(long user_id, BaseUser with_user, Relationship ship, String content) {
 		userDao.updateRelationship(user_id, with_user.getUser_id(), ship);
 		// 判断对方是否也已经喜欢我了
 		if (ship == Relationship.LIKE) {
-			User user = userDao.getUserSimple(user_id).get(0);
+			BaseUser user = userDao.getUserSimple(user_id).get(0);
 			if (!TextUtils.isEmpty(content)) {
 				dynamicMsgService.insertActionMsg(DynamicMsgType.TYPE_EXPRESS, user_id, -1, with_user.getUser_id(),
 						content);
@@ -168,7 +168,7 @@ public class MainService {
 	}
 
 	
-	private void makeChatSession(User user ,User with_user,boolean isExpress,String expressMsg){
+	private void makeChatSession(BaseUser user ,BaseUser with_user,boolean isExpress,String expressMsg){
 		ImagePathUtil.completeAvatarPath(with_user, true);
 		ImagePathUtil.completeAvatarPath(user, true);
 

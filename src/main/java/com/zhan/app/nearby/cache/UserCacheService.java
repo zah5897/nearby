@@ -8,7 +8,7 @@ import javax.annotation.Resource;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-import com.zhan.app.nearby.bean.User;
+import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.util.TextUtils;
 
 /**
@@ -27,7 +27,7 @@ public class UserCacheService {
 
 	private String welcome;
 
-	public void cacheLoginToken(User user) {
+	public void cacheLoginToken(BaseUser user) {
 		try {
 			String id = String.valueOf(user.getUser_id());
 			redisTemplate.opsForValue().set(id, user.getToken());

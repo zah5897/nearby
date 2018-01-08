@@ -8,15 +8,15 @@ import com.zhan.app.nearby.bean.GiftOwn;
 import com.zhan.app.nearby.bean.Image;
 import com.zhan.app.nearby.bean.ManagerUser;
 import com.zhan.app.nearby.bean.Topic;
-import com.zhan.app.nearby.bean.User;
 import com.zhan.app.nearby.bean.UserDynamic;
+import com.zhan.app.nearby.bean.user.BaseUser;
 
 public class ImagePathUtil {
 
 	public static String HOST_PROFIX = "http://app.weimobile.com/nearby";
 //	public static String HOST_PROFIX = "http://127.0.0.1:8899/nearby";
 
-	public static void completeAvatarPath(User user, boolean thumbAndOrigin) {
+	public static void completeAvatarPath(BaseUser user, boolean thumbAndOrigin) {
 		String avatar = user.getAvatar();
 		if (TextUtils.isEmpty(avatar)) {
 			return;
@@ -34,11 +34,11 @@ public class ImagePathUtil {
 		}
 	}
 
-	public static void completeAvatarsPath(List<User> users, boolean thumbAndOrigin) {
+	public static void completeAvatarsPath(List<BaseUser> users, boolean thumbAndOrigin) {
 		if (users == null || users.size() == 0) {
 			return;
 		}
-		for (User user : users) {
+		for (BaseUser user : users) {
 			completeAvatarPath(user, true);
 		}
 	}

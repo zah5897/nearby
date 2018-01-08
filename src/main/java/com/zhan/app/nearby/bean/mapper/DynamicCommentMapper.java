@@ -6,7 +6,7 @@ import java.sql.SQLException;
 import org.springframework.jdbc.core.RowMapper;
 
 import com.zhan.app.nearby.bean.DynamicComment;
-import com.zhan.app.nearby.bean.User;
+import com.zhan.app.nearby.bean.user.BaseUser;
 
 public class DynamicCommentMapper implements RowMapper<DynamicComment> {
 
@@ -17,7 +17,7 @@ public class DynamicCommentMapper implements RowMapper<DynamicComment> {
 		comment.setContent(rs.getString("content"));
 		comment.setComment_time(rs.getTimestamp("comment_time"));
 
-		User user = new User();
+		BaseUser user = new BaseUser();
 		user.setUser_id(rs.getLong("user_id"));
 		user.setNick_name(rs.getString("nick_name"));
 		user.setAvatar(rs.getString("avatar"));
@@ -31,7 +31,7 @@ public class DynamicCommentMapper implements RowMapper<DynamicComment> {
 				atComment.setContent(rs.getString("at_content"));
 				atComment.setComment_time(rs.getTimestamp("at_comment_time"));
 
-				User at_user = new User();
+				BaseUser at_user = new BaseUser();
 				at_user.setUser_id(rs.getLong("at_u_id"));
 				at_user.setNick_name(rs.getString("at_nick_name"));
 				at_user.setAvatar(rs.getString("at_avatar"));

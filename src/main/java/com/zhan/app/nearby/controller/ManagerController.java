@@ -21,8 +21,8 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.zhan.app.nearby.bean.ManagerUser;
 import com.zhan.app.nearby.bean.Topic;
-import com.zhan.app.nearby.bean.User;
 import com.zhan.app.nearby.bean.UserDynamic;
+import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.comm.DynamicState;
 import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.service.ManagerService;
@@ -622,7 +622,7 @@ public class ManagerController {
 	@RequestMapping(value = "/list_user_all")
 	public @ResponseBody ModelMap list_user_all(int pageSize, int pageIndex, int type, String keyword) {
 		ModelMap r = ResultUtil.getResultOKMap();
-		List<User> users = managerService.getAllUser(pageSize, pageIndex, type, keyword);
+		List<BaseUser> users = managerService.getAllUser(pageSize, pageIndex, type, keyword);
 
 		if (pageIndex == 1) {
 			int totalSize = managerService.getUserSize(type, keyword);
@@ -645,7 +645,7 @@ public class ManagerController {
 	@RequestMapping(value = "/list_user_found_black")
 	public @ResponseBody ModelMap list_user_found_black(int pageSize, int pageIndex) {
 		ModelMap r = ResultUtil.getResultOKMap();
-		List<User> users = managerService.getFoundBlackUsers(pageSize, pageIndex);
+		List<BaseUser> users = managerService.getFoundBlackUsers(pageSize, pageIndex);
 
 		if (pageIndex == 1) {
 			int totalSize = managerService.getFoundBlackUsers();
@@ -668,7 +668,7 @@ public class ManagerController {
 	@RequestMapping(value = "/list_user_meet_bottle_recommend")
 	public @ResponseBody ModelMap list_user_meet_bottle_recommend(int pageSize, int pageIndex, String keyword) {
 		ModelMap r = ResultUtil.getResultOKMap();
-		List<User> users = managerService.getAllMeetBottleRecommendUser(pageSize, pageIndex, keyword);
+		List<BaseUser> users = managerService.getAllMeetBottleRecommendUser(pageSize, pageIndex, keyword);
 
 		if (pageIndex == 1) {
 			int totalSize = managerService.getMeetBottleRecommendUserSize(keyword);

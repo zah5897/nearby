@@ -262,13 +262,7 @@
 	    	parent.showOriginImg(img);
 	    }
 		 
-		$("#edit_to_visible").click(function() {
-			editState(0);	 
-		})
-		$("#edit_to_gone").click(function() {
-			editState(1);
-		})
-				
+		 
 		 
 		function changeType(selectView){
 		   var	typeSelect=$('#user_type option:selected') .val();

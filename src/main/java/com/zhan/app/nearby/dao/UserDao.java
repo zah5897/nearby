@@ -12,8 +12,11 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import com.zhan.app.nearby.bean.DynamicMessage;
-import com.zhan.app.nearby.bean.User;
 import com.zhan.app.nearby.bean.mapper.SimpkleUserMapper;
+import com.zhan.app.nearby.bean.user.BaseUser;
+import com.zhan.app.nearby.bean.user.DetailUser;
+import com.zhan.app.nearby.bean.user.LocationUser;
+import com.zhan.app.nearby.bean.user.SimpleUser;
 import com.zhan.app.nearby.comm.FoundUserRelationship;
 import com.zhan.app.nearby.comm.Relationship;
 import com.zhan.app.nearby.comm.UserType;
@@ -26,8 +29,8 @@ public class UserDao extends BaseDao {
 	@Resource
 	private JdbcTemplate jdbcTemplate;
 
-	public User getUser(long id) {
-		List<User> list = jdbcTemplate.query("select *from t_user user where user.user_id=?", new Object[] { id },
+	public BaseUser getUser(long id) {
+		List<BaseUser> list = jdbcTemplate.query("select *from t_user user where user.user_id=?", new Object[] { id },
 				new SimpkleUserMapper());
 		if (list != null && list.size() > 0) {
 			return list.get(0);
@@ -43,42 +46,54 @@ public class UserDao extends BaseDao {
 	// new Object[] { nickName, info, sex, avater, id });
 	// }
 
-	public List<?> getList() {
-		List<User> list = jdbcTemplate.query("select *from t_user user", new SimpkleUserMapper());
-		return list;
-	}
+	// public List<?> getList() {
+	// List<User> list = jdbcTemplate.query("select *from t_user user", new
+	// SimpkleUserMapper());
+	// return list;
+	// }
 	/**
 	 * 根据类型获取用户
+	 * 
 	 * @param pageSize
 	 * @param currentPage
 	 * @param type
 	 * @return
 	 */
-	public List<User> getUsers(int pageSize, int currentPage,int type,String keyword) {
-		if(TextUtils.isEmpty(keyword)) {
-			return  jdbcTemplate.query("select *from t_user  where type=? order by user_id desc limit ?,?",new Object[] {type,(currentPage-1)*pageSize,pageSize}, new BeanPropertyRowMapper<User>(User.class));
-		}else {
-			return jdbcTemplate.query("select *from t_user  where type=? and nick_name like ? order by user_id desc limit ?,?",new Object[] {type,"%"+keyword+"%",(currentPage-1)*pageSize,pageSize}, new BeanPropertyRowMapper<User>(User.class));
+	public List<BaseUser> getUsers(int pageSize, int currentPage, int type, String keyword) {
+		if (TextUtils.isEmpty(keyword)) {
+			return jdbcTemplate.query("select *from t_user  where type=? order by user_id desc limit ?,?",
+					new Object[] { type, (currentPage - 1) * pageSize, pageSize },
+					new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+		} else {
+			return jdbcTemplate.query(
+					"select *from t_user  where type=? and nick_name like ? order by user_id desc limit ?,?",
+					new Object[] { type, "%" + keyword + "%", (currentPage - 1) * pageSize, pageSize },
+					new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
 		}
 	}
+
 	/**
 	 * 获取所有用户
+	 * 
 	 * @param pageSize
 	 * @param currentPage
 	 * @return
 	 */
-	public List<User> getUsers(int pageSize, int currentPage,String keyword) {
-		if(TextUtils.isEmpty(keyword)) {
-			return jdbcTemplate.query("select *from t_user order by user_id desc limit ?,?",new Object[] {(currentPage-1)*pageSize,pageSize}, new BeanPropertyRowMapper<User>(User.class));
-		}else {
-			return jdbcTemplate.query("select *from t_user where nick_name like ? order by user_id desc limit ?,?",new Object[] {"%"+keyword+"%",(currentPage-1)*pageSize,pageSize}, new BeanPropertyRowMapper<User>(User.class));
+	public List<BaseUser> getUsers(int pageSize, int currentPage, String keyword) {
+		if (TextUtils.isEmpty(keyword)) {
+			return jdbcTemplate.query("select *from t_user order by user_id desc limit ?,?",
+					new Object[] { (currentPage - 1) * pageSize, pageSize },
+					new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+		} else {
+			return jdbcTemplate.query("select *from t_user where nick_name like ? order by user_id desc limit ?,?",
+					new Object[] { "%" + keyword + "%", (currentPage - 1) * pageSize, pageSize },
+					new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
 		}
 	}
 
-	public User findUserByMobile(String mobile) {
-		List<User> list = jdbcTemplate.query(
-				"select user.* ,city.name as city_name from t_user user left join t_sys_city city on user.city_id=city.id where user.mobile=?",
-				new Object[] { mobile }, new SimpkleUserMapper());
+	public BaseUser findBaseUserByMobile(String mobile) {
+		List<BaseUser> list = jdbcTemplate.query("select  *   from t_user  where mobile=?", new Object[] { mobile },
+				new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
 		if (list != null && list.size() > 0) {
 			return list.get(0);
 		} else {
@@ -86,8 +101,19 @@ public class UserDao extends BaseDao {
 		}
 	}
 
-	public User findUserByDeviceId(String deviceId) {
-		List<User> list = jdbcTemplate.query("select *from t_user user where user.mobile=? and type=?",
+	public LocationUser findLocationUserByMobile(String mobile) {
+		List<LocationUser> list = jdbcTemplate.query(
+				"select user.* ,city.name as city_name from t_user user left join t_sys_city city on user.city_id=city.id where user.mobile=?",
+				new Object[] { mobile }, new BeanPropertyRowMapper<LocationUser>(LocationUser.class));
+		if (list != null && list.size() > 0) {
+			return list.get(0);
+		} else {
+			return null;
+		}
+	}
+
+	public BaseUser findUserByDeviceId(String deviceId) {
+		List<BaseUser> list = jdbcTemplate.query("select *from t_user user where user.mobile=? and type=?",
 				new Object[] { deviceId, UserType.VISITOR.ordinal() }, new SimpkleUserMapper());
 		if (list != null && list.size() > 0) {
 			return list.get(0);
@@ -96,7 +122,18 @@ public class UserDao extends BaseDao {
 		}
 	}
 
-	public Serializable insert(User user) {
+	public LocationUser findLocationUserByDeviceId(String deviceId) {
+		List<LocationUser> list = jdbcTemplate.query("select *from t_user user where user.mobile=? and type=?",
+				new Object[] { deviceId, UserType.VISITOR.ordinal() },
+				new BeanPropertyRowMapper<LocationUser>(LocationUser.class));
+		if (list != null && list.size() > 0) {
+			return list.get(0);
+		} else {
+			return null;
+		}
+	}
+
+	public Serializable insert(BaseUser user) {
 		user.setCreate_time(new Date());
 		return saveObj(jdbcTemplate, "t_user", user);
 	}
@@ -133,9 +170,9 @@ public class UserDao extends BaseDao {
 				new Object[] { app_id, device_token, zh_cn, lat, lng, user_id });
 	}
 
-	public User getUserDetailInfo(long user_id) {
-		List<User> list = jdbcTemplate.query("select *from t_user user where user.user_id=?", new Object[] { user_id },
-				new BeanPropertyRowMapper<User>(User.class));
+	public DetailUser getUserDetailInfo(long user_id) {
+		List<DetailUser> list = jdbcTemplate.query("select *from t_user user where user.user_id=?",
+				new Object[] { user_id }, new BeanPropertyRowMapper<DetailUser>(DetailUser.class));
 		if (list != null && list.size() > 0) {
 			return list.get(0);
 		} else {
@@ -231,32 +268,29 @@ public class UserDao extends BaseDao {
 		return ids;
 	}
 
-	public List<User> getRandomUser(long user_id, int realCount, int gender) {
+	public List<BaseUser> getRandomUser(long user_id, int realCount, int gender) {
 		String sql = "select * from t_user where user_id not in (select uid from t_found_user_relationship where state=? order by uid desc) and  user_id<>? and avatar<>? and sex<>? order by  RAND() limit ?";
-		List<User> users = jdbcTemplate.query(sql,
+		List<BaseUser> users = jdbcTemplate.query(sql,
 				new Object[] { FoundUserRelationship.GONE.ordinal(), user_id, "", gender, realCount },
-				new BeanPropertyRowMapper<User>(User.class));
+				new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
 		return users;
 	}
-	
-	
-	public List<User> getRandomMeetBottleUser(int realCount) {
+
+	public List<BaseUser> getRandomMeetBottleUser(int realCount) {
 		String sql = "select u.* from t_user_meet_bottle_recommend mb  left join t_user u on mb.uid=u.user_id order by  RAND() limit ?";
-		List<User> users = jdbcTemplate.query(sql,
-				new Object[] {realCount},
-				new BeanPropertyRowMapper<User>(User.class));
+		List<BaseUser> users = jdbcTemplate.query(sql, new Object[] { realCount },
+				new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
 		return users;
 	}
-	
 
 	public String getUserAvatar(long user_id) {
 		String sql = "select avatar from t_user where user_id=?";
 		return jdbcTemplate.queryForObject(sql, new Object[] { user_id }, String.class);
 	}
 
-	public List<User> getUserSimple(long user_id) {
+	public List<BaseUser> getUserSimple(long user_id) {
 		String sql = "select user_id,nick_name,sex,avatar,signature,birthday from t_user where user_id=?";
-		return jdbcTemplate.query(sql, new Object[] { user_id }, new BeanPropertyRowMapper<User>(User.class));
+		return jdbcTemplate.query(sql, new Object[] { user_id }, new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
 	}
 
 	public int isLikeMe(long user_id, long with_user_id) {
@@ -277,70 +311,95 @@ public class UserDao extends BaseDao {
 
 	/**
 	 * 获取用户总数
+	 * 
 	 * @return
 	 */
 	public int getUserSize(String keyword) {
-		if(TextUtils.isEmpty(keyword)) {
+		if (TextUtils.isEmpty(keyword)) {
 			return jdbcTemplate.queryForObject("select count(*) from t_user", Integer.class);
-		}else {
-			return jdbcTemplate.queryForObject("select count(*) from t_user where nick_name like ?",new Object[] {"%"+keyword+"%"}, Integer.class);
+		} else {
+			return jdbcTemplate.queryForObject("select count(*) from t_user where nick_name like ?",
+					new Object[] { "%" + keyword + "%" }, Integer.class);
 		}
-		
+
 	}
-	 /**
-	  * 根据类型获取用户总数
-	  * @param type
-	  * @return
-	  */
-	public int getUserSize(int type,String keyword) {
-		if(TextUtils.isEmpty(keyword)) {
-			return jdbcTemplate.queryForObject("select count(*) from t_user where type=?",new Object[] {type}, Integer.class);
-		}else {
-			return jdbcTemplate.queryForObject("select count(*) from t_user where type=? and nick_name like ?",new Object[] {type,"%"+keyword+"%"}, Integer.class);
+
+	/**
+	 * 根据类型获取用户总数
+	 * 
+	 * @param type
+	 * @return
+	 */
+	public int getUserSize(int type, String keyword) {
+		if (TextUtils.isEmpty(keyword)) {
+			return jdbcTemplate.queryForObject("select count(*) from t_user where type=?", new Object[] { type },
+					Integer.class);
+		} else {
+			return jdbcTemplate.queryForObject("select count(*) from t_user where type=? and nick_name like ?",
+					new Object[] { type, "%" + keyword + "%" }, Integer.class);
 		}
-		
+
 	}
 
 	/**
 	 * 获取发现黑名单用户
+	 * 
 	 * @param pageSize
 	 * @param pageIndex
 	 * @return
 	 */
-	public List<User> getFoundBlackUsers(int pageSize, int pageIndex) {
-		String sql="select u.* from t_found_user_relationship bu left join t_user u on bu.uid=u.user_id  where bu.state=? order by bu.uid desc limit ?,?";
-		return jdbcTemplate.query(sql,new Object[] {FoundUserRelationship.GONE.ordinal(),(pageIndex-1)*pageSize,pageSize} ,new BeanPropertyRowMapper<User>(User.class));
+	public List<BaseUser> getFoundBlackUsers(int pageSize, int pageIndex) {
+		String sql = "select u.* from t_found_user_relationship bu left join t_user u on bu.uid=u.user_id  where bu.state=? order by bu.uid desc limit ?,?";
+		return jdbcTemplate.query(sql,
+				new Object[] { FoundUserRelationship.GONE.ordinal(), (pageIndex - 1) * pageSize, pageSize },
+				new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
 	}
 
 	/**
 	 * 获取发现用户黑名单总数
+	 * 
 	 * @return
 	 */
 	public int getFoundBlackUsers() {
-		 return jdbcTemplate.queryForObject("select count(*) from t_found_user_relationship where state=?",new Object[] {FoundUserRelationship.GONE.ordinal()}, Integer.class);
+		return jdbcTemplate.queryForObject("select count(*) from t_found_user_relationship where state=?",
+				new Object[] { FoundUserRelationship.GONE.ordinal() }, Integer.class);
 	}
 
 	/**
 	 * 获取邂逅瓶推荐用户
+	 * 
 	 * @param pageSize
 	 * @param pageIndex
 	 * @param keyword
 	 * @return
 	 */
-	public List<User> getAllMeetBottleRecommendUser(int pageSize, int pageIndex, String keyword) {
-		if(TextUtils.isEmpty(keyword)) {
-			return jdbcTemplate.query("select u.* from t_user_meet_bottle_recommend mb left join t_user u on mb.uid=u.user_id order by mb.uid desc limit ?,?",new Object[] {(pageIndex-1)*pageSize,pageSize},new BeanPropertyRowMapper<User>(User.class));
-		}else {
-			return jdbcTemplate.query("select u.* from t_user_meet_bottle_recommend mb left join t_user u on mb.uid=u.user_id where u.nick_name like ? order by mb.uid desc limit ?,?",new Object[] {"%"+keyword+"%",(pageIndex-1)*pageSize,pageSize},new BeanPropertyRowMapper<User>(User.class));
+	public List<BaseUser> getAllMeetBottleRecommendUser(int pageSize, int pageIndex, String keyword) {
+		if (TextUtils.isEmpty(keyword)) {
+			return jdbcTemplate.query(
+					"select u.* from t_user_meet_bottle_recommend mb left join t_user u on mb.uid=u.user_id order by mb.uid desc limit ?,?",
+					new Object[] { (pageIndex - 1) * pageSize, pageSize },
+					new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+		} else {
+			return jdbcTemplate.query(
+					"select u.* from t_user_meet_bottle_recommend mb left join t_user u on mb.uid=u.user_id where u.nick_name like ? order by mb.uid desc limit ?,?",
+					new Object[] { "%" + keyword + "%", (pageIndex - 1) * pageSize, pageSize },
+					new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
 		}
-		
+
 	}
 
 	public int getMeetBottleRecommendUserSize(String keyword) {
-		if(TextUtils.isEmpty(keyword)) {
+		if (TextUtils.isEmpty(keyword)) {
 			return jdbcTemplate.queryForObject("select count(*) from t_user_meet_bottle_recommend", Integer.class);
-		}else {
-			return jdbcTemplate.queryForObject("select count(*) from t_user_meet_bottle_recommend mb left join t_user u on mb.uid=u.user_id where u.nick_name like ?",new Object[] {"%"+keyword+"%"},Integer.class);
+		} else {
+			return jdbcTemplate.queryForObject(
+					"select count(*) from t_user_meet_bottle_recommend mb left join t_user u on mb.uid=u.user_id where u.nick_name like ?",
+					new Object[] { "%" + keyword + "%" }, Integer.class);
 		}
+	}
+
+	public String getUserGenderByID(long user_id) {
+		return jdbcTemplate.queryForObject("select sex from t_user where user_id=?", new Object[] { user_id },
+				String.class);
 	}
 }

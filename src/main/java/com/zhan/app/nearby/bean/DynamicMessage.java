@@ -7,6 +7,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.zhan.app.nearby.annotation.ColumnType;
 import com.zhan.app.nearby.bean.property.MsgAttention;
+import com.zhan.app.nearby.bean.user.BaseUser;
 
 public class DynamicMessage {
 	private long id;
@@ -25,7 +26,7 @@ public class DynamicMessage {
 	
 	private int isReadNum;
 	@ColumnType
-	private User user;
+	private BaseUser user;
 	@ColumnType
 	private UserDynamic dynamic;
 
@@ -55,11 +56,11 @@ public class DynamicMessage {
 		this.user_id = user_id;
 	}
 
-	public User getUser() {
+	public BaseUser getUser() {
 		return user;
 	}
 
-	public void setUser(User user) {
+	public void setUser(BaseUser user) {
 		this.user = user;
 	}
 

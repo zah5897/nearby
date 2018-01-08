@@ -6,13 +6,14 @@ import java.sql.SQLException;
 import org.springframework.jdbc.core.RowMapper;
 
 import com.zhan.app.nearby.bean.City;
-import com.zhan.app.nearby.bean.User;
+import com.zhan.app.nearby.bean.user.BaseUser;
+import com.zhan.app.nearby.bean.user.DetailUser;
 import com.zhan.app.nearby.util.TextUtils;
 
-public class SimpkleUserMapper implements RowMapper<User> {
+public class SimpkleUserMapper implements RowMapper<BaseUser> {
 
-	public User mapRow(ResultSet rs, int rowNum) throws SQLException {
-		User user = new User();
+	public BaseUser mapRow(ResultSet rs, int rowNum) throws SQLException {
+		DetailUser user = new DetailUser();
 		user.setUser_id(rs.getLong("user_id"));
 		user.setMobile(rs.getString("mobile"));
 		user.setPassword(rs.getString("password"));

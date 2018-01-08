@@ -7,6 +7,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.zhan.app.nearby.annotation.ColumnType;
+import com.zhan.app.nearby.bean.user.BaseUser;
 
 public class Bottle {
 	@ColumnType
@@ -21,9 +22,9 @@ public class Bottle {
 	@JSONField(serialize = false)
 	private long user_id;
 	@ColumnType
-	private User sender;
+	private BaseUser sender;
 	@ColumnType
-	private List<User> scan_user_list;
+	private List<BaseUser> scan_user_list;
 	@ColumnType
 	private int view_nums;
 	public long getId() {
@@ -56,16 +57,17 @@ public class Bottle {
 	public void setUser_id(long user_id) {
 		this.user_id = user_id;
 	}
-	public User getSender() {
+	 
+	public BaseUser getSender() {
 		return sender;
 	}
-	public void setSender(User sender) {
+	public void setSender(BaseUser sender) {
 		this.sender = sender;
 	}
-	public List<User> getScan_user_list() {
+	public List<BaseUser> getScan_user_list() {
 		return scan_user_list;
 	}
-	public void setScan_user_list(List<User> scan_user_list) {
+	public void setScan_user_list(List<BaseUser> scan_user_list) {
 		this.scan_user_list = scan_user_list;
 	}
 	public int getView_nums() {

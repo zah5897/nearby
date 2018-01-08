@@ -20,8 +20,12 @@ import org.springframework.web.multipart.support.DefaultMultipartHttpServletRequ
 
 import com.zhan.app.nearby.bean.City;
 import com.zhan.app.nearby.bean.Tag;
-import com.zhan.app.nearby.bean.User;
 import com.zhan.app.nearby.bean.UserDynamic;
+import com.zhan.app.nearby.bean.user.BaseUser;
+import com.zhan.app.nearby.bean.user.DetailUser;
+import com.zhan.app.nearby.bean.user.LocationUser;
+import com.zhan.app.nearby.bean.user.LoginUser;
+import com.zhan.app.nearby.bean.user.SimpleUser;
 import com.zhan.app.nearby.cache.UserCacheService;
 import com.zhan.app.nearby.comm.Relationship;
 import com.zhan.app.nearby.comm.UserType;
@@ -112,7 +116,7 @@ public class UserController {
 	 */
 
 	@RequestMapping("regist")
-	public ModelMap regist(HttpServletRequest request, User user, String code, String aid) {
+	public ModelMap regist(HttpServletRequest request, LoginUser user, String code, String aid) {
 
 		if (TextUtils.isEmpty(user.getMobile())) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "手机号码不能为空!");
@@ -209,7 +213,7 @@ public class UserController {
 			return ResultUtil.getResultMap(ERROR.ERR_PASSWORD);
 		}
 
-		User user = userService.findUserByMobile(mobile);
+		LocationUser user = userService.findLocationUserByMobile(mobile);
 		if (user == null) {
 			return ResultUtil.getResultMap(ERROR.ERR_USER_NOT_EXIST, "该账号不存在");
 		}
@@ -253,10 +257,10 @@ public class UserController {
 		if (TextUtils.isEmpty(token) || user_id < 1) {
 			return ResultUtil.getResultOKMap();
 		}
-		User user = userService.getBasicUser(user_id);
+		BaseUser user = userService.getBasicUser(user_id);
 		if (user != null) {
 			if (token.equals(user.getToken())) {
-				userService.updateToken(new User(user_id));
+				userService.updateToken(new BaseUser(user_id));
 				userCacheService.clearLoginUser(token, user_id);
 			}
 		}
@@ -350,7 +354,7 @@ public class UserController {
 	 */
 	@RequestMapping("info")
 	public ModelMap info(long user_id_for) {
-		User u = userService.getBasicUser(user_id_for);
+		DetailUser u = userService.getUserDetailInfo(user_id_for);
 		if (u == null) {
 			return ResultUtil.getResultMap(ERROR.ERR_USER_NOT_EXIST, "该用户不存在！");
 		} else {
@@ -381,7 +385,7 @@ public class UserController {
 		if (TextUtils.isEmpty(token)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
-		User user = userService.getBasicUser(user_id);
+		BaseUser user = userService.getBasicUser(user_id);
 
 		if (user == null) {
 			return ResultUtil.getResultMap(ERROR.ERR_USER_NOT_EXIST, "该用户不存在！");
@@ -450,7 +454,7 @@ public class UserController {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "用户ID异常");
 		}
 
-		User user = userService.getBasicUser(user_id);
+		BaseUser user = userService.getBasicUser(user_id);
 		//
 		if (user == null) {
 			return ResultUtil.getResultMap(ERROR.ERR_USER_NOT_EXIST, "该用户不存在！");
@@ -543,10 +547,10 @@ public class UserController {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "deviceId is empty");
 		}
 
-		User user = userService.findUserByDeviceId(device_id);
+		LocationUser user = userService.findLocationUserByDeviceId(device_id);
 		if (user == null) {
 
-			user = new User();
+			user = new LocationUser();
 			user.setMobile(device_id);
 			user.setDevice_token(device_token);
 			user.setAid(aid);
@@ -580,10 +584,10 @@ public class UserController {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "deviceId is empty");
 		}
 
-		User user = userService.findUserByDeviceId(device_id);
+		LocationUser user = userService.findLocationUserByDeviceId(device_id);
 		if (user == null) {
 
-			user = new User();
+			user = new LocationUser();
 			user.setMobile(device_id);
 			user.setDevice_token(device_token);
 			user.setLat(lat);

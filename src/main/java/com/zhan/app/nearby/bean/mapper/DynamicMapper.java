@@ -6,8 +6,8 @@ import java.util.Date;
 
 import org.springframework.jdbc.core.RowMapper;
 
-import com.zhan.app.nearby.bean.User;
 import com.zhan.app.nearby.bean.UserDynamic;
+import com.zhan.app.nearby.bean.user.SimpleUser;
 import com.zhan.app.nearby.comm.LikeDynamicState;
 import com.zhan.app.nearby.util.DateTimeUtil;
 
@@ -33,7 +33,7 @@ public class DynamicMapper implements RowMapper<UserDynamic> {
 			dynamic.setLike_state(LikeDynamicState.UNLIKE.ordinal());
 		}
 
-		User user = new User();
+		SimpleUser  user = new SimpleUser();
 
 		user.setUser_id(rs.getLong("user_id"));
 		user.setNick_name(rs.getString("nick_name"));

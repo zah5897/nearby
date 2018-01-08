@@ -102,8 +102,8 @@ public class HttpUtil {
 				result += line;
 			}
 		} catch (Exception e) {
-			System.out.println("发送 POST 请求出现异常！" + e);
-			e.printStackTrace();
+			//System.out.println("发送 POST 请求出现异常！" + e);
+			//e.printStackTrace();
 		}
 		// 使用finally块来关闭输出流、输入流
 		finally {
@@ -115,7 +115,7 @@ public class HttpUtil {
 					in.close();
 				}
 			} catch (IOException ex) {
-				ex.printStackTrace();
+				//ex.printStackTrace();
 			}
 		}
 		return result;
@@ -142,8 +142,8 @@ public class HttpUtil {
 				result += line;
 			}
 		} catch (Exception e) {
-			System.out.println("发送 POST 请求出现异常！" + e);
-			e.printStackTrace();
+			//System.out.println("发送 POST 请求出现异常！" + e);
+			//e.printStackTrace();
 		}
 		// 使用finally块来关闭输出流、输入流
 		finally {
@@ -152,7 +152,7 @@ public class HttpUtil {
 					in.close();
 				}
 			} catch (IOException ex) {
-				ex.printStackTrace();
+				//ex.printStackTrace();
 			}
 		}
 		return result;

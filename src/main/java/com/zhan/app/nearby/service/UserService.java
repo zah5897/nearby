@@ -15,8 +15,11 @@ import org.springframework.ui.ModelMap;
 import com.easemob.server.example.Main;
 import com.zhan.app.nearby.bean.DynamicMessage;
 import com.zhan.app.nearby.bean.Tag;
-import com.zhan.app.nearby.bean.User;
 import com.zhan.app.nearby.bean.VipUser;
+import com.zhan.app.nearby.bean.user.BaseUser;
+import com.zhan.app.nearby.bean.user.DetailUser;
+import com.zhan.app.nearby.bean.user.LocationUser;
+import com.zhan.app.nearby.bean.user.SimpleUser;
 import com.zhan.app.nearby.cache.UserCacheService;
 import com.zhan.app.nearby.comm.Relationship;
 import com.zhan.app.nearby.dao.TagDao;
@@ -46,22 +49,29 @@ public class UserService {
 	@Resource
 	private UserDynamicService userDynamicService;
 
-	
 	@Resource
 	private GiftService giftService;
 	@Resource
 	private VipDao vipDao;
-	
-	public User getBasicUser(long id) {
+
+	public BaseUser getBasicUser(long id) {
 		return userDao.getUser(id);
 	}
 
-	public User findUserByMobile(String mobile) {
-		return userDao.findUserByMobile(mobile);
+	public BaseUser findBaseUserByMobile(String mobile) {
+		return userDao.findBaseUserByMobile(mobile);
 	}
 
-	public User findUserByDeviceId(String deviceId) {
+	public LocationUser findLocationUserByMobile(String mobile) {
+		return userDao.findLocationUserByMobile(mobile);
+	}
+
+	public BaseUser findUserByDeviceId(String deviceId) {
 		return userDao.findUserByDeviceId(deviceId);
+	}
+
+	public LocationUser findLocationUserByDeviceId(String deviceId) {
+		return userDao.findLocationUserByDeviceId(deviceId);
 	}
 
 	// @Transactional(readOnly = true)
@@ -73,7 +83,7 @@ public class UserService {
 		userDao.delete(id);
 	}
 
-	public long insertUser(User user) {
+	public long insertUser(BaseUser user) {
 
 		int count = userDao.getUserCountByMobile(user.getMobile());
 		if (count > 0) {
@@ -106,15 +116,11 @@ public class UserService {
 		return id;
 	}
 
-	public List<?> getList() {
-		return userDao.getList();
-	}
-
 	public int getUserCountByMobile(String mobile) {
 		return userDao.getUserCountByMobile(mobile);
 	}
 
-	public int updateToken(User user) {
+	public int updateToken(BaseUser user) {
 		// 更新登陆时间
 		return userDao.updateToken(user.getUser_id(), user.getToken(), user.get_ua(), new Date());
 	}
@@ -155,8 +161,8 @@ public class UserService {
 		return count;
 	}
 
-	public User getUserDetailInfo(long user_id, int count) {
-		User user = userDao.getUserDetailInfo(user_id);
+	public DetailUser getUserDetailInfo(long user_id) {
+		DetailUser user = userDao.getUserDetailInfo(user_id);
 		if (user != null) {
 
 			if (user.getCity_id() > 0) {
@@ -167,19 +173,7 @@ public class UserService {
 			}
 
 			ImagePathUtil.completeAvatarPath(user, true); // 补全图片链接地址
-			// 隐藏系统安全信息
 			user.hideSysInfo();
-			// // 补全 tag 属性
-			// setTagByIds(user);
-			// 补全images属性
-
-			if (count <= 0) {
-				count = 4;
-			}
-			// List<Image> userImages = userInfoDao.getUserImages(user_id, 0,
-			// count);
-			// ImagePathUtil.completeImagePath(userImages, true); // 补全图片路径
-			// user.setImages(userImages);
 		}
 		return user;
 	}
@@ -191,7 +185,7 @@ public class UserService {
 				animals, musics, weekday_todo, footsteps, want_to_where, birth_city_id);
 	}
 
-	public int visitorToNormal(User user) {
+	public int visitorToNormal(SimpleUser user) {
 		return userDao.visitorToNormal(user.getUser_id(), user.getMobile(), user.getPassword(), user.getToken(),
 				user.getNick_name(), user.getBirthday(), user.getSex(), user.getAvatar(), user.getLast_login_time());
 	}
@@ -246,17 +240,17 @@ public class UserService {
 		return userDao.getAllUserIds(last_id, page);
 	}
 
-	public ModelMap getUserCenterData(String token,String aid, Long user_id) {
+	public ModelMap getUserCenterData(String token, String aid, Long user_id) {
 		if (user_id == null || user_id <= 0) {
 			return ResultUtil.getResultMap(ERROR.ERR_FAILED, "not login");
 		}
-		User user = userDao.getUserDetailInfo(user_id);
+		DetailUser user = userDao.getUserDetailInfo(user_id);
 		if (user == null) {
 			return ResultUtil.getResultMap(ERROR.ERR_FAILED, "not exist");
 		}
-		
+
 		user.setAge(DateTimeUtil.getAge(user.getBirthday()));
-		
+
 		user.setImages(userDynamicService.getUserDynamic(user_id, 0, 5));
 		// //
 		// Map<String, Object> userJson = new HashMap<>();
@@ -269,11 +263,8 @@ public class UserService {
 
 		ImagePathUtil.completeAvatarPath(user, true);
 		setTagByIds(user);
-		
-		
-		
-		
-		ModelMap r=ResultUtil.getResultOKMap();
+
+		ModelMap r = ResultUtil.getResultOKMap();
 		r.addAttribute("user", user);
 		r.addAttribute("meili", giftService.getUserMeiLiVal(user_id));
 		r.addAttribute("coins", giftService.getUserCoins(aid, user_id));
@@ -285,7 +276,7 @@ public class UserService {
 		return tagDao.getTagsByType(type);
 	}
 
-	public void setTagByIds(User user) {
+	public void setTagByIds(DetailUser user) {
 
 		String ids[];
 		List<Tag> tags = tagDao.getTags();
@@ -430,9 +421,9 @@ public class UserService {
 	}
 
 	public ModelMap getUserSimple(long user_id) {
-		List<User> users = userDao.getUserSimple(user_id);
+		List<BaseUser> users = userDao.getUserSimple(user_id);
 		if (users != null && users.size() > 0) {
-			User u = users.get(0);
+			BaseUser u = users.get(0);
 			ImagePathUtil.completeAvatarPath(u, true);
 			return ResultUtil.getResultOKMap().addAttribute("user", u);
 		}
@@ -447,10 +438,10 @@ public class UserService {
 		List<DynamicMessage> msgs = userDao.getUserDynamicMsgs(user_id);
 		return ResultUtil.getResultOKMap().addAttribute("msgs", msgs);
 	}
-	
-	public int loadUserCoins(String aid,long user_id){
+
+	public int loadUserCoins(String aid, long user_id) {
 		Map<?, ?> map = HttpService.queryUserCoins(user_id, aid);
-		if(map==null){
+		if (map == null) {
 			return 0;
 		}
 		int code = (int) map.get("code");
@@ -467,41 +458,50 @@ public class UserService {
 
 	/**
 	 * 获取用户列表
+	 * 
 	 * @param pageSize
 	 * @param currentPage
 	 * @return
 	 */
-	public List<User> getAllUser(int pageSize, int currentPage,int type,String keyword) {
-		if(type==-1) {
-			 return userDao.getUsers(pageSize,currentPage,keyword);
-		}else {
-			 return userDao.getUsers(pageSize,currentPage,type,keyword);
+	public List<BaseUser> getAllUser(int pageSize, int currentPage, int type, String keyword) {
+		if (type == -1) {
+			return userDao.getUsers(pageSize, currentPage, keyword);
+		} else {
+			return userDao.getUsers(pageSize, currentPage, type, keyword);
 		}
 	}
+
 	/**
 	 * 获取用户总数
+	 * 
 	 * @return
 	 */
-	public int getUserSize(int type,String keyword) {
-	     if(type==-1) {
-	    	 return userDao.getUserSize(keyword);
-	     }else {
-	    	 return userDao.getUserSize(type,keyword);
-	     }
+	public int getUserSize(int type, String keyword) {
+		if (type == -1) {
+			return userDao.getUserSize(keyword);
+		} else {
+			return userDao.getUserSize(type, keyword);
+		}
+	}
+
+	public String getUserGenderByID(long user_id) {
+		return userDao.getUserGenderByID(user_id);
 	}
 
 	/**
 	 * 获取发现黑名单用户
+	 * 
 	 * @param pageSize
 	 * @param pageIndex
 	 * @return
 	 */
-	public List<User> getFoundBlackUsers(int pageSize, int pageIndex) {
-		 return userDao.getFoundBlackUsers(pageSize,pageIndex);
+	public List<BaseUser> getFoundBlackUsers(int pageSize, int pageIndex) {
+		return userDao.getFoundBlackUsers(pageSize, pageIndex);
 	}
 
 	/**
 	 * 获取黑名单总数
+	 * 
 	 * @return
 	 */
 	public int getFoundBlackUsers() {
@@ -509,13 +509,12 @@ public class UserService {
 		return userDao.getFoundBlackUsers();
 	}
 
-	public List<User> getAllMeetBottleRecommendUser(int pageSize, int pageIndex, String keyword) {
-		return userDao.getAllMeetBottleRecommendUser(pageSize,pageIndex,keyword);
+	public List<BaseUser> getAllMeetBottleRecommendUser(int pageSize, int pageIndex, String keyword) {
+		return userDao.getAllMeetBottleRecommendUser(pageSize, pageIndex, keyword);
 	}
 
 	public int getMeetBottleRecommendUserSize(String keyword) {
 		return userDao.getMeetBottleRecommendUserSize(keyword);
 	}
-	
-	
+
 }

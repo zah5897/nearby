@@ -5,7 +5,7 @@ import java.util.Map;
 
 import org.springframework.ui.ModelMap;
 
-import com.zhan.app.nearby.bean.User;
+import com.zhan.app.nearby.bean.user.DetailUser;
 import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.service.UserService;
 
@@ -14,7 +14,7 @@ public class UserDetailInfoUtil {
 		if (user_id == null || user_id < 1) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "用户ID异常");
 		}
-		User user = userService.getUserDetailInfo(user_id, count);
+		DetailUser user = userService.getUserDetailInfo(user_id);
 		if (user == null) {
 			return ResultUtil.getResultMap(ERROR.ERR_USER_NOT_EXIST, "该用户不存在！");
 		}

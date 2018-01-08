@@ -90,6 +90,18 @@ function showOriginImg(img){
  		title : "",
  	 });
 }
+
+function showAuth(img){
+	 var alt=$(img).attr("alt");
+    var parentdiv=$('<img></img>');        //创建一个父div
+    parentdiv.attr('src',alt);        //给父div设置id
+	 $(parentdiv).dialog({
+		title : "",
+	 });
+}
+
+
+
 </script>
 <ul class="bread">
   <li><a href="<%=path %>/manager/forword?path=welcome" target="right"  class="icon-home"> 首页</a></li>

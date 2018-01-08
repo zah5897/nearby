@@ -6,6 +6,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.zhan.app.nearby.annotation.ColumnType;
+import com.zhan.app.nearby.bean.user.BaseUser;
 
 public class GiftOwn extends Gift {
 	private long user_id;
@@ -17,9 +18,9 @@ public class GiftOwn extends Gift {
 
 	
 	@ColumnType
-	private User receiver;
+	private BaseUser receiver;
 	@ColumnType
-	private User sender;
+	private BaseUser sender;
 	
 	public long getUser_id() {
 		return user_id;
@@ -53,20 +54,22 @@ public class GiftOwn extends Gift {
 		this.give_time = give_time;
 	}
 
-	public User getReceiver() {
+	public BaseUser getReceiver() {
 		return receiver;
 	}
 
-	public void setReceiver(User receiver) {
+	public void setReceiver(BaseUser receiver) {
 		this.receiver = receiver;
 	}
 
-	public User getSender() {
+	public BaseUser getSender() {
 		return sender;
 	}
 
-	public void setSender(User sender) {
+	public void setSender(BaseUser sender) {
 		this.sender = sender;
 	}
+
+	 
 
 }

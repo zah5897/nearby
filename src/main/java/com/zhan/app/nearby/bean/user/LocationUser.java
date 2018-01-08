@@ -1,0 +1,104 @@
+package com.zhan.app.nearby.bean.user;
+
+import com.alibaba.fastjson.annotation.JSONField;
+import com.zhan.app.nearby.bean.City;
+
+public class LocationUser extends SimpleUser {
+
+	public LocationUser(long user_id) {
+		super(user_id);
+	}
+
+	public LocationUser() {
+	}
+
+	private String lat;
+	private String lng;
+
+	@JSONField(serialize = false)
+	private int city_id;
+	private City city;
+	@JSONField(serialize = false)
+	private int birth_city_id;
+	private City birth_city;
+
+	// @JsonIgnore
+	@JSONField(serialize = false)
+	private String disc;
+
+	public String getLat() {
+		return lat;
+	}
+
+	public void setLat(String lat) {
+		this.lat = lat;
+	}
+
+	public String getLng() {
+		return lng;
+	}
+
+	public void setLng(String lng) {
+		this.lng = lng;
+	}
+
+	public int getCity_id() {
+		return city_id;
+	}
+
+	public void setCity_id(int city_id) {
+		this.city_id = city_id;
+	}
+
+	public int getBirth_city_id() {
+		return birth_city_id;
+	}
+
+	public void setBirth_city_id(int birth_city_id) {
+		this.birth_city_id = birth_city_id;
+	}
+
+	public City getBirth_city() {
+		return birth_city;
+	}
+
+	public String getDisc() {
+		return disc;
+	}
+
+	public void setDisc(String disc) {
+		this.disc = disc;
+	}
+
+	public City getCity() {
+		return city;
+	}
+
+	public void setCity(City city) {
+		this.city = city;
+		if (city != null) {
+			city.setChildren(null);
+		}
+	}
+
+	public void setBirth_city(City birth_city) {
+		this.birth_city = birth_city;
+		if (birth_city != null) {
+			birth_city.setChildren(null);
+		}
+	}
+
+	/**
+	 * 隐藏系统信息
+	 */
+	public void hideSysInfo() {
+		// 获取别人的信息时不能显示别人的登陆token
+		setToken(null);
+		// 获取信息的时候不能暴露手机号码
+		setMobile(null);
+		set_ua(null);
+		// 隐藏位置信息
+		setLat(null);
+		setLng(null);
+	}
+}

@@ -5,12 +5,12 @@ import java.sql.SQLException;
 
 import org.springframework.jdbc.core.RowMapper;
 
-import com.zhan.app.nearby.bean.User;
+import com.zhan.app.nearby.bean.user.DetailUser;
 
-public class FoundUserMapper implements RowMapper<User> {
+public class FoundUserMapper implements RowMapper<DetailUser> {
 
-	public User mapRow(ResultSet rs, int rowNum) throws SQLException {
-		User user = new User();
+	public DetailUser mapRow(ResultSet rs, int rowNum) throws SQLException {
+		DetailUser user = new DetailUser();
 		user.setUser_id(rs.getLong("user_id"));
 		user.setNick_name(rs.getString("nick_name"));
 		user.setBirthday(rs.getTimestamp("birthday"));

@@ -103,6 +103,9 @@ public class BottleService {
 					}
 					List<BaseUser> last_user = bottleDao.getRandomScanUserList(users==null?8:8-users.size(),gen);
 					users.addAll(last_user);
+					bottle.setView_nums(users.size());
+				}else {
+					bottle.setView_nums(bottleDao.getScanUserCount(bottle.getId()));
 				}
 				ImagePathUtil.completeAvatarsPath(users, false);
 				bottle.setScan_user_list(users);

@@ -73,7 +73,8 @@ public class BottleDao extends BaseDao {
 	}
 
 	public List<Bottle> getBottles(long user_id, long last_id, int limit) {
-		String sql = "select b.*,u.nick_name,u.avatar,u.birthday,u.birth_city_id,"+getAgeSql()+", u.sex ,c.name as city_name from t_bottle b left join t_user u on b.user_id=u.user_id left join t_sys_city c on u.birth_city_id=c.id where b.user_id<>? and b.id>? order by b.id desc limit ?";
+		String sql = "select b.*,u.nick_name,u.avatar,u.birthday,u.birth_city_id," + getAgeSql()
+				+ ", u.sex ,c.name as city_name from t_bottle b left join t_user u on b.user_id=u.user_id left join t_sys_city c on u.birth_city_id=c.id where b.user_id<>? and b.id>? order by b.id desc limit ?";
 		return jdbcTemplate.query(sql, new Object[] { user_id, last_id, limit },
 				new BeanPropertyRowMapper<Bottle>(Bottle.class) {
 					@Override
@@ -103,7 +104,8 @@ public class BottleDao extends BaseDao {
 	}
 
 	public List<Bottle> getBottlesByGender(long user_id, long last_id, int limit, int gender) {
-		String sql = "select b.*,u.nick_name,u.avatar,u.birthday,u.birth_city_id, "+getAgeSql()+",u.sex,c.name as city_name from t_bottle b left join t_user u on b.user_id=u.user_id left join t_sys_city c on u.birth_city_id=c.id where b.user_id<>? and b.id>? and u.sex=? order by b.id desc limit ?";
+		String sql = "select b.*,u.nick_name,u.avatar,u.birthday,u.birth_city_id, " + getAgeSql()
+				+ ",u.sex,c.name as city_name from t_bottle b left join t_user u on b.user_id=u.user_id left join t_sys_city c on u.birth_city_id=c.id where b.user_id<>? and b.id>? and u.sex=? order by b.id desc limit ?";
 		return jdbcTemplate.query(sql, new Object[] { user_id, last_id, gender, limit },
 				new BeanPropertyRowMapper<Bottle>(Bottle.class) {
 					@Override
@@ -118,7 +120,7 @@ public class BottleDao extends BaseDao {
 						user.setAge(rs.getString("age"));
 						ImagePathUtil.completeAvatarPath(user, true);
 						bottle.setSender(user);
-						
+
 						int city_id = rs.getInt("birth_city_id");
 						String cityName = rs.getString("city_name");
 						if (!TextUtils.isEmpty(cityName)) {
@@ -127,7 +129,7 @@ public class BottleDao extends BaseDao {
 							city.setName(cityName);
 							user.setBirth_city(city);
 						}
-						
+
 						return bottle;
 					}
 				});
@@ -169,10 +171,11 @@ public class BottleDao extends BaseDao {
 
 	public List<Bottle> getMineBottles(long user_id, long last_id, int page_size) {
 		long real_last_id = last_id <= 0 ? Integer.MAX_VALUE : last_id;
-		String sql="select bottle.*,coalesce(bs.view_nums,0) as view_nums from " + TABLE_BOTTLE + " bottle left join t_bottle_scan_nums bs on bottle.id=bs.bottle_id "
+		String sql = "select bottle.*,coalesce(bs.view_nums,0) as view_nums from " + TABLE_BOTTLE
+				+ " bottle left join t_bottle_scan_nums bs on bottle.id=bs.bottle_id "
 				+ "  where bottle.user_id=? and bottle.id<? and bottle.type<>? order by bottle.id desc limit ?";
-		return jdbcTemplate.query(sql,
-				new Object[] { user_id, real_last_id,BottleType.MEET.ordinal(), page_size }, new BeanPropertyRowMapper<Bottle>(Bottle.class));
+		return jdbcTemplate.query(sql, new Object[] { user_id, real_last_id, BottleType.MEET.ordinal(), page_size },
+				new BeanPropertyRowMapper<Bottle>(Bottle.class));
 	}
 
 	public int delete(long user_id, long bottle_id) {
@@ -187,31 +190,45 @@ public class BottleDao extends BaseDao {
 		return jdbcTemplate.update(sql, new Object[] { bottle_id, user_id, new Date() });
 	}
 
-	public List<BaseUser> getScanUserList(long bottle_id,int limit) {
+	public List<BaseUser> getScanUserList(long bottle_id, int limit) {
 		String sql = "select user.user_id,user.nick_name,user.avatar,user.sex from t_bottle_scan scan left join t_user user on scan.user_id=user.user_id where scan.bottle_id=? order by scan.create_time limit ?";
-		return jdbcTemplate.query(sql, new Object[] { bottle_id,limit },  new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+		return jdbcTemplate.query(sql, new Object[] { bottle_id, limit },
+				new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
 	}
-/**
- * 根据性别随机获取头像不为空的用户
- * @param limit
- * @param gender
- * @return
- */
-	public List<BaseUser> getRandomScanUserList(int limit,int gender) {
+
+	/**
+	 * 获取用户浏览总数
+	 * @param bottle_id
+	 * @return
+	 */
+	public int getScanUserCount(long bottle_id) {
+		String sql = "select count(*) from t_bottle_scan scan left join t_user user on scan.user_id=user.user_id where scan.bottle_id=?";
+		return jdbcTemplate.queryForObject(sql, new Object[] { bottle_id }, Integer.class);
+	}
+
+	/**
+	 * 根据性别随机获取头像不为空的用户
+	 * 
+	 * @param limit
+	 * @param gender
+	 * @return
+	 */
+	public List<BaseUser> getRandomScanUserList(int limit, int gender) {
 		String sql = "select user_id,nick_name,avatar,sex from t_user where avatar<>? and sex=? order by  rand() limit ?";
-		return jdbcTemplate.query(sql, new Object[] { "",gender, limit }, new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+		return jdbcTemplate.query(sql, new Object[] { "", gender, limit },
+				new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
 	}
-	
-	
-	
-	private String getAgeSql(){
+
+	private String getAgeSql() {
 		return " (year(now())-year(u.birthday)-1) + ( DATE_FORMAT(u.birthday, '%m%d') <= DATE_FORMAT(NOW(), '%m%d') ) as age ";
 	}
 
 	public boolean isExistMeetTypeBottle(long user_id) {
-		int pool_count=jdbcTemplate.queryForObject("select count(*) from t_bottle_pool where user_id=? and type=?", new Object[] {user_id,BottleType.MEET.ordinal()},Integer.class);
-		int bottle_count=jdbcTemplate.queryForObject("select count(*) from t_bottle where user_id=? and type=?", new Object[] {user_id,BottleType.MEET.ordinal()},Integer.class);
-		return pool_count>0||bottle_count>0;
+		int pool_count = jdbcTemplate.queryForObject("select count(*) from t_bottle_pool where user_id=? and type=?",
+				new Object[] { user_id, BottleType.MEET.ordinal() }, Integer.class);
+		int bottle_count = jdbcTemplate.queryForObject("select count(*) from t_bottle where user_id=? and type=?",
+				new Object[] { user_id, BottleType.MEET.ordinal() }, Integer.class);
+		return pool_count > 0 || bottle_count > 0;
 	}
-	
+
 }

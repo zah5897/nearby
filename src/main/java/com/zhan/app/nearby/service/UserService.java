@@ -55,7 +55,7 @@ public class UserService {
 	private VipDao vipDao;
 
 	public BaseUser getBasicUser(long id) {
-		return userDao.getUser(id);
+		return userDao.getBaseUser(id);
 	}
 
 	public BaseUser findBaseUserByMobile(String mobile) {
@@ -421,11 +421,10 @@ public class UserService {
 	}
 
 	public ModelMap getUserSimple(long user_id) {
-		List<BaseUser> users = userDao.getUserSimple(user_id);
-		if (users != null && users.size() > 0) {
-			BaseUser u = users.get(0);
-			ImagePathUtil.completeAvatarPath(u, true);
-			return ResultUtil.getResultOKMap().addAttribute("user", u);
+		BaseUser user = userDao.getBaseUser(user_id);
+		if (user != null) {
+			ImagePathUtil.completeAvatarPath(user, true);
+			return ResultUtil.getResultOKMap().addAttribute("user", user);
 		}
 		return ResultUtil.getResultOKMap().addAttribute("user", null);
 	}
@@ -515,6 +514,31 @@ public class UserService {
 
 	public int getMeetBottleRecommendUserSize(String keyword) {
 		return userDao.getMeetBottleRecommendUserSize(keyword);
+	}
+
+	public ModelMap likeList(long user_id, Integer page_index, Integer count) {
+
+		if (page_index == null || page_index < 1) {
+			page_index = 1;
+		}
+
+		if (count == null || count < 1) {
+			count = 10;
+		}
+		ModelMap r = ResultUtil.getResultOKMap();
+		List<BaseUser> likeMeList = userDao.getLikeList(user_id, page_index, count);
+		r.addAttribute("users", likeMeList);
+		ImagePathUtil.completeAvatarsPath(likeMeList, true);
+		if (page_index == 1) {
+			List<BaseUser> likeMeLast = userDao.getLaskLikeMe(user_id);
+			if (likeMeLast != null && likeMeLast.size() > 0) {
+				r.addAttribute("last_one", ImagePathUtil.completeAvatarPath(likeMeLast.get(0), true));
+			} else {
+				r.addAttribute("last_one", null);
+			}
+		}
+		r.addAttribute("has_more", likeMeList.size() >= count);
+		return r;
 	}
 
 }

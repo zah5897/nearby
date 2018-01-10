@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.zhan.app.nearby.cache.UserCacheService;
 import com.zhan.app.nearby.comm.Relationship;
+import com.zhan.app.nearby.comm.RelationshipType;
 import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.service.CityService;
 import com.zhan.app.nearby.service.MainService;
@@ -83,10 +84,11 @@ public class MainController {
 	 * @return
 	 */
 	@RequestMapping("like")
-	public ModelMap like(long user_id, String token, String with_user_id,String content) {
-		return mainService.changeRelationShip(user_id, token, with_user_id, Relationship.LIKE,content);
+	public ModelMap like(long user_id, String token, String with_user_id) {
+		return mainService.changeRelationShip(user_id, token, with_user_id, Relationship.LIKE,RelationshipType.USER);
 	}
 
+	
 	@RequestMapping("add_block")
 	public ModelMap add_block(long user_id, String token, String with_user_id) {
 		return mainService.changeRelationShip(user_id, token, with_user_id, Relationship.BLACK,null);
@@ -94,7 +96,7 @@ public class MainController {
 	 
 	@RequestMapping("ignore")
 	public ModelMap ignore(long user_id, String token, String with_user_id) {
-		return mainService.changeRelationShip(user_id, token, with_user_id, Relationship.IGNORE,null);
+		return mainService.changeRelationShip(user_id, token, with_user_id, Relationship.IGNORE,RelationshipType.USER);
 	}
 	
 	
@@ -120,5 +122,19 @@ public class MainController {
 	public ModelMap exchange_rmb(long user_id,String aid,int diamond) {
 		return mainService.exchange_rmb(user_id,aid,diamond);
 	}
+	/**
+	 * 获取成长率最高的用户
+	 * @param gender
+	 * @return
+	 */
+	@RequestMapping("hot_users")
+	public ModelMap hot_users(String gender) {
+		return mainService.getHotUsers(gender);
+	}
 	
+	//注入
+//		@RequestMapping("inject")
+//		public int inject() {
+//			return mainService.injectRate();
+//		}
 }

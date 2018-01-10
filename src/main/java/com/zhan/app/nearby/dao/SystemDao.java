@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.validation.BeanPropertyBindingResult;
 
 import com.zhan.app.nearby.bean.Exchange;
+import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.comm.ExchangeState;
 
 @Repository("systemDao")
@@ -78,5 +79,47 @@ public class SystemDao extends BaseDao {
 		 jdbcTemplate.queryForObject("select sum(rmb_fen) from  t_exchange_history where user_id=? and aid=? and state=?",new Object[]{user_id,aid,state.ordinal()} ,Integer.class);
 		return total;
 	}
+
+	/**
+	 * 获取最大成长率的人
+	 * @param gender
+	 * @param limit
+	 * @return
+	 */
+	public List<BaseUser> loadMaxRateMeiLi(String gender,int limit) {
+		String sql="select u.user_id,u.nick_name,u.avatar,u.sex from t_meili_rate_temp rate left join t_user u on rate.uid=u.user_id where u.avatar<>? and u.sex=?   order by rate.rate,rate.uid desc limit ?";
+		List<BaseUser> users=jdbcTemplate.query(sql,new Object[] {"",gender,limit}, new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+		return users;
+	}
+	
+	public List<BaseUser> loadMaxMeiLi(String gender,int limit) {
+		String sql="select u.user_id,u.nick_name,u.avatar,u.sex from t_meili_temp t left join t_user u on t.uid=u.user_id where u.avatar<>? and u.sex=?   order by temp_meili,t.uid desc limit ?";
+		List<BaseUser> users=jdbcTemplate.query(sql,new Object[] {"",gender,limit}, new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+		return users;
+	}
+	
+	
+	public int injectRate() {
+		
+		//清除昨天的rate数据，
+		String clearRate="delete from t_meili_rate_temp";
+		jdbcTemplate.update(clearRate);
+		
+		//生成到现在为止的rate数据
+		String rateSql="select tm.user_id as uid,(tm.total_meili-coalesce(tt.temp_meili,'0')) as rate from t_meili_total tm left join t_meili_temp tt on tm.user_id=tt.uid ";
+		String injectRate="insert into t_meili_rate_temp "+rateSql;
+		int rateCount=jdbcTemplate.update(injectRate);
+
+		//刷新昨天的零时美丽总值
+		
+		String clearMeiliTemp="delete from t_meili_temp";
+		jdbcTemplate.update(clearMeiliTemp);
+        String injectMeiliTemp="insert into t_meili_temp  select tm.user_id as uid, tm.total_meili as temp_meili from t_meili_total tm"; 		
+        jdbcTemplate.update(injectMeiliTemp);
+        
+		return rateCount;
+	}
+	
+	
 	
 }

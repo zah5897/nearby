@@ -6,6 +6,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -13,8 +14,11 @@ import org.springframework.web.multipart.support.DefaultMultipartHttpServletRequ
 
 import com.zhan.app.nearby.bean.Bottle;
 import com.zhan.app.nearby.bean.type.BottleType;
+import com.zhan.app.nearby.comm.Relationship;
+import com.zhan.app.nearby.comm.RelationshipType;
 import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.service.BottleService;
+import com.zhan.app.nearby.service.MainService;
 import com.zhan.app.nearby.util.ImageSaveUtils;
 import com.zhan.app.nearby.util.ResultUtil;
 
@@ -24,6 +28,8 @@ public class BottleController {
 
 	@Resource
 	private BottleService bottleService;
+	@Resource
+	private MainService mainService;
 
 	@RequestMapping("send")
 	public ModelMap send(Bottle bottle, HttpServletRequest request) {
@@ -77,5 +83,22 @@ public class BottleController {
 	@RequestMapping("delete")
 	public ModelMap delete(long user_id, long bottle_id) {
 		return bottleService.delete(user_id, bottle_id);
+	}
+	
+	
+	
+	@RequestMapping("like")
+	public ModelMap like(long user_id, String token, String with_user_id) {
+		return mainService.changeRelationShip(user_id, token, with_user_id, Relationship.LIKE,RelationshipType.BOTTLE);
+	}
+	 
+	@RequestMapping("ignore")
+	public ModelMap ignore(long user_id, String token, String with_user_id) {
+		return mainService.changeRelationShip(user_id, token, with_user_id, Relationship.IGNORE,RelationshipType.BOTTLE);
+	}
+	
+	@RequestMapping("express/{to_user_id}")
+	public ModelMap like(@PathVariable long to_user_id,long user_id,String content) {
+		return bottleService.express(user_id,to_user_id,content);
 	}
 }

@@ -13,6 +13,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import com.zhan.app.nearby.bean.Bottle;
+import com.zhan.app.nearby.bean.BottleExpress;
 import com.zhan.app.nearby.bean.City;
 import com.zhan.app.nearby.bean.type.BottleType;
 import com.zhan.app.nearby.bean.user.BaseUser;
@@ -229,6 +230,10 @@ public class BottleDao extends BaseDao {
 		int bottle_count = jdbcTemplate.queryForObject("select count(*) from t_bottle where user_id=? and type=?",
 				new Object[] { user_id, BottleType.MEET.ordinal() }, Integer.class);
 		return pool_count > 0 || bottle_count > 0;
+	}
+
+	public int insertExpress(BottleExpress express) {
+		return saveObjSimple(jdbcTemplate, "t_user_express", express);
 	}
 
 }

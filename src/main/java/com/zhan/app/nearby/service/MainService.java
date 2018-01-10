@@ -20,6 +20,7 @@ import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.comm.DynamicMsgType;
 import com.zhan.app.nearby.comm.ExchangeState;
 import com.zhan.app.nearby.comm.Relationship;
+import com.zhan.app.nearby.comm.RelationshipType;
 import com.zhan.app.nearby.dao.SystemDao;
 import com.zhan.app.nearby.dao.UserDao;
 import com.zhan.app.nearby.dao.UserDynamicDao;
@@ -127,7 +128,7 @@ public class MainService {
 	}
 
 	public ModelMap changeRelationShip(long user_id, String token, String with_user_id, Relationship ship,
-			String content) {
+			RelationshipType shipType) {
 		if (user_id < 0) {
 			return ResultUtil.getResultMap(ERROR.ERR_USER_NOT_EXIST);
 		}
@@ -135,49 +136,37 @@ public class MainService {
 		for (String id : with_ids) {
 			try {
 				long with_user = Long.parseLong(id);
-				BaseUser withUser = userDao.getUser(with_user);
+				BaseUser withUser = userDao.getBaseUser(with_user);
 				if (user_id == with_user || withUser == null) {
 					continue;
 				}
-				changeRelationShip(user_id, withUser, ship, content);
+				changeRelationShip(user_id, withUser, ship, shipType);
 			} catch (NumberFormatException e) {
 			}
 		}
 		return ResultUtil.getResultOKMap();
 	}
 
-	public ModelMap changeRelationShip(long user_id, BaseUser with_user, Relationship ship, String content) {
+	public ModelMap changeRelationShip(long user_id, BaseUser with_user, Relationship ship, RelationshipType shipType) {
 		userDao.updateRelationship(user_id, with_user.getUser_id(), ship);
 		// 判断对方是否也已经喜欢我了
 		if (ship == Relationship.LIKE) {
-			BaseUser user = userDao.getUserSimple(user_id).get(0);
-			if (!TextUtils.isEmpty(content)) {
-				dynamicMsgService.insertActionMsg(DynamicMsgType.TYPE_EXPRESS, user_id, -1, with_user.getUser_id(),
-						content);
-				makeChatSession(user,with_user,true,content);
-			} else {
-				dynamicMsgService.insertActionMsg(DynamicMsgType.TYPE_MEET, user_id, -1, with_user.getUser_id(),
-						"有人喜欢了你");
-				int count = userDao.isLikeMe(user_id, with_user.getUser_id());
-				if (count > 0) { // 对方喜欢我了，这个时候我也喜欢对方了，需要互相发消息
-					makeChatSession(user,with_user,false,null);
-				}
+			BaseUser user = userDao.getBaseUser(user_id);
+			dynamicMsgService.insertActionMsg(DynamicMsgType.TYPE_MEET, user_id, -1, with_user.getUser_id(), "有人喜欢了你");
+			int count = userDao.isLikeMe(user_id, with_user.getUser_id());
+			if (count > 0) { // 对方喜欢我了，这个时候我也喜欢对方了，需要互相发消息
+				makeChatSession(user, with_user, null);
 			}
 		}
 		return ResultUtil.getResultOKMap();
 	}
 
-	
-	private void makeChatSession(BaseUser user ,BaseUser with_user,boolean isExpress,String expressMsg){
+	private void makeChatSession(BaseUser user, BaseUser with_user, String expressMsg) {
 		ImagePathUtil.completeAvatarPath(with_user, true);
 		ImagePathUtil.completeAvatarPath(user, true);
 
-		String chatSessionTxt=null;
-		if(isExpress){
-			chatSessionTxt=expressMsg;
-		}else{
-			chatSessionTxt="很高兴遇见你";
-		}
+		String  chatSessionTxt = "很高兴遇见你";
+		 
 		// 发送给对方
 		Map<String, String> ext = new HashMap<String, String>();
 		ext.put("nickname", user.getNick_name());
@@ -190,7 +179,6 @@ public class MainService {
 		}
 
 		// 发送给自己
-
 		ext = new HashMap<String, String>();
 		ext.put("nickname", with_user.getNick_name());
 		ext.put("avatar", with_user.getAvatar());
@@ -203,18 +191,14 @@ public class MainService {
 
 		// 系统推"附近有人喜欢了你"给对方
 		String msg = "附近有人喜欢了你！";
-		if(isExpress){
-			msg="附近有人向你表白了！";
-		}
 		ext.put("msg", msg);
 
-		result = Main.sendTxtMessage(Main.SYS, new String[] { String.valueOf(with_user.getUser_id()) }, msg,
-				ext);
+		result = Main.sendTxtMessage(Main.SYS, new String[] { String.valueOf(with_user.getUser_id()) }, msg, ext);
 		if (result != null) {
 			System.out.println(result);
 		}
 	}
-	
+
 	public ModelMap reset_city() {
 		List<UserDynamic> dynamics = userDynamicDao.getAllDynamic();
 		if (dynamics != null) {
@@ -267,60 +251,75 @@ public class MainService {
 		// return ResultUtil.getResultOKMap().addAttribute("rank_list", meili);
 	}
 
-	public ModelMap exchange_history(long user_id, String aid,Integer page_index,Integer count) {
-		if(page_index==null){
-			page_index=1;
+	public ModelMap exchange_history(long user_id, String aid, Integer page_index, Integer count) {
+		if (page_index == null) {
+			page_index = 1;
 		}
-		
-		if(page_index<1){
-			page_index=1;
+
+		if (page_index < 1) {
+			page_index = 1;
 		}
-		if(count==null){
-			count=20;
+		if (count == null) {
+			count = 20;
 		}
-		
-		ModelMap result=ResultUtil.getResultOKMap();
-		if(page_index==1){
-			Integer totalRMB=systemDao.getTotalExchangeRmmbByState(user_id, aid, ExchangeState.EXCHANGED);
-			result.put("total_exchange_rmb_fen",totalRMB!=null?totalRMB:0);
+
+		ModelMap result = ResultUtil.getResultOKMap();
+		if (page_index == 1) {
+			Integer totalRMB = systemDao.getTotalExchangeRmmbByState(user_id, aid, ExchangeState.EXCHANGED);
+			result.put("total_exchange_rmb_fen", totalRMB != null ? totalRMB : 0);
 		}
-		return result.addAttribute("exchange_histories", systemDao.loadExchangeHistory(user_id,aid,page_index,count));
+		return result.addAttribute("exchange_histories",
+				systemDao.loadExchangeHistory(user_id, aid, page_index, count));
 	}
 
 	public ModelMap exchange_diamond(long user_id, String aid, int coins) {
-		if(coins<=0){
-			return ResultUtil.getResultMap(ERROR.ERR_PARAM,"金币数量不能少于1");
+		if (coins <= 0) {
+			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "金币数量不能少于1");
 		}
 		Map<?, ?> map = HttpService.minusCoins(user_id, aid, coins, "exchange_diamond");
 		int code = (int) map.get("code");
 		if (code == 0) {
-			int diamondCount =systemDao.addExchangeDiamond(user_id, aid, coins);
+			int diamondCount = systemDao.addExchangeDiamond(user_id, aid, coins);
 			return ResultUtil.getResultOKMap().addAttribute("diamond_count", diamondCount);
 		} else {
 			ERROR error = ERROR.ERR_FAILED;
 			error.setValue(code);
 			error.setErrorMsg("钻石兑换失败");
-			//modify exchange fun. to test git.
+			// modify exchange fun. to test git.
 			return ResultUtil.getResultMap(error);
 		}
 	}
 
 	public ModelMap exchange_rmb(long user_id, String aid, int diamond) {
-		int diamondCount=systemDao.getDiamondCount(user_id, aid);
-		if(diamond>diamondCount){
-			return ResultUtil.getResultMap(ERROR.ERR_FAILED,"钻石数量不足");
+		int diamondCount = systemDao.getDiamondCount(user_id, aid);
+		if (diamond > diamondCount) {
+			return ResultUtil.getResultMap(ERROR.ERR_FAILED, "钻石数量不足");
 		}
-		systemDao.updateDiamondCount(user_id, aid, diamondCount-diamond);
-		Exchange exchange=new Exchange();
+		systemDao.updateDiamondCount(user_id, aid, diamondCount - diamond);
+		Exchange exchange = new Exchange();
 		exchange.setUser_id(user_id);
 		exchange.setAid(aid);
 		exchange.setCreate_time(new Date());
 		exchange.setDiamond_count(diamond);
-		exchange.setRmb_fen(diamond*3);
+		exchange.setRmb_fen(diamond * 3);
 		exchange.setState(ExchangeState.IN_EXCHANGE.ordinal());
 		systemDao.addExchangeHistory(exchange);
-		int diamond_count=systemDao.getDiamondCount(user_id, aid);
-		return ResultUtil.getResultOKMap("提交成功").addAttribute("diamond_count", diamond_count==-1?0:diamond_count);
+		int diamond_count = systemDao.getDiamondCount(user_id, aid);
+		return ResultUtil.getResultOKMap("提交成功").addAttribute("diamond_count", diamond_count == -1 ? 0 : diamond_count);
 	}
 
+	public ModelMap getHotUsers(String gender) {
+		int limit=6;
+		List<BaseUser> users=systemDao.loadMaxRateMeiLi(gender, limit);
+		if(users.size()<limit) {
+			users=systemDao.loadMaxMeiLi(gender, limit);
+		}
+		ImagePathUtil.completeAvatarsPath(users, true);
+		return ResultUtil.getResultOKMap().addAttribute("user", users);
+	}
+	
+	public int injectRate() {
+		return systemDao.injectRate();
+	}
+	
 }

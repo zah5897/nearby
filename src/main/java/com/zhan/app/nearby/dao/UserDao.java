@@ -16,7 +16,6 @@ import com.zhan.app.nearby.bean.mapper.SimpkleUserMapper;
 import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.bean.user.DetailUser;
 import com.zhan.app.nearby.bean.user.LocationUser;
-import com.zhan.app.nearby.bean.user.SimpleUser;
 import com.zhan.app.nearby.comm.FoundUserRelationship;
 import com.zhan.app.nearby.comm.Relationship;
 import com.zhan.app.nearby.comm.UserType;
@@ -28,16 +27,6 @@ import com.zhan.app.nearby.util.TextUtils;
 public class UserDao extends BaseDao {
 	@Resource
 	private JdbcTemplate jdbcTemplate;
-
-	public BaseUser getUser(long id) {
-		List<BaseUser> list = jdbcTemplate.query("select *from t_user user where user.user_id=?", new Object[] { id },
-				new SimpkleUserMapper());
-		if (list != null && list.size() > 0) {
-			return list.get(0);
-		} else {
-			return null;
-		}
-	}
 
 	// public int update(String nickName, String info, short sex, String avater,
 	// long id) {
@@ -288,9 +277,13 @@ public class UserDao extends BaseDao {
 		return jdbcTemplate.queryForObject(sql, new Object[] { user_id }, String.class);
 	}
 
-	public List<BaseUser> getUserSimple(long user_id) {
+	public BaseUser getBaseUser(long user_id) {
 		String sql = "select user_id,nick_name,sex,avatar,signature,birthday from t_user where user_id=?";
-		return jdbcTemplate.query(sql, new Object[] { user_id }, new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+		List<BaseUser> users= jdbcTemplate.query(sql, new Object[] { user_id }, new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+		if(users.size()>0) {
+			return users.get(0);
+		}
+		return null;
 	}
 
 	public int isLikeMe(long user_id, long with_user_id) {
@@ -401,5 +394,25 @@ public class UserDao extends BaseDao {
 	public String getUserGenderByID(long user_id) {
 		return jdbcTemplate.queryForObject("select sex from t_user where user_id=?", new Object[] { user_id },
 				String.class);
+	}
+
+	/**
+	 * 获取喜欢我的人的列表
+	 * @param user_id
+	 * @param page_index
+	 * @param count
+	 * @return
+	 */
+	public List<BaseUser> getLikeList(long user_id, Integer page_index, Integer count) {
+		return jdbcTemplate.query("select u.user_id,u.nick_name,u.avatar,u.sex from t_user_relationship tur left join t_user u on tur.user_id= u.user_id where tur.with_user_id=? and  tur.relationship=? order by tur.create_time limit ?,?", new Object[] { user_id,Relationship.LIKE.ordinal(),(page_index-1)*count,count },new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+	}
+	
+	 /**
+	  * 获取最后一个喜欢我的人
+	  * @param user_id
+	  * @return
+	  */
+	public List<BaseUser> getLaskLikeMe(long user_id) {
+		return jdbcTemplate.query("select u.user_id,u.nick_name,u.avatar,u.sex from t_user_relationship tur left join t_user u on tur.user_id= u.user_id where tur.with_user_id=? and  tur.relationship=? order by tur.create_time desc limit 1", new Object[] { user_id,Relationship.LIKE.ordinal()},new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
 	}
 }

@@ -16,22 +16,23 @@ public class ImagePathUtil {
 	public static String HOST_PROFIX = "http://app.weimobile.com/nearby";
 //	public static String HOST_PROFIX = "http://127.0.0.1:8899/nearby";
 
-	public static void completeAvatarPath(BaseUser user, boolean thumbAndOrigin) {
+	public static BaseUser completeAvatarPath(BaseUser user, boolean thumbAndOrigin) {
 		String avatar = user.getAvatar();
 		if (TextUtils.isEmpty(avatar)) {
-			return;
+			return user;
 		}
 		if (avatar.startsWith("http://")) {
 			if (thumbAndOrigin) {
 				user.setOrigin_avatar(HOST_PROFIX + ImageSaveUtils.FILE_ROOT_AVATAR_ORIGIN
 						+ avatar.substring(avatar.lastIndexOf("/") + 1, avatar.length()));
 			}
-			return;
+			return user;
 		}
 		user.setAvatar(HOST_PROFIX + ImageSaveUtils.FILE_ROOT_AVATAR_THUMB + avatar);
 		if (thumbAndOrigin) {
 			user.setOrigin_avatar(HOST_PROFIX + ImageSaveUtils.FILE_ROOT_AVATAR_ORIGIN + avatar);
 		}
+		return user;
 	}
 
 	public static void completeAvatarsPath(List<BaseUser> users, boolean thumbAndOrigin) {

@@ -85,7 +85,7 @@ public class DynamicMsgService {
 				|| msg.getType() == DynamicMsgType.TYPE_EXPRESS.ordinal()) {
 			userDao.updateRelationship(user_id, msg.getBy_user_id(), Relationship.LIKE);
 
-			BaseUser me = userDao.getUserSimple(user_id).get(0);
+			BaseUser me = userDao.getBaseUser(user_id);
 			// 发送给对方
 			Map<String, String> ext = new HashMap<String, String>();
 			ext.put("nickname", me.getNick_name());
@@ -98,7 +98,7 @@ public class DynamicMsgService {
 			}
 
 			// 发送给自己
-			BaseUser he = userDao.getUserSimple(msg.getBy_user_id()).get(0);
+			BaseUser he = userDao.getBaseUser(msg.getBy_user_id());
 			ext = new HashMap<String, String>();
 			ext.put("nickname", he.getNick_name());
 			ext.put("avatar", he.getAvatar());

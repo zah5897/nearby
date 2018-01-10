@@ -12,6 +12,7 @@ import com.zhan.app.nearby.bean.type.BottleType;
 import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.dao.UserDao;
 import com.zhan.app.nearby.service.BottleService;
+import com.zhan.app.nearby.service.MainService;
 import com.zhan.app.nearby.util.SpringContextUtil;
 
 @Component
@@ -37,6 +38,13 @@ public class TimerTask {
 			}
 			
 		}
+	}
+	
+    @Scheduled(cron = "0 59 23 * * ?") // 每天23：59分执行
+	public void meiliRateTask() {
+    	MainService  mainService=SpringContextUtil.getBean("mainService");
+    	int rateCount=mainService.injectRate();
+    	System.out.println("inject rate count:"+rateCount);
 	}
 	// @Scheduled(cron = "0 0/5 * * * ?") // 每5分钟执行一次
 	// public void bottleSpiderTast() {

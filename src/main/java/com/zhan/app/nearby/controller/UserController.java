@@ -681,6 +681,10 @@ public class UserController {
 		}
 		return result;
 	}
+	@RequestMapping("like_list/{user_id}")
+	public ModelMap like_list(@PathVariable long user_id,Integer page_index,Integer count) {
+		return userService.likeList(user_id,page_index,count);
+	}
 
 	private City getDefaultCityId() {
 
@@ -690,4 +694,5 @@ public class UserController {
 		city.setType(0);
 		return city;
 	}
+	 
 }

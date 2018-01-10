@@ -23,19 +23,26 @@ public class DynamicMsgDao extends BaseDao {
 		return saveObj(jdbcTemplate, TABLE_DYNAMIC_MSG, msg);
 	}
 
+	/**
+	 * 获取未读消息
+	 * @param user_id
+	 * @param last_id
+	 * @param type
+	 * @return
+	 */
 	public List<DynamicMessage> loadMsg(Long user_id, long last_id, int type) {
 		if (type == 0) {
 			String sql = "select msg.*,user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday,user.type  from "
 					+ TABLE_DYNAMIC_MSG
 					+ " msg left join t_user user on msg.by_user_id=user.user_id where msg.user_id=? and msg.id>? and msg.type<? "
-					+ fiflterBlock() + " order by msg.id desc";
-			return jdbcTemplate.query(sql, new Object[] { user_id, last_id, 2, user_id, Relationship.BLACK.ordinal() },
+					+ fiflterBlock() + " and msg.isReadNum=? order by msg.id desc";
+			return jdbcTemplate.query(sql, new Object[] { user_id, last_id, 2, user_id, Relationship.BLACK.ordinal(),MsgState.NUREAD.ordinal() },
 					new DynamicMsgMapper());
 		} else {
 			String sql = "select msg.*,user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday,user.type  from "
 					+ TABLE_DYNAMIC_MSG
-					+ " msg left join t_user user on msg.by_user_id=user.user_id where msg.user_id=? and msg.id>? and msg.type>? order by msg.id desc";
-			return jdbcTemplate.query(sql, new Object[] { user_id, last_id, 1 }, new DynamicMsgMapper());
+					+ " msg left join t_user user on msg.by_user_id=user.user_id where msg.user_id=? and msg.id>? and msg.type>? and msg.isReadNum=? order by msg.id desc";
+			return jdbcTemplate.query(sql, new Object[] { user_id, last_id, 1 ,MsgState.NUREAD.ordinal()}, new DynamicMsgMapper());
 		}
 	}
 

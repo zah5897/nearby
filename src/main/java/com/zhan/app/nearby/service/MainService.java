@@ -315,7 +315,7 @@ public class MainService {
 			users=systemDao.loadMaxMeiLi(gender, limit);
 		}
 		ImagePathUtil.completeAvatarsPath(users, true);
-		return ResultUtil.getResultOKMap().addAttribute("user", users);
+		return ResultUtil.getResultOKMap().addAttribute("users", users);
 	}
 	
 	public int injectRate() {

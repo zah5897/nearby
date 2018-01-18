@@ -84,7 +84,7 @@ public class UserService {
 	}
 
 	public long insertUser(BaseUser user) {
-
+		user.setCreate_time(new Date());
 		int count = userDao.getUserCountByMobile(user.getMobile());
 		if (count > 0) {
 			return -1l;

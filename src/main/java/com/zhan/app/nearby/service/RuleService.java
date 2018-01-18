@@ -14,8 +14,8 @@ public class RuleService {
 		return HttpService.saveRule(id, name, coins, coins_free, rmb, description, aid, app_name);
 	}
 
-	public Map<?, ?> list() {
-		return HttpService.listRule();
+	public Map<?, ?> list(String aid) {
+		return HttpService.listRule(aid);
 	}
 
 	public Map<?, ?> delete(int id) {

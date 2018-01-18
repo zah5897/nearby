@@ -131,7 +131,7 @@ public class GiftDao extends BaseDao {
 		});
 	}
 
-	/**
+	/** 已改为一周
 	 * 获取今日魅力榜
 	 * @param count 
 	 * @param pageIndex 
@@ -139,7 +139,7 @@ public class GiftDao extends BaseDao {
 	 * @return
 	 */
 	public List<MeiLi> loadTodayMeiLi(int pageIndex, int count) {
-		String t_total_meili = "select m.*,u.nick_name,u.avatar from t_meili_today m left join t_user u on m.user_id=u.user_id limit ?,?";
+		String t_total_meili = "select m.*,u.nick_name,u.avatar from t_meili_week m left join t_user u on m.user_id=u.user_id limit ?,?";
 		List<MeiLi> meilis = jdbcTemplate.query(t_total_meili,new Object[]{(pageIndex-1)*count,count}, new RowMapper<MeiLi>() {
 
 			@Override

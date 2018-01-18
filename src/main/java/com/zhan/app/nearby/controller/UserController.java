@@ -162,6 +162,7 @@ public class UserController {
 		user.setToken(token);
 		user.setType((short) UserType.OFFIEC.ordinal());
 		user.setLast_login_time(new Date());
+		user.setCreate_time(new Date());
 		long id = user.getUser_id();
 		if (id > 0) {
 			int count = userService.visitorToNormal(user);
@@ -557,6 +558,7 @@ public class UserController {
 			user.setLng(lng);
 			user.setZh_cn(zh_cn);
 			user.setType((short) UserType.VISITOR.ordinal());
+			user.setCreate_time(new Date());
 			long user_id = userService.insertUser(user);
 			user.setUser_id(user_id);
 		} else {
@@ -594,6 +596,7 @@ public class UserController {
 			user.setAid(aid);
 			user.setZh_cn(zh_cn);
 			user.setType((short) UserType.VISITOR.ordinal());
+			user.setCreate_time(new Date());
 			long user_id = userService.insertUser(user);
 			user.setUser_id(user_id);
 		} else {

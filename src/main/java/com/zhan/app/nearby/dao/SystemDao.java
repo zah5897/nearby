@@ -87,24 +87,24 @@ public class SystemDao extends BaseDao {
 	 * @param limit
 	 * @return
 	 */
-	public List<BaseUser> loadMaxRateMeiLi(String gender,int limit) {
+	public List<BaseUser> loadMaxRateMeiLi(Long ignoreUserId,String gender,int page_index,int limit) {
 		if(TextUtils.isEmpty(gender)) {
-			String sql="select u.user_id,u.nick_name,u.avatar,u.sex from t_meili_rate_temp rate left join t_user u on rate.uid=u.user_id where u.avatar<>?   order by rate.rate,rate.uid desc limit ?";
-			return jdbcTemplate.query(sql,new Object[] {"",limit}, new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+			String sql="select u.user_id,u.nick_name,u.avatar,u.sex from t_meili_rate_temp rate left join t_user u on rate.uid=u.user_id where  rate.uid<>? and  u.avatar<>?   order by rate.rate,rate.uid desc limit ?,?";
+			return jdbcTemplate.query(sql,new Object[] {ignoreUserId==null?0:ignoreUserId,"",(page_index-1)*limit,limit}, new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
 		}else {
-			String sql="select u.user_id,u.nick_name,u.avatar,u.sex from t_meili_rate_temp rate left join t_user u on rate.uid=u.user_id where u.avatar<>? and u.sex=?   order by rate.rate,rate.uid desc limit ?";
-			return jdbcTemplate.query(sql,new Object[] {"",gender,limit}, new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+			String sql="select u.user_id,u.nick_name,u.avatar,u.sex from t_meili_rate_temp rate left join t_user u on rate.uid=u.user_id where rate.uid<>? and u.avatar<>? and u.sex=?   order by rate.rate,rate.uid desc limit ?,?";
+			return jdbcTemplate.query(sql,new Object[] {ignoreUserId==null?0:ignoreUserId,"",gender,(page_index-1)*limit,limit}, new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
 		}
 	 
 	}
 	
-	public List<BaseUser> loadMaxMeiLi(String gender,int limit) {
+	public List<BaseUser> loadMaxMeiLi(Long ignoreUserId,String gender,int page_index,int limit) {
 		if(TextUtils.isEmpty( gender)) {
-			String sql="select u.user_id,u.nick_name,u.avatar,u.sex from t_meili_temp t left join t_user u on t.uid=u.user_id where u.avatar<>?    order by temp_meili,t.uid desc limit ?";
-			return jdbcTemplate.query(sql,new Object[] {"",limit}, new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+			String sql="select u.user_id,u.nick_name,u.avatar,u.sex from t_meili_temp t left join t_user u on t.uid=u.user_id where u.avatar<>?    order by temp_meili,t.uid desc limit ?,?";
+			return jdbcTemplate.query(sql,new Object[] {"",(page_index-1)*limit,limit}, new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
 		}else {
-			String sql="select u.user_id,u.nick_name,u.avatar,u.sex from t_meili_temp t left join t_user u on t.uid=u.user_id where u.avatar<>? and u.sex=?   order by temp_meili,t.uid desc limit ?";
-			return jdbcTemplate.query(sql,new Object[] {"",gender,limit}, new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+			String sql="select u.user_id,u.nick_name,u.avatar,u.sex from t_meili_temp t left join t_user u on t.uid=u.user_id where u.avatar<>? and u.sex=?   order by temp_meili,t.uid desc limit ?,?";
+			return jdbcTemplate.query(sql,new Object[] {"",gender,(page_index-1)*limit,limit}, new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
 		}
 	}
 	

@@ -20,22 +20,32 @@
 <body>
 <div class="panel admin-panel">
   <div class="panel-head"><strong class="icon-reorder">&nbsp;金币购买项列表</strong></div>
+  <div class="padding border-bottom">
+			   
+				<ul class="search">
+				 <li> AID：</li>
+				  <li>
+			         <input type="text" placeholder="请输入aid" name="keywords" class="input" style="width:250px; line-height:17px;display:inline-block" />
+                     <a href="javascript:void(0)" class="button border-main icon-search" onclick="doSearch()">搜索</a>
+                   </li> 
+				</ul>
+			</div>
    
   <table class="table table-hover text-center">
     <tr>
       <th width="5%">ID</th>
       <th width="10%">名称</th>
-      <th width="10%">数量</th>
-      <th width="5%">赠送数量</th>
-      <th width="10%">价格</th>
-      <th width="10%">描述</th>
-      <th width="10%">所属AID</th>
-      <th width="10%">所属APP_NAME</th>
-      <th width="30%">操作</th>
+      <th width="10%">金币数量</th>
+      <th width="15%">赠送金币数量</th>
+      <th width="10%">人民币（分）</th>
+      <th width="15%">描述</th>
+      <th width="15%">所属AID</th>
+      <th width="20%">操作</th>
     </tr>
   </table>
 </div>
 <script type="text/javascript">
+var keyword;
 $(document).ready(function(){ 
 	loadRuleList();
 }); 
@@ -50,19 +60,24 @@ function add_rule(){
         processData:false,
         contentType:false,
         success:function(data){
-        	var json=JSON.parse(data);
-        	var tr=$("table tr").eq(-1);
-		    reviewTableTr(json["gift"],tr);
 			$("#rule_add_update_btn").html('添加');//填充内容
 			$("#rule_id").attr("value",'0');//填充内容
+			loadRuleList();
+			$("html,body").animate({scrollTop: $(".panel-head").offset().top}, 500);
+			$('#edit_rule')[0].reset();
+			
+			$(':input','#edit_rule')  
+			 .not(':button, :submit, :reset, :hidden')  
+			 .val(''); 
         },
         error:function(error){
         	alert(error);
         }
     });
+	return false;
 }
 	function loadRuleList(){
-		$.post('<%=path%>/rule/list',{'_ua':'12345567645454'},  function(data,status){
+		$.post('<%=path%>/rule/list',{'_ua':'12345567645454','aid':keyword},  function(data,status){
 		    var json=JSON.parse(data);
 		    if(json.code==0){
 	        	$("table tr[id*='tr_'").each(function(i){
@@ -103,7 +118,6 @@ function add_rule(){
 			 toAdd+= "<td>"+pageData.rmb+"</td>";
 			 toAdd+= "<td>"+(pageData.description==null?"":pageData.description)+"</td>";
 			 toAdd+= "<td>"+pageData.aid+"</td>";
-			 toAdd+= "<td>"+pageData.app_name+"</td>";
 			 toAdd+='<td><div class="button-group">';
 		     toAdd+= "<a class='button border-main' href='javascript:void(0)' onclick='return edit("+jsonStr+")'><span class='icon-edit'></span>编辑</a>";
 		     toAdd+= "<a class='button border-red' href='javascript:void(0)' onclick='return del("+pageData["id"]+")'><span class='icon-trash-o'></span>删除</a>";
@@ -113,6 +127,10 @@ function add_rule(){
 		}
 	 
 	 function del(id){
+		 
+		 if(!confirm("确定删除该购买项？")){
+			 return;
+		 }
 		 $.post('<%=path%>/rule/del',{'id':id,'_ua':'1234423232323'},  function(data,status){
 			    var json=JSON.parse(data);
 			    if(json.code==0){
@@ -135,20 +153,28 @@ function add_rule(){
 		 //$("input[name='price']")[0].value=pageData['price'];
 		 //$("input[name='old_price']")[0].value=pageData['old_price'];
 
-		$("html,body").animate({scrollTop: $("#edit").offset().top}, 1000);
+		$("html,body").animate({scrollTop: $("#edit").offset().top}, 500);
 	 }
-	 
-	 
-	 
-	 function changesearch(){
-		 
-	 }
+	  
+	 function doSearch(){
+	    	var key=$("[name='keywords']").val().replace(/^\s+|\s+$/g,"");
+	    	if(keyword==''){
+	    		if(key==''){
+		    		return;
+		    	}
+	    	}
+	    	if(keyword==key){
+	    		return;
+	    	}
+	    	keyword=key;
+	    	loadRuleList();
+	    }
 </script>
 <div class="panel admin-panel margin-top" id="add">
   <div class="panel-head"><strong><span class="icon-pencil-square-o"></span>添加金币购买项</strong></div>
   <div class="body-content">
     <a href="edit" id="edit"></a>
-    <form method="post" name="form" class="form-x" enctype="multipart/form-data">
+    <form method="post" id="edit_rule" name="form" class="form-x" enctype="multipart/form-data">
       
       <input type="hidden" id="rule_id" name="rule_id" value="0">    
        <input type="hidden" value="123456789012" name="_ua"> 
@@ -165,7 +191,7 @@ function add_rule(){
       
       <div class="form-group">
         <div class="label">
-          <label>数量</label>
+          <label>金币数量</label>
         </div>
         <div class="field">
           <input type="text" class="input w50" value="" id="coins" name="coins" data-validate="required:请输入.." />
@@ -185,7 +211,7 @@ function add_rule(){
       
       <div class="form-group">
         <div class="label">
-          <label>对应人民币（单位：分）</label>
+          <label>人民币（分）</label>
         </div>
         <div class="field">
           <input type="text" class="input w50" value="" id="rmb" name="rmb" data-validate="required:请输入.." />
@@ -225,7 +251,7 @@ function add_rule(){
           <label></label>
         </div>
         <div class="field">
-          <button class="button bg-main icon-check-square-o" id="rule_add_update_btn" onclick='add_rule()'>添加</button>
+         <a href="javascript:void(0)" id="rule_add_update_btn"  class="button bg-main icon-check-square-o" onclick='add_rule()'>添加</a>
         </div>
       </div>
     </form>

@@ -36,13 +36,19 @@ public class HttpService {
 		return ResultUtil.getResultOKMap();
 	}
 
-	public static Map<?, ?> listRule() {
+	public static Map<?, ?> listRule(String aid) {
 		if (TextUtils.isEmpty(MODULE_RULE_URL)) {
 			MODULE_RULE_URL = loadProperty("MODULE_RULE_URL");
 		}
 		String result = null;
 		try {
-			result = HttpUtil.sendHttpsPost(MODULE_RULE_URL + "/list_all");
+			String url=null;
+			if(!TextUtils.isEmpty(aid)) {
+				url=MODULE_RULE_URL + "/list?aid="+aid;
+			}else {
+				url=MODULE_RULE_URL + "/list_all";
+			}
+			result = HttpUtil.sendHttpsPost(url);
 		} catch (Exception e) {
 			log.error("获取列表失败" + e.getMessage());
 			System.out.println("获取列表失败");

@@ -165,8 +165,8 @@ public class MainService {
 		ImagePathUtil.completeAvatarPath(with_user, true);
 		ImagePathUtil.completeAvatarPath(user, true);
 
-		String  chatSessionTxt = "很高兴遇见你";
-		 
+		String chatSessionTxt = "很高兴遇见你";
+
 		// 发送给对方
 		Map<String, String> ext = new HashMap<String, String>();
 		ext.put("nickname", user.getNick_name());
@@ -308,18 +308,33 @@ public class MainService {
 		return ResultUtil.getResultOKMap("提交成功").addAttribute("diamond_count", diamond_count == -1 ? 0 : diamond_count);
 	}
 
-	public ModelMap getHotUsers(String gender) {
-		int limit=6;
-		List<BaseUser> users=systemDao.loadMaxRateMeiLi(gender, limit);
-		if(users.size()<limit) {
-			users=systemDao.loadMaxMeiLi(gender, limit);
+	public ModelMap getHotUsers(String gender, Long fix_user_id,Integer page_index) {
+		int limit = 6;
+		BaseUser fix_user = null;
+		
+		if(page_index==null||page_index<1) {
+			page_index=1;
+		}
+		
+		if (page_index==1&&fix_user_id != null && fix_user_id > 0) {
+			limit=5;
+			fix_user=userDao.getBaseUser(fix_user_id);
+		}
+		
+		List<BaseUser> users = systemDao.loadMaxRateMeiLi(fix_user_id,gender,page_index, limit);
+		if (users.size() < limit) {
+			users = systemDao.loadMaxMeiLi(fix_user_id,gender,page_index, limit);
+		}
+		
+		if(fix_user!=null) {
+			users.add(0, fix_user);
 		}
 		ImagePathUtil.completeAvatarsPath(users, true);
-		return ResultUtil.getResultOKMap().addAttribute("users", users);
+		return ResultUtil.getResultOKMap().addAttribute("users", users).addAttribute("hasMore", users.size()==6);
 	}
-	
+
 	public int injectRate() {
 		return systemDao.injectRate();
 	}
-	
+
 }

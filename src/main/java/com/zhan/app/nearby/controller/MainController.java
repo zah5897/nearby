@@ -128,8 +128,8 @@ public class MainController {
 	 * @return
 	 */
 	@RequestMapping("hot_users")
-	public ModelMap hot_users(String gender) {
-		return mainService.getHotUsers(gender);
+	public ModelMap hot_users(String gender,Long fix_user_id,Integer page) {
+		return mainService.getHotUsers(gender,fix_user_id,page);
 	}
 	
 	//注入

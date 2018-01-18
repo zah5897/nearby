@@ -17,8 +17,8 @@ public class RuleController {
 	private RuleService ruleService;
 
 	@RequestMapping("list")
-	public Map<?, ?> list() {
-		return ruleService.list();
+	public Map<?, ?> list(String aid) {
+		return ruleService.list(aid);
 	}
 
 	@RequestMapping("del")

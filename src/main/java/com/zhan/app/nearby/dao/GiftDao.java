@@ -145,7 +145,7 @@ public class GiftDao extends BaseDao {
 			@Override
 			public MeiLi mapRow(ResultSet rs, int rowNum) throws SQLException {
 				MeiLi m = new MeiLi();
-				m.setValue(rs.getInt("total_meili"));
+				m.setValue(rs.getInt("week_meili"));
 				m.setShanbei(rs.getInt("amount"));
 				m.setBe_like_count(rs.getInt("like_count"));
 

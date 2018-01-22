@@ -24,6 +24,7 @@ import com.zhan.app.nearby.bean.Topic;
 import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.comm.DynamicState;
+import com.zhan.app.nearby.comm.FoundUserRelationship;
 import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.service.ManagerService;
 import com.zhan.app.nearby.util.ImagePathUtil;
@@ -642,13 +643,14 @@ public class ManagerController {
 	}
 
 	// 获取所有发现用户黑名单
-	@RequestMapping(value = "/list_user_found_black")
-	public @ResponseBody ModelMap list_user_found_black(int pageSize, int pageIndex) {
+	@RequestMapping(value = "/list_user_found")
+	public @ResponseBody ModelMap list_user_found_by_state(int pageSize, int pageIndex, int state) {
 		ModelMap r = ResultUtil.getResultOKMap();
-		List<BaseUser> users = managerService.getFoundBlackUsers(pageSize, pageIndex);
+		FoundUserRelationship ship=FoundUserRelationship.values()[state];
+		List<BaseUser> users = managerService.getFoundUsersByState(pageSize, pageIndex, ship);
 
 		if (pageIndex == 1) {
-			int totalSize = managerService.getFoundBlackUsers();
+			int totalSize = managerService.getFoundUserCountByState(ship);
 			int pageCount = totalSize / pageSize;
 			if (totalSize % 10 > 0) {
 				pageCount += 1;
@@ -688,13 +690,23 @@ public class ManagerController {
 	}
 
 	// 添加到发现用户黑名单
-	@RequestMapping(value = "/edit_user_found_black")
-	public @ResponseBody ModelMap addToUserFoundBlack(long user_id, int fun, Integer pageSize, Integer pageIndex) {
-		managerService.editUserFoundBlack(user_id, fun);
+	@RequestMapping(value = "/edit_user_found_state")
+	public @ResponseBody ModelMap addToUserFoundBlack(long user_id, int fun, Integer pageSize, Integer pageIndex,
+			int state) {
+		FoundUserRelationship ship = FoundUserRelationship.values()[state];
+		managerService.editUserFoundState(user_id, ship);
 		if (fun == 0) {
-			return list_user_found_black(pageSize, pageIndex);
+			return list_user_found_by_state(pageSize, pageIndex, state);
 		}
 		return ResultUtil.getResultOKMap();
+	}
+
+	// 添加到发现用户黑名单
+	@RequestMapping(value = "/remove_user_found_state")
+	public @ResponseBody ModelMap remove_user_found_state(long user_id, Integer pageSize, Integer pageIndex,
+			int state) {
+		managerService.removeUserFoundState(user_id);
+		return list_user_found_by_state(pageSize, pageIndex,state);
 	}
 
 	// 添加到邂逅瓶待选

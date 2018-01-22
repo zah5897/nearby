@@ -179,12 +179,6 @@
 				return startIndex+4;
 			}
 		}
-		function edit_fun(user_id){
-			alert(user_id);
-		}
-		function add_to_meet_bottle(user_id){
-			alert(user_id);
-		}
 	  //
       function reviewTableTr(pageData,tr) {
 			 var currentItem=$("tr#tr_"+pageData["user_id"]);
@@ -221,10 +215,13 @@
 			 
 			 //操作单元格
 			  toAdd+="<td><div class='button-group'>";
+			  //操作单元格
 			  
-			  //toAdd+="<a class='button border-main' href='javascript:void(0)'	onclick='return edit_fun("+user_id+")'><span class='icon-edit'></span>编辑限制</a>";
-			  //toAdd+="<a class='button border-main' href='javascript:void(0)'	onclick='return add_to_meet_bottle("+user_id+")'><span class='icon-edit'></span>发现推荐</a>";
-			  //toAdd+="<a class='button border-main' href='javascript:void(0)'	onclick='return add_to_meet_bottle("+user_id+")'><span class='icon-edit'></span>添加到邂逅瓶待选区</a>";
+			  toAdd+="<a class='button border-main' href='javascript:void(0)'	onclick='return edit_fun("+user_id+")'><span class='icon-edit'></span>编辑限制</a>";
+			  toAdd+="<a class='button border-main' href='javascript:void(0)'	onclick='return add_to_meet_bottle("+user_id+")'><span class='icon-edit'></span>加入邂逅瓶待选区</a>";
+			  toAdd+="<a class='button border-main' href='javascript:void(0)'	onclick='return add_to_found_user("+user_id+")'><span class='icon-edit'></span>添加到发现用户</a>";
+			  toAdd+="<a class='button border-yellow' href='javascript:void(0)'	onclick='return add_to_found_black_list("+user_id+")'><span class='icon-edit'></span>加入发现黑名单</a>";
+			  
 			  
 			  toAdd+="</div></td></tr>";
 			 tr.after(toAdd);
@@ -233,7 +230,36 @@
 	    function show(img){
 	    	parent.showOriginImg(img);
 	    }
-		 
+	    function edit_fun(user_id){
+			alert(user_id);
+		}
+	    
+ 	    function add_to_found_black_list(user_id){
+			$.post("<%=path%>/manager/edit_user_found_state",{'user_id':user_id,'fun':1,'state':1},function(result){
+				 var json=JSON.parse(result);
+			        if(json.code==0){
+			        	 alert("操作成功！");
+			        }
+		    });
+		}
+		function add_to_found_user(user_id){
+			$.post("<%=path%>/manager/edit_user_found_state",{'user_id':user_id,'fun':1,'state':0},function(result){
+				 var json=JSON.parse(result);
+			        if(json.code==0){
+			        	 alert("操作成功！");
+			        }
+		    });
+		}
+		function add_to_meet_bottle(user_id){
+			$.post("<%=path%>/manager/edit_user_meet_bottle_recomend",{'user_id':user_id,'fun':1},function(result){
+				 var json=JSON.parse(result);
+			        if(json.code==0){
+			        	 alert("操作成功！");
+			        }
+		    });
+		}
+	    
+	    
 		$("#edit_to_visible").click(function() {
 			editState(0);	 
 		})

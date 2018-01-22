@@ -94,7 +94,7 @@
 			if (currentPageIndex == index) {
 				return false;
 			}
-			$.post("<%=path%>/manager/list_user_found_black",{'pageIndex':index,'pageSize':pageSize},function(result){
+			$.post("<%=path%>/manager/list_user_found",{'pageIndex':index,'pageSize':pageSize,'state':1},function(result){
 				 var json=JSON.parse(result);
 			        if(json.code==0){
 			        	$("table tr[id*='tr_'").each(function(i){
@@ -168,7 +168,7 @@
 			}
 		}
 		function del_from_found_user_black(user_id){
-			$.post("<%=path%>/manager/edit_user_meet_bottle_recomend",{'user_id':user_id,'fun':0,'pageIndex':currentPageIndex,'pageSize':pageSize},function(result){
+			$.post("<%=path%>/manager/remove_user_found_state",{'user_id':user_id,'state':1,'pageIndex':currentPageIndex,'pageSize':pageSize},function(result){
 				 var json=JSON.parse(result);
 				 if(json.code==0){
 			        	$("table tr[id*='tr_'").each(function(i){
@@ -215,7 +215,7 @@
 			  toAdd+="<td><div class='button-group'>";
 			  
 			  //toAdd+="<a class='button border-main' href='javascript:void(0)'	onclick='return edit_fun("+user_id+")'><span class='icon-edit'></span>编辑限制</a>";
-			  toAdd+="<a class='button border-yellow' href='javascript:void(0)'	onclick='return del_from_found_user_black("+user_id+")'><span class='icon-edit'></span>发现推荐</a>";
+			  toAdd+="<a class='button border-yellow' href='javascript:void(0)'	onclick='return del_from_found_user_black("+user_id+")'><span class='icon-edit'></span>移除</a>";
 			  //toAdd+="<a class='button border-main' href='javascript:void(0)'	onclick='return add_to_meet_bottle("+user_id+")'><span class='icon-edit'></span>添加到邂逅瓶待选区</a>";
 			  
 			  toAdd+="</div></td></tr>";

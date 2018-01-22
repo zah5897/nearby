@@ -17,6 +17,7 @@ import com.zhan.app.nearby.comm.DynamicState;
 import com.zhan.app.nearby.comm.ExchangeState;
 import com.zhan.app.nearby.comm.FoundUserRelationship;
 import com.zhan.app.nearby.dao.ManagerDao;
+import com.zhan.app.nearby.dao.UserDao;
 
 @Service
 @Transactional("transactionManager")
@@ -27,6 +28,8 @@ public class ManagerService {
 	private UserCacheService userCacheService;
 	@Resource
 	private UserService userService;
+	@Resource
+	private UserDao userDao;
 
 	public int getHomeFoundSelectedCount() {
 		return managerDao.getHomeFoundSelectedCount();
@@ -191,8 +194,8 @@ public class ManagerService {
 	 * @param pageIndex
 	 * @return
 	 */
-	public List<BaseUser> getFoundBlackUsers(int pageSize, int pageIndex) {
-		return userService.getFoundBlackUsers(pageSize, pageIndex);
+	public List<BaseUser> getFoundUsersByState(int pageSize, int pageIndex,FoundUserRelationship ship) {
+		return userService.getFoundUsersByState(pageSize, pageIndex,ship);
 	}
 
 	/**
@@ -200,8 +203,8 @@ public class ManagerService {
 	 * 
 	 * @return
 	 */
-	public int getFoundBlackUsers() {
-		return userService.getFoundBlackUsers();
+	public int getFoundUserCountByState(FoundUserRelationship ship) {
+		return userService.getFoundUsersCountByState(ship);
 	}
 
 	public List<BaseUser> getAllMeetBottleRecommendUser(int pageSize, int pageIndex, String keyword) {
@@ -217,10 +220,19 @@ public class ManagerService {
 	 * 
 	 * @param user_id
 	 */
-	public void editUserFoundBlack(long user_id, int fun) {
-		managerDao.editUserFoundBlack(user_id, fun);
+	public void editUserFoundState(long user_id,FoundUserRelationship ship) {
+		managerDao.editUserFoundState(user_id,ship);
 	}
 
+
+	/**
+	 * 移除状态
+	 * 
+	 * @param user_id
+	 */
+	public void removeUserFoundState(long user_id) {
+		managerDao.removeUserFoundState(user_id);
+	}
 	/**
 	 * 添加到邂逅瓶待选用户区
 	 * 
@@ -228,9 +240,9 @@ public class ManagerService {
 	 */
 	public void editUserMeetBottle(long user_id, int fun) {
 		managerDao.editUserMeetBottle(user_id, fun);
-
 	}
 
+	
 	/**
 	 * 获取提现记录
 	 * 

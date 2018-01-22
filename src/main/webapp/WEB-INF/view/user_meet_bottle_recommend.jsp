@@ -224,7 +224,7 @@
 			 //操作单元格
 			  toAdd+="<td><div class='button-group'>";
 			  
-			  toAdd+="<a class='button border-yellow' href='javascript:void(0)'	onclick='return del_from_meet_bottle("+user_id+")'><span class='icon-edit'></span>移除邂逅瓶待选区</a>";
+			  toAdd+="<a class='button border-yellow' href='javascript:void(0)'	onclick='return del_from_meet_bottle("+user_id+")'><span class='icon-edit'></span>移除</a>";
 			  
 			  toAdd+="</div></td></tr>";
 			 tr.after(toAdd);

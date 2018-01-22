@@ -1,9 +1,13 @@
 package com.zhan.app.nearby.util;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.zhan.app.nearby.annotation.ColumnType;
@@ -23,8 +27,10 @@ public class ObjectUtil {
 		Map<String, String> map = new HashMap<String, String>();
 		Class<? extends Object> c = entityName.getClass();
 		// 获得对象属性
-		Field field[] = c.getDeclaredFields();
-		for (Field f : field) {
+		
+		List<Field> allFields=new ArrayList<Field>();
+		getClassField(c,allFields);
+		for (Field f : allFields) {
 			f.setAccessible(true);
 			ColumnType ignore = f.getAnnotation(ColumnType.class);
 			try {
@@ -60,7 +66,20 @@ public class ObjectUtil {
 
 		return map;
 	}
-
+	private static List<Field> getClassField(Class<? extends Object> clazz,List<Field> allFields) {
+		if(clazz.getName().equals(Object.class.getName())) {
+			return allFields;
+		}
+		Field fields[] = clazz.getDeclaredFields();
+		
+		for(Field f:fields) {
+			if(!allFields.contains(f)) {
+				allFields.add(f);
+			}
+		}
+		return getClassField(clazz.getSuperclass(),allFields);
+	}
+	
 	private static Object getGenerValue(Object entityName) throws Exception {
 		Class<? extends Object> c = entityName.getClass();
 		// 获得对象属性

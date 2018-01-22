@@ -53,11 +53,11 @@
 			<table class="table table-hover text-center">
 				<tr>
 					<th width="5%">ID</th>
-					<th width="10%">昵称</th>
+					<th width="5%">昵称</th>
 					<th width="15%">头像</th>
 					<th width="5%">性别</th>
 					<th width="5%">类型</th>
-					<th width="30%">操作</th>
+					<th width="35%">操作</th>
 				</tr>
 				<tr id="bottom">
 					<td colspan="8">
@@ -199,7 +199,15 @@
 			alert(user_id);
 		}
 		function add_to_found_black_list(user_id){
-			$.post("<%=path%>/manager/edit_user_found_black",{'user_id':user_id,'fun':1},function(result){
+			$.post("<%=path%>/manager/edit_user_found_state",{'user_id':user_id,'fun':1,'state':1},function(result){
+				 var json=JSON.parse(result);
+			        if(json.code==0){
+			        	 alert("操作成功！");
+			        }
+		    });
+		}
+		function add_to_found_user(user_id){
+			$.post("<%=path%>/manager/edit_user_found_state",{'user_id':user_id,'fun':1,'state':0},function(result){
 				 var json=JSON.parse(result);
 			        if(json.code==0){
 			        	 alert("操作成功！");
@@ -252,6 +260,7 @@
 			  
 			  toAdd+="<a class='button border-main' href='javascript:void(0)'	onclick='return edit_fun("+user_id+")'><span class='icon-edit'></span>编辑限制</a>";
 			  toAdd+="<a class='button border-main' href='javascript:void(0)'	onclick='return add_to_meet_bottle("+user_id+")'><span class='icon-edit'></span>加入邂逅瓶待选区</a>";
+			  toAdd+="<a class='button border-main' href='javascript:void(0)'	onclick='return add_to_found_user("+user_id+")'><span class='icon-edit'></span>添加到发现用户</a>";
 			  toAdd+="<a class='button border-yellow' href='javascript:void(0)'	onclick='return add_to_found_black_list("+user_id+")'><span class='icon-edit'></span>加入发现黑名单</a>";
 			  
 			  toAdd+="</div></td></tr>";

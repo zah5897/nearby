@@ -49,8 +49,7 @@ public class MainService {
 	@Resource
 	CityService cityService;
 
-	public ModelMap foud_users(Long user_id, Integer page_size, Integer gender) {
-
+	public ModelMap found_users(Long user_id, Integer page_size, Integer gender) {
 		int realCount;
 		if (page_size == null || page_size <= 0) {
 			realCount = 5;
@@ -60,12 +59,11 @@ public class MainService {
 		if (user_id == null) {
 			user_id = 0l;
 		}
-
 		if (gender == null) {
 			gender = -1;
 		}
 		ModelMap result = ResultUtil.getResultOKMap();
-		List<BaseUser> users = userDao.getRandomUser(user_id, realCount, gender);
+		List<BaseUser> users = userDao.getFoundUserRandom(user_id, realCount, gender);
 		ImagePathUtil.completeAvatarsPath(users, true);
 		result.put("users", users);
 		return result;
@@ -127,41 +125,96 @@ public class MainService {
 		return userDynamicDao.getMostCityID();
 	}
 
-	public ModelMap changeRelationShip(long user_id, String token, String with_user_id, Relationship ship,
-			RelationshipType shipType) {
+	public ModelMap like(long user_id, String with_user_id) {
 		if (user_id < 0) {
 			return ResultUtil.getResultMap(ERROR.ERR_USER_NOT_EXIST);
 		}
 		String[] with_ids = with_user_id.split(",");
-		for (String id : with_ids) {
-			try {
-				long with_user = Long.parseLong(id);
+		int len = with_ids.length;
+		for (int i = 0; i < len; i++) {
+			changeRelationShip(user_id, with_ids[i], Relationship.LIKE);
+		}
+		return ResultUtil.getResultOKMap();
+	}
+
+	public ModelMap addBlock(long user_id, String with_user_id) {
+		if (user_id < 0) {
+			return ResultUtil.getResultMap(ERROR.ERR_USER_NOT_EXIST);
+		}
+		String[] with_ids = with_user_id.split(",");
+		int len = with_ids.length;
+		for (int i = 0; i < len; i++) {
+			changeRelationShip(user_id, with_ids[i], Relationship.BLACK);
+		}
+		return ResultUtil.getResultOKMap();
+	}
+
+	public ModelMap ignore(long user_id, String with_user_id) {
+		if (user_id < 0) {
+			return ResultUtil.getResultMap(ERROR.ERR_USER_NOT_EXIST);
+		}
+		String[] with_ids = with_user_id.split(",");
+		int len = with_ids.length;
+		for (int i = 0; i < len; i++) {
+			changeRelationShip(user_id, with_ids[i], Relationship.IGNORE);
+		}
+		return ResultUtil.getResultOKMap();
+	}
+
+	// public ModelMap changeRelationShip(long user_id, String token, String
+	// with_user_id, Relationship ship,
+	// RelationshipType shipType,String bottle_id) {
+	// if (user_id < 0) {
+	// return ResultUtil.getResultMap(ERROR.ERR_USER_NOT_EXIST);
+	// }
+	// String[] with_ids = with_user_id.split(",");
+	// String[] bottle_ids = null;
+	// if(TextUtils.isEmpty(bottle_id)) {
+	// bottle_ids = bottle_id.split(",");
+	// }
+	// int len=with_ids.length;
+	// for (int i=0;i<len;i++) {
+	// try {
+	// long with_user = Long.parseLong(with_ids[i]);
+	// BaseUser withUser = userDao.getBaseUser(with_user);
+	// if (user_id == with_user || withUser == null) {
+	// continue;
+	// }
+	// String id=null;
+	// if(bottle_ids!=null) {
+	// id=bottle_ids[i];
+	// }
+	// changeRelationShip(user_id, withUser, ship, shipType,id);
+	// } catch (NumberFormatException e) {
+	// }
+	// }
+	// return ResultUtil.getResultOKMap();
+	// }
+
+	private ModelMap changeRelationShip(long user_id, String with_user_id, Relationship ship) {
+		try {
+			long with_user = Long.parseLong(with_user_id);
+			if (with_user != user_id) {
 				BaseUser withUser = userDao.getBaseUser(with_user);
-				if (user_id == with_user || withUser == null) {
-					continue;
+				if (withUser != null) {
+					userDao.updateRelationship(user_id, with_user, ship);
+					if (ship == Relationship.LIKE) {
+						BaseUser user = userDao.getBaseUser(user_id);
+						dynamicMsgService.insertActionMsg(DynamicMsgType.TYPE_MEET, user_id, with_user,
+								withUser.getUser_id(), "");
+						int count = userDao.isLikeMe(user_id, with_user);
+						if (count > 0) { // 对方喜欢我了，这个时候我也喜欢对方了，需要互相发消息
+							makeChatSession(user, withUser);
+						}
+					}
 				}
-				changeRelationShip(user_id, withUser, ship, shipType);
-			} catch (NumberFormatException e) {
 			}
+		} catch (NumberFormatException e) {
 		}
 		return ResultUtil.getResultOKMap();
 	}
 
-	public ModelMap changeRelationShip(long user_id, BaseUser with_user, Relationship ship, RelationshipType shipType) {
-		userDao.updateRelationship(user_id, with_user.getUser_id(), ship);
-		// 判断对方是否也已经喜欢我了
-		if (ship == Relationship.LIKE) {
-			BaseUser user = userDao.getBaseUser(user_id);
-			dynamicMsgService.insertActionMsg(DynamicMsgType.TYPE_MEET, user_id, -1, with_user.getUser_id(), "有人喜欢了你");
-			int count = userDao.isLikeMe(user_id, with_user.getUser_id());
-			if (count > 0) { // 对方喜欢我了，这个时候我也喜欢对方了，需要互相发消息
-				makeChatSession(user, with_user, null);
-			}
-		}
-		return ResultUtil.getResultOKMap();
-	}
-
-	private void makeChatSession(BaseUser user, BaseUser with_user, String expressMsg) {
+	private void makeChatSession(BaseUser user, BaseUser with_user) {
 		ImagePathUtil.completeAvatarPath(with_user, true);
 		ImagePathUtil.completeAvatarPath(user, true);
 
@@ -197,6 +250,28 @@ public class MainService {
 		if (result != null) {
 			System.out.println(result);
 		}
+	}
+
+	private void makeBottleChatSession(BaseUser user, BaseUser with_user, String bottle_id) {
+		ImagePathUtil.completeAvatarPath(with_user, true);
+		ImagePathUtil.completeAvatarPath(user, true);
+		// 发送给对方
+		Map<String, String> ext = new HashMap<String, String>();
+		ext.put("nickname", user.getNick_name());
+		ext.put("avatar", user.getAvatar());
+		ext.put("origin_avatar", user.getOrigin_avatar());
+		ext.put("bottle_id", bottle_id);
+		Main.sendCmdMessage(String.valueOf(user.getUser_id()), new String[] { String.valueOf(with_user.getUser_id()) },
+				ext);
+
+		// 发送给自己
+		ext = new HashMap<String, String>();
+		ext.put("nickname", with_user.getNick_name());
+		ext.put("avatar", with_user.getAvatar());
+		ext.put("origin_avatar", with_user.getOrigin_avatar());
+		ext.put("bottle_id", bottle_id);
+		Main.sendCmdMessage(String.valueOf(with_user.getUser_id()), new String[] { String.valueOf(user.getUser_id()) },
+				ext);
 	}
 
 	public ModelMap reset_city() {
@@ -308,29 +383,29 @@ public class MainService {
 		return ResultUtil.getResultOKMap("提交成功").addAttribute("diamond_count", diamond_count == -1 ? 0 : diamond_count);
 	}
 
-	public ModelMap getHotUsers(String gender, Long fix_user_id,Integer page_index) {
+	public ModelMap getHotUsers(String gender, Long fix_user_id, Integer page_index) {
 		int limit = 6;
 		BaseUser fix_user = null;
-		
-		if(page_index==null||page_index<1) {
-			page_index=1;
+
+		if (page_index == null || page_index < 1) {
+			page_index = 1;
 		}
-		
-		if (page_index==1&&fix_user_id != null && fix_user_id > 0) {
-			limit=5;
-			fix_user=userDao.getBaseUser(fix_user_id);
+
+		if (page_index == 1 && fix_user_id != null && fix_user_id > 0) {
+			limit = 5;
+			fix_user = userDao.getBaseUser(fix_user_id);
 		}
-		
-		List<BaseUser> users = systemDao.loadMaxRateMeiLi(fix_user_id,gender,page_index, limit);
+
+		List<BaseUser> users = systemDao.loadMaxRateMeiLi(fix_user_id, gender, page_index, limit);
 		if (users.size() < limit) {
-			users = systemDao.loadMaxMeiLi(fix_user_id,gender,page_index, limit);
+			users = systemDao.loadMaxMeiLi(fix_user_id, gender, page_index, limit);
 		}
-		
-		if(fix_user!=null) {
+
+		if (fix_user != null) {
 			users.add(0, fix_user);
 		}
 		ImagePathUtil.completeAvatarsPath(users, true);
-		return ResultUtil.getResultOKMap().addAttribute("users", users).addAttribute("hasMore", users.size()==6);
+		return ResultUtil.getResultOKMap().addAttribute("users", users).addAttribute("hasMore", users.size() == 6);
 	}
 
 	public int injectRate() {

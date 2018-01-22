@@ -21,6 +21,7 @@ import com.zhan.app.nearby.bean.user.DetailUser;
 import com.zhan.app.nearby.bean.user.LocationUser;
 import com.zhan.app.nearby.bean.user.SimpleUser;
 import com.zhan.app.nearby.cache.UserCacheService;
+import com.zhan.app.nearby.comm.FoundUserRelationship;
 import com.zhan.app.nearby.comm.Relationship;
 import com.zhan.app.nearby.dao.TagDao;
 import com.zhan.app.nearby.dao.UserDao;
@@ -494,8 +495,8 @@ public class UserService {
 	 * @param pageIndex
 	 * @return
 	 */
-	public List<BaseUser> getFoundBlackUsers(int pageSize, int pageIndex) {
-		return userDao.getFoundBlackUsers(pageSize, pageIndex);
+	public List<BaseUser> getFoundUsersByState(int pageSize, int pageIndex,FoundUserRelationship ship) {
+		return userDao.getFoundUsersByState(pageSize, pageIndex,ship);
 	}
 
 	/**
@@ -503,9 +504,8 @@ public class UserService {
 	 * 
 	 * @return
 	 */
-	public int getFoundBlackUsers() {
-		// TODO Auto-generated method stub
-		return userDao.getFoundBlackUsers();
+	public int getFoundUsersCountByState(FoundUserRelationship ship) {
+		return userDao.getFoundUsersCountByState(ship);
 	}
 
 	public List<BaseUser> getAllMeetBottleRecommendUser(int pageSize, int pageIndex, String keyword) {

@@ -257,10 +257,14 @@ public class UserDao extends BaseDao {
 		return ids;
 	}
 
-	public List<BaseUser> getRandomUser(long user_id, int realCount, int gender) {
-		String sql = "select * from t_user where user_id not in (select uid from t_found_user_relationship where state=? order by uid desc) and  user_id<>? and avatar<>? and sex<>? order by  RAND() limit ?";
+	public List<BaseUser> getFoundUserRandom(long user_id, int realCount, int gender) {
+		
+		String sql="select u.* from t_found_user_relationship f left join t_user u on f.uid=u.user_id where f.state=? and f.uid<>? and u.avatar is not null and u.sex<>? order by  RAND() limit ?";
+		
+//		String sql = "select * from t_user where user_id not in (select uid from t_found_user_relationship where state=? order by uid desc) and  user_id<>? and avatar<>? and sex<>? order by  RAND() limit ?";
+//		String sql = "select * from t_user where user_id not in (select uid from t_found_user_relationship where state=? order by uid desc) and  user_id<>? and avatar<>? and sex<>? order by  RAND() limit ?";
 		List<BaseUser> users = jdbcTemplate.query(sql,
-				new Object[] { FoundUserRelationship.GONE.ordinal(), user_id, "", gender, realCount },
+				new Object[] { FoundUserRelationship.VISIBLE.ordinal(), user_id, gender, realCount },
 				new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
 		return users;
 	}
@@ -341,10 +345,10 @@ public class UserDao extends BaseDao {
 	 * @param pageIndex
 	 * @return
 	 */
-	public List<BaseUser> getFoundBlackUsers(int pageSize, int pageIndex) {
+	public List<BaseUser> getFoundUsersByState(int pageSize, int pageIndex,FoundUserRelationship ship) {
 		String sql = "select u.* from t_found_user_relationship bu left join t_user u on bu.uid=u.user_id  where bu.state=? order by bu.uid desc limit ?,?";
 		return jdbcTemplate.query(sql,
-				new Object[] { FoundUserRelationship.GONE.ordinal(), (pageIndex - 1) * pageSize, pageSize },
+				new Object[] { ship.ordinal(), (pageIndex - 1) * pageSize, pageSize },
 				new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
 	}
 
@@ -353,9 +357,9 @@ public class UserDao extends BaseDao {
 	 * 
 	 * @return
 	 */
-	public int getFoundBlackUsers() {
+	public int getFoundUsersCountByState(FoundUserRelationship ship) {
 		return jdbcTemplate.queryForObject("select count(*) from t_found_user_relationship where state=?",
-				new Object[] { FoundUserRelationship.GONE.ordinal() }, Integer.class);
+				new Object[] { ship.ordinal() }, Integer.class);
 	}
 
 	/**

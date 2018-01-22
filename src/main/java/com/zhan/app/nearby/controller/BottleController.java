@@ -14,8 +14,6 @@ import org.springframework.web.multipart.support.DefaultMultipartHttpServletRequ
 
 import com.zhan.app.nearby.bean.Bottle;
 import com.zhan.app.nearby.bean.type.BottleType;
-import com.zhan.app.nearby.comm.Relationship;
-import com.zhan.app.nearby.comm.RelationshipType;
 import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.service.BottleService;
 import com.zhan.app.nearby.service.MainService;
@@ -89,12 +87,7 @@ public class BottleController {
 	
 	@RequestMapping("like")
 	public ModelMap like(long user_id, String token, String with_user_id) {
-		return mainService.changeRelationShip(user_id, token, with_user_id, Relationship.LIKE,RelationshipType.BOTTLE);
-	}
-	 
-	@RequestMapping("ignore")
-	public ModelMap ignore(long user_id, String token, String with_user_id) {
-		return mainService.changeRelationShip(user_id, token, with_user_id, Relationship.IGNORE,RelationshipType.BOTTLE);
+		return bottleService.like(user_id, with_user_id);
 	}
 	
 	@RequestMapping("express/{to_user_id}")

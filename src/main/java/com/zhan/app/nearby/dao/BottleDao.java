@@ -9,7 +9,6 @@ import javax.annotation.Resource;
 
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import com.zhan.app.nearby.bean.Bottle;
@@ -18,7 +17,6 @@ import com.zhan.app.nearby.bean.City;
 import com.zhan.app.nearby.bean.type.BottleType;
 import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.bean.user.LocationUser;
-import com.zhan.app.nearby.bean.user.SimpleUser;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.TextUtils;
 
@@ -232,6 +230,10 @@ public class BottleDao extends BaseDao {
 		return pool_count > 0 || bottle_count > 0;
 	}
 
+	public List<Long> getMeetBottleIDByUser(long user_id){
+		return  jdbcTemplate.queryForList("select id from t_bottle where user_id=? and type=?",new Object[] { user_id, BottleType.MEET.ordinal() }, Long.class);
+	}
+	
 	public int insertExpress(BottleExpress express) {
 		return saveObjSimple(jdbcTemplate, "t_user_express", express);
 	}

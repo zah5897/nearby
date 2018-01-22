@@ -42,6 +42,7 @@
    <ul style="display:block">
     <li><a href="<%=path %>/manager/forword?path=user_all" target="right"><span class="icon-caret-right"></span>所有用户</a></li>
     <li><a href="<%=path %>/manager/forword?path=user_new" target="right"><span class="icon-caret-right"></span>新增用户</a></li>
+    <li><a href="<%=path %>/manager/forword?path=user_found_list" target="right"><span class="icon-caret-right"></span>发现用户列表</a></li>
     <li><a href="<%=path %>/manager/forword?path=user_found_black_list" target="right"><span class="icon-caret-right"></span>发现用户黑名单</a></li>
     <li><a href="<%=path %>/manager/forword?path=user_meet_bottle_recommend" target="right"><span class="icon-caret-right"></span>邂逅瓶推荐用户</a></li>
   </ul>  

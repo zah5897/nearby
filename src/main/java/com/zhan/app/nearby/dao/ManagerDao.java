@@ -35,7 +35,7 @@ public class ManagerDao extends BaseDao {
 	public static final String TABLE_TOPIC = "t_topic";
 	@Resource
 	private JdbcTemplate jdbcTemplate;
-//	private static Logger log = Logger.getLogger(ManagerDao.class);
+	// private static Logger log = Logger.getLogger(ManagerDao.class);
 
 	public long insertDynamic(UserDynamic dyanmic) {
 		return saveObj(jdbcTemplate, TABLE_USER_DYNAMIC, dyanmic);
@@ -51,11 +51,11 @@ public class ManagerDao extends BaseDao {
 
 	}
 
-	public List<UserDynamic> getDyanmicByState(int pageIndex, int pageSize,DynamicState state) {
+	public List<UserDynamic> getDyanmicByState(int pageIndex, int pageSize, DynamicState state) {
 		String sql = "select dynamic.* ,user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday,user.type from "
-				+ TABLE_USER_DYNAMIC + " dynamic  left join t_user user on  dynamic.user_id=user.user_id  where dynamic.state=?   order by dynamic.id desc limit ?,?";
-		return jdbcTemplate.query(sql,
-				new Object[] { state.ordinal(), (pageIndex - 1) * pageSize, pageSize },
+				+ TABLE_USER_DYNAMIC
+				+ " dynamic  left join t_user user on  dynamic.user_id=user.user_id  where dynamic.state=?   order by dynamic.id desc limit ?,?";
+		return jdbcTemplate.query(sql, new Object[] { state.ordinal(), (pageIndex - 1) * pageSize, pageSize },
 				new DynamicMapper());
 
 	}
@@ -76,11 +76,13 @@ public class ManagerDao extends BaseDao {
 				+ " selected on dynamic.id=selected.dynamic_id    where selected.selected_state=? and dynamic.state=1 ";
 		return jdbcTemplate.queryForObject(sql, new Object[] { ImageStatus.SELECTED.ordinal() }, Integer.class);
 	}
+
 	public int getPageCountByState(int state) {
 		String sql = "select  count(*) from " + TABLE_USER_DYNAMIC + " where state=?";
-		return jdbcTemplate.queryForObject(sql, new Object[] {state }, Integer.class);
+		return jdbcTemplate.queryForObject(sql, new Object[] { state }, Integer.class);
 	}
-    //获取未选中的（前提为被审核通过的）
+
+	// 获取未选中的（前提为被审核通过的）
 	public int getUnSelectedCount() {
 		String sql = "select count(*) from " + TABLE_USER_DYNAMIC
 				+ " dynamic    where dynamic.id not in(select dynamic_id from " + TABLE_HOME_FOUND_SELECTED
@@ -93,16 +95,16 @@ public class ManagerDao extends BaseDao {
 		String sql = "delete from " + TABLE_HOME_FOUND_SELECTED + " where dynamic_id=? and selected_state=?";
 		return jdbcTemplate.update(sql, new Object[] { id, ImageStatus.SELECTED.ordinal() });
 	}
-	
-	public int removeDyanmicByState(long id,DynamicState state) {
+
+	public int removeDyanmicByState(long id, DynamicState state) {
 		String sql = "delete from " + TABLE_USER_DYNAMIC + " where id=? and state=?";
 		return jdbcTemplate.update(sql, new Object[] { id, state.ordinal() });
 	}
-	
-	//修改动态的状态
-	public int updateDynamicState(long id,DynamicState state) {
+
+	// 修改动态的状态
+	public int updateDynamicState(long id, DynamicState state) {
 		String sql = "update  t_user_dynamic set state=? where id=? ";
-		return jdbcTemplate.update(sql, new Object[] { state.ordinal(),id});
+		return jdbcTemplate.update(sql, new Object[] { state.ordinal(), id });
 	}
 
 	public int removeUserDynamic(long id) {
@@ -167,138 +169,145 @@ public class ManagerDao extends BaseDao {
 
 	/**
 	 * 根据限制条件获取新增用户总数
+	 * 
 	 * @param type
 	 * @return
 	 */
 	public int getNewUserCount(int type) {
-		String sql="";
-		if(type==-1) { //今日
+		String sql = "";
+		if (type == -1) { // 今日
 			sql = "select count(*) from t_user where type=? and  to_days(create_time) = to_days(now())";
-		}else if(type==0){
+		} else if (type == 0) {
 			sql = "select count(*) from t_user where type=? and  to_days(create_time) >= (to_days(now())-2)";
-		}else if(type==1) {
+		} else if (type == 1) {
 			sql = "select count(*) from t_user where type=? and  to_days(create_time) >= (to_days(now())-7)";
-		}else if(type==2) {
+		} else if (type == 2) {
 			sql = "select count(*) from t_user where type=? and  to_days(create_time) >= (to_days(now())-30)";
 		}
 		return jdbcTemplate.queryForObject(sql, new Object[] { UserType.OFFIEC.ordinal() }, int.class);
 	}
 
-	public List<ManagerUser> listNewUser(int pageIndex, int pageSize,int type) {
-		
-		String sql="select user.user_id ,user.nick_name,user.avatar,user.sex,user.type,coalesce(ship.state,0) as state from t_user user left join t_found_user_relationship ship on user.user_id=ship.uid where  type=? and";
-		if(type==-1) { //今日
+	public List<ManagerUser> listNewUser(int pageIndex, int pageSize, int type) {
+
+		String sql = "select user.user_id ,user.nick_name,user.avatar,user.sex,user.type,coalesce(ship.state,0) as state from t_user user left join t_found_user_relationship ship on user.user_id=ship.uid where  type=? and";
+		if (type == -1) { // 今日
 			sql += "  to_days(create_time) = to_days(now())";
-		}else if(type==0){
+		} else if (type == 0) {
 			sql += " to_days(create_time) >= (to_days(now())-2)";
-		}else if(type==1) {
+		} else if (type == 1) {
 			sql += " to_days(create_time) >= (to_days(now())-7)";
-		}else if(type==2) {
+		} else if (type == 2) {
 			sql += " to_days(create_time) >= (to_days(now())-30)";
 		}
-		sql+= " order by user.user_id desc limit ?,?";
+		sql += " order by user.user_id desc limit ?,?";
 		return jdbcTemplate.query(sql, new Object[] { UserType.OFFIEC.ordinal(), (pageIndex - 1) * pageSize, pageSize },
 				new BeanPropertyRowMapper<ManagerUser>(ManagerUser.class));
 	}
 
 	/**
 	 * 添加到发现用户黑名单
+	 * 
 	 * @param user_id
 	 * @return
 	 */
-	public int editUserFoundBlack(long user_id,int fun) {
-		if(fun==1) {
-		String checkHas = "select count(*) from t_found_user_relationship where uid=? and state=?";
-		int count = jdbcTemplate.queryForObject(checkHas, new Object[] { user_id, FoundUserRelationship.GONE.ordinal()},
-				Integer.class);
-		if (count < 1) {
+	public int editUserFoundState(long user_id, FoundUserRelationship ship) {
+		int count = jdbcTemplate.update("update t_found_user_relationship set state=? where uid=?",
+				new Object[] { ship.ordinal(), user_id });
+		if (count !=1) {
 			String sql = "insert into t_found_user_relationship values (?, ?)";
-			return jdbcTemplate.update(sql, new Object[] { user_id, FoundUserRelationship.GONE.ordinal() });
+			return jdbcTemplate.update(sql, new Object[] { user_id, ship.ordinal() });
 		}
-		}else {
-			return jdbcTemplate.update("delete from t_found_user_relationship where uid=?", new Object[] { user_id});
-		}
-		return 1;
+		return count;
 	}
 
-	public int editUserMeetBottle(long user_id,int fun) {
-		if(fun==1) {
+	public int removeUserFoundState(long user_id) {
+		return jdbcTemplate.update("delete from t_found_user_relationship where uid=?", new Object[] { user_id });
+	}
+
+	public int editUserMeetBottle(long user_id, int fun) {
+		if (fun == 1) {
 			String checkHas = "select count(*) from t_user_meet_bottle_recommend where uid=?";
-			int count = jdbcTemplate.queryForObject(checkHas, new Object[] { user_id},
-					Integer.class);
+			int count = jdbcTemplate.queryForObject(checkHas, new Object[] { user_id }, Integer.class);
 			if (count < 1) {
 				String sql = "insert into t_user_meet_bottle_recommend values (?)";
-				return jdbcTemplate.update(sql, new Object[] { user_id});
+				return jdbcTemplate.update(sql, new Object[] { user_id });
 			}
-		}else {
-			return jdbcTemplate.update("delete from t_user_meet_bottle_recommend where uid=?", new Object[] { user_id});
+		} else {
+			return jdbcTemplate.update("delete from t_user_meet_bottle_recommend where uid=?",
+					new Object[] { user_id });
 		}
-		
-		
+
 		return 1;
 	}
 
 	/**
 	 * 获取提现记录
+	 * 
 	 * @param pageSize
 	 * @param pageIndex
 	 * @param type
 	 */
 	public List<Object> getExchangeHistory(int pageSize, int pageIndex, int type) {
-		String sql=null;
-		Object[] args=null;
-		if(type==1) {
-			sql="select ex.*,u.nick_name as nick_name from t_exchange_history ex left join t_user u on ex.user_id=u.user_id  order by create_time limit ?,?";
-			args=new Object[] {(pageIndex-1)*pageSize,pageSize};
-		}else if(type==2) {
-			sql="select ex.*,u.nick_name as nick_name from t_exchange_history ex left join t_user u on ex.user_id=u.user_id where ex.state=? order by create_time limit ?,?";
-			args=new Object[] {ExchangeState.IN_EXCHANGE.ordinal(),(pageIndex-1)*pageSize,pageSize};
-		}else {
-			sql="select ex.*,u.nick_name as nick_name from t_exchange_history ex left join t_user u on ex.user_id=u.user_id where ex.state<>? order by create_time limit ?,?";
-			args=new Object[] {ExchangeState.IN_EXCHANGE.ordinal(),(pageIndex-1)*pageSize,pageSize};
+		String sql = null;
+		Object[] args = null;
+		if (type == 1) {
+			sql = "select ex.*,u.nick_name as nick_name from t_exchange_history ex left join t_user u on ex.user_id=u.user_id  order by create_time limit ?,?";
+			args = new Object[] { (pageIndex - 1) * pageSize, pageSize };
+		} else if (type == 2) {
+			sql = "select ex.*,u.nick_name as nick_name from t_exchange_history ex left join t_user u on ex.user_id=u.user_id where ex.state=? order by create_time limit ?,?";
+			args = new Object[] { ExchangeState.IN_EXCHANGE.ordinal(), (pageIndex - 1) * pageSize, pageSize };
+		} else {
+			sql = "select ex.*,u.nick_name as nick_name from t_exchange_history ex left join t_user u on ex.user_id=u.user_id where ex.state<>? order by create_time limit ?,?";
+			args = new Object[] { ExchangeState.IN_EXCHANGE.ordinal(), (pageIndex - 1) * pageSize, pageSize };
 		}
-		RowMapper<Object> mapper=new RowMapper<Object>() {
+		RowMapper<Object> mapper = new RowMapper<Object>() {
 
 			@Override
 			public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
-				HashMap<String, Object> ex=new HashMap<String, Object>();
+				HashMap<String, Object> ex = new HashMap<String, Object>();
 				ex.put("id", rs.getInt("id"));
 				ex.put("user_id", rs.getLong("user_id"));
 				ex.put("nick_name", rs.getString("nick_name"));
-				
+
 				ex.put("diamond_count", rs.getInt("diamond_count"));
-				ex.put("create_time",DateTimeUtil.parse(rs.getTimestamp("create_time")));
+				ex.put("create_time", DateTimeUtil.parse(rs.getTimestamp("create_time")));
 				ex.put("rmb_fen", rs.getInt("rmb_fen"));
-				ex.put("finish_time",DateTimeUtil.parse(rs.getTimestamp("finish_time")));
+				ex.put("finish_time", DateTimeUtil.parse(rs.getTimestamp("finish_time")));
 				ex.put("state", rs.getInt("state"));
 				return ex;
 			}
 		};
-		return  jdbcTemplate.query(sql, args,mapper);
+		return jdbcTemplate.query(sql, args, mapper);
 	}
 
 	/**
 	 * 获取提现数量
+	 * 
 	 * @param type
 	 * @return
 	 */
 	public int getExchangeHistorySize(int type) {
-		if(type==1) {
-			return jdbcTemplate.queryForObject("select count(*) from t_exchange_history where state=?",new Object[] {type}, Integer.class);
-		}else if(type==2) {
-			return jdbcTemplate.queryForObject("select count(*) from t_exchange_history where state=?",new Object[] {ExchangeState.IN_EXCHANGE.ordinal()}, Integer.class);
-		}else {
-			return jdbcTemplate.queryForObject("select count(*) from t_exchange_history where state<>?",new Object[] {ExchangeState.IN_EXCHANGE.ordinal()}, Integer.class);
+		if (type == 1) {
+			return jdbcTemplate.queryForObject("select count(*) from t_exchange_history where state=?",
+					new Object[] { type }, Integer.class);
+		} else if (type == 2) {
+			return jdbcTemplate.queryForObject("select count(*) from t_exchange_history where state=?",
+					new Object[] { ExchangeState.IN_EXCHANGE.ordinal() }, Integer.class);
+		} else {
+			return jdbcTemplate.queryForObject("select count(*) from t_exchange_history where state<>?",
+					new Object[] { ExchangeState.IN_EXCHANGE.ordinal() }, Integer.class);
 		}
 	}
 
 	/**
 	 * 修改提现申请状态
+	 * 
 	 * @param id
 	 * @param agreeWait
 	 */
 	public int updateExchageState(int id, ExchangeState agreeWait) {
-		return jdbcTemplate.update("update t_exchange_history set state=? where id=?",new Object[] {agreeWait.ordinal(),id});
+		return jdbcTemplate.update("update t_exchange_history set state=? where id=?",
+				new Object[] { agreeWait.ordinal(), id });
 	}
 
 }

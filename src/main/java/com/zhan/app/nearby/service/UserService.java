@@ -541,4 +541,9 @@ public class UserService {
 		return r;
 	}
 
+	public boolean checkLogin(long user_id, String token) {
+		int count=userDao.getUserCountByIDToken(user_id,token);
+		return count>0;
+	}
+
 }

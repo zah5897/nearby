@@ -222,8 +222,8 @@ public class BottleService {
 			int len = array.size();
 			for (int i = 0; i < len; i++) {
 				JSONObject u_b = array.getJSONObject(i);
-				long withUserID = u_b.getLongValue("uid");
-				long bottleID = u_b.getLongValue("bottle_id");
+				long withUserID = Long.parseLong(u_b.getString("uid"));
+				long bottleID =Long.parseLong(u_b.getString("bottle_id"));
 				//判断瓶子是否存在，不存在的话要新建
 				if (bottleID < 1) {
 					List<Long> ids = bottleDao.getMeetBottleIDByUser(withUserID);

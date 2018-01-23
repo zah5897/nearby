@@ -15,19 +15,22 @@ import com.easemob.server.example.Main;
 import com.zhan.app.nearby.bean.City;
 import com.zhan.app.nearby.bean.Exchange;
 import com.zhan.app.nearby.bean.MeiLi;
+import com.zhan.app.nearby.bean.PersonalInfo;
 import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.bean.user.BaseUser;
+import com.zhan.app.nearby.cache.UserCacheService;
 import com.zhan.app.nearby.comm.DynamicMsgType;
 import com.zhan.app.nearby.comm.ExchangeState;
 import com.zhan.app.nearby.comm.Relationship;
-import com.zhan.app.nearby.comm.RelationshipType;
 import com.zhan.app.nearby.dao.SystemDao;
 import com.zhan.app.nearby.dao.UserDao;
 import com.zhan.app.nearby.dao.UserDynamicDao;
 import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.util.HttpService;
 import com.zhan.app.nearby.util.ImagePathUtil;
+import com.zhan.app.nearby.util.RandomCodeUtil;
 import com.zhan.app.nearby.util.ResultUtil;
+import com.zhan.app.nearby.util.SMSHelper;
 import com.zhan.app.nearby.util.TextUtils;
 
 @Service
@@ -48,6 +51,10 @@ public class MainService {
 
 	@Resource
 	CityService cityService;
+	@Resource
+	UserService userService;
+	@Resource
+	UserCacheService userCacheService;
 
 	public ModelMap found_users(Long user_id, Integer page_size, Integer gender) {
 		int realCount;
@@ -117,10 +124,6 @@ public class MainService {
 		return result;
 	}
 
-	// public int getCityImageCount(long user_id, int city_id) {
-	// return userDynamicDao.getCityImageCount(user_id,city_id);
-	// }
-
 	public int getMostByCity() {
 		return userDynamicDao.getMostCityID();
 	}
@@ -160,36 +163,6 @@ public class MainService {
 		}
 		return ResultUtil.getResultOKMap();
 	}
-
-	// public ModelMap changeRelationShip(long user_id, String token, String
-	// with_user_id, Relationship ship,
-	// RelationshipType shipType,String bottle_id) {
-	// if (user_id < 0) {
-	// return ResultUtil.getResultMap(ERROR.ERR_USER_NOT_EXIST);
-	// }
-	// String[] with_ids = with_user_id.split(",");
-	// String[] bottle_ids = null;
-	// if(TextUtils.isEmpty(bottle_id)) {
-	// bottle_ids = bottle_id.split(",");
-	// }
-	// int len=with_ids.length;
-	// for (int i=0;i<len;i++) {
-	// try {
-	// long with_user = Long.parseLong(with_ids[i]);
-	// BaseUser withUser = userDao.getBaseUser(with_user);
-	// if (user_id == with_user || withUser == null) {
-	// continue;
-	// }
-	// String id=null;
-	// if(bottle_ids!=null) {
-	// id=bottle_ids[i];
-	// }
-	// changeRelationShip(user_id, withUser, ship, shipType,id);
-	// } catch (NumberFormatException e) {
-	// }
-	// }
-	// return ResultUtil.getResultOKMap();
-	// }
 
 	private ModelMap changeRelationShip(long user_id, String with_user_id, Relationship ship) {
 		try {
@@ -250,28 +223,6 @@ public class MainService {
 		if (result != null) {
 			System.out.println(result);
 		}
-	}
-
-	private void makeBottleChatSession(BaseUser user, BaseUser with_user, String bottle_id) {
-		ImagePathUtil.completeAvatarPath(with_user, true);
-		ImagePathUtil.completeAvatarPath(user, true);
-		// 发送给对方
-		Map<String, String> ext = new HashMap<String, String>();
-		ext.put("nickname", user.getNick_name());
-		ext.put("avatar", user.getAvatar());
-		ext.put("origin_avatar", user.getOrigin_avatar());
-		ext.put("bottle_id", bottle_id);
-		Main.sendCmdMessage(String.valueOf(user.getUser_id()), new String[] { String.valueOf(with_user.getUser_id()) },
-				ext);
-
-		// 发送给自己
-		ext = new HashMap<String, String>();
-		ext.put("nickname", with_user.getNick_name());
-		ext.put("avatar", with_user.getAvatar());
-		ext.put("origin_avatar", with_user.getOrigin_avatar());
-		ext.put("bottle_id", bottle_id);
-		Main.sendCmdMessage(String.valueOf(with_user.getUser_id()), new String[] { String.valueOf(user.getUser_id()) },
-				ext);
 	}
 
 	public ModelMap reset_city() {
@@ -347,7 +298,14 @@ public class MainService {
 				systemDao.loadExchangeHistory(user_id, aid, page_index, count));
 	}
 
-	public ModelMap exchange_diamond(long user_id, String aid, int coins) {
+	public ModelMap exchange_diamond(long user_id, String token, String aid, int coins) {
+
+		boolean isLogin = userService.checkLogin(user_id, token);
+
+		if (!isLogin) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+
 		if (coins <= 0) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "金币数量不能少于1");
 		}
@@ -365,7 +323,12 @@ public class MainService {
 		}
 	}
 
-	public ModelMap exchange_rmb(long user_id, String aid, int diamond) {
+	public ModelMap exchange_rmb(long user_id, String token, String aid, int diamond) {
+		boolean isLogin = userService.checkLogin(user_id, token);
+		if (!isLogin) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+
 		int diamondCount = systemDao.getDiamondCount(user_id, aid);
 		if (diamond > diamondCount) {
 			return ResultUtil.getResultMap(ERROR.ERR_FAILED, "钻石数量不足");
@@ -410,6 +373,118 @@ public class MainService {
 
 	public int injectRate() {
 		return systemDao.injectRate();
+	}
+
+	/**
+	 * 获取当前钻石数量
+	 * 
+	 * @param user_id
+	 * @param token
+	 * @param aid
+	 * @return
+	 */
+	public ModelMap get_diamond_count(long user_id, String token, String aid) {
+		boolean isLogin = userService.checkLogin(user_id, token);
+		if (!isLogin) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		int diamondCount = systemDao.getDiamondCount(user_id, aid);
+		return ResultUtil.getResultOKMap().addAttribute("diamond_count", diamondCount);
+	}
+
+	public ModelMap check_submit_personal_id(PersonalInfo personal) {
+		BaseUser user = userDao.findBaseUserByMobile(personal.getMobile());
+		if (user == null) {
+			return ResultUtil.getResultMap(ERROR.ERR_NOT_EXIST, "当前手机号不存在");
+		}
+		if (user.getUser_id() != personal.getUser_id() || !personal.getToken().equals(user.getToken())) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		PersonalInfo info = systemDao.loadPersonalInfo(personal.getUser_id(),personal.getAid());
+		if(info!=null) {
+			return ResultUtil.getResultMap(ERROR.ERR_FAILED,"当前帐号已绑定身份证");
+		}
+		systemDao.savePersonalInfo(personal);
+		return ResultUtil.getResultOKMap().addAttribute("personal_info", personal);
+	}
+
+	public ModelMap check_submit_zhifubao(PersonalInfo personal, String code) {
+		if (TextUtils.isEmpty(personal.getZhifubao_access_number())) {
+			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "支付宝帐号不能为空");
+		}
+		// 验证code合法性
+		if (TextUtils.isEmpty(code) || !userCacheService.valideCode(personal.getMobile(), code)) {
+			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "验证码错误");
+		}
+		PersonalInfo info = systemDao.loadPersonalInfo(personal.getUser_id(), personal.getAid());
+		if (info == null) {
+			return ResultUtil.getResultMap(ERROR.ERR_FAILED, "个人身份证未绑定");
+		}
+		systemDao.updatePersonalInfo(personal.getUser_id(), personal.getAid(), personal.getZhifubao_access_number(),
+				personal.getMobile());
+		info = systemDao.loadPersonalInfo(personal.getUser_id(), personal.getAid());
+		return ResultUtil.getResultOKMap().addAttribute("personal_info", info);
+	}
+
+	public ModelMap load_personal_info(long user_id, String token, String aid) {
+		PersonalInfo info = systemDao.loadPersonalInfo(user_id, aid);
+		return ResultUtil.getResultOKMap().addAttribute("personal_info", info);
+	}
+
+	// 修改个人绑定的信息
+	public ModelMap modify_bind_personal_info(PersonalInfo personal, String code) {
+		if (TextUtils.isEmpty(personal.getZhifubao_access_number())) {
+			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "支付宝帐号不能为空");
+		}
+		// 验证code合法性
+		if (TextUtils.isEmpty(code) || !userCacheService.valideCode(personal.getMobile(), code)) {
+			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "验证码错误");
+		}
+
+		if (TextUtils.isEmpty(personal.getPersonal_name())) {
+			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "绑定的姓名不能为空");
+		}
+
+		if (TextUtils.isEmpty(personal.getPersonal_id())) {
+			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "身份证号不能为空");
+		}
+
+		PersonalInfo info = systemDao.loadPersonalInfo(personal.getUser_id(), personal.getAid());
+		if (info == null) {
+			return ResultUtil.getResultMap(ERROR.ERR_FAILED, "个人身份证未绑定,无法修改");
+		}
+		systemDao.updatePersonalInfo(personal);
+		return ResultUtil.getResultOKMap().addAttribute("personal_info", personal);
+	}
+
+	public ModelMap get_personal_validate_code(long user_id, String token, String mobile, Integer code_type) {
+		boolean isLogin = userService.checkLogin(user_id, token);
+		if (!isLogin) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		if (TextUtils.isEmpty(mobile)) {
+			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "手机号码不能为空");
+		}
+
+		String code = RandomCodeUtil.randomCode(6);
+		if (code_type != null && code_type == -1000) {
+			userCacheService.cacheValidateCode(mobile, code);
+			return ResultUtil.getResultOKMap().addAttribute("validate_code", code);
+		}
+		String cache = userCacheService.getCachevalideCode(mobile);
+		if (cache != null) {
+			// 已经在一分钟内发过，还没过期
+			System.out.println("已经在一分钟内发过，还没过期");
+		}
+		ModelMap data = ResultUtil.getResultOKMap();
+		boolean smsOK = SMSHelper.smsRegist(mobile, code);
+		if (smsOK) {
+			userCacheService.cacheValidateCode(mobile, code);
+			data.put("validate_code", code);
+		} else {
+			data = ResultUtil.getResultMap(ERROR.ERR_FAILED, "验证码发送失败");
+		}
+		return data;
 	}
 
 }

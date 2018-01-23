@@ -5,8 +5,10 @@ import javax.annotation.Resource;
 import org.apache.log4j.Logger;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.zhan.app.nearby.bean.PersonalInfo;
 import com.zhan.app.nearby.cache.UserCacheService;
 import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.service.CityService;
@@ -109,34 +111,59 @@ public class MainController {
 	 
 	//提现历史记录
 	@RequestMapping("exchange_history")
-	public ModelMap exchange_history(long user_id,String aid,Integer page_index,Integer count) {
+	public ModelMap exchange_history(long user_id,String token,String aid,Integer page_index,Integer count) {
 		return mainService.exchange_history(user_id,aid,page_index,count);
 	}
 	
 	
 	//扇贝兑换钻石
 	@RequestMapping("exchange_diamond")
-	public ModelMap exchange_diamond(long user_id,String aid,int coins) {
-		return mainService.exchange_diamond(user_id,aid,coins);
+	public ModelMap exchange_diamond(long user_id,String token,String aid,int coins) {
+		return mainService.exchange_diamond(user_id,token,aid,coins);
 	}
 	//钻石兑换RMB
 	@RequestMapping("exchange_rmb")
-	public ModelMap exchange_rmb(long user_id,String aid,int diamond) {
-		return mainService.exchange_rmb(user_id,aid,diamond);
+	public ModelMap exchange_rmb(long user_id,String token,String aid,int diamond) {
+		return mainService.exchange_rmb(user_id,token,aid,diamond);
 	}
-	/**
-	 * 获取成长率最高的用户
-	 * @param gender
-	 * @return
-	 */
+	
+	//获取当前钻石数量
+	@RequestMapping(value = "/get_diamond_count")
+	public @ResponseBody ModelMap get_diamond_count(long user_id,String token,String aid) {
+		return mainService.get_diamond_count(user_id, token,aid);
+	}
+	
+	//获取成长率最高的用户
 	@RequestMapping("hot_users")
 	public ModelMap hot_users(String gender,Long fix_user_id,Integer page) {
 		return mainService.getHotUsers(gender,fix_user_id,page);
 	}
+	//提交个人身份证
+	@RequestMapping("check_submit_personal_id")
+	public ModelMap check_submit_personal_id(PersonalInfo personal) {
+		return mainService.check_submit_personal_id(personal);
+	}
+	//提交支付宝信息
+	@RequestMapping("check_submit_personal_zhifubao")
+	public ModelMap check_submit_zhifubao(PersonalInfo personal,String code) {
+		return mainService.check_submit_zhifubao(personal,code);
+	}
+	//修改个人绑定的信息
+	@RequestMapping("modify_bind_personal_info")
+	public ModelMap modify_bind_personal_info(PersonalInfo personal,String code) {
+		return mainService.modify_bind_personal_info(personal,code);
+	}
+	//获取个人绑定的信息
+	@RequestMapping("load_personal_info")
+	public ModelMap load_personal_info(long user_id,String token,String aid) {
+		return mainService.load_personal_info(user_id,token,aid);
+	}
 	
-	//注入
-//		@RequestMapping("inject")
-//		public int inject() {
-//			return mainService.injectRate();
-//		}
+	//获取验证码
+	@RequestMapping("get_personal_validate_code")
+	public ModelMap get_personal_validate_code(long user_id,String token,String aid,String mobile,Integer code_type) {
+		return mainService.get_personal_validate_code(user_id,token,mobile,code_type);
+	}
+	
+ 
 }

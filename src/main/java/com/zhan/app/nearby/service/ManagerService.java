@@ -6,6 +6,7 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.ModelMap;
 
 import com.easemob.server.example.Main;
 import com.zhan.app.nearby.bean.ManagerUser;
@@ -18,6 +19,8 @@ import com.zhan.app.nearby.comm.ExchangeState;
 import com.zhan.app.nearby.comm.FoundUserRelationship;
 import com.zhan.app.nearby.dao.ManagerDao;
 import com.zhan.app.nearby.dao.UserDao;
+import com.zhan.app.nearby.exception.ERROR;
+import com.zhan.app.nearby.util.ResultUtil;
 
 @Service
 @Transactional("transactionManager")

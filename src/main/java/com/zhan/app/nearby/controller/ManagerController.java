@@ -740,11 +740,11 @@ public class ManagerController {
 		r.put("currentPageIndex", pageIndex);
 		return r;
 	}
-
 	@RequestMapping(value = "/exchange_handle")
 	public @ResponseBody ModelMap exchange_handle(int id, boolean agreeOrReject, int pageSize, int pageIndex,
 			int type) {
 		managerService.handleExchange(id, agreeOrReject);
 		return list_exchange_history(pageSize, pageIndex, type);
 	}
+	
 }

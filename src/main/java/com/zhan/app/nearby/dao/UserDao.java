@@ -419,4 +419,7 @@ public class UserDao extends BaseDao {
 	public List<BaseUser> getLaskLikeMe(long user_id) {
 		return jdbcTemplate.query("select u.user_id,u.nick_name,u.avatar,u.sex from t_user_relationship tur left join t_user u on tur.user_id= u.user_id where tur.with_user_id=? and  tur.relationship=? order by tur.create_time desc limit 1", new Object[] { user_id,Relationship.LIKE.ordinal()},new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
 	}
+	public int getUserCountByIDToken(long user_id, String token) {
+		return jdbcTemplate.queryForObject("select count(*) from t_user where user_id=? and token=?",new Object[] {user_id,token},Integer.class);
+	}
 }

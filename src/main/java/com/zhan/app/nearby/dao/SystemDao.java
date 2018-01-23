@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.validation.BeanPropertyBindingResult;
 
 import com.zhan.app.nearby.bean.Exchange;
+import com.zhan.app.nearby.bean.PersonalInfo;
 import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.comm.ExchangeState;
 import com.zhan.app.nearby.util.TextUtils;
@@ -129,7 +130,23 @@ public class SystemDao extends BaseDao {
         
 		return rateCount;
 	}
+
+	public int savePersonalInfo(PersonalInfo personal) {
+		 return saveObjSimple(jdbcTemplate, "t_personal_info", personal);
+	}
 	
-	
-	
+	public PersonalInfo loadPersonalInfo(long user_id,String aid) {
+		List<PersonalInfo>  personalInfos= jdbcTemplate.query("select *from t_personal_info where user_id=? and aid=?",new Object[] {user_id,aid},new BeanPropertyRowMapper<PersonalInfo>(PersonalInfo.class));
+	   if(personalInfos.size()>0) {
+		   return personalInfos.get(0);
+	   }else {
+		   return null;
+	   }
+	}
+	public int updatePersonalInfo(long user_id, String aid, String zhifubao_access_number, String mobile) {
+		return jdbcTemplate.update("update t_personal_info set mobile=?,zhifubao_access_number=? where user_id=? and aid=?",new Object[] {mobile,zhifubao_access_number,user_id,aid});
+	}
+	public int updatePersonalInfo(PersonalInfo personalInfo) {
+		return jdbcTemplate.update("update t_personal_info set mobile=?,zhifubao_access_number=? ,personal_name=?,personal_id=? where user_id=? and aid=?",new Object[] {personalInfo.getMobile(),personalInfo.getZhifubao_access_number(),personalInfo.getPersonal_name(),personalInfo.getPersonal_id(),personalInfo.getUser_id(),personalInfo.getAid()});
+	}
 }

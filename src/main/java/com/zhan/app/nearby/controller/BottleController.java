@@ -82,16 +82,14 @@ public class BottleController {
 	public ModelMap delete(long user_id, long bottle_id) {
 		return bottleService.delete(user_id, bottle_id);
 	}
-	
-	
-	
+
 	@RequestMapping("like")
 	public ModelMap like(long user_id, String token, String with_user_id) {
 		return bottleService.like(user_id, with_user_id);
 	}
-	
+
 	@RequestMapping("express/{to_user_id}")
-	public ModelMap like(@PathVariable long to_user_id,long user_id,String content) {
-		return bottleService.express(user_id,to_user_id,content);
+	public ModelMap like(@PathVariable long to_user_id, long user_id, String content) {
+		return bottleService.express(user_id, to_user_id, content);
 	}
 }

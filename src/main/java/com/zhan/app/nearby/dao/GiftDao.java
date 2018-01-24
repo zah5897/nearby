@@ -237,7 +237,11 @@ public class GiftDao extends BaseDao {
 
 	public int getUserMeiLiVal(long user_id) {
 		String t_total_meili = "select total_meili  from t_meili_total where user_id=?";
-		return jdbcTemplate.queryForObject(t_total_meili,new Object[]{user_id},Integer.class);
+		try {
+		    return jdbcTemplate.queryForObject(t_total_meili,new Object[]{user_id},Integer.class);
+		}catch (Exception e) {
+			return 0;
+		}
 	}
 	public int getUserBeLikeVal(long user_id) {
 		String beLikeCount = "select count(*) from t_user_relationship where with_user_id=? and relationship=? group by with_user_id";

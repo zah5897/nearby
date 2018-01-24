@@ -124,26 +124,12 @@ public class Main {
 	}
 
 	public static Object sendTxtMessage(String from, String[] users, String msgTxt, Map<String, String> ext) {
-		initFactory();
-		// {
-		// "target_type" : "users", // users 给用户发消息。chatgroups: 给群发消息，chatrooms: 给聊天室发消息
-		// "target" : ["u1", "u2", "u3"], // 注意这里需要用数组，数组长度建议不大于20，即使只有一个用户，
-		// // 也要用数组 ['u1']，给用户发送时数组元素是用户名，给群组发送时
-		// // 数组元素是groupid
-		// "msg" : {
-		// "type" : "txt",
-		// "msg" : "hello from rest"
-		// //消息内容，参考[[start:100serverintegration:30chatlog|聊天记录]]里的bodies内容
-		// },
-		// "from" : "jma2"
-		// //表示消息发送者。无此字段Server会默认设置为"from":"admin"，有from字段但值为空串("")时请求失败
-		// }
-		if(ext!=null){
-			ext.put("from", "nearby");
-		}else{
+		
+		if(ext==null) {
 			ext=new HashMap<String, String>();
-			ext.put("from", "nearby");
 		}
+		ext.put("send_by_admim", "admin");
+		initFactory();
 
 		BodyWrapper payload = new TextMessageBody("users", users, from, ext, msgTxt);
 		SendMessageAPI message = (SendMessageAPI) factory.newInstance(EasemobRestAPIFactory.SEND_MESSAGE_CLASS);
@@ -151,6 +137,12 @@ public class Main {
 	}
 
 	public static Object sendCmdMessage(String from, String[] users, Map<String, String> ext) {
+		
+		if(ext==null) {
+			ext=new HashMap<String, String>();
+		}
+		ext.put("send_by_admim", "admin");
+		
 		initFactory();
 		BodyWrapper payload = new CmdMessageBody("users", users, from, ext);
 		SendMessageAPI message = (SendMessageAPI) factory.newInstance(EasemobRestAPIFactory.SEND_MESSAGE_CLASS);

@@ -1,5 +1,6 @@
 package com.zhan.app.nearby.service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -176,7 +177,8 @@ public class BottleService {
 		express.setCreate_time(new Date());
 		bottleDao.insertExpress(express);
 
-		dynamicMsgService.insertActionMsg(DynamicMsgType.TYPE_EXPRESS, user_id, -1, to_user_id, content);
+		// dynamicMsgService.insertActionMsg(DynamicMsgType.TYPE_EXPRESS, user_id, -1,
+		// to_user_id, content);
 		BaseUser user = userDao.getBaseUser(user_id);
 		BaseUser to_user = userDao.getBaseUser(to_user_id);
 		makeChatSession(user, to_user, content);
@@ -191,83 +193,53 @@ public class BottleService {
 		ext.put("nickname", user.getNick_name());
 		ext.put("avatar", user.getAvatar());
 		ext.put("origin_avatar", user.getOrigin_avatar());
-		Object result = Main.sendTxtMessage(String.valueOf(user.getUser_id()),
-				new String[] { String.valueOf(with_user.getUser_id()) }, expressMsg, ext);
-		if (result != null) {
-			System.out.println(result);
-		}
-		// 发送给自己
-		ext = new HashMap<String, String>();
-		ext.put("nickname", with_user.getNick_name());
-		ext.put("avatar", with_user.getAvatar());
-		ext.put("origin_avatar", with_user.getOrigin_avatar());
-		result = Main.sendTxtMessage(String.valueOf(with_user.getUser_id()),
-				new String[] { String.valueOf(user.getUser_id()) }, expressMsg, ext);
-		if (result != null) {
-			System.out.println(result);
-		}
+		Main.sendTxtMessage(String.valueOf(user.getUser_id()), new String[] { String.valueOf(with_user.getUser_id()) },
+				expressMsg, ext);
 
-		// 系统推"附近有人喜欢了你"给对方
-		String msg = "附近有人向你表白了！";
-		ext.put("msg", msg);
-		result = Main.sendTxtMessage(Main.SYS, new String[] { String.valueOf(with_user.getUser_id()) }, msg, ext);
-		if (result != null) {
-			System.out.println(result);
-		}
+		// 发送给自己
+//		ext = new HashMap<String, String>();
+//		ext.put("nickname", with_user.getNick_name());
+//		ext.put("avatar", with_user.getAvatar());
+//		ext.put("origin_avatar", with_user.getOrigin_avatar());
+//		Main.sendTxtMessage(String.valueOf(with_user.getUser_id()), new String[] { String.valueOf(user.getUser_id()) },
+//				expressMsg, ext);
+
 	}
 
 	public ModelMap like(long user_id, String with_user_id) {
+		List<Long> user_ids = new ArrayList<Long>();
 		if (!TextUtils.isEmpty(with_user_id)) {
 			JSONArray array = JSON.parseArray(with_user_id);
 			int len = array.size();
 			for (int i = 0; i < len; i++) {
 				JSONObject u_b = array.getJSONObject(i);
 				long withUserID = Long.parseLong(u_b.getString("uid"));
-				long bottleID =Long.parseLong(u_b.getString("bottle_id"));
-				//判断瓶子是否存在，不存在的话要新建
+				long bottleID = Long.parseLong(u_b.getString("bottle_id"));
+				// 判断瓶子是否存在，不存在的话要新建
 				if (bottleID < 1) {
 					List<Long> ids = bottleDao.getMeetBottleIDByUser(withUserID);
-					if(ids.size()>0) {
-						bottleID=ids.get(0);
-					}else {
-						Bottle bottle=new Bottle();
+					if (ids.size() > 0) {
+						bottleID = ids.get(0);
+					} else {
+						Bottle bottle = new Bottle();
 						bottle.setCreate_time(new Date());
 						bottle.setUser_id(withUserID);
 						bottle.setType(BottleType.MEET.ordinal());
 						bottle.setContent(String.valueOf(withUserID));
 						insert(bottle);
-						bottleID=bottle.getId();
+						bottleID = bottle.getId();
 					}
 				}
 				userDao.updateRelationship(user_id, withUserID, Relationship.LIKE);
 				dynamicMsgService.insertActionMsg(DynamicMsgType.TYPE_MEET, user_id, bottleID, withUserID, "");
-				BaseUser u = userDao.getBaseUser(user_id);
-				BaseUser withUser = userDao.getBaseUser(withUserID);
-				makeChatSession(u, withUser, bottleID);
+				//BaseUser u = userDao.getBaseUser(user_id);
+				//BaseUser withUser = userDao.getBaseUser(withUserID);
+				//makeChatSession(u, withUser, bottleID);
+				user_ids.add(withUserID);
 			}
 		}
-		return null;
+		return ResultUtil.getResultOKMap().addAttribute("with_user_id", user_ids);
 	}
 
-	private void makeChatSession(BaseUser user, BaseUser with_user, long bottle_id) {
-		ImagePathUtil.completeAvatarPath(with_user, true);
-		ImagePathUtil.completeAvatarPath(user, true);
-		// 发送给对方
-		Map<String, String> ext = new HashMap<String, String>();
-		ext.put("nickname", user.getNick_name());
-		ext.put("avatar", user.getAvatar());
-		ext.put("origin_avatar", user.getOrigin_avatar());
-		ext.put("bottle_id", String.valueOf(bottle_id));
-		Main.sendCmdMessage(String.valueOf(user.getUser_id()), new String[] { String.valueOf(with_user.getUser_id()) },
-				ext);
-
-		// 发送给自己
-		ext = new HashMap<String, String>();
-		ext.put("nickname", with_user.getNick_name());
-		ext.put("avatar", with_user.getAvatar());
-		ext.put("origin_avatar", with_user.getOrigin_avatar());
-		ext.put("bottle_id", String.valueOf(bottle_id));
-		Main.sendCmdMessage(String.valueOf(with_user.getUser_id()), new String[] { String.valueOf(user.getUser_id()) },
-				ext);
-	}
+	
 }

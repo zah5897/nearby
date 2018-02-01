@@ -55,8 +55,8 @@ public class BottleController {
 	}
 
 	@RequestMapping("list")
-	public ModelMap list(Long user_id, Long last_id, Integer page_size, Integer look_sex) {
-		return bottleService.getBottles(user_id == null ? 0 : user_id, last_id == null ? 0 : last_id,
+	public ModelMap list(Long user_id, Integer page_size, Integer look_sex) {
+		return bottleService.getBottles(user_id == null ? 0 : user_id,
 				page_size == null ? 5 : page_size, look_sex);
 	}
 
@@ -87,7 +87,17 @@ public class BottleController {
 	public ModelMap like(long user_id, String token, String with_user_id) {
 		return bottleService.like(user_id, with_user_id);
 	}
-
+	
+	
+	@RequestMapping("ignore")
+	public ModelMap ignore() {
+		//long user_id, String token, String with_user_id
+		return ResultUtil.getResultOKMap();
+	}
+	@RequestMapping("replay")
+	public ModelMap replay(long user_id, long target,long bottle_id, String msg) {
+		return bottleService.replay(user_id, target,msg,bottle_id);
+	}
 	@RequestMapping("express/{to_user_id}")
 	public ModelMap like(@PathVariable long to_user_id, long user_id, String content) {
 		return bottleService.express(user_id, to_user_id, content);

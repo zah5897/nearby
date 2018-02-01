@@ -251,13 +251,13 @@ public class ManagerDao extends BaseDao {
 		String sql = null;
 		Object[] args = null;
 		if (type == 1) {
-			sql = "select ex.*,u.nick_name as nick_name from t_exchange_history ex left join t_user u on ex.user_id=u.user_id  order by create_time limit ?,?";
+			sql = "select ex.*,u.nick_name as nick_name ,p.* from t_exchange_history ex left join t_user u on ex.user_id=u.user_id left join t_personal_info p on ex.user_id=p.user_id order by create_time limit ?,?";
 			args = new Object[] { (pageIndex - 1) * pageSize, pageSize };
 		} else if (type == 2) {
-			sql = "select ex.*,u.nick_name as nick_name from t_exchange_history ex left join t_user u on ex.user_id=u.user_id where ex.state=? order by create_time limit ?,?";
+			sql = "select ex.*,u.nick_name as nick_name ,p.* from t_exchange_history ex left join t_user u on ex.user_id=u.user_id left join t_personal_info p on ex.user_id=p.user_id where ex.state=? order by create_time limit ?,?";
 			args = new Object[] { ExchangeState.IN_EXCHANGE.ordinal(), (pageIndex - 1) * pageSize, pageSize };
 		} else {
-			sql = "select ex.*,u.nick_name as nick_name from t_exchange_history ex left join t_user u on ex.user_id=u.user_id where ex.state<>? order by create_time limit ?,?";
+			sql = "select ex.*,u.nick_name as nick_name ,p.* from t_exchange_history ex left join t_user u on ex.user_id=u.user_id left join t_personal_info p on ex.user_id=p.user_id where ex.state<>? order by create_time limit ?,?";
 			args = new Object[] { ExchangeState.IN_EXCHANGE.ordinal(), (pageIndex - 1) * pageSize, pageSize };
 		}
 		RowMapper<Object> mapper = new RowMapper<Object>() {
@@ -274,6 +274,9 @@ public class ManagerDao extends BaseDao {
 				ex.put("rmb_fen", rs.getInt("rmb_fen"));
 				ex.put("finish_time", DateTimeUtil.parse(rs.getTimestamp("finish_time")));
 				ex.put("state", rs.getInt("state"));
+				ex.put("personal_name", rs.getString("personal_name"));
+				ex.put("zhifubao_access_number", rs.getString("zhifubao_access_number"));
+				ex.put("personal_id", rs.getString("personal_id"));
 				return ex;
 			}
 		};
@@ -306,8 +309,8 @@ public class ManagerDao extends BaseDao {
 	 * @param agreeWait
 	 */
 	public int updateExchageState(int id, ExchangeState agreeWait) {
-		return jdbcTemplate.update("update t_exchange_history set state=? where id=?",
-				new Object[] { agreeWait.ordinal(), id });
+		return jdbcTemplate.update("update t_exchange_history set state=?,finish_time=? where id=?",
+				new Object[] { agreeWait.ordinal(),new Date(), id });
 	}
 
 }

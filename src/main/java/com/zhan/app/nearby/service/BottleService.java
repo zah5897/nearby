@@ -58,11 +58,11 @@ public class BottleService {
 		return null;
 	}
 
-	public ModelMap getBottles(long user_id, long last_id, int page_size, Integer look_sex) {
+	public ModelMap getBottles(long user_id, int page_size, Integer look_sex) {
 		ModelMap result = ResultUtil.getResultOKMap();
 		List<Bottle> bolltes = null;
 		if (look_sex == null) {
-			bolltes = bottleDao.getBottles(user_id, last_id, page_size);
+			bolltes = bottleDao.getBottles(user_id, page_size);
 		} else {
 			VipUser vip = vipDao.loadUserVip(user_id);
 			if (vip == null) {
@@ -70,7 +70,7 @@ public class BottleService {
 			} else if (vip.getDayDiff() < 0) {
 				return ResultUtil.getResultMap(ERROR.ERR_VIP_EXPIRE);
 			}
-			bolltes = bottleDao.getBottlesByGender(user_id, last_id, page_size, look_sex == null ? -1 : look_sex);
+			bolltes = bottleDao.getBottlesByGender(user_id, page_size, look_sex == null ? -1 : look_sex);
 		}
 
 		for (Bottle bottle : bolltes) {
@@ -239,6 +239,20 @@ public class BottleService {
 			}
 		}
 		return ResultUtil.getResultOKMap().addAttribute("with_user_id", user_ids);
+	}
+
+	public ModelMap replay(long user_id, long target, String msg,long bottle_id) {
+		BaseUser user = userDao.getBaseUser(user_id);
+		ImagePathUtil.completeAvatarPath(user, true);
+		// 发送给对方
+		Map<String, String> ext = new HashMap<String, String>();
+		ext.put("nickname", user.getNick_name());
+		ext.put("avatar", user.getAvatar());
+		ext.put("origin_avatar", user.getOrigin_avatar());
+		ext.put("bottle_id", String.valueOf(bottle_id));
+		Main.sendTxtMessage(String.valueOf(user.getUser_id()), new String[] { String.valueOf(target) },
+				msg, ext);
+		return ResultUtil.getResultOKMap();
 	}
 
 	

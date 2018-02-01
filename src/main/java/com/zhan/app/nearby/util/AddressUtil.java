@@ -10,12 +10,11 @@ import com.zhan.app.nearby.dao.CityDao;
 import com.zhan.app.nearby.service.UserDynamicService;
 
 public class AddressUtil {
-	private static final String AK = "dZo8pGRmo4X3T0lXx5yuf6r9Xs4ktzpo";
+	private static final String BAIDU_AK = "dZo8pGRmo4X3T0lXx5yuf6r9Xs4ktzpo";
 
-	private static final String GAODE_KEY = "a2af1297f36e2aa7fecea63ef5dfa4d7";
+	private static final String GAODE_KEY = "ab07209cb3e51a69e2e2adb8911c0d6c";
 
 	public static void praseAddress(final String ip, final UserDynamic dynamic, final String ios_addr) {
-
 		dynamic.setIp(ip);
 		new Thread() {
 			@Override
@@ -24,16 +23,16 @@ public class AddressUtil {
 				if (!TextUtils.isEmpty(ios_addr)) {
 					try {
 						JSONObject obj = JSON.parseObject(ios_addr);
-						address = new String[6];
+						address = new String[8];
 						String city = obj.getString("City");
 						String SubLocality = obj.getString("SubLocality");
 						String Street = obj.getString("Street");
-						address[0] = city + SubLocality + Street;
-						address[1] = Street;
-						address[2] = city;
-						address[3] = SubLocality;
-						address[4] = dynamic.getLat();
-						address[5] = dynamic.getLng();
+						address[1] = city;
+						address[2] = SubLocality;
+						address[3] = Street;
+						
+						address[6] = dynamic.getLat();
+						address[7] = dynamic.getLng();
 					} catch (Exception e) {
 						address = null;
 					}
@@ -42,59 +41,22 @@ public class AddressUtil {
 				if (address == null && !TextUtils.isEmpty(dynamic.getLat())) {
 					address = getAddressByLatLng(dynamic.getLat(), dynamic.getLng());
 				}
-				if (address == null || TextUtils.isEmpty(address[2])) {
+				if (address == null || TextUtils.isEmpty(address[1])) {
 					address = getAddressByIp(ip);
 				}
-				if (address == null || TextUtils.isEmpty(address[2])) {
-					String[] city = ipLocation(ip);
+				if (address == null || TextUtils.isEmpty(address[1])) {
+					String[] city = getAddressByIp_GAODE(ip);
 					if (city != null && !TextUtils.isEmpty(city[1])) {
 						if (address == null) {
-							address = new String[6];
+							address = new String[8];
 						}
-						address[2] = city[1];
+						address[0] = city[0];
+						address[1] = city[1];
+						address[6]=city[2];
+						address[7]=city[3];
 					}
-
 				}
-
-				if (!TextUtils.isEmpty(address[2])) {
-					dynamic.setAddr(address[0]);
-					dynamic.setStreet(address[1]);
-					dynamic.setCity(address[2]);
-					dynamic.setRegion(address[3]);
-					dynamic.setLat(address[4]);
-					dynamic.setLng(address[5]);
-					CityDao cityDao = ((CityDao) SpringContextUtil.getBean("cityDao"));
-					List<City> provincesAll = cityDao.list();
-					if (provincesAll != null) {
-						for (City city : provincesAll) {
-							if (dynamic.getCity().contains(city.getName())) {
-								dynamic.setCity_id(city.getId());
-								dynamic.setProvince_id(city.getId());
-								if (city.getParent_id() > 0) {
-									dynamic.setProvince_id(city.getParent_id());
-								}
-								break;
-							}
-						}
-						for (City city : provincesAll) {
-							if (city.getType() == 1 && dynamic.getRegion().contains(city.getName())) {
-								dynamic.setDistrict_id(city.getId());
-								if(city.getParent_id()>0){
-									if(dynamic.getCity_id()!=city.getParent_id()){
-										City parent_city=cityDao.getCityById(city.getParent_id());
-										dynamic.setCity_id(parent_city.getId());
-										dynamic.setProvince_id(parent_city.getId());
-										if(parent_city.getParent_id()>0){
-											dynamic.setProvince_id(parent_city.getParent_id());
-										}
-									}
-								}
-								break;
-							}
-						}
-					}
-
-				}
+				setCity(dynamic,address);
 				UserDynamicService userDynamicService = ((UserDynamicService) SpringContextUtil
 						.getBean("userDynamicService"));
 				userDynamicService.updateAddress(dynamic);
@@ -102,100 +64,147 @@ public class AddressUtil {
 			}
 		}.start();
 	}
+	
+	private static void setCity(UserDynamic dynamic,String[] address) {
+		if (!TextUtils.isEmpty(address[1])) {
+			String addr=address[1]+address[2]+address[3];
+			dynamic.setAddr(addr);
+			
+			dynamic.setCity(address[1]);
+			dynamic.setRegion(address[2]);
+			dynamic.setStreet(address[3]);
+			
+			dynamic.setLat(address[6]);
+			dynamic.setLng(address[7]);
+			CityDao cityDao = ((CityDao) SpringContextUtil.getBean("cityDao"));
+			List<City> provincesAll = cityDao.list();
+			if (provincesAll != null) {
+				for (City city : provincesAll) {
+					if (dynamic.getCity().contains(city.getName())) {
+						dynamic.setCity_id(city.getId());
+						dynamic.setProvince_id(city.getId());
+						if (city.getParent_id() > 0) {
+							dynamic.setProvince_id(city.getParent_id());
+						}
+						break;
+					}
+				}
+				for (City city : provincesAll) {
+					if (city.getType() == 1 && dynamic.getRegion().contains(city.getName())) {
+						dynamic.setDistrict_id(city.getId());
+						if(city.getParent_id()>0){
+							if(dynamic.getCity_id()!=city.getParent_id()){
+								City parent_city=cityDao.getCityById(city.getParent_id());
+								dynamic.setCity_id(parent_city.getId());
+								dynamic.setProvince_id(parent_city.getId());
+								if(parent_city.getParent_id()>0){
+									dynamic.setProvince_id(parent_city.getParent_id());
+								}
+							}
+						}
+						break;
+					}
+				}
+			}
 
-	public static String[] getLatLngByIP(String ip) {
-		return getLatLng(ip);
+		}
 	}
+	
 
 	public static String[] getAddressByLatLng(String lat, String lng) {
-		String url = "http://api.map.baidu.com/geocoder/v2/?ak=" + AK + "&location=" + lat + "," + lng + "&output=json";
+		String url = "http://api.map.baidu.com/geocoder/v2/?location="+lat+","+lng+"&output=json&pois=0&ak="+BAIDU_AK;
 		String result = HttpUtil.sendGet(url, null);
 		if (!TextUtils.isEmpty(result)) {
 			JSONObject obj = JSON.parseObject(result);
 			int status = obj.getIntValue("status");
 			if (status == 0) {
 				JSONObject resultObj = obj.getJSONObject("result");
-
 				JSONObject addressComponent = resultObj.getJSONObject("addressComponent");
-				String address = resultObj.getString("formatted_address");
-				String street = null;
-				if (addressComponent != null) {
-					street = addressComponent.getString("street") + addressComponent.getString("street_number");
-				}
-				String district = addressComponent.getString("district");
+				
+				
+				
+				String province = addressComponent.getString("province");
 				String city = addressComponent.getString("city");
-				// String province = addressComponent.getString("province");
-				return new String[] { address, street, city, district, lat, lng };
-			}
-		}
-		return null;
-	}
-
-	private static String[] getLatLng(String ip) {
-		String[] latLng = new String[2];
-		// 高精度定位
-		String url = "http://api.map.baidu.com/highacciploc/v1?qcip=" + ip + "&qterm=pc&ak=" + AK + "&coord=bd09ll";
-		String result = HttpUtil.sendGet(url, null);
-		if (!TextUtils.isEmpty(result)) {
-			JSONObject obj = JSON.parseObject(result);
-			JSONObject contentObj = obj.getJSONObject("content");
-			if (contentObj != null) {
-				JSONObject location = contentObj.getJSONObject("location");
-				if (location != null) {
-					latLng[0] = location.getString("lat");
-					latLng[1] = location.getString("lng");
-					return latLng;
-				}
-			}
-		}
-
-		// 低精度ip定位
-		url = "http://api.map.baidu.com/location/ip?ak=" + AK + "&coor=bd09ll&ip=" + ip;
-		result = HttpUtil.sendGet(url, null);
-		if (!TextUtils.isEmpty(result)) {
-			JSONObject obj = JSON.parseObject(result);
-			JSONObject contentObj = obj.getJSONObject("content");
-			if (contentObj != null) {
-				JSONObject xy = contentObj.getJSONObject("point");
-				if (xy != null) {
-					latLng[0] = xy.getString("x");
-					latLng[1] = xy.getString("y");
-					return latLng;
-				}
+				String district = addressComponent.getString("district");
+				String street = addressComponent.getString("street");
+				
+				
+				String street_number=addressComponent.getString("street_number");
+				String city_code=resultObj.getString("cityCode");
+			 
+				return new String[] { province, city, district, street, street_number, city_code,lat,lng };
 			}
 		}
 		return null;
 	}
 
 	public static String[] getAddressByIp(String ip) {
-		String[] lat_lng = getLatLng(ip);
-		if (lat_lng != null && !TextUtils.isEmpty(lat_lng[0]) && !TextUtils.isEmpty(lat_lng[1])) {
-			return getAddressByLatLng(lat_lng[0], lat_lng[1]);
+	    String	url = "http://api.map.baidu.com/location/ip?coor=bd09ll&ak=" + BAIDU_AK + "&ip=" + ip;
+		String result = HttpUtil.sendGet(url, null);
+		String addrArray[]=new String[8];
+		if (!TextUtils.isEmpty(result)) {
+			JSONObject obj = JSON.parseObject(result);
+			JSONObject contentObj = obj.getJSONObject("content");
+			if (contentObj != null) {
+				JSONObject address_detail = contentObj.getJSONObject("address_detail");
+				if(address_detail!=null) {
+					String province=address_detail.getString("province");
+					String city=address_detail.getString("city");
+					String district=address_detail.getString("district");
+					String street=address_detail.getString("street");
+					String street_number=address_detail.getString("street_number");
+					String city_code=address_detail.getString("city_code");
+					addrArray[0]=province;
+					addrArray[1]=city;
+					addrArray[2]=district;
+					addrArray[3]=street;
+					addrArray[4]=street_number;
+					addrArray[5]=city_code;
+				}
+				JSONObject point = contentObj.getJSONObject("point");
+				if(point!=null) {
+					String x=point.getString("x");
+					String y=point.getString("y");
+					addrArray[6]=x;
+					addrArray[7]=y;
+				}
+			}
 		}
-		// 高精度定位
-		return null;
+		return addrArray;
+	}
+	
+	public static String[] getLatLngByIP(String ip) {
+	    String[] result=getAddressByIp(ip);
+		return new String[] {result[6],result[7]};
 	}
 
-	public static String[] ipLocation(String ip) {
+	public static String[] getAddressByIp_GAODE(String ip) {
 		String url = "http://restapi.amap.com/v3/ip?ip=" + ip + "&key=" + GAODE_KEY;
 		String result = HttpUtil.sendGet(url, null);
 		String[] location = null;
 		if (!TextUtils.isEmpty(result)) {
 			try {
 				JSONObject obj = JSON.parseObject(result);
-				location = new String[2];
+				location = new String[4];
 				location[0] = obj.getString("province");
 				location[1] = obj.getString("city");
+				
+				String rectangle=obj.getString("rectangle");
+				String[] latlng=rectangle.split(";");
+				
+			    String[] lat_lng=latlng[0].split(",");
+				
+			    location[2]=lat_lng[1];
+			    location[3]=lat_lng[0];
 				return location;
 			} catch (Exception e) {
 
 			}
 		}
-
 		return location;
 	}
 
 	public static void main(String[] args) {
-		getAddressByIp("117.143.221.190");
+		getAddressByIp("117.143.221.190");//	  http://117.143.221.190:8899/nearby/bottle/send
 	}
 }

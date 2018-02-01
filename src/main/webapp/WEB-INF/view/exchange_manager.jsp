@@ -49,12 +49,15 @@
 				<tr>
 					<th width="5%">用户ID</th>
 					<th width="10%">用户昵称</th>
-					<th width="10%">钻石数量</th>
-					<th width="10%">对应RMB金额</th>
-					<th width="10%">状态</th>
-					<th width="15%">提交申请时间</th>
-					<th width="15%">处理时间</th>
-					<th width="25%">处理</th>
+					<th width="5%">钻石数量</th>
+					<th width="10%">RMB金额(元)</th>
+					<th width="10%">提现姓名</th>
+					<th width="15%">身份证</th>
+					<th width="10%">提现支付宝账号</th>
+					<th width="10%">提交申请时间</th>
+					<th width="10%">处理时间</th>
+				    <th width="5%">状态</th>
+					<th width="10%">处理</th>
 				</tr>
 				<tr id="bottom">
 					<td colspan="8">
@@ -191,9 +194,25 @@
 			 toAdd+="<td>"+nick_name+"</td>";
 			 //用户类型
 			 toAdd+="<td>"+pageData.diamond_count+"</td>";
-			 toAdd+="<td>"+pageData.rmb_fen+"</td>";
 			 
+			  var num=new Number(pageData.rmb_fen);
+			  num=num/100.0;
+			  num=num.toFixed(2);
 			 
+			 toAdd+="<td>"+num+"</td>";
+			 toAdd+="<td>"+pageData.personal_name+"</td>";
+			 toAdd+="<td>"+pageData.personal_id+"</td>";
+			 toAdd+="<td>"+pageData.zhifubao_access_number+"</td>";
+			 
+		     toAdd+="<td>"+pageData.create_time+"</td>";
+		     
+		     
+				 if(pageData.finish_time){
+					 toAdd+="<td>"+pageData.finish_time+"</td>"; 
+				 }else{
+					 toAdd+="<td>#</td>";
+				 }
+				 
 			 var stateStr;
 			 if(pageData.state==0){
 				 stateStr="<font color='orange'>等待处理</font>";
@@ -205,16 +224,6 @@
 				 stateStr="<font color='green'>已通过，正在打款</font>";
 			 }
 			 toAdd+="<td>"+stateStr+"</td>";
-			 
-			 toAdd+="<td>"+pageData.create_time+"</td>";
-			 
-			 if(pageData.finish_time){
-				 toAdd+="<td>"+pageData.finish_time+"</td>"; 
-			 }else{
-				 toAdd+="<td>#</td>";
-			 }
-			 
-			
 			 
 			 //操作单元格
 			  toAdd+="<td><div class='button-group'>";

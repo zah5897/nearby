@@ -66,6 +66,9 @@ public class UserService {
 	public LocationUser findLocationUserByMobile(String mobile) {
 		return userDao.findLocationUserByMobile(mobile);
 	}
+	public String getUserToken(long user_id) {
+		return userDao.getUserToken(user_id);
+	}
 
 	public BaseUser findUserByDeviceId(String deviceId) {
 		return userDao.findUserByDeviceId(deviceId);
@@ -162,8 +165,8 @@ public class UserService {
 		return count;
 	}
 
-	public DetailUser getUserDetailInfo(long user_id) {
-		DetailUser user = userDao.getUserDetailInfo(user_id);
+	public DetailUser getUserDetailInfo(long user_id_for) {
+		DetailUser user = userDao.getUserDetailInfo(user_id_for);
 		if (user != null) {
 
 			if (user.getCity_id() > 0) {
@@ -544,6 +547,10 @@ public class UserService {
 	public boolean checkLogin(long user_id, String token) {
 		int count=userDao.getUserCountByIDToken(user_id,token);
 		return count>0;
+	}
+
+	public Relationship getRelationShip(long user_id, long user_id_for) {
+		return userDao.getRelationShip(user_id,user_id_for);
 	}
 
 }

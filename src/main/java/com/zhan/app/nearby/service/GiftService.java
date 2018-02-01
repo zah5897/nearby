@@ -94,7 +94,7 @@ public class GiftService {
 
 	public List<MeiLi> loadMeiLi(int type,int pageIndex,int count) {
 		if (type == 0) {
-			return giftDao.loadTodayMeiLi(pageIndex,count);
+			return giftDao.loadNewRegistUserMeiLi(pageIndex,count);
 		} else if (type == 1) {
 			return giftDao.loadTotalMeiLi(pageIndex,count);
 		} else {

@@ -3,6 +3,8 @@ package com.zhan.app.nearby.util;
 import java.io.IOException;
 import java.util.Map;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -29,5 +31,10 @@ public class JSONUtil {
 
 	public static String writeValueAsString(Object object) throws JsonProcessingException {
 		return getMapper().writeValueAsString(object);
+	}
+
+	public static JSONObject obj2JSON(Object object) {
+		JSONObject jsonObject = (JSONObject) JSON.toJSON(object);
+		return jsonObject;
 	}
 }

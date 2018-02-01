@@ -390,13 +390,15 @@ public class MainService {
 	}
 
 	public ModelMap check_submit_personal_id(PersonalInfo personal) {
-		BaseUser user = userDao.findBaseUserByMobile(personal.getMobile());
-		if (user == null) {
-			return ResultUtil.getResultMap(ERROR.ERR_NOT_EXIST, "当前手机号不存在");
-		}
-		if (user.getUser_id() != personal.getUser_id() || !personal.getToken().equals(user.getToken())) {
+	    String token=userService.getUserToken(personal.getUser_id());
+		if (TextUtils.isEmpty(token)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
+		
+		if(!token.equals(personal.getToken())) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		
 		PersonalInfo info = systemDao.loadPersonalInfo(personal.getUser_id(),personal.getAid());
 		if(info!=null) {
 			return ResultUtil.getResultMap(ERROR.ERR_FAILED,"当前帐号已绑定身份证");

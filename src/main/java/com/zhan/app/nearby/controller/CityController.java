@@ -87,10 +87,10 @@ public class CityController {
 		List<City> provincesAll = cityService.list();
 		if (provincesAll != null) {
 			for (City city : provincesAll) {
-				if (city_info[2].contains(city.getName())) {
+				if (city_info[0].contains(city.getName())) {
 					if (city.getChildren() != null) {
 						for (City region : city.getChildren()) {
-							if (city_info[3].contains(region.getName())) {
+							if (city_info[1].contains(region.getName())) {
 								result.put("city", region);
 								break;
 							}

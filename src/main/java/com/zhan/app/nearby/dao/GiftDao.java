@@ -92,7 +92,7 @@ public class GiftDao extends BaseDao {
 	}
 
 	public List<GiftOwn> loadGiftNotice(int page, int count) {
-		String sql = "select go.*,re.nick_name as re_name,re.avatar as re_avatar,se.nick_name as se_name,se.avatar as se_avatar,g.name,g.image_url"
+		String sql = "select go.*,re.nick_name as re_name,re.avatar as re_avatar,se.nick_name as se_name,se.avatar as se_avatar,g.name,g.image_url,g.price,g.old_price"
 				+ " from t_gift_own go left join t_gift g on g.id=go.gift_id "
 				+ " left join t_user re on re.user_id=go.user_id " + " left join t_user se on se.user_id=go.from_uid "
 				+ " order by give_time desc limit ?,?";
@@ -109,6 +109,8 @@ public class GiftDao extends BaseDao {
 				own.setImage_url(rs.getString("image_url"));
 				own.setGive_time(rs.getTimestamp("give_time"));
 				own.setCount(rs.getInt("count"));
+				own.setPrice(rs.getInt("price"));
+				own.setOld_price(rs.getInt("old_price"));
 
 				BaseUser receiver = new BaseUser();
 				receiver.setUser_id(rs.getLong("user_id"));
@@ -138,8 +140,8 @@ public class GiftDao extends BaseDao {
 	 * 
 	 * @return
 	 */
-	public List<MeiLi> loadTodayMeiLi(int pageIndex, int count) {
-		String t_total_meili = "select m.*,u.nick_name,u.avatar from t_meili_week m left join t_user u on m.user_id=u.user_id limit ?,?";
+	public List<MeiLi> loadNewRegistUserMeiLi(int pageIndex, int count) {
+		String t_total_meili = "select m.*,u.nick_name,u.avatar from t_meili_new_regist m left join t_user u on m.user_id=u.user_id  limit ?,?";
 		List<MeiLi> meilis = jdbcTemplate.query(t_total_meili,new Object[]{(pageIndex-1)*count,count}, new RowMapper<MeiLi>() {
 
 			@Override

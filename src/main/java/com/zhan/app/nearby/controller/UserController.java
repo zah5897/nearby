@@ -18,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.multipart.support.DefaultMultipartHttpServletRequest;
 
+import com.alibaba.fastjson.JSONObject;
 import com.zhan.app.nearby.bean.City;
 import com.zhan.app.nearby.bean.Tag;
 import com.zhan.app.nearby.bean.UserDynamic;
@@ -36,6 +37,7 @@ import com.zhan.app.nearby.util.DateTimeUtil;
 import com.zhan.app.nearby.util.IPUtil;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.ImageSaveUtils;
+import com.zhan.app.nearby.util.JSONUtil;
 import com.zhan.app.nearby.util.MD5Util;
 import com.zhan.app.nearby.util.RandomCodeUtil;
 import com.zhan.app.nearby.util.ResultUtil;
@@ -115,7 +117,7 @@ public class UserController {
 	 */
 
 	@RequestMapping("regist")
-	public ModelMap regist(HttpServletRequest request, LoginUser user, String code, String aid) {
+	public ModelMap regist(HttpServletRequest request, LoginUser user, String code, String aid,Integer city_id) {
 
 		if (TextUtils.isEmpty(user.getMobile())) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "手机号码不能为空!");
@@ -182,10 +184,12 @@ public class UserController {
 		user.setUser_id(id);
 		user.setAge(DateTimeUtil.getAge(user.getBirthday()));
 		ImagePathUtil.completeAvatarPath(user, true); // 补全图片链接地址
-
-		if (user.getCity() == null) {
-			user.setCity(getDefaultCityId());
+		
+		if(city_id!=null) {
+			City city=cityService.getFullCity(city_id);
+			user.setBirth_city(city);
 		}
+		
 		result.put("user", user);
 		// 注册完毕，则可以清理掉redis关于code缓存了
 		userCacheService.clearCode(user.getMobile());
@@ -353,7 +357,7 @@ public class UserController {
 	 * @return
 	 */
 	@RequestMapping("info")
-	public ModelMap info(long user_id_for) {
+	public ModelMap info(long user_id,long user_id_for) {
 		DetailUser u = userService.getUserDetailInfo(user_id_for);
 		if (u == null) {
 			return ResultUtil.getResultMap(ERROR.ERR_USER_NOT_EXIST, "该用户不存在！");
@@ -361,7 +365,9 @@ public class UserController {
 			ModelMap result = ResultUtil.getResultOKMap();
 			u.hideSysInfo();
 			ImagePathUtil.completeAvatarPath(u, true); // 补全图片链接地址
-			result.put("user", u);
+			JSONObject juser=JSONUtil.obj2JSON(u);
+			juser.put("relationship", userService.getRelationShip(user_id,user_id_for).ordinal());
+			result.put("user", juser);
 			return result;
 		}
 	}

@@ -2,6 +2,7 @@ package com.zhan.app.nearby.bean;
 
 import java.util.Date;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.zhan.app.nearby.annotation.ColumnType;
 
 public class VipUser {

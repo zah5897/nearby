@@ -30,6 +30,11 @@ public class LocationUser extends SimpleUser {
 		return lat;
 	}
 
+	@Override
+	public String getToken() {
+		// TODO Auto-generated method stub
+		return super.getToken();
+	}
 	public void setLat(String lat) {
 		this.lat = lat;
 	}
@@ -78,6 +83,7 @@ public class LocationUser extends SimpleUser {
 		this.city = city;
 		if (city != null) {
 			city.setChildren(null);
+			setCity_id(city.getId());
 		}
 	}
 
@@ -85,6 +91,7 @@ public class LocationUser extends SimpleUser {
 		this.birth_city = birth_city;
 		if (birth_city != null) {
 			birth_city.setChildren(null);
+			setBirth_city_id(birth_city.getId());
 		}
 	}
 

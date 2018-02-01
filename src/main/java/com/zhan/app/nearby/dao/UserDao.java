@@ -23,6 +23,8 @@ import com.zhan.app.nearby.util.DateTimeUtil;
 import com.zhan.app.nearby.util.SQLUtil;
 import com.zhan.app.nearby.util.TextUtils;
 
+import javassist.bytecode.stackmap.BasicBlock.Catch;
+
 @Repository("userDao")
 public class UserDao extends BaseDao {
 	@Resource
@@ -245,8 +247,11 @@ public class UserDao extends BaseDao {
 				"select count(*) from t_user_relationship where user_id=? and with_user_id=?",
 				new Object[] { user_id, with_user_id }, Integer.class);
 		if (count < 1) {
-			jdbcTemplate.update("insert into t_user_relationship (user_id,with_user_id,relationship) values(?,?,?)",
-					new Object[] { user_id, with_user_id, relationship.ordinal() });
+			jdbcTemplate.update("insert into t_user_relationship (user_id,with_user_id,relationship,create_time) values(?,?,?,?)",
+					new Object[] { user_id, with_user_id, relationship.ordinal(),new Date() });
+		}else {
+			jdbcTemplate.update("update t_user_relationship set type=? where  user_id=? and with_user_id=?",
+					new Object[] { relationship.ordinal(),user_id, with_user_id});
 		}
 
 	}
@@ -258,11 +263,15 @@ public class UserDao extends BaseDao {
 	}
 
 	public List<BaseUser> getFoundUserRandom(long user_id, int realCount, int gender) {
-		
-		String sql="select u.* from t_found_user_relationship f left join t_user u on f.uid=u.user_id where f.state=? and f.uid<>? and u.avatar is not null and u.sex<>? order by  RAND() limit ?";
-		
-//		String sql = "select * from t_user where user_id not in (select uid from t_found_user_relationship where state=? order by uid desc) and  user_id<>? and avatar<>? and sex<>? order by  RAND() limit ?";
-//		String sql = "select * from t_user where user_id not in (select uid from t_found_user_relationship where state=? order by uid desc) and  user_id<>? and avatar<>? and sex<>? order by  RAND() limit ?";
+
+		String sql = "select u.* from t_found_user_relationship f left join t_user u on f.uid=u.user_id where f.state=? and f.uid<>? and u.avatar is not null and u.sex<>? order by  RAND() limit ?";
+
+		// String sql = "select * from t_user where user_id not in (select uid from
+		// t_found_user_relationship where state=? order by uid desc) and user_id<>? and
+		// avatar<>? and sex<>? order by RAND() limit ?";
+		// String sql = "select * from t_user where user_id not in (select uid from
+		// t_found_user_relationship where state=? order by uid desc) and user_id<>? and
+		// avatar<>? and sex<>? order by RAND() limit ?";
 		List<BaseUser> users = jdbcTemplate.query(sql,
 				new Object[] { FoundUserRelationship.VISIBLE.ordinal(), user_id, gender, realCount },
 				new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
@@ -283,11 +292,20 @@ public class UserDao extends BaseDao {
 
 	public BaseUser getBaseUser(long user_id) {
 		String sql = "select user_id,nick_name,sex,avatar,signature,birthday from t_user where user_id=?";
-		List<BaseUser> users= jdbcTemplate.query(sql, new Object[] { user_id }, new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
-		if(users.size()>0) {
+		List<BaseUser> users = jdbcTemplate.query(sql, new Object[] { user_id },
+				new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+		if (users.size() > 0) {
 			return users.get(0);
 		}
 		return null;
+	}
+	public String getUserToken(long user_id) {
+		try {
+		String sql = "select token from t_user where user_id=?";
+		return jdbcTemplate.queryForObject(sql, new Object[] { user_id },String.class);
+		}catch (Exception e) {
+			return null;
+		}
 	}
 
 	public int isLikeMe(long user_id, long with_user_id) {
@@ -345,10 +363,9 @@ public class UserDao extends BaseDao {
 	 * @param pageIndex
 	 * @return
 	 */
-	public List<BaseUser> getFoundUsersByState(int pageSize, int pageIndex,FoundUserRelationship ship) {
+	public List<BaseUser> getFoundUsersByState(int pageSize, int pageIndex, FoundUserRelationship ship) {
 		String sql = "select u.* from t_found_user_relationship bu left join t_user u on bu.uid=u.user_id  where bu.state=? order by bu.uid desc limit ?,?";
-		return jdbcTemplate.query(sql,
-				new Object[] { ship.ordinal(), (pageIndex - 1) * pageSize, pageSize },
+		return jdbcTemplate.query(sql, new Object[] { ship.ordinal(), (pageIndex - 1) * pageSize, pageSize },
 				new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
 	}
 
@@ -402,24 +419,49 @@ public class UserDao extends BaseDao {
 
 	/**
 	 * 获取喜欢我的人的列表
+	 * 
 	 * @param user_id
 	 * @param page_index
 	 * @param count
 	 * @return
 	 */
 	public List<BaseUser> getLikeList(long user_id, Integer page_index, Integer count) {
-		return jdbcTemplate.query("select u.user_id,u.nick_name,u.avatar,u.sex from t_user_relationship tur left join t_user u on tur.user_id= u.user_id where tur.with_user_id=? and  tur.relationship=? order by tur.create_time limit ?,?", new Object[] { user_id,Relationship.LIKE.ordinal(),(page_index-1)*count,count },new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+		return jdbcTemplate.query(
+				"select u.user_id,u.nick_name,u.avatar,u.sex from t_user_relationship tur left join t_user u on tur.user_id= u.user_id where tur.with_user_id=? and  tur.relationship=? order by tur.create_time limit ?,?",
+				new Object[] { user_id, Relationship.LIKE.ordinal(), (page_index - 1) * count, count },
+				new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
 	}
-	
-	 /**
-	  * 获取最后一个喜欢我的人
-	  * @param user_id
-	  * @return
-	  */
+
+	/**
+	 * 获取最后一个喜欢我的人
+	 * 
+	 * @param user_id
+	 * @return
+	 */
 	public List<BaseUser> getLaskLikeMe(long user_id) {
-		return jdbcTemplate.query("select u.user_id,u.nick_name,u.avatar,u.sex from t_user_relationship tur left join t_user u on tur.user_id= u.user_id where tur.with_user_id=? and  tur.relationship=? order by tur.create_time desc limit 1", new Object[] { user_id,Relationship.LIKE.ordinal()},new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+		return jdbcTemplate.query(
+				"select u.user_id,u.nick_name,u.avatar,u.sex from t_user_relationship tur left join t_user u on tur.user_id= u.user_id where tur.with_user_id=? and  tur.relationship=? order by tur.create_time desc limit 1",
+				new Object[] { user_id, Relationship.LIKE.ordinal() },
+				new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
 	}
+
 	public int getUserCountByIDToken(long user_id, String token) {
-		return jdbcTemplate.queryForObject("select count(*) from t_user where user_id=? and token=?",new Object[] {user_id,token},Integer.class);
+		return jdbcTemplate.queryForObject("select count(*) from t_user where user_id=? and token=?",
+				new Object[] { user_id, token }, Integer.class);
+	}
+
+	public Relationship getRelationShip(long user_id, long user_id_for) {
+	    try {
+		   Integer ship = jdbcTemplate.queryForObject(
+				"select relationship from t_user_relationship where user_id=? and with_user_id=?",
+				new Object[] { user_id, user_id_for }, Integer.class);
+		   if(ship!=null) {
+			   return Relationship.values()[ship];
+		   }else {
+			   return Relationship.DEFAULT;
+		   }
+	    }catch(Exception e) {
+	    	return Relationship.DEFAULT;
+    	}
 	}
 }

@@ -306,17 +306,16 @@ public class MainService {
 		if (coins <= 0) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "金币数量不能少于1");
 		}
-		Map<?, ?> map = HttpService.minusCoins(user_id, aid, coins, "exchange_diamond");
-		int code = (int) map.get("code");
-		if (code == 0) {
+		
+		int result=giftService.minusCoins(user_id, coins);
+		
+		if(result<0) {
+			ERROR error = ERROR.ERR_FAILED;
+			error.setErrorMsg("钻石兑换失败");
+			return ResultUtil.getResultMap(error);
+		}else {
 			int diamondCount = systemDao.addExchangeDiamond(user_id, aid, coins);
 			return ResultUtil.getResultOKMap().addAttribute("diamond_count", diamondCount);
-		} else {
-			ERROR error = ERROR.ERR_FAILED;
-			error.setValue(code);
-			error.setErrorMsg("钻石兑换失败");
-			// modify exchange fun. to test git.
-			return ResultUtil.getResultMap(error);
 		}
 	}
 

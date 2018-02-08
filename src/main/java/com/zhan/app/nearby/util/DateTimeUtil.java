@@ -74,7 +74,7 @@ public class DateTimeUtil {
 			endYear = nowYear + 1;
 		} else if (nowMonth + monthCount > 11) {
 			endYear = nowYear + 1;
-			endMonth = (nowMonth + monthCount) - 11;
+			endMonth = (nowMonth + monthCount) - 12;
 		} else {
 			endMonth = nowMonth + monthCount;
 		}

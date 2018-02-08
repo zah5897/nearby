@@ -35,7 +35,7 @@ public class GiftDao extends BaseDao {
 	}
 
 	public List<Gift> listGifts() {
-		return jdbcTemplate.query("select *from " + TABLE_NAME, new BeanPropertyRowMapper<Gift>(Gift.class));
+		return jdbcTemplate.query("select *from " + TABLE_NAME+" order by price", new BeanPropertyRowMapper<Gift>(Gift.class));
 	}
 
 	public void delete(long id) {
@@ -77,7 +77,7 @@ public class GiftDao extends BaseDao {
 
 	public List<GiftOwn> getOwnGifts(long user_id) {
 		return jdbcTemplate.query(
-				"select * from t_gift_own own left join t_gift gift on own.gift_id=gift.id where own.user_id=?",
+				"select * from t_gift_own own left join t_gift gift on own.gift_id=gift.id where own.user_id=? order by give_time desc",
 				new Object[] { user_id }, new BeanPropertyRowMapper<GiftOwn>(GiftOwn.class));
 	}
 
@@ -248,5 +248,34 @@ public class GiftDao extends BaseDao {
 	public int getUserBeLikeVal(long user_id) {
 		String beLikeCount = "select count(*) from t_user_relationship where with_user_id=? and relationship=? group by with_user_id";
 		return jdbcTemplate.queryForObject(beLikeCount,new Object[]{user_id,Relationship.LIKE.ordinal()},Integer.class);
+	}
+
+	public int getVal(long user_id) {
+		String sql="select coins from t_gift_coins where uid="+user_id;
+		List<Integer> coins=jdbcTemplate.query(sql,new BeanPropertyRowMapper<Integer>(Integer.class));
+		if(coins.size()>0) {
+			return coins.get(0);
+		}
+		return 0;
+	}
+
+	public int addGiftCoins(long user_id, int gift_coins) {
+		String tableName="t_gift_coins";
+		Integer count=jdbcTemplate.queryForObject("select count(*) from "+tableName+" where uid="+user_id,Integer.class);
+		if(count>0) {
+			String sql="select coins from t_gift_coins where uid="+user_id;
+			List<Integer> coins=jdbcTemplate.query(sql,new BeanPropertyRowMapper<Integer>(Integer.class));
+			int newCoins=gift_coins+coins.get(0);
+			updateGiftCoins(user_id,newCoins);
+			return newCoins;
+		}else {
+			String sql = "insert into " + tableName + " (uid,coins) values (?,?)";
+			jdbcTemplate.update(sql,new Object[] {user_id,gift_coins});
+			return gift_coins;
+		}
+	}
+	
+	public int updateGiftCoins(long user_id,int newCoins) {
+		return jdbcTemplate.update("update t_gift_coins set coins=? where uid=?",new Object[] {newCoins,user_id});
 	}
 }

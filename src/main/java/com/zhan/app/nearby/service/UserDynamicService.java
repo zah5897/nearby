@@ -56,8 +56,8 @@ public class UserDynamicService {
 		return result;
 	}
 
-	public List<UserDynamic> getUserDynamic(long user_id, long last_id, int count) {
-		List<UserDynamic> dynamics = userDynamicDao.getUserDynamic(user_id, last_id, count);
+	public List<UserDynamic> getUserDynamic(long user_id,  int count) {
+		List<UserDynamic> dynamics = userDynamicDao.getUserDynamic(user_id,  count);
 		ImagePathUtil.completeDynamicsPath(dynamics, true);
 		return dynamics;
 	}

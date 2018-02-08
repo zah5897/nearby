@@ -67,5 +67,9 @@ public class GiftController {
 	public ModelMap send(long user_id, long to_user_id, int gift_id, String aid, int count) {
 		return giftService.give(user_id, to_user_id, gift_id, aid, count);
 	}
-
+	@RequestMapping("val")
+	public ModelMap allVal(long user_id,String token, String aid) {
+		return giftService.getVal(user_id, token,aid);
+	}
+	
 }

@@ -67,7 +67,7 @@ public class UserDynamicDao extends BaseDao {
 					+ " order by dynamic.id desc limit ?";
 
 			Object[] param = new Object[] { ImageStatus.SELECTED.ordinal(), last_id <= 0 ? Long.MAX_VALUE : last_id,
-					city.getId(),  page_size };
+					city.getId(), page_size };
 			return jdbcTemplate.query(sql, param, new DynamicMapper());
 		}
 	}
@@ -115,7 +115,7 @@ public class UserDynamicDao extends BaseDao {
 	private String cityIn(City city) {
 		if (city.getParent_id() == 0) {
 			return "  dynamic.province_id=?";
-		}else{
+		} else {
 			return "  dynamic.city_id=?";
 		}
 	}
@@ -160,18 +160,11 @@ public class UserDynamicDao extends BaseDao {
 				new Object[] { hasPraiseCount, dynamic_id });
 	}
 
-	public List<UserDynamic> getUserDynamic(long user_id, long last_id, int count) {
-		if (last_id < 1) {
-			String sql = "select dy.*,coalesce(t_like.relationship, '0') as like_state from " + TABLE_USER_DYNAMIC
-					+ " dy left join t_like_dynamic t_like on dy.id=t_like.dynamic_id and dy.user_id=t_like.user_id where dy.user_id=? order by dy.id desc limit ?";
-			return jdbcTemplate.query(sql, new Object[] { user_id, count },
-					new BeanPropertyRowMapper<UserDynamic>(UserDynamic.class));
-		} else {
-			String sql = "select dy.*,coalesce(t_like.relationship, '0') as like_state from " + TABLE_USER_DYNAMIC
-					+ " dy left join t_like_dynamic t_like on dy.id=t_like.dynamic_id and dy.user_id=t_like.user_id where dy.user_id=? and dy.id<? order by dy.id desc limit ?";
-			return jdbcTemplate.query(sql, new Object[] { user_id, last_id, count },
-					new BeanPropertyRowMapper<UserDynamic>(UserDynamic.class));
-		}
+	public List<UserDynamic> getUserDynamic(long user_id, int count) {
+//		String sql = "select  * from " + TABLE_USER_DYNAMIC+ "   where user_id=? order by id desc limit ?";
+		String sql = "select dy.*,coalesce(t_like.relationship, '0') as like_state,u.nick_name,u.avatar,u.sex,u.type,u.birthday from " + TABLE_USER_DYNAMIC
+				+ " dy left join t_like_dynamic t_like on dy.id=t_like.dynamic_id and dy.user_id=t_like.user_id left join t_user u on dy.user_id=u.user_id  where dy.user_id=? order by dy.id desc limit ?";
+		return jdbcTemplate.query(sql,new Object[] {user_id,count}, new DynamicMapper());
 	}
 
 	public List<UserDynamic> getAllDynamic() {
@@ -234,9 +227,8 @@ public class UserDynamicDao extends BaseDao {
 	}
 
 	public void updateAddress(UserDynamic dynamic) {
-		jdbcTemplate.update(
-				"update " + TABLE_USER_DYNAMIC
-						+ " set addr=? ,street=?,city=?,region=? ,province_id=?,city_id=?,district_id=?, ip=? where id=?",
+		jdbcTemplate.update("update " + TABLE_USER_DYNAMIC
+				+ " set addr=? ,street=?,city=?,region=? ,province_id=?,city_id=?,district_id=?, ip=? where id=?",
 				new Object[] { dynamic.getAddr(), dynamic.getStreet(), dynamic.getCity(), dynamic.getRegion(),
 						dynamic.getProvince_id(), dynamic.getCity_id(), dynamic.getDistrict_id(), dynamic.getIp(),
 						dynamic.getId() });

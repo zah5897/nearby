@@ -15,6 +15,7 @@ import org.springframework.ui.ModelMap;
 import com.easemob.server.example.Main;
 import com.zhan.app.nearby.bean.DynamicMessage;
 import com.zhan.app.nearby.bean.Tag;
+import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.bean.VipUser;
 import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.bean.user.DetailUser;
@@ -244,18 +245,19 @@ public class UserService {
 		return userDao.getAllUserIds(last_id, page);
 	}
 
-	public ModelMap getUserCenterData(String token, String aid, Long user_id) {
-		if (user_id == null || user_id <= 0) {
+	public ModelMap getUserCenterData(String token, String aid, Long user_id_for,Long uid) {
+		if (user_id_for == null || user_id_for <= 0) {
 			return ResultUtil.getResultMap(ERROR.ERR_FAILED, "not login");
 		}
-		DetailUser user = userDao.getUserDetailInfo(user_id);
+		DetailUser user = userDao.getUserDetailInfo(user_id_for);
 		if (user == null) {
 			return ResultUtil.getResultMap(ERROR.ERR_FAILED, "not exist");
 		}
 
 		user.setAge(DateTimeUtil.getAge(user.getBirthday()));
 
-		user.setImages(userDynamicService.getUserDynamic(user_id, 0, 5));
+		List<UserDynamic>  dys=userDynamicService.getUserDynamic(user_id_for, 5);
+		user.setImages(dys);
 		// //
 		// Map<String, Object> userJson = new HashMap<>();
 		// userJson.put("about_me", user);
@@ -270,9 +272,10 @@ public class UserService {
 
 		ModelMap r = ResultUtil.getResultOKMap();
 		r.addAttribute("user", user);
-		r.addAttribute("meili", giftService.getUserMeiLiVal(user_id));
-		r.addAttribute("coins", giftService.getUserCoins(aid, user_id));
-		r.addAttribute("like_count", giftService.getUserBeLikeVal(user_id));
+		r.put("relationship", getRelationShip(uid==null?0:uid,user_id_for).ordinal());
+		r.addAttribute("meili", giftService.getUserMeiLiVal(user_id_for));
+		r.addAttribute("coins", giftService.getUserCoins(aid, user_id_for));
+		r.addAttribute("like_count", giftService.getUserBeLikeVal(user_id_for));
 		return r;
 	}
 

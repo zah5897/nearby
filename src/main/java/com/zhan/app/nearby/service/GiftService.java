@@ -1,5 +1,6 @@
 package com.zhan.app.nearby.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -29,10 +30,9 @@ public class GiftService {
 	private GiftDao giftDao;
 	private static Logger log = Logger.getLogger(GiftService.class);
 
-	
 	@Resource
 	private UserService userService;
-	
+
 	public ModelMap save(Gift gift) {
 		if (gift.getId() > 0) {
 			giftDao.update(gift);
@@ -55,9 +55,21 @@ public class GiftService {
 	}
 
 	public ModelMap loadOwn(long user_id, String aid) {
-		List<GiftOwn> gifs=giftDao.getOwnGifts(user_id);
+		List<GiftOwn> gifs = giftDao.getOwnGifts(user_id);
+		List<GiftOwn> gifsGroup = new ArrayList<GiftOwn>();
+		if (gifs != null) {
+			for (GiftOwn gif : gifs) {
+				if (gifsGroup.contains(gif)) {
+					int index = gifsGroup.indexOf(gif);
+					GiftOwn g = gifsGroup.get(index);
+					g.setCount(g.getCount() + gif.getCount());
+				} else {
+					gifsGroup.add(gif);
+				}
+			}
+		}
 		ImagePathUtil.completeGiftsOwnPath(gifs, true);
-		return ResultUtil.getResultOKMap().addAttribute("gifts", gifs);
+		return ResultUtil.getResultOKMap().addAttribute("gifts", gifsGroup);
 	}
 
 	// -----------客户端使用-----------------------
@@ -70,10 +82,12 @@ public class GiftService {
 		if (gift == null) {
 			return ResultUtil.getResultMap(ERROR.ERR_NOT_EXIST, "该礼物不存在");
 		}
-		Map<?, ?> map = HttpService.buy(user_id, aid, gift.getPrice() * count, gift_id);
+		int gift_coins = gift.getPrice() * count;
+		Map<?, ?> map = HttpService.buy(user_id, aid, gift_coins, gift_id);
 		int code = (int) map.get("code");
 		if (code == 0) {
 			int i = giftDao.addOwn(to_user_id, gift_id, user_id, count);
+		    giftDao.updateGiftCoins(to_user_id, gift_coins);
 			if (i == 1) {
 				return ResultUtil.getResultOKMap();
 			} else {
@@ -83,7 +97,7 @@ public class GiftService {
 			ERROR error = ERROR.ERR_FAILED;
 			error.setValue(code);
 			error.setErrorMsg(map.get("msg").toString());
-			log.error("礼物购买失败 code="+code);
+			log.error("礼物购买失败 code=" + code);
 			return ResultUtil.getResultMap(error);
 		}
 	}
@@ -92,32 +106,45 @@ public class GiftService {
 		return giftDao.loadGiftNotice(page, count);
 	}
 
-	public List<MeiLi> loadMeiLi(int type,int pageIndex,int count) {
+	public List<MeiLi> loadMeiLi(int type, int pageIndex, int count) {
 		if (type == 0) {
-			return giftDao.loadNewRegistUserMeiLi(pageIndex,count);
+			return giftDao.loadNewRegistUserMeiLi(pageIndex, count);
 		} else if (type == 1) {
-			return giftDao.loadTotalMeiLi(pageIndex,count);
+			return giftDao.loadTotalMeiLi(pageIndex, count);
 		} else {
-			return giftDao.loadTuHao(pageIndex,count);
+			return giftDao.loadTuHao(pageIndex, count);
 		}
 	}
-	
-	//获取用户魅力值
-	public int getUserMeiLiVal(long user_id){
+
+	// 获取用户魅力值
+	public int getUserMeiLiVal(long user_id) {
 		return giftDao.getUserMeiLiVal(user_id);
 	}
-	
-	//获取用户财富值
-	public int getUserCoins(String aid,long user_id){
+
+	// 获取用户财富值
+	public int getUserCoins(String aid, long user_id) {
 		return userService.loadUserCoins(aid, user_id);
 	}
-	
-	//获取用户被喜欢
-	public int getUserBeLikeVal(long user_id){
+
+	// 获取用户被喜欢
+	public int getUserBeLikeVal(long user_id) {
 		return giftDao.getUserBeLikeVal(user_id);
-	
+
 	}
-	
-	
-	
+
+	public ModelMap getVal(long user_id, String token, String aid) {
+		int val = giftDao.getVal(user_id);
+		return ResultUtil.getResultOKMap().addAttribute("value", val);
+	}
+
+	public int minusCoins(long user_id, int to_minus_coins) {
+		int val = giftDao.getVal(user_id);
+		int newCoins = val - to_minus_coins;
+		if (newCoins < 0) {
+			return -1;
+		} else {
+			return giftDao.updateGiftCoins(user_id, newCoins);
+		}
+	}
+
 }

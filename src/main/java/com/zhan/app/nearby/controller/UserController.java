@@ -477,7 +477,7 @@ public class UserController {
 		userService.modify_info(user_id, nick_name, birthday, jobs, height, weight, signature, my_tags, interest,
 				favourite_animal, favourite_music, weekday_todo, footsteps, want_to_where, isNick_modify,
 				birth_city_id);
-		return userService.getUserCenterData(token,aid, user_id);
+		return userService.getUserCenterData(token,aid, user_id,user_id);
 	}
 
 	/**
@@ -489,32 +489,28 @@ public class UserController {
 	 * @return
 	 */
 	@RequestMapping("detial_info")
-	public ModelMap detial_info(Long user_id,String aid, Long user_id_for, Integer count) {
+	public ModelMap detial_info(Long user_id,String aid, Long user_id_for, Integer count ) {
 		if (user_id_for != null && user_id_for > 0) {
 			user_id = user_id_for;
 		}
 		if (count == null || count <= 0) {
 			count = 4;
 		}
-		return userService.getUserCenterData("",aid, user_id);
+		return userService.getUserCenterData("",aid, user_id,user_id);
 	}
 
 	@RequestMapping("dynamic")
-	public ModelMap dynamic(Long user_id_for, Long last_id, Integer count) {
+	public ModelMap dynamic(Long user_id_for, Integer count) {
 
 		if (user_id_for == null || user_id_for < 1) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "请确定用户ID");
-		}
-
-		if (last_id == null) {
-			last_id = 0l;
 		}
 
 		if (count == null) {
 			count = 10;
 		}
 		ModelMap result = ResultUtil.getResultOKMap();
-		List<UserDynamic> dynamics = userDynamicService.getUserDynamic(user_id_for, last_id, count);
+		List<UserDynamic> dynamics = userDynamicService.getUserDynamic(user_id_for, count);
 		result.put("dynamics", dynamics);
 
 		if (dynamics == null || dynamics.size() < count) {
@@ -633,13 +629,13 @@ public class UserController {
 	}
 
 	@RequestMapping("center_page")
-	public ModelMap center_page(Long user_id_for, String token,String aid) {
-		return userService.getUserCenterData(token,aid, user_id_for);
+	public ModelMap center_page(Long user_id_for, String token,String aid,long user_id) {
+		return userService.getUserCenterData(token,aid, user_id_for,user_id);
 	}
 
 	@RequestMapping("center_page/{user_id_for}")
-	public ModelMap center_page_path(@PathVariable Long user_id_for, String token,String aid) {
-		return userService.getUserCenterData(token,aid, user_id_for);
+	public ModelMap center_page_path(@PathVariable Long user_id_for, String token,String aid,Long user_id) {
+		return userService.getUserCenterData(token,aid, user_id_for,user_id);
 	}
 	
 	/**

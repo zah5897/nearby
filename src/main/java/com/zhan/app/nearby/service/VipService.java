@@ -94,8 +94,7 @@ public class VipService {
 		// 获取已购买的vip数据
 		VipUser userVip = vipDao.loadUserVip(vipUser.getUser_id());
 		// 已经是vip了，计算复杂
-		if (userVip != null) {
-			if (userVip.getDayDiff()<=0) {//以天为精度的过期
+			if (userVip==null||userVip.getDayDiff()<=0) {//以天为精度的过期
 				vipDao.delUserVip(vipUser.getUser_id());
 			}else{
 				Date newEndDate=DateTimeUtil.getVipEndDate(userVip.getEnd_time(), vip.getTerm_mount());
@@ -104,7 +103,6 @@ public class VipService {
 				vipDao.updateUserVip(userVip);
 				return "success";
 			}
-		}
 		// 还不是vip
 		vipUser.setStart_time(now);
 		vipUser.setEnd_time(DateTimeUtil.getVipEndDate(now, vip.getTerm_mount()));

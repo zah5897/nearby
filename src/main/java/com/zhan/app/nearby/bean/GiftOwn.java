@@ -70,6 +70,10 @@ public class GiftOwn extends Gift {
 		this.sender = sender;
 	}
 
-	 
+	 @Override
+	public boolean equals(Object obj) {
+		 GiftOwn g=(GiftOwn) obj;
+		 return g.getId()==this.getId();
+	}
 
 }

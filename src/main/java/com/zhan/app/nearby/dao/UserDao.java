@@ -250,7 +250,7 @@ public class UserDao extends BaseDao {
 			jdbcTemplate.update("insert into t_user_relationship (user_id,with_user_id,relationship,create_time) values(?,?,?,?)",
 					new Object[] { user_id, with_user_id, relationship.ordinal(),new Date() });
 		}else {
-			jdbcTemplate.update("update t_user_relationship set type=? where  user_id=? and with_user_id=?",
+			jdbcTemplate.update("update t_user_relationship set relationship=? where  user_id=? and with_user_id=?",
 					new Object[] { relationship.ordinal(),user_id, with_user_id});
 		}
 

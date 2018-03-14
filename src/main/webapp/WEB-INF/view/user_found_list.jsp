@@ -39,8 +39,8 @@
 			<table class="table table-hover text-center">
 				<tr>
 					<th width="5%">ID</th>
-					<th width="10%">昵称</th>
-					<th width="15%">头像</th>
+					<th width="8%">昵称</th>
+					<th width="12%">头像</th>
 					<th width="5%">性别</th>
 		            <th width="5%">类型</th>
 					<th width="30%">操作</th>

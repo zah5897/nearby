@@ -54,7 +54,7 @@
 				<tr>
 					<th width="5%">ID</th>
 					<th width="5%">昵称</th>
-					<th width="15%">头像</th>
+					<th width="12%">头像</th>
 					<th width="5%">性别</th>
 					<th width="5%">类型</th>
 					<th width="35%">操作</th>

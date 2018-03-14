@@ -50,11 +50,12 @@
 			<table class="table table-hover text-center">
 				<tr>
 					<th width="5%">ID</th>
-					<th width="10%">昵称</th>
-					<th width="15%">头像</th>
+					<th width="8%">昵称</th>
+					<th width="12%">头像</th>
 					<th width="5%">性别</th>
 		            <th width="5%">类型</th>
-					<th width="30%">操作</th>
+		            <th width="8%">注册时间</th>
+					<th width="35%">操作</th>
 				</tr>
 				<tr id="bottom">
 					<td colspan="8">
@@ -212,7 +213,7 @@
 				 typeStr="非正式用户" 
 			 }
 			 toAdd+="<td>"+typeStr+"</td>";
-			 
+			 toAdd+="<td>"+pageData['create_time']+"</td>";
 			 //操作单元格
 			  toAdd+="<td><div class='button-group'>";
 			  //操作单元格

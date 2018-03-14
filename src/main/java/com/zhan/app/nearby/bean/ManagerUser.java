@@ -2,6 +2,7 @@ package com.zhan.app.nearby.bean;
 
 import java.util.Date;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.zhan.app.nearby.comm.UserType;
 
 public class ManagerUser {
@@ -13,6 +14,8 @@ public class ManagerUser {
 	private String avatar;
 	private String origin_avatar;
 	private Date birthday;
+	@JSONField(format = "yyyy-MM-dd HH:mm:ss")
+	private Date create_time;
 
 	// 区分游客和正式用户
 	private short type = (short) UserType.OFFIEC.ordinal(); // 默认为正式用户
@@ -91,4 +94,11 @@ public class ManagerUser {
 		this.state = state;
 	}
 
+	public void setCreate_time(Date create_time) {
+		this.create_time = create_time;
+	}
+
+	public Date getCreate_time() {
+		return create_time;
+	}
 }

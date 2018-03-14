@@ -355,7 +355,8 @@ public class MainService {
 			fix_user = userDao.getBaseUser(fix_user_id);
 		}
 
-		List<BaseUser> users = systemDao.loadMaxRateMeiLi(fix_user_id, gender, page_index, limit);
+		List<BaseUser> users = systemDao.loadMaxRateMeiLiRandom(fix_user_id, gender, page_index, limit);
+//		List<BaseUser> users = systemDao.loadMaxRateMeiLi(fix_user_id, gender, page_index, limit);
 		if (users.size() < limit) {
 			users = systemDao.loadMaxMeiLi(fix_user_id, gender, page_index, limit);
 		}

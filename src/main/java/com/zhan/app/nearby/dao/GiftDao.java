@@ -12,7 +12,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
-import com.fasterxml.jackson.databind.deser.Deserializers.Base;
 import com.zhan.app.nearby.bean.Gift;
 import com.zhan.app.nearby.bean.GiftOwn;
 import com.zhan.app.nearby.bean.MeiLi;
@@ -277,5 +276,11 @@ public class GiftDao extends BaseDao {
 	
 	public int updateGiftCoins(long user_id,int newCoins) {
 		return jdbcTemplate.update("update t_gift_coins set coins=? where uid=?",new Object[] {newCoins,user_id});
+	}
+	
+	public List<GiftOwn> getGifNotice(long user_id,int page,int count){
+		String sql="select o.*,o.gift_id as id,g.price as price,o.from_uid as give_uid ,g.image_url as image_url,g.name as name from t_gift_own o left join t_gift g on o.gift_id=g.id where o.user_id=? order by o.give_time desc limit ?,?";
+		return jdbcTemplate.query(sql,new Object[] {user_id,(page-1)*count,count},new BeanPropertyRowMapper<GiftOwn>(GiftOwn.class));
+		
 	}
 }

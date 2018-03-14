@@ -9,7 +9,6 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-import org.springframework.validation.BeanPropertyBindingResult;
 
 import com.zhan.app.nearby.bean.Exchange;
 import com.zhan.app.nearby.bean.PersonalInfo;
@@ -82,6 +81,25 @@ public class SystemDao extends BaseDao {
 		return total;
 	}
 
+	
+	/**
+	 * 临时决策
+	 * @param ignoreUserId
+	 * @param gender
+	 * @param page_index
+	 * @param limit
+	 * @return
+	 */
+	public List<BaseUser> loadMaxRateMeiLiRandom(Long ignoreUserId,String gender,int page_index,int limit) {
+		if(TextUtils.isEmpty(gender)) {
+			String sql="select u.user_id,u.nick_name,u.avatar,u.sex from   t_user u left join t_found_user_relationship s on u.user_id=s.uid   where s.state=0 and   u.user_id<>? and  u.avatar<>? order by rand() limit ?,?";
+			return jdbcTemplate.query(sql,new Object[] {ignoreUserId==null?0:ignoreUserId,"",(page_index-1)*limit,limit}, new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+		}else {
+			String sql="select u.user_id,u.nick_name,u.avatar,u.sex from   t_user u  left join t_found_user_relationship s on u.user_id=s.uid   where s.state=0 and u.user_id<>? and u.avatar<>? and u.sex=?  order by rand() limit ?,?";
+			return jdbcTemplate.query(sql,new Object[] {ignoreUserId==null?0:ignoreUserId,"",gender,(page_index-1)*limit,limit}, new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+		}
+	}
+	
 	/**
 	 * 获取最大成长率的人
 	 * @param gender

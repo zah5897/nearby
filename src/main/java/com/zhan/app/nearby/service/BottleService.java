@@ -255,5 +255,13 @@ public class BottleService {
 		return ResultUtil.getResultOKMap();
 	}
 
+	/**
+	 * 清理掉过期的语音瓶子
+	 * @param maxValidate
+	 * @return
+	 */
+	public int clearExpireAudioBottle(int maxValidate) {
+		return bottleDao.clearExpireAudioBottle(maxValidate);
+	}
 	
 }

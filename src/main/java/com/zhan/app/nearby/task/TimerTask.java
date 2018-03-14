@@ -4,13 +4,15 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import com.zhan.app.nearby.service.BottleService;
 import com.zhan.app.nearby.service.MainService;
 import com.zhan.app.nearby.util.SpringContextUtil;
 
 @Component
 @EnableScheduling
 public class TimerTask {
-
+   //最大有效期
+   public static final int MAX_VALIDATE=(2*24+23)*60; //2天23小时，缓冲一小时 
 	// @Scheduled(cron = "0 0 0/1 * * ?") // 每小時
 //	@Scheduled(cron = "0 0/5 * * * ?") // 每5分钟执行一次
 //	public void injectMeetBottle() {
@@ -38,6 +40,14 @@ public class TimerTask {
     	int rateCount=mainService.injectRate();
     	System.out.println("inject rate count:"+rateCount);
 	}
+    
+    //每小时清理下漂流瓶池中的瓶子
+	 @Scheduled(cron = "0 0/60 * * * ?") // 每60分钟执行一次
+    public void clearAudioBottleTask() {
+		 BottleService  bottleService=SpringContextUtil.getBean("bottleService");
+    	 int clearCount=bottleService.clearExpireAudioBottle(MAX_VALIDATE);
+    	 System.out.println("clear audio bottle count:"+clearCount);
+    }
 	// @Scheduled(cron = "0 0/5 * * * ?") // 每5分钟执行一次
 	// public void bottleSpiderTast() {
 	// System.out.println("spiderTast");

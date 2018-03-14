@@ -73,7 +73,7 @@ public class BottleDao extends BaseDao {
 
 	public List<Bottle> getBottles(long user_id, int limit) {
 		String sql = "select b.*,u.nick_name,u.avatar,u.birthday,u.birth_city_id," + getAgeSql()
-				+ ", u.sex ,c.name as city_name from t_bottle b left join t_user u on b.user_id=u.user_id left join t_sys_city c on u.birth_city_id=c.id where b.user_id<>?   order by RAND()  limit ?";
+				+ ", u.sex ,c.name as city_name from t_bottle_pool p left join  t_bottle b  on p.bottle_id=b.id left join t_user u on b.user_id=u.user_id left join t_sys_city c on u.birth_city_id=c.id where b.user_id<>?   order by RAND()  limit ?";
 		return jdbcTemplate.query(sql, new Object[] { user_id, limit },
 				new BeanPropertyRowMapper<Bottle>(Bottle.class) {
 					@Override
@@ -104,7 +104,7 @@ public class BottleDao extends BaseDao {
 
 	public List<Bottle> getBottlesByGender(long user_id, int limit, int gender) {
 		String sql = "select b.*,u.nick_name,u.avatar,u.birthday,u.birth_city_id, " + getAgeSql()
-				+ ",u.sex,c.name as city_name from t_bottle b left join t_user u on b.user_id=u.user_id left join t_sys_city c on u.birth_city_id=c.id where b.user_id<>?   and u.sex=? order by RAND() limit ?";
+				+ ",u.sex,c.name as city_name from t_bottle_pool p left join  t_bottle b on p.bottle_id=b.id  left join t_user u on b.user_id=u.user_id left join t_sys_city c on u.birth_city_id=c.id where b.user_id<>?   and u.sex=? order by RAND() limit ?";
 		return jdbcTemplate.query(sql, new Object[] { user_id, gender, limit },
 				new BeanPropertyRowMapper<Bottle>(Bottle.class) {
 					@Override
@@ -236,6 +236,11 @@ public class BottleDao extends BaseDao {
 	
 	public int insertExpress(BottleExpress express) {
 		return saveObjSimple(jdbcTemplate, "t_user_express", express);
+	}
+
+	public int clearExpireAudioBottle(int maxValidate) {
+		String sql="delete from t_bottle_pool where  type=? and round((UNIX_TIMESTAMP(now())-UNIX_TIMESTAMP(create_time))/60)>=?";
+		return jdbcTemplate.update(sql,new Object[] {BottleType.VOICE.ordinal(),maxValidate});
 	}
 
 }

@@ -24,6 +24,7 @@ import com.zhan.app.nearby.bean.user.SimpleUser;
 import com.zhan.app.nearby.cache.UserCacheService;
 import com.zhan.app.nearby.comm.FoundUserRelationship;
 import com.zhan.app.nearby.comm.Relationship;
+import com.zhan.app.nearby.comm.UserType;
 import com.zhan.app.nearby.dao.TagDao;
 import com.zhan.app.nearby.dao.UserDao;
 import com.zhan.app.nearby.dao.VipDao;
@@ -67,6 +68,7 @@ public class UserService {
 	public LocationUser findLocationUserByMobile(String mobile) {
 		return userDao.findLocationUserByMobile(mobile);
 	}
+
 	public String getUserToken(long user_id) {
 		return userDao.getUserToken(user_id);
 	}
@@ -107,16 +109,8 @@ public class UserService {
 		// }
 		// }
 
-		if (id > 0) {
-			try {
-				String password = MD5Util.getMd5_16(String.valueOf(id));
-				Object resutl = Main.registUser(String.valueOf(id), password, user.getNick_name());
-				if (resutl != null) {
-					System.out.println(resutl);
-				}
-			} catch (Exception e) {
-				throw new AppException(ERROR.ERR_SYS, new RuntimeException("环信注册失败"));
-			}
+		if (id > 0 && user.getType() == UserType.OFFIEC.ordinal()) {
+			registHX(user);
 		}
 		return id;
 	}
@@ -191,8 +185,12 @@ public class UserService {
 	}
 
 	public int visitorToNormal(SimpleUser user) {
-		return userDao.visitorToNormal(user.getUser_id(), user.getMobile(), user.getPassword(), user.getToken(),
+		int count= userDao.visitorToNormal(user.getUser_id(), user.getMobile(), user.getPassword(), user.getToken(),
 				user.getNick_name(), user.getBirthday(), user.getSex(), user.getAvatar(), user.getLast_login_time());
+		if(count>0) {
+			registHX(user);
+		}
+		return count;
 	}
 
 	public void uploadLocation(final String ip, final Long user_id, String lat, String lng) {
@@ -245,7 +243,7 @@ public class UserService {
 		return userDao.getAllUserIds(last_id, page);
 	}
 
-	public ModelMap getUserCenterData(String token, String aid, Long user_id_for,Long uid) {
+	public ModelMap getUserCenterData(String token, String aid, Long user_id_for, Long uid) {
 		if (user_id_for == null || user_id_for <= 0) {
 			return ResultUtil.getResultMap(ERROR.ERR_FAILED, "not login");
 		}
@@ -256,7 +254,7 @@ public class UserService {
 
 		user.setAge(DateTimeUtil.getAge(user.getBirthday()));
 
-		List<UserDynamic>  dys=userDynamicService.getUserDynamic(user_id_for, 5);
+		List<UserDynamic> dys = userDynamicService.getUserDynamic(user_id_for, 5);
 		user.setImages(dys);
 		// //
 		// Map<String, Object> userJson = new HashMap<>();
@@ -272,7 +270,7 @@ public class UserService {
 
 		ModelMap r = ResultUtil.getResultOKMap();
 		r.addAttribute("user", user);
-		r.put("relationship", getRelationShip(uid==null?0:uid,user_id_for).ordinal());
+		r.put("relationship", getRelationShip(uid == null ? 0 : uid, user_id_for).ordinal());
 		r.addAttribute("meili", giftService.getUserMeiLiVal(user_id_for));
 		r.addAttribute("coins", giftService.getUserCoins(aid, user_id_for));
 		r.addAttribute("like_count", giftService.getUserBeLikeVal(user_id_for));
@@ -501,8 +499,8 @@ public class UserService {
 	 * @param pageIndex
 	 * @return
 	 */
-	public List<BaseUser> getFoundUsersByState(int pageSize, int pageIndex,FoundUserRelationship ship) {
-		return userDao.getFoundUsersByState(pageSize, pageIndex,ship);
+	public List<BaseUser> getFoundUsersByState(int pageSize, int pageIndex, FoundUserRelationship ship) {
+		return userDao.getFoundUsersByState(pageSize, pageIndex, ship);
 	}
 
 	/**
@@ -548,12 +546,25 @@ public class UserService {
 	}
 
 	public boolean checkLogin(long user_id, String token) {
-		int count=userDao.getUserCountByIDToken(user_id,token);
-		return count>0;
+		int count = userDao.getUserCountByIDToken(user_id, token);
+		return count > 0;
 	}
 
 	public Relationship getRelationShip(long user_id, long user_id_for) {
-		return userDao.getRelationShip(user_id,user_id_for);
+		return userDao.getRelationShip(user_id, user_id_for);
 	}
 
+	
+	private void registHX(BaseUser user) {
+		try {
+			String id=String.valueOf(user.getUser_id());
+			String password = MD5Util.getMd5_16(id);
+			Object resutl = Main.registUser(id, password, user.getNick_name());
+			if (resutl != null) {
+				System.out.println(resutl);
+			}
+		} catch (Exception e) {
+			throw new AppException(ERROR.ERR_SYS, new RuntimeException("环信注册失败"));
+		}
+	}
 }

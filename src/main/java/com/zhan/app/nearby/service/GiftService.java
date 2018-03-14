@@ -1,6 +1,7 @@
 package com.zhan.app.nearby.service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -12,13 +13,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 
+import com.easemob.server.example.Main;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.zhan.app.nearby.bean.Gift;
 import com.zhan.app.nearby.bean.GiftOwn;
 import com.zhan.app.nearby.bean.MeiLi;
+import com.zhan.app.nearby.bean.user.BaseUser;
+import com.zhan.app.nearby.cache.InfoCacheService;
 import com.zhan.app.nearby.dao.GiftDao;
 import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.util.HttpService;
 import com.zhan.app.nearby.util.ImagePathUtil;
+import com.zhan.app.nearby.util.JSONUtil;
 import com.zhan.app.nearby.util.ResultUtil;
 
 @Service
@@ -32,6 +38,9 @@ public class GiftService {
 
 	@Resource
 	private UserService userService;
+
+	@Resource
+	private InfoCacheService infoCacheService;
 
 	public ModelMap save(Gift gift) {
 		if (gift.getId() > 0) {
@@ -87,8 +96,23 @@ public class GiftService {
 		int code = (int) map.get("code");
 		if (code == 0) {
 			int i = giftDao.addOwn(to_user_id, gift_id, user_id, count);
-		    giftDao.updateGiftCoins(to_user_id, gift_coins);
+			giftDao.updateGiftCoins(to_user_id, gift_coins);
 			if (i == 1) {
+				// 通知对方收到某某的礼物
+				Map<String, String> ext = new HashMap<String, String>();
+				ext = new HashMap<String, String>();
+				// ext.put("nickname", with_user.getNick_name());
+				// ext.put("avatar", with_user.getAvatar());
+				// ext.put("origin_avatar", with_user.getOrigin_avatar());
+				// ext.put("description", "");
+				String desc = "赠送了一个礼物给你";
+				BaseUser u = userService.getBasicUser(user_id);
+
+				infoCacheService.clear(InfoCacheService.GIFT_SEND_NOTICE);
+
+				// Main.sendCmdMessage("sys", users, ext);
+				Main.sendTxtMessage(Main.SYS, new String[] { String.valueOf(to_user_id) }, u.getNick_name() + desc,
+						ext);
 				return ResultUtil.getResultOKMap();
 			} else {
 				return ResultUtil.getResultMap(ERROR.ERR_SYS);
@@ -147,4 +171,41 @@ public class GiftService {
 		}
 	}
 
+	// 送礼公告
+	public List<GiftOwn> notice(String aid, long user_id, Integer page, Integer count) {
+		if (page == null || page < 1) {
+			page = 1;
+		}
+		if (count == null) {
+			count = 10;
+		}
+		List<GiftOwn> owns = null;
+		if (page == 1) {
+			owns = infoCacheService.getGiftSendNoticeCache();
+		}
+		if (owns != null && owns.size() == count) {
+			return owns;
+		}
+		
+		owns = giftDao.getGifNotice(user_id, page, count);
+		for (GiftOwn own : owns) {
+			own.setSender(userService.getBasicUser(own.getGive_uid()));
+			ImagePathUtil.completeAvatarPath(own.getSender(), true);
+			BaseUser me = userService.getBasicUser(user_id);
+			ImagePathUtil.completeAvatarPath(me, true);
+			own.setReceiver(me);
+			ImagePathUtil.completeGiftPath(own, true);
+		}
+
+		if (owns.size() == count && page == 1) {
+			try {
+				String json = JSONUtil.writeValueAsString(owns);
+				infoCacheService.cacheGiftSendNotice(json);
+			} catch (JsonProcessingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return owns;
+	}
 }

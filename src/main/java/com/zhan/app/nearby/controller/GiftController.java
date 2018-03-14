@@ -1,6 +1,7 @@
 package com.zhan.app.nearby.controller;
 
 import java.util.Iterator;
+import java.util.List;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -12,8 +13,10 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.support.DefaultMultipartHttpServletRequest;
 
 import com.zhan.app.nearby.bean.Gift;
+import com.zhan.app.nearby.bean.GiftOwn;
 import com.zhan.app.nearby.service.GiftService;
 import com.zhan.app.nearby.util.ImageSaveUtils;
+import com.zhan.app.nearby.util.ResultUtil;
 
 @RestController
 @RequestMapping("/gift")
@@ -57,6 +60,7 @@ public class GiftController {
 	public ModelMap own(long user_id, String aid) {
 		return giftService.loadOwn(user_id, aid);
 	}
+
 	@RequestMapping("received")
 	public ModelMap received(long user_id, String aid) {
 		return giftService.loadOwn(user_id, aid);
@@ -67,9 +71,17 @@ public class GiftController {
 	public ModelMap send(long user_id, long to_user_id, int gift_id, String aid, int count) {
 		return giftService.give(user_id, to_user_id, gift_id, aid, count);
 	}
+
 	@RequestMapping("val")
-	public ModelMap allVal(long user_id,String token, String aid) {
-		return giftService.getVal(user_id, token,aid);
+	public ModelMap allVal(long user_id, String token, String aid) {
+		return giftService.getVal(user_id, token, aid);
 	}
-	
+
+	// 送礼公告
+	@RequestMapping("notice")
+	public ModelMap notice(String aid,long user_id, Integer page, Integer count) {
+		List<GiftOwn> owns = giftService.notice(aid,user_id, page, count);
+		return ResultUtil.getResultOKMap().addAttribute("notice", owns);
+	}
+
 }

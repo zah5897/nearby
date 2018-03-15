@@ -71,67 +71,83 @@ public class BottleDao extends BaseDao {
 				});
 	}
 
-	public List<Bottle> getBottles(long user_id, int limit) {
-		String sql = "select b.*,u.nick_name,u.avatar,u.birthday,u.birth_city_id," + getAgeSql()
-				+ ", u.sex ,c.name as city_name from t_bottle_pool p left join  t_bottle b  on p.bottle_id=b.id left join t_user u on b.user_id=u.user_id left join t_sys_city c on u.birth_city_id=c.id where b.user_id<>?   order by RAND()  limit ?";
-		return jdbcTemplate.query(sql, new Object[] { user_id, limit },
-				new BeanPropertyRowMapper<Bottle>(Bottle.class) {
-					@Override
-					public Bottle mapRow(ResultSet rs, int rowNumber) throws SQLException {
-						Bottle bottle = super.mapRow(rs, rowNumber);
-						LocationUser user = new LocationUser();
-						user.setUser_id(rs.getLong("user_id"));
-						user.setNick_name(rs.getString("nick_name"));
-						user.setBirthday(rs.getDate("birthday"));
-						user.setAvatar(rs.getString("avatar"));
-						user.setSex(rs.getString("sex"));
-						user.setAge(rs.getString("age"));
-						ImagePathUtil.completeAvatarPath(user, true);
-						bottle.setSender(user);
+	public List<Bottle> getBottles(long user_id, int limit, Integer type) {
 
-						int city_id = rs.getInt("birth_city_id");
-						String cityName = rs.getString("city_name");
-						if (!TextUtils.isEmpty(cityName)) {
-							City city = new City();
-							city.setId(city_id);
-							city.setName(cityName);
-							user.setBirth_city(city);
-						}
-						return bottle;
-					}
-				});
+		BeanPropertyRowMapper<Bottle> mapper = new BeanPropertyRowMapper<Bottle>(Bottle.class) {
+			@Override
+			public Bottle mapRow(ResultSet rs, int rowNumber) throws SQLException {
+				Bottle bottle = super.mapRow(rs, rowNumber);
+				LocationUser user = new LocationUser();
+				user.setUser_id(rs.getLong("user_id"));
+				user.setNick_name(rs.getString("nick_name"));
+				user.setBirthday(rs.getDate("birthday"));
+				user.setAvatar(rs.getString("avatar"));
+				user.setSex(rs.getString("sex"));
+				user.setAge(rs.getString("age"));
+				ImagePathUtil.completeAvatarPath(user, true);
+				bottle.setSender(user);
+
+				int city_id = rs.getInt("birth_city_id");
+				String cityName = rs.getString("city_name");
+				if (!TextUtils.isEmpty(cityName)) {
+					City city = new City();
+					city.setId(city_id);
+					city.setName(cityName);
+					user.setBirth_city(city);
+				}
+				return bottle;
+			}
+		};
+		if (type == null) {
+			String sql = "select b.*,u.nick_name,u.avatar,u.birthday,u.birth_city_id," + getAgeSql()
+					+ ", u.sex ,c.name as city_name from t_bottle_pool p left join  t_bottle b  on p.bottle_id=b.id left join t_user u on b.user_id=u.user_id left join t_sys_city c on u.birth_city_id=c.id where b.user_id<>?   order by RAND()  limit ?";
+			return jdbcTemplate.query(sql, new Object[] { user_id, limit }, mapper);
+		} else {
+			String sql = "select b.*,u.nick_name,u.avatar,u.birthday,u.birth_city_id," + getAgeSql()
+					+ ", u.sex ,c.name as city_name from t_bottle_pool p left join  t_bottle b  on p.bottle_id=b.id left join t_user u on b.user_id=u.user_id left join t_sys_city c on u.birth_city_id=c.id where b.user_id<>? and b.type=?  order by RAND()  limit ?";
+			return jdbcTemplate.query(sql, new Object[] { user_id, type, limit }, mapper);
+		}
+
 	}
 
-	public List<Bottle> getBottlesByGender(long user_id, int limit, int gender) {
-		String sql = "select b.*,u.nick_name,u.avatar,u.birthday,u.birth_city_id, " + getAgeSql()
-				+ ",u.sex,c.name as city_name from t_bottle_pool p left join  t_bottle b on p.bottle_id=b.id  left join t_user u on b.user_id=u.user_id left join t_sys_city c on u.birth_city_id=c.id where b.user_id<>?   and u.sex=? order by RAND() limit ?";
-		return jdbcTemplate.query(sql, new Object[] { user_id, gender, limit },
-				new BeanPropertyRowMapper<Bottle>(Bottle.class) {
-					@Override
-					public Bottle mapRow(ResultSet rs, int rowNumber) throws SQLException {
-						Bottle bottle = super.mapRow(rs, rowNumber);
-						LocationUser user = new LocationUser();
-						user.setUser_id(rs.getLong("user_id"));
-						user.setNick_name(rs.getString("nick_name"));
-						user.setBirthday(rs.getDate("birthday"));
-						user.setAvatar(rs.getString("avatar"));
-						user.setSex(rs.getString("sex"));
-						user.setAge(rs.getString("age"));
-						ImagePathUtil.completeAvatarPath(user, true);
-						bottle.setSender(user);
+	public List<Bottle> getBottlesByGender(long user_id, int limit, int gender, Integer type) {
 
-						int city_id = rs.getInt("birth_city_id");
-						String cityName = rs.getString("city_name");
-						if (!TextUtils.isEmpty(cityName)) {
-							City city = new City();
-							city.setId(city_id);
-							city.setName(cityName);
-							user.setBirth_city(city);
-						}
+		BeanPropertyRowMapper<Bottle> mapper = new BeanPropertyRowMapper<Bottle>(Bottle.class) {
+			@Override
+			public Bottle mapRow(ResultSet rs, int rowNumber) throws SQLException {
+				Bottle bottle = super.mapRow(rs, rowNumber);
+				LocationUser user = new LocationUser();
+				user.setUser_id(rs.getLong("user_id"));
+				user.setNick_name(rs.getString("nick_name"));
+				user.setBirthday(rs.getDate("birthday"));
+				user.setAvatar(rs.getString("avatar"));
+				user.setSex(rs.getString("sex"));
+				user.setAge(rs.getString("age"));
+				ImagePathUtil.completeAvatarPath(user, true);
+				bottle.setSender(user);
 
-						return bottle;
-					}
-				});
+				int city_id = rs.getInt("birth_city_id");
+				String cityName = rs.getString("city_name");
+				if (!TextUtils.isEmpty(cityName)) {
+					City city = new City();
+					city.setId(city_id);
+					city.setName(cityName);
+					user.setBirth_city(city);
+				}
+
+				return bottle;
+			}
+		};
+		if (type == null) {
+			String sql = "select b.*,u.nick_name,u.avatar,u.birthday,u.birth_city_id, " + getAgeSql()
+					+ ",u.sex,c.name as city_name from t_bottle_pool p left join  t_bottle b on p.bottle_id=b.id  left join t_user u on b.user_id=u.user_id left join t_sys_city c on u.birth_city_id=c.id where b.user_id<>?   and u.sex=? order by RAND() limit ?";
+			return jdbcTemplate.query(sql, new Object[] { user_id, gender, limit }, mapper);
+		} else {
+			String sql = "select b.*,u.nick_name,u.avatar,u.birthday,u.birth_city_id, " + getAgeSql()
+					+ ",u.sex,c.name as city_name from t_bottle_pool p left join  t_bottle b on p.bottle_id=b.id  left join t_user u on b.user_id=u.user_id left join t_sys_city c on u.birth_city_id=c.id where b.user_id<>? and b.type=?  and u.sex=? order by RAND() limit ?";
+			return jdbcTemplate.query(sql, new Object[] { user_id, type, gender, limit }, mapper);
+		}
+
 	}
 
 	public boolean exist(long bottle_id) {
@@ -197,6 +213,7 @@ public class BottleDao extends BaseDao {
 
 	/**
 	 * 获取用户浏览总数
+	 * 
 	 * @param bottle_id
 	 * @return
 	 */
@@ -230,17 +247,18 @@ public class BottleDao extends BaseDao {
 		return pool_count > 0 || bottle_count > 0;
 	}
 
-	public List<Long> getMeetBottleIDByUser(long user_id){
-		return  jdbcTemplate.queryForList("select id from t_bottle where user_id=? and type=?",new Object[] { user_id, BottleType.MEET.ordinal() }, Long.class);
+	public List<Long> getMeetBottleIDByUser(long user_id) {
+		return jdbcTemplate.queryForList("select id from t_bottle where user_id=? and type=?",
+				new Object[] { user_id, BottleType.MEET.ordinal() }, Long.class);
 	}
-	
+
 	public int insertExpress(BottleExpress express) {
 		return saveObjSimple(jdbcTemplate, "t_user_express", express);
 	}
 
 	public int clearExpireAudioBottle(int maxValidate) {
-		String sql="delete from t_bottle_pool where  type=? and round((UNIX_TIMESTAMP(now())-UNIX_TIMESTAMP(create_time))/60)>=?";
-		return jdbcTemplate.update(sql,new Object[] {BottleType.VOICE.ordinal(),maxValidate});
+		String sql = "delete from t_bottle_pool where  type=? and round((UNIX_TIMESTAMP(now())-UNIX_TIMESTAMP(create_time))/60)>=?";
+		return jdbcTemplate.update(sql, new Object[] { BottleType.VOICE.ordinal(), maxValidate });
 	}
 
 }

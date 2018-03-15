@@ -55,9 +55,9 @@ public class BottleController {
 	}
 
 	@RequestMapping("list")
-	public ModelMap list(Long user_id, Integer page_size, Integer look_sex) {
+	public ModelMap list(Long user_id, Integer page_size, Integer look_sex,Integer type) {
 		return bottleService.getBottles(user_id == null ? 0 : user_id,
-				page_size == null ? 5 : page_size, look_sex);
+				page_size == null ? 5 : page_size, look_sex,type);
 	}
 
 	@RequestMapping("load")

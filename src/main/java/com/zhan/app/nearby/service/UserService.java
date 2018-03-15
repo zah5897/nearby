@@ -13,6 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 
 import com.easemob.server.example.Main;
+import com.easemob.server.example.comm.wrapper.ResponseWrapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.zhan.app.nearby.bean.DynamicMessage;
 import com.zhan.app.nearby.bean.Tag;
 import com.zhan.app.nearby.bean.UserDynamic;
@@ -97,18 +99,7 @@ public class UserService {
 			return -1l;
 		}
 		long id = (Long) userDao.insert(user);
-
-		// if (id > 0) {
-		// String password;
-		// try {
-		// password = MD5Util.getMd5_16(String.valueOf(id));
-		// Object resutl = Main.registUser(String.valueOf(id), password,
-		// user.getNick_name());
-		// } catch (NoSuchAlgorithmException e) {
-		// e.printStackTrace();
-		// }
-		// }
-
+		user.setUser_id(id);
 		if (id > 0 && user.getType() == UserType.OFFIEC.ordinal()) {
 			registHX(user);
 		}
@@ -185,9 +176,9 @@ public class UserService {
 	}
 
 	public int visitorToNormal(SimpleUser user) {
-		int count= userDao.visitorToNormal(user.getUser_id(), user.getMobile(), user.getPassword(), user.getToken(),
+		int count = userDao.visitorToNormal(user.getUser_id(), user.getMobile(), user.getPassword(), user.getToken(),
 				user.getNick_name(), user.getBirthday(), user.getSex(), user.getAvatar(), user.getLast_login_time());
-		if(count>0) {
+		if (count > 0) {
 			registHX(user);
 		}
 		return count;
@@ -554,14 +545,18 @@ public class UserService {
 		return userDao.getRelationShip(user_id, user_id_for);
 	}
 
-	
 	private void registHX(BaseUser user) {
 		try {
-			String id=String.valueOf(user.getUser_id());
+			String id = String.valueOf(user.getUser_id());
 			String password = MD5Util.getMd5_16(id);
 			Object resutl = Main.registUser(id, password, user.getNick_name());
 			if (resutl != null) {
-				System.out.println(resutl);
+				if (resutl instanceof ResponseWrapper) {
+					ResponseWrapper response = (ResponseWrapper) resutl;
+					if (response.getResponseStatus() != 200) {
+						throw new AppException(ERROR.ERR_SYS, new RuntimeException("环信注册失败"));
+					}
+				}
 			}
 		} catch (Exception e) {
 			throw new AppException(ERROR.ERR_SYS, new RuntimeException("环信注册失败"));

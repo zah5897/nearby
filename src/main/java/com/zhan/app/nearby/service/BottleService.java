@@ -58,11 +58,11 @@ public class BottleService {
 		return null;
 	}
 
-	public ModelMap getBottles(long user_id, int page_size, Integer look_sex) {
+	public ModelMap getBottles(long user_id, int page_size, Integer look_sex,Integer type) {
 		ModelMap result = ResultUtil.getResultOKMap();
 		List<Bottle> bolltes = null;
 		if (look_sex == null) {
-			bolltes = bottleDao.getBottles(user_id, page_size);
+			bolltes = bottleDao.getBottles(user_id, page_size,type);
 		} else {
 			VipUser vip = vipDao.loadUserVip(user_id);
 			if (vip == null) {
@@ -70,7 +70,7 @@ public class BottleService {
 			} else if (vip.getDayDiff() < 0) {
 				return ResultUtil.getResultMap(ERROR.ERR_VIP_EXPIRE);
 			}
-			bolltes = bottleDao.getBottlesByGender(user_id, page_size, look_sex == null ? -1 : look_sex);
+			bolltes = bottleDao.getBottlesByGender(user_id, page_size, look_sex == null ? -1 : look_sex,type);
 		}
 
 		for (Bottle bottle : bolltes) {

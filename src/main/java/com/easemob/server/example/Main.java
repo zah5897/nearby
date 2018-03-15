@@ -14,6 +14,7 @@ import com.easemob.server.example.comm.body.TextMessageBody;
 import com.easemob.server.example.comm.wrapper.BodyWrapper;
 import com.easemob.server.example.comm.wrapper.ResponseWrapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.zhan.app.nearby.util.MD5Util;
 
 @SuppressWarnings("unused")
 public class Main {
@@ -94,17 +95,18 @@ public class Main {
 		// ext.put("action",
 		// String.valueOf(MessageAction.ACTION_SOMEONE_LIKE_ME_TIP.ordinal()));
 		//
-		 System.out.println(sendTxtMessage("admin",new String[]{"15"},"",new HashMap<String, String>()));
+//		 System.out.println(sendTxtMessage("admin",new String[]{"15"},"",new HashMap<String, String>()));
 
-//		Object obj = registUser("13", "13", "zah");
-//		if (obj instanceof ResponseWrapper) {
-//			ResponseWrapper response = (ResponseWrapper) obj;
+		String password = MD5Util.getMd5_16(90046+"");
+		Object obj = registUser("90046", password, "90046");
+		if (obj instanceof ResponseWrapper) {
+			ResponseWrapper response = (ResponseWrapper) obj;
 //
-//			ObjectNode node = (ObjectNode) response.getResponseBody();
+			ObjectNode node = (ObjectNode) response.getResponseBody();
 //
-//			System.out.println(response.getResponseStatus());
-//			System.out.println(node.get("error"));
-//		}
+			System.out.println(response.getResponseStatus());
+			System.out.println(node.get("error"));
+		}
 	}
 
 	public static Object registUser(String userName, String password, String nickname) {

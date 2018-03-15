@@ -291,7 +291,7 @@ public class UserDao extends BaseDao {
 	}
 
 	public BaseUser getBaseUser(long user_id) {
-		String sql = "select user_id,nick_name,sex,avatar,signature,birthday from t_user where user_id=?";
+		String sql = "select user_id,nick_name,sex,avatar,signature,birthday,token from t_user where user_id=?";
 		List<BaseUser> users = jdbcTemplate.query(sql, new Object[] { user_id },
 				new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
 		if (users.size() > 0) {

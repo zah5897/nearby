@@ -16,6 +16,7 @@ import com.easemob.server.example.Main;
 import com.zhan.app.nearby.bean.DynamicMessage;
 import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.comm.DynamicMsgType;
+import com.zhan.app.nearby.comm.PushMsgType;
 import com.zhan.app.nearby.comm.Relationship;
 import com.zhan.app.nearby.dao.DynamicMsgDao;
 import com.zhan.app.nearby.dao.UserDao;
@@ -114,7 +115,7 @@ public class DynamicMsgService {
 			ext.put("bottle_id", String.valueOf(bottle_id));
 		}
 		Main.sendTxtMessage(String.valueOf(user.getUser_id()), new String[] { String.valueOf(with_user.getUser_id()) },
-				msg,ext);
+				msg,ext,PushMsgType.TYPE_NEW_CONVERSATION);
 		// 发送给自己
 		ext = new HashMap<String, String>();
 		ext.put("nickname", with_user.getNick_name());
@@ -124,7 +125,7 @@ public class DynamicMsgService {
 			ext.put("bottle_id", String.valueOf(bottle_id));
 		}
 		Main.sendTxtMessage(String.valueOf(with_user.getUser_id()), new String[] { String.valueOf(user.getUser_id()) },
-				msg,ext);
+				msg,ext,PushMsgType.TYPE_NEW_CONVERSATION);
 	}
 	
 	
@@ -137,7 +138,7 @@ public class DynamicMsgService {
 		ext.put("origin_avatar", from.getOrigin_avatar());
 		 
 		Main.sendTxtMessage(String.valueOf(from.getUser_id()), new String[] { String.valueOf(target) },
-				msg,ext);
+				msg,ext,PushMsgType.TYPE_NEW_CONVERSATION);
 	 
 	}
 }

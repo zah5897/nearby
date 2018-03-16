@@ -2,6 +2,7 @@ package com.zhan.app.nearby.controller;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -68,7 +69,7 @@ public class GiftController {
 
 	// -----------------客户端使用---------------
 	@RequestMapping("send")
-	public ModelMap send(long user_id, long to_user_id, int gift_id, String aid, int count) {
+	public Map<?, ?> send(long user_id, long to_user_id, int gift_id, String aid, int count) {
 		return giftService.give(user_id, to_user_id, gift_id, aid, count);
 	}
 

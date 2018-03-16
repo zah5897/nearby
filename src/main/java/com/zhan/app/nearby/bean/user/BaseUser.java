@@ -25,7 +25,7 @@ public class BaseUser {
 	private String password;
 	private String name;
 	private String nick_name;
-	private String sex; // 0 男 1 女
+	private String sex; // 0 女，1 男，2 未知
 
 	private String avatar;
 	@ColumnType // 忽略保存

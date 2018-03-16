@@ -59,7 +59,7 @@ public class UserController {
 
 	@Resource
 	private CityService cityService;
-	
+
 	/**
 	 * 获取注册用的短信验证码
 	 * 
@@ -117,7 +117,8 @@ public class UserController {
 	 */
 
 	@RequestMapping("regist")
-	public ModelMap regist(HttpServletRequest request, LoginUser user, String code, String aid,Integer city_id) {
+	public ModelMap regist(HttpServletRequest request, LoginUser user, String code, String aid, Integer city_id,
+			String bGenderOK) {
 
 		if (TextUtils.isEmpty(user.getMobile())) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "手机号码不能为空!");
@@ -136,6 +137,14 @@ public class UserController {
 		} catch (NoSuchAlgorithmException e1) {
 			e1.printStackTrace();
 			return ResultUtil.getResultMap(ERROR.ERR_PASSWORD);
+		}
+
+		if (TextUtils.isEmpty(bGenderOK)) {
+			if ("0".equals(user.getSex())) {
+				user.setSex("0");
+			} else if ("2".equals(user.getSex())) {
+				user.setSex("0");
+			}
 		}
 
 		DefaultMultipartHttpServletRequest multipartRequest = null;
@@ -184,12 +193,12 @@ public class UserController {
 		user.setUser_id(id);
 		user.setAge(DateTimeUtil.getAge(user.getBirthday()));
 		ImagePathUtil.completeAvatarPath(user, true); // 补全图片链接地址
-		
-		if(city_id!=null) {
-			City city=cityService.getFullCity(city_id);
+
+		if (city_id != null) {
+			City city = cityService.getFullCity(city_id);
 			user.setBirth_city(city);
 		}
-		
+
 		result.put("user", user);
 		// 注册完毕，则可以清理掉redis关于code缓存了
 		userCacheService.clearCode(user.getMobile());
@@ -208,7 +217,7 @@ public class UserController {
 	 * @return
 	 */
 	@RequestMapping("login")
-	public ModelMap loginByMobile(String mobile, String password, String _ua,String aid) {
+	public ModelMap loginByMobile(String mobile, String password, String _ua, String aid) {
 
 		if (TextUtils.isEmpty(mobile)) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "手机号码不能为空!");
@@ -321,7 +330,7 @@ public class UserController {
 	 * @return
 	 */
 	@RequestMapping("reset_password")
-	public ModelMap reset_password(String mobile, String password, String code, String _ua,String aid) {
+	public ModelMap reset_password(String mobile, String password, String code, String _ua, String aid) {
 
 		if (TextUtils.isEmpty(mobile)) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "手机号码为空");
@@ -341,7 +350,7 @@ public class UserController {
 			md5Pwd = MD5Util.getMd5(password);
 			userService.updatePassword(mobile, md5Pwd);
 			userCacheService.clearCode(mobile); // 清理缓存
-			return loginByMobile(mobile, password, _ua,aid);
+			return loginByMobile(mobile, password, _ua, aid);
 		} catch (NoSuchAlgorithmException e) {
 			e.printStackTrace();
 			return ResultUtil.getResultMap(ERROR.ERR_SYS, "新密码设置异常");
@@ -357,7 +366,7 @@ public class UserController {
 	 * @return
 	 */
 	@RequestMapping("info")
-	public ModelMap info(long user_id,long user_id_for) {
+	public ModelMap info(long user_id, long user_id_for) {
 		DetailUser u = userService.getUserDetailInfo(user_id_for);
 		if (u == null) {
 			return ResultUtil.getResultMap(ERROR.ERR_USER_NOT_EXIST, "该用户不存在！");
@@ -365,8 +374,8 @@ public class UserController {
 			ModelMap result = ResultUtil.getResultOKMap();
 			u.hideSysInfo();
 			ImagePathUtil.completeAvatarPath(u, true); // 补全图片链接地址
-			JSONObject juser=JSONUtil.obj2JSON(u);
-			juser.put("relationship", userService.getRelationShip(user_id,user_id_for).ordinal());
+			JSONObject juser = JSONUtil.obj2JSON(u);
+			juser.put("relationship", userService.getRelationShip(user_id, user_id_for).ordinal());
 			result.put("user", juser);
 			return result;
 		}
@@ -452,7 +461,7 @@ public class UserController {
 	 * @return
 	 */
 	@RequestMapping("modify_info")
-	public ModelMap modify_info(long user_id,String aid, String token, String nick_name, String birthday, String jobs,
+	public ModelMap modify_info(long user_id, String aid, String token, String nick_name, String birthday, String jobs,
 			String height, String weight, String signature, String my_tags, String interest, String favourite_animal,
 			String favourite_music, String weekday_todo, String footsteps, String want_to_where,
 			Integer birth_city_id) {
@@ -477,7 +486,7 @@ public class UserController {
 		userService.modify_info(user_id, nick_name, birthday, jobs, height, weight, signature, my_tags, interest,
 				favourite_animal, favourite_music, weekday_todo, footsteps, want_to_where, isNick_modify,
 				birth_city_id);
-		return userService.getUserCenterData(token,aid, user_id,user_id);
+		return userService.getUserCenterData(token, aid, user_id, user_id);
 	}
 
 	/**
@@ -489,14 +498,14 @@ public class UserController {
 	 * @return
 	 */
 	@RequestMapping("detial_info")
-	public ModelMap detial_info(Long user_id,String aid, Long user_id_for, Integer count ) {
+	public ModelMap detial_info(Long user_id, String aid, Long user_id_for, Integer count) {
 		if (user_id_for != null && user_id_for > 0) {
 			user_id = user_id_for;
 		}
 		if (count == null || count <= 0) {
 			count = 4;
 		}
-		return userService.getUserCenterData("",aid, user_id,user_id);
+		return userService.getUserCenterData("", aid, user_id, user_id);
 	}
 
 	@RequestMapping("dynamic")
@@ -629,15 +638,15 @@ public class UserController {
 	}
 
 	@RequestMapping("center_page")
-	public ModelMap center_page(Long user_id_for, String token,String aid,long user_id) {
-		return userService.getUserCenterData(token,aid, user_id_for,user_id);
+	public ModelMap center_page(Long user_id_for, String token, String aid, long user_id) {
+		return userService.getUserCenterData(token, aid, user_id_for, user_id);
 	}
 
 	@RequestMapping("center_page/{user_id_for}")
-	public ModelMap center_page_path(@PathVariable Long user_id_for, String token,String aid,Long user_id) {
-		return userService.getUserCenterData(token,aid, user_id_for,user_id);
+	public ModelMap center_page_path(@PathVariable Long user_id_for, String token, String aid, Long user_id) {
+		return userService.getUserCenterData(token, aid, user_id_for, user_id);
 	}
-	
+
 	/**
 	 * 获取系统标签
 	 * 
@@ -686,9 +695,10 @@ public class UserController {
 		}
 		return result;
 	}
+
 	@RequestMapping("like_list/{user_id}")
-	public ModelMap like_list(@PathVariable long user_id,Integer page_index,Integer count) {
-		return userService.likeList(user_id,page_index,count);
+	public ModelMap like_list(@PathVariable long user_id, Integer page_index, Integer count) {
+		return userService.likeList(user_id, page_index, count);
 	}
 
 	private City getDefaultCityId() {
@@ -699,5 +709,5 @@ public class UserController {
 		city.setType(0);
 		return city;
 	}
-	 
+
 }

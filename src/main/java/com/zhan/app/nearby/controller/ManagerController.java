@@ -367,11 +367,11 @@ public class ManagerController {
 	}
 
 	@RequestMapping(value = "/send_msg_to_all")
-	public @ResponseBody ModelMap send_msg_to_all(String msg) {
+	public @ResponseBody ModelMap send_msg_to_all(String msg,String type) {
 		if (TextUtils.isEmpty(msg)) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM);
 		}
-		managerService.sendMsgToAll(msg);
+		managerService.sendMsgToAll(msg,type);
 		return ResultUtil.getResultOKMap();
 	}
 

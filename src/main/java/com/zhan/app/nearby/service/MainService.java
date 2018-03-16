@@ -21,6 +21,7 @@ import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.cache.UserCacheService;
 import com.zhan.app.nearby.comm.DynamicMsgType;
 import com.zhan.app.nearby.comm.ExchangeState;
+import com.zhan.app.nearby.comm.PushMsgType;
 import com.zhan.app.nearby.comm.Relationship;
 import com.zhan.app.nearby.dao.SystemDao;
 import com.zhan.app.nearby.dao.UserDao;
@@ -199,7 +200,7 @@ public class MainService {
 		ext.put("avatar", user.getAvatar());
 		ext.put("origin_avatar", user.getOrigin_avatar());
 		  Main.sendTxtMessage(String.valueOf(user.getUser_id()),
-				new String[] { String.valueOf(with_user.getUser_id()) }, chatSessionTxt, ext);
+				new String[] { String.valueOf(with_user.getUser_id()) }, chatSessionTxt, ext,PushMsgType.TYPE_NEW_CONVERSATION);
 	 
 
 		// 发送给自己
@@ -208,7 +209,7 @@ public class MainService {
 		ext.put("avatar", with_user.getAvatar());
 		ext.put("origin_avatar", with_user.getOrigin_avatar());
 		  Main.sendTxtMessage(String.valueOf(with_user.getUser_id()),
-				new String[] { String.valueOf(user.getUser_id()) }, chatSessionTxt, ext);
+				new String[] { String.valueOf(user.getUser_id()) }, chatSessionTxt, ext,PushMsgType.TYPE_NEW_CONVERSATION);
 		 
 
 //		// 系统推"附近有人喜欢了你"给对方

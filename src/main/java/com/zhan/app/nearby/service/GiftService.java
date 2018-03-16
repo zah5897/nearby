@@ -20,6 +20,7 @@ import com.zhan.app.nearby.bean.GiftOwn;
 import com.zhan.app.nearby.bean.MeiLi;
 import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.cache.InfoCacheService;
+import com.zhan.app.nearby.comm.PushMsgType;
 import com.zhan.app.nearby.dao.GiftDao;
 import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.util.HttpService;
@@ -83,7 +84,7 @@ public class GiftService {
 
 	// -----------客户端使用-----------------------
 	// 赠送礼物（用户购买后直接赠送）
-	public ModelMap give(long user_id, long to_user_id, int gift_id, String aid, int count) {
+	public Map<?, ?> give(long user_id, long to_user_id, int gift_id, String aid, int count) {
 		if (gift_id == 0 || user_id == 0 || to_user_id == 0 || TextUtils.isEmpty(aid) || count <= 0) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM);
 		}
@@ -111,9 +112,13 @@ public class GiftService {
 				infoCacheService.clear(InfoCacheService.GIFT_SEND_NOTICE);
 
 				// Main.sendCmdMessage("sys", users, ext);
-				Main.sendTxtMessage(Main.SYS, new String[] { String.valueOf(to_user_id) }, u.getNick_name() + desc,
-						ext);
-				return ResultUtil.getResultOKMap();
+				Object obj=Main.sendTxtMessage(Main.SYS, new String[] { String.valueOf(to_user_id) }, u.getNick_name() + desc,
+						ext,PushMsgType.TYPE_RECEIVER_GIFT);
+				if(obj!=null) {
+					System.out.println(obj.toString());
+				}
+				Map<?, ?> result = HttpService.queryUserCoins(user_id, aid);
+				return result;
 			} else {
 				return ResultUtil.getResultMap(ERROR.ERR_SYS);
 			}

@@ -22,6 +22,7 @@ import com.zhan.app.nearby.bean.VipUser;
 import com.zhan.app.nearby.bean.type.BottleType;
 import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.comm.DynamicMsgType;
+import com.zhan.app.nearby.comm.PushMsgType;
 import com.zhan.app.nearby.comm.Relationship;
 import com.zhan.app.nearby.dao.BottleDao;
 import com.zhan.app.nearby.dao.UserDao;
@@ -194,7 +195,7 @@ public class BottleService {
 		ext.put("avatar", user.getAvatar());
 		ext.put("origin_avatar", user.getOrigin_avatar());
 		Main.sendTxtMessage(String.valueOf(user.getUser_id()), new String[] { String.valueOf(with_user.getUser_id()) },
-				expressMsg, ext);
+				expressMsg, ext,PushMsgType.TYPE_NEW_CONVERSATION);
 
 		// 发送给自己
 //		ext = new HashMap<String, String>();
@@ -251,7 +252,7 @@ public class BottleService {
 		ext.put("origin_avatar", user.getOrigin_avatar());
 		ext.put("bottle_id", String.valueOf(bottle_id));
 		Main.sendTxtMessage(String.valueOf(user.getUser_id()), new String[] { String.valueOf(target) },
-				msg, ext);
+				msg, ext,PushMsgType.TYPE_NEW_CONVERSATION);
 		return ResultUtil.getResultOKMap();
 	}
 

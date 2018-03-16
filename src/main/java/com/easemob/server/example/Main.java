@@ -125,12 +125,13 @@ public class Main {
 		return user.modifyIMUserNickNameWithAdminToken(userName, payload);
 	}
 
-	public static Object sendTxtMessage(String from, String[] users, String msgTxt, Map<String, String> ext) {
+	public static Object sendTxtMessage(String from, String[] users, String msgTxt, Map<String, String> ext,String TYPE) {
 		
 		if(ext==null) {
 			ext=new HashMap<String, String>();
 		}
 		ext.put("send_by_admim", "admin");
+		ext.put("type", TYPE);
 		initFactory();
 
 		BodyWrapper payload = new TextMessageBody("users", users, from, ext, msgTxt);

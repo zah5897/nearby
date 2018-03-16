@@ -17,6 +17,7 @@ import com.zhan.app.nearby.bean.Image;
 import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.bean.UserDynamicRelationShip;
 import com.zhan.app.nearby.comm.LikeDynamicState;
+import com.zhan.app.nearby.comm.PushMsgType;
 import com.zhan.app.nearby.dao.UserDao;
 import com.zhan.app.nearby.dao.UserDynamicDao;
 import com.zhan.app.nearby.exception.ERROR;
@@ -50,7 +51,7 @@ public class UserDynamicService {
 
 				String msg = "有人赞了你的图片！";
 				ext.put("msg", msg);
-				Main.sendTxtMessage(Main.SYS, new String[] { String.valueOf(user_id) }, msg, ext);
+				Main.sendTxtMessage(Main.SYS, new String[] { String.valueOf(user_id) }, msg, ext,PushMsgType.TYPE_NEW_PRAISE);
 			}
 		}
 		return result;
@@ -74,7 +75,7 @@ public class UserDynamicService {
 
 			String msg = "有人评论了你的图片，快去看看！";
 			ext.put("msg", msg);
-			Main.sendTxtMessage(Main.SYS, new String[] { user_id_str }, msg, ext);
+			Main.sendTxtMessage(Main.SYS, new String[] { user_id_str }, msg, ext,PushMsgType.TYPE_NEW_COMMENT);
 		}
 		return id;
 	}

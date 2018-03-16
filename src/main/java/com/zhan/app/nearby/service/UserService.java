@@ -25,6 +25,7 @@ import com.zhan.app.nearby.bean.user.LocationUser;
 import com.zhan.app.nearby.bean.user.SimpleUser;
 import com.zhan.app.nearby.cache.UserCacheService;
 import com.zhan.app.nearby.comm.FoundUserRelationship;
+import com.zhan.app.nearby.comm.PushMsgType;
 import com.zhan.app.nearby.comm.Relationship;
 import com.zhan.app.nearby.comm.UserType;
 import com.zhan.app.nearby.dao.TagDao;
@@ -128,7 +129,7 @@ public class UserService {
 			Map<String, String> ext = new HashMap<String, String>();
 			String msg = userCacheService.getWelcome();
 			ext.put("msg", msg);
-			Main.sendTxtMessage(Main.SYS, new String[] { String.valueOf(user_id) }, msg, ext);
+			Main.sendTxtMessage(Main.SYS, new String[] { String.valueOf(user_id) }, msg, ext,PushMsgType.TYPE_WELCOME);
 		}
 	}
 

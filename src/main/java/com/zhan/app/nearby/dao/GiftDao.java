@@ -27,6 +27,7 @@ public class GiftDao extends BaseDao {
 	private JdbcTemplate jdbcTemplate;
 	@Resource
 	private VipDao vipDao;
+
 	public long insert(Gift gift) {
 		long id = saveObj(jdbcTemplate, TABLE_NAME, gift);
 		gift.setId(id);
@@ -34,7 +35,8 @@ public class GiftDao extends BaseDao {
 	}
 
 	public List<Gift> listGifts() {
-		return jdbcTemplate.query("select *from " + TABLE_NAME+" order by price", new BeanPropertyRowMapper<Gift>(Gift.class));
+		return jdbcTemplate.query("select *from " + TABLE_NAME + " order by price",
+				new BeanPropertyRowMapper<Gift>(Gift.class));
 	}
 
 	public void delete(long id) {
@@ -132,155 +134,171 @@ public class GiftDao extends BaseDao {
 		});
 	}
 
-	/** 已改为一周
-	 * 获取今日魅力榜
-	 * @param count 
-	 * @param pageIndex 
+	/**
+	 * 已改为一周 获取今日魅力榜
+	 * 
+	 * @param count
+	 * @param pageIndex
 	 * 
 	 * @return
 	 */
 	public List<MeiLi> loadNewRegistUserMeiLi(int pageIndex, int count) {
 		String t_total_meili = "select m.*,u.nick_name,u.avatar from t_meili_new_regist m left join t_user u on m.user_id=u.user_id  limit ?,?";
-		List<MeiLi> meilis = jdbcTemplate.query(t_total_meili,new Object[]{(pageIndex-1)*count,count}, new RowMapper<MeiLi>() {
+		List<MeiLi> meilis = jdbcTemplate.query(t_total_meili, new Object[] { (pageIndex - 1) * count, count },
+				new RowMapper<MeiLi>() {
 
-			@Override
-			public MeiLi mapRow(ResultSet rs, int rowNum) throws SQLException {
-				MeiLi m = new MeiLi();
-				m.setValue(rs.getInt("week_meili"));
-				m.setShanbei(rs.getInt("amount"));
-				m.setBe_like_count(rs.getInt("like_count"));
+					@Override
+					public MeiLi mapRow(ResultSet rs, int rowNum) throws SQLException {
+						MeiLi m = new MeiLi();
+						m.setValue(rs.getInt("week_meili"));
+						m.setShanbei(rs.getInt("amount"));
+						m.setBe_like_count(rs.getInt("like_count"));
 
-				BaseUser user = new BaseUser();
-				user.setUser_id(rs.getLong("user_id"));
-				user.setNick_name(rs.getString("nick_name"));
-				user.setAvatar(rs.getString("avatar"));
-				ImagePathUtil.completeAvatarPath(user, true);
-				m.setUser(user);
-				
-				m.setIs_vip(vipDao.isVip(user.getUser_id()));
-				return m;
-			}
+						BaseUser user = new BaseUser();
+						user.setUser_id(rs.getLong("user_id"));
+						user.setNick_name(rs.getString("nick_name"));
+						user.setAvatar(rs.getString("avatar"));
+						ImagePathUtil.completeAvatarPath(user, true);
+						m.setUser(user);
 
-		});
+						m.setIs_vip(vipDao.isVip(user.getUser_id()));
+						return m;
+					}
+
+				});
 		return meilis;
 	}
 
 	/**
 	 * 获取魅力总榜
-	 * @param count 
-	 * @param pageIndex 
+	 * 
+	 * @param count
+	 * @param pageIndex
 	 * 
 	 * @return
 	 */
 	public List<MeiLi> loadTotalMeiLi(int pageIndex, int count) {
 		// (select @rowno:=0) t
 		String t_total_meili = "select m.*,u.nick_name,u.avatar from t_meili_total m left join t_user u on m.user_id=u.user_id limit ?,?";
-		List<MeiLi> meilis = jdbcTemplate.query(t_total_meili,new Object[]{(pageIndex-1)*count,count}, new RowMapper<MeiLi>() {
+		List<MeiLi> meilis = jdbcTemplate.query(t_total_meili, new Object[] { (pageIndex - 1) * count, count },
+				new RowMapper<MeiLi>() {
 
-			@Override
-			public MeiLi mapRow(ResultSet rs, int rowNum) throws SQLException {
-				MeiLi m = new MeiLi();
-				m.setValue(rs.getInt("total_meili"));
-				m.setShanbei(rs.getInt("amount"));
-				m.setBe_like_count(rs.getInt("like_count"));
-				
-				BaseUser user = new BaseUser();
-				user.setUser_id(rs.getLong("user_id"));
-				user.setNick_name(rs.getString("nick_name"));
-				user.setAvatar(rs.getString("avatar"));
-				ImagePathUtil.completeAvatarPath(user, true);
-				m.setUser(user);
-				
-				m.setIs_vip(vipDao.isVip(user.getUser_id()));
-				
-				return m;
-			}
+					@Override
+					public MeiLi mapRow(ResultSet rs, int rowNum) throws SQLException {
+						MeiLi m = new MeiLi();
+						m.setValue(rs.getInt("total_meili"));
+						m.setShanbei(rs.getInt("amount"));
+						m.setBe_like_count(rs.getInt("like_count"));
 
-		});
+						BaseUser user = new BaseUser();
+						user.setUser_id(rs.getLong("user_id"));
+						user.setNick_name(rs.getString("nick_name"));
+						user.setAvatar(rs.getString("avatar"));
+						ImagePathUtil.completeAvatarPath(user, true);
+						m.setUser(user);
+
+						m.setIs_vip(vipDao.isVip(user.getUser_id()));
+
+						return m;
+					}
+
+				});
 		return meilis;
 	}
 
 	/**
 	 * 获取土豪榜
-	 * @param count 
-	 * @param pageIndex 
+	 * 
+	 * @param count
+	 * @param pageIndex
 	 * 
 	 * @return
 	 */
 	public List<MeiLi> loadTuHao(int pageIndex, int count) {
 
 		String t_gift_send_amount = "select send.from_uid as user_id,send.count*g.price as amount from t_gift_own send left join t_gift g on send.gift_id=g.id";
-		String t_tuhao_total = "select sum(amount) as tuhao_val ,send.user_id from ("+t_gift_send_amount+") as send group by send.user_id";
+		String t_tuhao_total = "select sum(amount) as tuhao_val ,send.user_id from (" + t_gift_send_amount
+				+ ") as send group by send.user_id";
 
-		
-		String leftJoinUser="select tuhao.*,u.nick_name,u.avatar from ("+t_tuhao_total+") tuhao left join t_user u on tuhao.user_id=u.user_id order by tuhao_val desc limit ?,?";
-		List<MeiLi> meilis = jdbcTemplate.query(leftJoinUser,new Object[]{(pageIndex-1)*count,count}, new RowMapper<MeiLi>() {
+		String leftJoinUser = "select tuhao.*,u.nick_name,u.avatar from (" + t_tuhao_total
+				+ ") tuhao left join t_user u on tuhao.user_id=u.user_id order by tuhao_val desc limit ?,?";
+		List<MeiLi> meilis = jdbcTemplate.query(leftJoinUser, new Object[] { (pageIndex - 1) * count, count },
+				new RowMapper<MeiLi>() {
 
-			@Override
-			public MeiLi mapRow(ResultSet rs, int rowNum) throws SQLException {
-				MeiLi m = new MeiLi();
-				m.setValue(rs.getInt("tuhao_val"));
+					@Override
+					public MeiLi mapRow(ResultSet rs, int rowNum) throws SQLException {
+						MeiLi m = new MeiLi();
+						m.setValue(rs.getInt("tuhao_val"));
 
-				BaseUser user = new BaseUser();
-				user.setUser_id(rs.getLong("user_id"));
-				user.setNick_name(rs.getString("nick_name"));
-				user.setAvatar(rs.getString("avatar"));
-				ImagePathUtil.completeAvatarPath(user, true);
-				m.setUser(user);
-				
-				m.setIs_vip(vipDao.isVip(user.getUser_id()));
-				return m;
-			}
+						BaseUser user = new BaseUser();
+						user.setUser_id(rs.getLong("user_id"));
+						user.setNick_name(rs.getString("nick_name"));
+						user.setAvatar(rs.getString("avatar"));
+						ImagePathUtil.completeAvatarPath(user, true);
+						m.setUser(user);
 
-		});
+						m.setIs_vip(vipDao.isVip(user.getUser_id()));
+						return m;
+					}
+
+				});
 		return meilis;
 	}
 
 	public int getUserMeiLiVal(long user_id) {
 		String t_total_meili = "select total_meili  from t_meili_total where user_id=?";
 		try {
-		    return jdbcTemplate.queryForObject(t_total_meili,new Object[]{user_id},Integer.class);
-		}catch (Exception e) {
+			return jdbcTemplate.queryForObject(t_total_meili, new Object[] { user_id }, Integer.class);
+		} catch (Exception e) {
 			return 0;
 		}
 	}
+
 	public int getUserBeLikeVal(long user_id) {
 		String beLikeCount = "select count(*) from t_user_relationship where with_user_id=? and relationship=? group by with_user_id";
-		return jdbcTemplate.queryForObject(beLikeCount,new Object[]{user_id,Relationship.LIKE.ordinal()},Integer.class);
+		try {
+			int count = jdbcTemplate.queryForObject(beLikeCount, new Object[] { user_id, Relationship.LIKE.ordinal() },
+					Integer.class);
+			return count;
+		} catch (Exception e) {
+			return 0;
+		}
 	}
 
 	public int getVal(long user_id) {
-		String sql="select coins from t_gift_coins where uid="+user_id;
-		List<Integer> coins=jdbcTemplate.query(sql,new BeanPropertyRowMapper<Integer>(Integer.class));
-		if(coins.size()>0) {
+		String sql = "select coins from t_gift_coins where uid=" + user_id;
+		List<Integer> coins = jdbcTemplate.query(sql, new BeanPropertyRowMapper<Integer>(Integer.class));
+		if (coins.size() > 0) {
 			return coins.get(0);
 		}
 		return 0;
 	}
 
 	public int addGiftCoins(long user_id, int gift_coins) {
-		String tableName="t_gift_coins";
-		Integer count=jdbcTemplate.queryForObject("select count(*) from "+tableName+" where uid="+user_id,Integer.class);
-		if(count>0) {
-			String sql="select coins from t_gift_coins where uid="+user_id;
-			List<Integer> coins=jdbcTemplate.query(sql,new BeanPropertyRowMapper<Integer>(Integer.class));
-			int newCoins=gift_coins+coins.get(0);
-			updateGiftCoins(user_id,newCoins);
+		String tableName = "t_gift_coins";
+		Integer count = jdbcTemplate.queryForObject("select count(*) from " + tableName + " where uid=" + user_id,
+				Integer.class);
+		if (count > 0) {
+			String sql = "select coins from t_gift_coins where uid=" + user_id;
+			List<Integer> coins = jdbcTemplate.query(sql, new BeanPropertyRowMapper<Integer>(Integer.class));
+			int newCoins = gift_coins + coins.get(0);
+			updateGiftCoins(user_id, newCoins);
 			return newCoins;
-		}else {
+		} else {
 			String sql = "insert into " + tableName + " (uid,coins) values (?,?)";
-			jdbcTemplate.update(sql,new Object[] {user_id,gift_coins});
+			jdbcTemplate.update(sql, new Object[] { user_id, gift_coins });
 			return gift_coins;
 		}
 	}
-	
-	public int updateGiftCoins(long user_id,int newCoins) {
-		return jdbcTemplate.update("update t_gift_coins set coins=? where uid=?",new Object[] {newCoins,user_id});
+
+	public int updateGiftCoins(long user_id, int newCoins) {
+		return jdbcTemplate.update("update t_gift_coins set coins=? where uid=?", new Object[] { newCoins, user_id });
 	}
-	
-	public List<GiftOwn> getGifNotice(long user_id,int page,int count){
-		String sql="select o.*,o.gift_id as id,g.price as price,o.from_uid as give_uid ,g.image_url as image_url,g.name as name from t_gift_own o left join t_gift g on o.gift_id=g.id where o.user_id=? order by o.give_time desc limit ?,?";
-		return jdbcTemplate.query(sql,new Object[] {user_id,(page-1)*count,count},new BeanPropertyRowMapper<GiftOwn>(GiftOwn.class));
-		
+
+	public List<GiftOwn> getGifNotice(long user_id, int page, int count) {
+		String sql = "select o.*,o.gift_id as id,g.price as price,o.from_uid as give_uid ,g.image_url as image_url,g.name as name from t_gift_own o left join t_gift g on o.gift_id=g.id where o.user_id=? order by o.give_time desc limit ?,?";
+		return jdbcTemplate.query(sql, new Object[] { user_id, (page - 1) * count, count },
+				new BeanPropertyRowMapper<GiftOwn>(GiftOwn.class));
+
 	}
 }

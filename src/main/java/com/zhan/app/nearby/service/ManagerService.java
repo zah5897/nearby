@@ -128,7 +128,7 @@ public class ManagerService {
 		return managerDao.setUserFoundRelationshipState(uid, FoundUserRelationship.values()[state]);
 	}
 
-	public void sendMsgToAll(final String msg) {
+	public void sendMsgToAll(final String msg,final String type) {
 		new java.lang.Thread() {
 			public void run() {
 				int page_size = 20;
@@ -144,13 +144,13 @@ public class ManagerService {
 							hxIds[i] = ids.get(i).toString();
 						}
 						last_id = ids.get(page_size - 1);
-						Main.sendTxtMessage(Main.SYS, hxIds, msg, null);
+						Main.sendTxtMessage(Main.SYS, hxIds, msg, null,type);
 					} else if (ids.size() > 0 && ids.size() < page_size) {
 						String[] hxIds = new String[ids.size()];
 						for (int i = 0; i < hxIds.length; i++) {
 							hxIds[i] = ids.get(i).toString();
 						}
-						Main.sendTxtMessage(Main.SYS, hxIds, msg, null);
+						Main.sendTxtMessage(Main.SYS, hxIds, msg, null,type);
 						break;
 					} else {
 						break;

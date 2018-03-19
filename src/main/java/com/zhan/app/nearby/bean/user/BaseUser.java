@@ -3,7 +3,6 @@ package com.zhan.app.nearby.bean.user;
 import java.util.Date;
 
 import com.alibaba.fastjson.annotation.JSONField;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.zhan.app.nearby.annotation.ColumnType;
 import com.zhan.app.nearby.comm.UserType;
 
@@ -50,6 +49,7 @@ public class BaseUser {
 	public void setUser_id(long user_id) {
 		this.user_id = user_id;
 	}
+
 	@JSONField(serialize = false)
 	public String getMobile() {
 		return mobile;
@@ -66,6 +66,7 @@ public class BaseUser {
 	public void setPassword(String password) {
 		this.password = password;
 	}
+
 	@JSONField(serialize = false)
 	public String getName() {
 		return name;
@@ -114,6 +115,7 @@ public class BaseUser {
 	public void setAid(String aid) {
 		this.aid = aid;
 	}
+
 	@JSONField(serialize = false)
 	public String getToken() {
 		return token;

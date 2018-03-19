@@ -97,7 +97,7 @@ public class GiftService {
 		int code = (int) map.get("code");
 		if (code == 0) {
 			int i = giftDao.addOwn(to_user_id, gift_id, user_id, count);
-			giftDao.updateGiftCoins(to_user_id, gift_coins);
+			giftDao.addGiftCoins(to_user_id, gift_coins);
 			if (i == 1) {
 				// 通知对方收到某某的礼物
 				Map<String, String> ext = new HashMap<String, String>();

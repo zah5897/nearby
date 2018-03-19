@@ -13,7 +13,9 @@ import com.easemob.server.example.comm.body.IMUserBody;
 import com.easemob.server.example.comm.body.TextMessageBody;
 import com.easemob.server.example.comm.wrapper.BodyWrapper;
 import com.easemob.server.example.comm.wrapper.ResponseWrapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.zhan.app.nearby.util.JSONUtil;
 import com.zhan.app.nearby.util.MD5Util;
 
 @SuppressWarnings("unused")
@@ -131,7 +133,15 @@ public class Main {
 			ext=new HashMap<String, String>();
 		}
 		ext.put("send_by_admim", "admin");
-		ext.put("type", TYPE);
+		Map<String, String> apns=new HashMap<String,String>();
+		apns.put("type", TYPE);
+		apns.put("msg", msgTxt);
+		try {
+			ext.put("em_apns_ext", JSONUtil.writeValueAsString(apns));
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		initFactory();
 
 		BodyWrapper payload = new TextMessageBody("users", users, from, ext, msgTxt);

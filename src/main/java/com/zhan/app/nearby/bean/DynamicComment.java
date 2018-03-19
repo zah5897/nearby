@@ -6,7 +6,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.zhan.app.nearby.annotation.ColumnType;
-import com.zhan.app.nearby.bean.user.BaseUser;
+import com.zhan.app.nearby.bean.user.BaseVipUser;
 
 public class DynamicComment {
 	@ColumnType
@@ -24,13 +24,13 @@ public class DynamicComment {
 	@JSONField(format = "yyyy-MM-dd")
 	private Date comment_time;
 	@ColumnType
-	private BaseUser user;
+	private BaseVipUser user;
 	@JSONField(serialize = false)
 	private long at_user_id;
 	@JSONField(serialize = false)
 	private long at_comment_id;
 	@ColumnType
-	private BaseUser at_user;
+	private BaseVipUser at_user;
 	@ColumnType
 	private DynamicComment atComment;
 
@@ -74,18 +74,6 @@ public class DynamicComment {
 		this.comment_time = comment_time;
 	}
 
-	public BaseUser getUser() {
-		return user;
-	}
-
-	public void setUser(BaseUser user) {
-		this.user = user;
-	}
-
-	public void setAt_user(BaseUser at_user) {
-		this.at_user = at_user;
-	}
-
 	public long getAt_user_id() {
 		return at_user_id;
 	}
@@ -108,6 +96,22 @@ public class DynamicComment {
 
 	public void setAtComment(DynamicComment atComment) {
 		this.atComment = atComment;
+	}
+
+	public BaseVipUser getUser() {
+		return user;
+	}
+
+	public void setUser(BaseVipUser user) {
+		this.user = user;
+	}
+
+	public BaseVipUser getAt_user() {
+		return at_user;
+	}
+
+	public void setAt_user(BaseVipUser at_user) {
+		this.at_user = at_user;
 	}
 
 }

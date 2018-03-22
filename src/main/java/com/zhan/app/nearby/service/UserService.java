@@ -129,7 +129,7 @@ public class UserService {
 			Map<String, String> ext = new HashMap<String, String>();
 			String msg = userCacheService.getWelcome();
 			ext.put("msg", msg);
-			Main.sendTxtMessage(Main.SYS, new String[] { String.valueOf(user_id) }, msg, ext,PushMsgType.TYPE_WELCOME);
+			Main.sendTxtMessage(Main.SYS, new String[] { String.valueOf(user_id) }, msg, ext, PushMsgType.TYPE_WELCOME);
 		}
 	}
 
@@ -262,7 +262,20 @@ public class UserService {
 
 		ModelMap r = ResultUtil.getResultOKMap();
 		r.addAttribute("user", user);
-		r.put("relationship", getRelationShip(uid == null ? 0 : uid, user_id_for).ordinal());
+
+		Relationship iWithHim = getRelationShip(uid == null ? 0 : uid, user_id_for);
+		Relationship heWithMe = getRelationShip(user_id_for, uid == null ? 0 : uid);
+		int relationShip = 0;
+		if (iWithHim == Relationship.LIKE && heWithMe == Relationship.LIKE) {
+			relationShip=4;
+		}else if(iWithHim == Relationship.LIKE&& heWithMe != Relationship.LIKE) {
+			relationShip=5;
+		}else if(iWithHim != Relationship.LIKE&& heWithMe == Relationship.LIKE) {
+			relationShip=6;
+		}else {
+			relationShip=7;
+		}
+		r.put("relationship", relationShip);
 		r.addAttribute("meili", giftService.getUserMeiLiVal(user_id_for));
 		r.addAttribute("coins", giftService.getUserCoins(aid, user_id_for));
 		r.addAttribute("like_count", giftService.getUserBeLikeVal(user_id_for));

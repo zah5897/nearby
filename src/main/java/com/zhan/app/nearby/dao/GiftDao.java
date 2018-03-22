@@ -266,10 +266,12 @@ public class GiftDao extends BaseDao {
 	}
 
 	public int getVal(long user_id) {
-		String sql = "select coins from t_gift_coins where uid=" + user_id;
-		List<Integer> coins = jdbcTemplate.query(sql, new BeanPropertyRowMapper<Integer>(Integer.class));
-		if (coins.size() > 0) {
-			return coins.get(0);
+		String sql = "select coins from t_gift_coins where uid=?";
+		try {
+			Integer r = jdbcTemplate.queryForObject(sql, new Object[] { String.valueOf(user_id) }, Integer.class);
+			return r == null ? 0 : r;
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 		return 0;
 	}

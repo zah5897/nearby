@@ -115,23 +115,12 @@ public class MainController {
 		return mainService.exchange_history(user_id,aid,page_index,count);
 	}
 	
-	
-	//扇贝兑换钻石
-	@RequestMapping("exchange_diamond")
-	public ModelMap exchange_diamond(long user_id,String token,String aid,int coins) {
-		return mainService.exchange_diamond(user_id,token,aid,coins);
-	}
 	//钻石兑换RMB
 	@RequestMapping("exchange_rmb")
 	public ModelMap exchange_rmb(long user_id,String token,String aid,int diamond) {
 		return mainService.exchange_rmb(user_id,token,aid,diamond);
 	}
 	
-	//获取当前钻石数量
-	@RequestMapping(value = "/get_diamond_count")
-	public @ResponseBody ModelMap get_diamond_count(long user_id,String token,String aid) {
-		return mainService.get_diamond_count(user_id, token,aid);
-	}
 	
 	//获取成长率最高的用户
 	@RequestMapping("hot_users")

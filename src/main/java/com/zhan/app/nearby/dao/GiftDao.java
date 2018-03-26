@@ -281,9 +281,14 @@ public class GiftDao extends BaseDao {
 		Integer count = jdbcTemplate.queryForObject("select count(*) from " + tableName + " where uid=" + user_id,
 				Integer.class);
 		if (count > 0) {
-			String sql = "select coins from t_gift_coins where uid=" + user_id;
-			List<Integer> coins = jdbcTemplate.query(sql, new BeanPropertyRowMapper<Integer>(Integer.class));
-			int newCoins = gift_coins + coins.get(0);
+			String sql = "select coins from t_gift_coins where uid=?";
+			int newCoins = gift_coins;
+			try {
+				Integer coins = jdbcTemplate.queryForObject(sql,Integer.class, new Object[] { String.valueOf(user_id) });
+				newCoins = gift_coins + coins;
+			} catch (Exception e) {
+               e.printStackTrace();
+			}
 			updateGiftCoins(user_id, newCoins);
 			return newCoins;
 		} else {

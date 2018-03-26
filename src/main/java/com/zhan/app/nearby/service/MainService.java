@@ -18,14 +18,17 @@ import com.zhan.app.nearby.bean.MeiLi;
 import com.zhan.app.nearby.bean.PersonalInfo;
 import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.bean.user.BaseUser;
+import com.zhan.app.nearby.bean.user.BaseVipUser;
 import com.zhan.app.nearby.cache.UserCacheService;
 import com.zhan.app.nearby.comm.DynamicMsgType;
 import com.zhan.app.nearby.comm.ExchangeState;
 import com.zhan.app.nearby.comm.PushMsgType;
 import com.zhan.app.nearby.comm.Relationship;
+import com.zhan.app.nearby.dao.GiftDao;
 import com.zhan.app.nearby.dao.SystemDao;
 import com.zhan.app.nearby.dao.UserDao;
 import com.zhan.app.nearby.dao.UserDynamicDao;
+import com.zhan.app.nearby.dao.VipDao;
 import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.util.HttpService;
 import com.zhan.app.nearby.util.ImagePathUtil;
@@ -42,8 +45,11 @@ public class MainService {
 	@Resource
 	private UserDao userDao;
 	@Resource
+	private GiftDao giftDao;
+	@Resource
 	private SystemDao systemDao;
-
+	@Resource
+	private VipDao vipDao;
 	@Resource
 	private DynamicMsgService dynamicMsgService;
 
@@ -296,41 +302,20 @@ public class MainService {
 				systemDao.loadExchangeHistory(user_id, aid, page_index, count));
 	}
 
-	public ModelMap exchange_diamond(long user_id, String token, String aid, int coins) {
-
-		boolean isLogin = userService.checkLogin(user_id, token);
-
-		if (!isLogin) {
-			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
-		}
-
-		if (coins <= 0) {
-			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "金币数量不能少于1");
-		}
-		
-		int result=giftService.minusCoins(user_id, coins);
-		
-		if(result<0) {
-			ERROR error = ERROR.ERR_FAILED;
-			error.setErrorMsg("钻石兑换失败");
-			return ResultUtil.getResultMap(error);
-		}else {
-			int diamondCount = systemDao.addExchangeDiamond(user_id, aid, coins);
-			return ResultUtil.getResultOKMap().addAttribute("diamond_count", diamondCount);
-		}
-	}
-
+	 
 	public ModelMap exchange_rmb(long user_id, String token, String aid, int diamond) {
 		boolean isLogin = userService.checkLogin(user_id, token);
 		if (!isLogin) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
 
-		int diamondCount = systemDao.getDiamondCount(user_id, aid);
-		if (diamond > diamondCount) {
+		int val = giftDao.getVal(user_id);
+		if (diamond > val) {
 			return ResultUtil.getResultMap(ERROR.ERR_FAILED, "钻石数量不足");
 		}
-		systemDao.updateDiamondCount(user_id, aid, diamondCount - diamond);
+		int newVal=val-diamond;
+		giftDao.updateGiftCoins(user_id,newVal );
+		
 		Exchange exchange = new Exchange();
 		exchange.setUser_id(user_id);
 		exchange.setAid(aid);
@@ -339,13 +324,12 @@ public class MainService {
 		exchange.setRmb_fen(diamond * 3);
 		exchange.setState(ExchangeState.IN_EXCHANGE.ordinal());
 		systemDao.addExchangeHistory(exchange);
-		int diamond_count = systemDao.getDiamondCount(user_id, aid);
-		return ResultUtil.getResultOKMap("提交成功").addAttribute("diamond_count", diamond_count == -1 ? 0 : diamond_count);
+		return ResultUtil.getResultOKMap("提交成功").addAttribute("value", newVal);
 	}
 
 	public ModelMap getHotUsers(String gender, Long fix_user_id, Integer page_index) {
 		int limit = 6;
-		BaseUser fix_user = null;
+		BaseVipUser fix_user = null;
 
 		if (page_index == null || page_index < 1) {
 			page_index = 1;
@@ -353,16 +337,20 @@ public class MainService {
 
 		if (page_index == 1 && fix_user_id != null && fix_user_id > 0) {
 			limit = 5;
-			fix_user = userDao.getBaseUser(fix_user_id);
+			fix_user = userDao.getBaseVipUser(fix_user_id);
 		}
 
-		List<BaseUser> users = systemDao.loadMaxRateMeiLiRandom(fix_user_id, gender, page_index, limit);
+		List<BaseVipUser> users = systemDao.loadMaxRateMeiLiRandom(fix_user_id, gender, page_index, limit);
 //		List<BaseUser> users = systemDao.loadMaxRateMeiLi(fix_user_id, gender, page_index, limit);
 		if (users.size() < limit) {
 			users = systemDao.loadMaxMeiLi(fix_user_id, gender, page_index, limit);
 		}
 
 		if (fix_user != null) {
+			
+			for(BaseVipUser user:users) {
+				user.setVip(vipDao.isVip(user.getUser_id()));
+			}
 			users.add(0, fix_user);
 		}
 		ImagePathUtil.completeAvatarsPath(users, true);
@@ -371,23 +359,6 @@ public class MainService {
 
 	public int injectRate() {
 		return systemDao.injectRate();
-	}
-
-	/**
-	 * 获取当前钻石数量
-	 * 
-	 * @param user_id
-	 * @param token
-	 * @param aid
-	 * @return
-	 */
-	public ModelMap get_diamond_count(long user_id, String token, String aid) {
-		boolean isLogin = userService.checkLogin(user_id, token);
-		if (!isLogin) {
-			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
-		}
-		int diamondCount = systemDao.getDiamondCount(user_id, aid);
-		return ResultUtil.getResultOKMap().addAttribute("diamond_count", diamondCount);
 	}
 
 	public ModelMap check_submit_personal_id(PersonalInfo personal) {

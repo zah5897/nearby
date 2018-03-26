@@ -1,11 +1,9 @@
 package com.zhan.app.nearby.dao;
 
-import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Resource;
 
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -13,6 +11,7 @@ import org.springframework.stereotype.Repository;
 import com.zhan.app.nearby.bean.Exchange;
 import com.zhan.app.nearby.bean.PersonalInfo;
 import com.zhan.app.nearby.bean.user.BaseUser;
+import com.zhan.app.nearby.bean.user.BaseVipUser;
 import com.zhan.app.nearby.comm.ExchangeState;
 import com.zhan.app.nearby.util.TextUtils;
 
@@ -29,43 +28,7 @@ public class SystemDao extends BaseDao {
 		return count;
 	}
     
-	/**
-	 * 增加兑换的钻石
-	 * @param user_id
-	 * @param aid
-	 * @param exchangeDiamondCount
-	 * @return 返回现有钻石
-	 */
-	public int addExchangeDiamond(long user_id,String aid,int exchangeDiamondCount){
-		int existCount=getDiamondCount(user_id,aid);
-		int nowDiamondCount=exchangeDiamondCount;
-		if(existCount==-1){
-			jdbcTemplate.update("insert into t_diamond (user_id,diamond,aid,last_exchange_time) values(?,?,?,?)",
-					new Object[] { user_id,nowDiamondCount , aid, new Date()});
-		}else{
-			nowDiamondCount=exchangeDiamondCount+existCount;
-			jdbcTemplate.update("update t_diamond set diamond=?,last_exchange_time=? where user_id=? and aid=? ",new Object[]{nowDiamondCount,new Date(),user_id,aid});
-		}
-		return nowDiamondCount;
-	}
-	 /**
-	  * 获取钻石数量
-	  * @param user_id
-	  * @param aid
-	  * @return 如果不存在记录返回-1
-	  */
-	public int getDiamondCount(long user_id,String aid){
-		try{
-		   return jdbcTemplate.queryForObject("select diamond from t_diamond where user_id=? and aid=?",new Object[]{user_id,aid}, Integer.class);
-		}catch(EmptyResultDataAccessException e){
-			return -1;
-		}
-	}
-
 	
-	public int updateDiamondCount(long user_id,String aid,int nowCount){
-		return jdbcTemplate.update("update t_diamond set diamond=?,last_exchange_time=? where user_id=? and aid=? ",new Object[]{nowCount,new Date(),user_id,aid});
-	}
 	
 	public void addExchangeHistory(Exchange exchange) {
           saveObjSimple(jdbcTemplate, "t_exchange_history", exchange);		
@@ -90,13 +53,13 @@ public class SystemDao extends BaseDao {
 	 * @param limit
 	 * @return
 	 */
-	public List<BaseUser> loadMaxRateMeiLiRandom(Long ignoreUserId,String gender,int page_index,int limit) {
+	public List<BaseVipUser> loadMaxRateMeiLiRandom(Long ignoreUserId,String gender,int page_index,int limit) {
 		if(TextUtils.isEmpty(gender)) {
 			String sql="select u.user_id,u.nick_name,u.avatar,u.sex from   t_user u left join t_found_user_relationship s on u.user_id=s.uid   where s.state=0 and   u.user_id<>? and  u.avatar<>? order by rand() limit ?,?";
-			return jdbcTemplate.query(sql,new Object[] {ignoreUserId==null?0:ignoreUserId,"",(page_index-1)*limit,limit}, new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+			return jdbcTemplate.query(sql,new Object[] {ignoreUserId==null?0:ignoreUserId,"",(page_index-1)*limit,limit}, new BeanPropertyRowMapper<BaseVipUser>(BaseVipUser.class));
 		}else {
 			String sql="select u.user_id,u.nick_name,u.avatar,u.sex from   t_user u  left join t_found_user_relationship s on u.user_id=s.uid   where s.state=0 and u.user_id<>? and u.avatar<>? and u.sex=?  order by rand() limit ?,?";
-			return jdbcTemplate.query(sql,new Object[] {ignoreUserId==null?0:ignoreUserId,"",gender,(page_index-1)*limit,limit}, new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+			return jdbcTemplate.query(sql,new Object[] {ignoreUserId==null?0:ignoreUserId,"",gender,(page_index-1)*limit,limit}, new BeanPropertyRowMapper<BaseVipUser>(BaseVipUser.class));
 		}
 	}
 	
@@ -117,13 +80,13 @@ public class SystemDao extends BaseDao {
 	 
 	}
 	
-	public List<BaseUser> loadMaxMeiLi(Long ignoreUserId,String gender,int page_index,int limit) {
+	public List<BaseVipUser> loadMaxMeiLi(Long ignoreUserId,String gender,int page_index,int limit) {
 		if(TextUtils.isEmpty( gender)) {
 			String sql="select u.user_id,u.nick_name,u.avatar,u.sex from t_meili_temp t left join t_user u on t.uid=u.user_id where u.avatar<>?    order by temp_meili,t.uid desc limit ?,?";
-			return jdbcTemplate.query(sql,new Object[] {"",(page_index-1)*limit,limit}, new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+			return jdbcTemplate.query(sql,new Object[] {"",(page_index-1)*limit,limit}, new BeanPropertyRowMapper<BaseVipUser>(BaseVipUser.class));
 		}else {
 			String sql="select u.user_id,u.nick_name,u.avatar,u.sex from t_meili_temp t left join t_user u on t.uid=u.user_id where u.avatar<>? and u.sex=?   order by temp_meili,t.uid desc limit ?,?";
-			return jdbcTemplate.query(sql,new Object[] {"",gender,(page_index-1)*limit,limit}, new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+			return jdbcTemplate.query(sql,new Object[] {"",gender,(page_index-1)*limit,limit}, new BeanPropertyRowMapper<BaseVipUser>(BaseVipUser.class));
 		}
 	}
 	

@@ -1,6 +1,8 @@
 package com.zhan.app.nearby.dao;
 
 import java.io.Serializable;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -11,9 +13,11 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import com.zhan.app.nearby.bean.Bottle;
 import com.zhan.app.nearby.bean.DynamicMessage;
 import com.zhan.app.nearby.bean.mapper.SimpkleUserMapper;
 import com.zhan.app.nearby.bean.user.BaseUser;
+import com.zhan.app.nearby.bean.user.BaseVipUser;
 import com.zhan.app.nearby.bean.user.DetailUser;
 import com.zhan.app.nearby.bean.user.LocationUser;
 import com.zhan.app.nearby.comm.FoundUserRelationship;
@@ -294,6 +298,27 @@ public class UserDao extends BaseDao {
 		String sql = "select user_id,nick_name,sex,avatar,signature,birthday,token from t_user where user_id=?";
 		List<BaseUser> users = jdbcTemplate.query(sql, new Object[] { user_id },
 				new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+		if (users.size() > 0) {
+			return users.get(0);
+		}
+		return null;
+	}
+	public BaseVipUser getBaseVipUser(long user_id) {
+		String sql = "select u.user_id,u.nick_name,u.sex,u.avatar,u.signature,u.birthday,u.token ,vip.vip_id from t_user u left join t_user_vip vip on u.user_id=vip.user_id  where u.user_id=?";
+		List<BaseVipUser> users = jdbcTemplate.query(sql, new Object[] { user_id },
+				new BeanPropertyRowMapper<BaseVipUser>(BaseVipUser.class) {
+			@Override
+			public BaseVipUser mapRow(ResultSet rs, int rowNumber) throws SQLException {
+				BaseVipUser vipUser = super.mapRow(rs, rowNumber);
+				String vipStr=rs.getString("vip_id");
+				if(!TextUtils.isEmpty(vipStr)&&!"null".equals(vipStr)) {
+					vipUser.setVip(true);
+				}else {
+					vipUser.setVip(false);
+				}
+				return vipUser;
+			}
+		});
 		if (users.size() > 0) {
 			return users.get(0);
 		}

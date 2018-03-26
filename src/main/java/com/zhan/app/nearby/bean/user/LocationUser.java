@@ -1,6 +1,7 @@
 package com.zhan.app.nearby.bean.user;
 
 import com.alibaba.fastjson.annotation.JSONField;
+import com.zhan.app.nearby.annotation.ColumnType;
 import com.zhan.app.nearby.bean.City;
 
 public class LocationUser extends SimpleUser {
@@ -26,6 +27,9 @@ public class LocationUser extends SimpleUser {
 	@JSONField(serialize = false)
 	private String disc;
 
+	@ColumnType
+	@JSONField(name="is_vip")
+	private boolean isVip;
 	public String getLat() {
 		return lat;
 	}
@@ -93,6 +97,15 @@ public class LocationUser extends SimpleUser {
 			birth_city.setChildren(null);
 			setBirth_city_id(birth_city.getId());
 		}
+	}
+
+	
+	public boolean isVip() {
+		return isVip;
+	}
+
+	public void setVip(boolean isVip) {
+		this.isVip = isVip;
 	}
 
 	/**

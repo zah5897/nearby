@@ -35,7 +35,7 @@ public class ImagePathUtil {
 		return user;
 	}
 
-	public static void completeAvatarsPath(List<BaseUser> users, boolean thumbAndOrigin) {
+	public static void completeAvatarsPath(List<? extends BaseUser> users, boolean thumbAndOrigin) {
 		if (users == null || users.size() == 0) {
 			return;
 		}

@@ -61,15 +61,15 @@ public class UserCacheService {
 
 	public boolean valideCode(String mobile, String code) {
 
-//		try {
-//			Object codeObj = redisTemplate.opsForValue().get(mobile);
-//			if (codeObj == null) {
-//				return false;
-//			}
-//			return codeObj.toString().equals(code);
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
+		try {
+			Object codeObj = redisTemplate.opsForValue().get(mobile);
+			if (codeObj == null) {
+				return false;
+			}
+			return codeObj.toString().equals(code);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		return true;
 	}
 

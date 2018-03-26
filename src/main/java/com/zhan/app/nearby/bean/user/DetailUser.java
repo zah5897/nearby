@@ -82,6 +82,10 @@ public class DetailUser extends LocationUser {
 	// @JsonIgnore
 	@JSONField(serialize = false)
 	private String want_to_where;
+	
+	@ColumnType
+	@JSONField(name="is_vip")
+	private boolean is_vip;
 
 	public String getJob_ids() {
 		return job_ids;
@@ -228,6 +232,14 @@ public class DetailUser extends LocationUser {
 			basicInfo.put("birth_city", getBirth_city());
 		}
 		return basicInfo;
+	}
+
+	public boolean isIs_vip() {
+		return is_vip;
+	}
+
+	public void setIs_vip(boolean is_vip) {
+		this.is_vip = is_vip;
 	}
 
 	/**

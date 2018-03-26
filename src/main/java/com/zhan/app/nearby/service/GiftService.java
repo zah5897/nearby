@@ -112,9 +112,9 @@ public class GiftService {
 				infoCacheService.clear(InfoCacheService.GIFT_SEND_NOTICE);
 
 				// Main.sendCmdMessage("sys", users, ext);
-				Object obj=Main.sendTxtMessage(Main.SYS, new String[] { String.valueOf(to_user_id) }, u.getNick_name() + desc,
-						ext,PushMsgType.TYPE_RECEIVER_GIFT);
-				if(obj!=null) {
+				Object obj = Main.sendTxtMessage(Main.SYS, new String[] { String.valueOf(to_user_id) },
+						u.getNick_name() + desc, ext, PushMsgType.TYPE_RECEIVER_GIFT);
+				if (obj != null) {
 					System.out.println(obj.toString());
 				}
 				Map<?, ?> result = HttpService.queryUserCoins(user_id, aid);
@@ -191,7 +191,7 @@ public class GiftService {
 		if (owns != null && owns.size() == count) {
 			return owns;
 		}
-		
+
 		owns = giftDao.getGifNotice(user_id, page, count);
 		for (GiftOwn own : owns) {
 			own.setSender(userService.getBasicUser(own.getGive_uid()));

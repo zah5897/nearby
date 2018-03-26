@@ -16,6 +16,7 @@ import com.zhan.app.nearby.bean.BottleExpress;
 import com.zhan.app.nearby.bean.City;
 import com.zhan.app.nearby.bean.type.BottleType;
 import com.zhan.app.nearby.bean.user.BaseUser;
+import com.zhan.app.nearby.bean.user.BaseVipUser;
 import com.zhan.app.nearby.bean.user.LocationUser;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.TextUtils;
@@ -28,6 +29,8 @@ public class BottleDao extends BaseDao {
 	@Resource
 	private JdbcTemplate jdbcTemplate;
 
+	@Resource
+	private VipDao vipDao;
 	// ---------------------------------------bottle-------------------------------------------------
 	public long insert(Bottle bottle) {
 		long id = saveObj(jdbcTemplate, TABLE_BOTTLE, bottle);
@@ -84,6 +87,7 @@ public class BottleDao extends BaseDao {
 				user.setAvatar(rs.getString("avatar"));
 				user.setSex(rs.getString("sex"));
 				user.setAge(rs.getString("age"));
+				user.setVip(vipDao.isVip(user.getUser_id()));
 				ImagePathUtil.completeAvatarPath(user, true);
 				bottle.setSender(user);
 
@@ -123,6 +127,7 @@ public class BottleDao extends BaseDao {
 				user.setAvatar(rs.getString("avatar"));
 				user.setSex(rs.getString("sex"));
 				user.setAge(rs.getString("age"));
+				user.setVip(vipDao.isVip(user.getUser_id()));
 				ImagePathUtil.completeAvatarPath(user, true);
 				bottle.setSender(user);
 
@@ -176,11 +181,12 @@ public class BottleDao extends BaseDao {
 				new Object[] { content, img }, Integer.class) > 0;
 	}
 
-	private BaseUser resultSetToUser(ResultSet rs) throws SQLException {
-		BaseUser sender = new BaseUser();
+	private BaseVipUser resultSetToUser(ResultSet rs) throws SQLException {
+		BaseVipUser sender = new BaseVipUser();
 		sender.setUser_id(rs.getLong("user_id"));
 		sender.setNick_name(rs.getString("nick_name"));
 		sender.setAvatar(rs.getString("avatar"));
+		sender.setVip(vipDao.isVip(sender.getUser_id()));
 		return sender;
 	}
 

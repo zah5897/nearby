@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 
+import com.alibaba.fastjson.JSONObject;
 import com.easemob.server.example.Main;
 import com.easemob.server.example.comm.wrapper.ResponseWrapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -37,6 +38,7 @@ import com.zhan.app.nearby.util.AddressUtil;
 import com.zhan.app.nearby.util.DateTimeUtil;
 import com.zhan.app.nearby.util.HttpService;
 import com.zhan.app.nearby.util.ImagePathUtil;
+import com.zhan.app.nearby.util.JSONUtil;
 import com.zhan.app.nearby.util.MD5Util;
 import com.zhan.app.nearby.util.ResultUtil;
 import com.zhan.app.nearby.util.TextUtils;
@@ -261,6 +263,7 @@ public class UserService {
 		setTagByIds(user);
 
 		ModelMap r = ResultUtil.getResultOKMap();
+		user.setIs_vip(vipDao.isVip(user_id_for));
 		r.addAttribute("user", user);
 
 		Relationship iWithHim = getRelationShip(uid == null ? 0 : uid, user_id_for);

@@ -275,7 +275,7 @@ public class ManagerService {
 	 */
 	public boolean handleExchange(int id, boolean agreeOrReject) {
 		if (agreeOrReject) {
-			return managerDao.updateExchageState(id, ExchangeState.AGREE_WAIT) == 1;
+			return managerDao.updateExchageState(id, ExchangeState.IN_EXCHANGE) == 1;
 		} else {
 			return managerDao.updateExchageState(id, ExchangeState.REJECT) == 1;
 		}

@@ -251,11 +251,12 @@ public class UserDao extends BaseDao {
 				"select count(*) from t_user_relationship where user_id=? and with_user_id=?",
 				new Object[] { user_id, with_user_id }, Integer.class);
 		if (count < 1) {
-			jdbcTemplate.update("insert into t_user_relationship (user_id,with_user_id,relationship,create_time) values(?,?,?,?)",
-					new Object[] { user_id, with_user_id, relationship.ordinal(),new Date() });
-		}else {
+			jdbcTemplate.update(
+					"insert into t_user_relationship (user_id,with_user_id,relationship,create_time) values(?,?,?,?)",
+					new Object[] { user_id, with_user_id, relationship.ordinal(), new Date() });
+		} else {
 			jdbcTemplate.update("update t_user_relationship set relationship=? where  user_id=? and with_user_id=?",
-					new Object[] { relationship.ordinal(),user_id, with_user_id});
+					new Object[] { relationship.ordinal(), user_id, with_user_id });
 		}
 
 	}
@@ -303,32 +304,34 @@ public class UserDao extends BaseDao {
 		}
 		return null;
 	}
+
 	public BaseVipUser getBaseVipUser(long user_id) {
 		String sql = "select u.user_id,u.nick_name,u.sex,u.avatar,u.signature,u.birthday,u.token ,vip.vip_id from t_user u left join t_user_vip vip on u.user_id=vip.user_id  where u.user_id=?";
 		List<BaseVipUser> users = jdbcTemplate.query(sql, new Object[] { user_id },
 				new BeanPropertyRowMapper<BaseVipUser>(BaseVipUser.class) {
-			@Override
-			public BaseVipUser mapRow(ResultSet rs, int rowNumber) throws SQLException {
-				BaseVipUser vipUser = super.mapRow(rs, rowNumber);
-				String vipStr=rs.getString("vip_id");
-				if(!TextUtils.isEmpty(vipStr)&&!"null".equals(vipStr)) {
-					vipUser.setVip(true);
-				}else {
-					vipUser.setVip(false);
-				}
-				return vipUser;
-			}
-		});
+					@Override
+					public BaseVipUser mapRow(ResultSet rs, int rowNumber) throws SQLException {
+						BaseVipUser vipUser = super.mapRow(rs, rowNumber);
+						String vipStr = rs.getString("vip_id");
+						if (!TextUtils.isEmpty(vipStr) && !"null".equals(vipStr)) {
+							vipUser.setVip(true);
+						} else {
+							vipUser.setVip(false);
+						}
+						return vipUser;
+					}
+				});
 		if (users.size() > 0) {
 			return users.get(0);
 		}
 		return null;
 	}
+
 	public String getUserToken(long user_id) {
 		try {
-		String sql = "select token from t_user where user_id=?";
-		return jdbcTemplate.queryForObject(sql, new Object[] { user_id },String.class);
-		}catch (Exception e) {
+			String sql = "select token from t_user where user_id=?";
+			return jdbcTemplate.queryForObject(sql, new Object[] { user_id }, String.class);
+		} catch (Exception e) {
 			return null;
 		}
 	}
@@ -476,17 +479,32 @@ public class UserDao extends BaseDao {
 	}
 
 	public Relationship getRelationShip(long user_id, long user_id_for) {
-	    try {
-		   Integer ship = jdbcTemplate.queryForObject(
-				"select relationship from t_user_relationship where user_id=? and with_user_id=?",
-				new Object[] { user_id, user_id_for }, Integer.class);
-		   if(ship!=null) {
-			   return Relationship.values()[ship];
-		   }else {
-			   return Relationship.DEFAULT;
-		   }
-	    }catch(Exception e) {
-	    	return Relationship.DEFAULT;
-    	}
+		try {
+			Integer ship = jdbcTemplate.queryForObject(
+					"select relationship from t_user_relationship where user_id=? and with_user_id=?",
+					new Object[] { user_id, user_id_for }, Integer.class);
+			if (ship != null) {
+				return Relationship.values()[ship];
+			} else {
+				return Relationship.DEFAULT;
+			}
+		} catch (Exception e) {
+			return Relationship.DEFAULT;
+		}
+	}
+
+	public void addSpecialUser(long uid) {
+		Integer countObj = jdbcTemplate.queryForObject("select count(*)  from t_special_user where uid=?",
+				new String[] { String.valueOf(uid) }, Integer.class);
+		if (countObj != null && countObj > 0) {
+			return;
+		}
+		jdbcTemplate.update("insert into t_special_user (uid) values(?)", new Object[] { String.valueOf(uid) });
+	}
+	
+	public List<BaseUser> loadSpecialUsers(int limit) {
+		String sql="select u.user_id,u.nick_name,u.avatar,u.sex,u.type from t_special_user us left join t_user u on us.uid=u.user_id";
+		List<BaseUser> users=jdbcTemplate.query(sql, new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+		return users;
 	}
 }

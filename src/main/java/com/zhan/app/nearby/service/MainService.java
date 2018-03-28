@@ -448,14 +448,22 @@ public class MainService {
 			System.out.println("已经在一分钟内发过，还没过期");
 		}
 		ModelMap data = ResultUtil.getResultOKMap();
-		boolean smsOK = SMSHelper.smsRegist(mobile, code);
+		HashMap<String, Object> result = SMSHelper.smsExchangeCode(mobile, code);
+		boolean smsOK=SMSHelper.isSuccess(result);
 		if (smsOK) {
 			userCacheService.cacheValidateCode(mobile, code);
 			data.put("validate_code", code);
 		} else {
-			data = ResultUtil.getResultMap(ERROR.ERR_FAILED, "验证码发送失败");
+			String errorMsg="错误码=" + result.get("statusCode") + " 错误信息= " + result.get("statusMsg");
+//			data = ResultUtil.getResultMap(ERROR.ERR_FAILED, "验证码发送失败:"+errorMsg);
+			data = ResultUtil.getResultMap(ERROR.ERR_FAILED,"获取验证码次数过多");
 		}
 		return data;
+	}
+	public ModelMap getSpecialUsers(Integer limit) {
+		List<BaseUser> users=  userService.loadSpecialUsers(limit);
+		ImagePathUtil.completeAvatarsPath(users, true);
+		return ResultUtil.getResultOKMap().addAttribute("users", users);
 	}
 
 }

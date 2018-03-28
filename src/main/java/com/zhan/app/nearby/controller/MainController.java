@@ -5,7 +5,6 @@ import javax.annotation.Resource;
 import org.apache.log4j.Logger;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.zhan.app.nearby.bean.PersonalInfo;
@@ -154,5 +153,11 @@ public class MainController {
 		return mainService.get_personal_validate_code(user_id,token,mobile,code_type);
 	}
 	
+	@RequestMapping("load_special_users")
+	public ModelMap special_users(Integer limit) {
+		return mainService.getSpecialUsers(limit);
+	}
+		
+		
  
 }

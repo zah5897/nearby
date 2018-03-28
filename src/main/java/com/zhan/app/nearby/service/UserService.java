@@ -579,4 +579,11 @@ public class UserService {
 			throw new AppException(ERROR.ERR_SYS, new RuntimeException("环信注册失败"));
 		}
 	}
+	
+	public void addSpecialUser(long uid) {
+		userDao.addSpecialUser(uid);
+	}
+	public List<BaseUser> loadSpecialUsers(Integer limit){
+		return userDao.loadSpecialUsers(limit==null?5:limit);
+	}
 }

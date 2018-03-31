@@ -20,9 +20,6 @@ public class SimpleUser extends BaseUser {
 	private String age;
 	private String signature;
 
-	@JSONField(format = "yyyy-MM-dd")
-	@DateTimeFormat(pattern = "yyyy-MM-dd")
-	private Date birthday;
 
 	private String weight;// 体重
 	private String height;// 身高
@@ -55,13 +52,7 @@ public class SimpleUser extends BaseUser {
 		this.signature = signature;
 	}
 
-	public Date getBirthday() {
-		return birthday;
-	}
 
-	public void setBirthday(Date birthday) {
-		this.birthday = birthday;
-	}
 
 	public String getWeight() {
 		return weight;

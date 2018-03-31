@@ -110,14 +110,14 @@ public class MainController {
 	 
 	//提现历史记录
 	@RequestMapping("exchange_history")
-	public ModelMap exchange_history(long user_id,String token,String aid,Integer page_index,Integer count) {
-		return mainService.exchange_history(user_id,aid,page_index,count);
+	public ModelMap exchange_history(long user_id,String token,String aid,Integer page,Integer count) {
+		return mainService.exchange_history(user_id,aid,page,count);
 	}
 	
 	//钻石兑换RMB
 	@RequestMapping("exchange_rmb")
-	public ModelMap exchange_rmb(long user_id,String token,String aid,int diamond) {
-		return mainService.exchange_rmb(user_id,token,aid,diamond);
+	public ModelMap exchange_rmb(long user_id,String token,String aid,int diamond,String zhifubao,String mobile,String code) {
+		return mainService.exchange_rmb(user_id,token,aid,diamond,zhifubao,mobile,code);
 	}
 	
 	

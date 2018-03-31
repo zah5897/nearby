@@ -7,12 +7,12 @@ import com.cloopen.rest.sdk.CCPRestSmsSDK;
 
 public class SMSHelper {
 	public static boolean smsRegist(String mobile, String code) {
-		HashMap<String, Object> result = sms("155215", mobile, code);
+		HashMap<String, Object> result = sms("241010", mobile, code);
 		return isSuccess(result);
 	}
 
 	public static boolean smsResetPwd(String mobile, String code) {
-		HashMap<String, Object> result = sms("155218", mobile, code);
+		HashMap<String, Object> result = sms("241014", mobile, code);
 		return isSuccess(result);
 	}
 

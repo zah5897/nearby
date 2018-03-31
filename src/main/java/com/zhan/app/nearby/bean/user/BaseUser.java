@@ -2,6 +2,8 @@ package com.zhan.app.nearby.bean.user;
 
 import java.util.Date;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
 import com.alibaba.fastjson.annotation.JSONField;
 import com.zhan.app.nearby.annotation.ColumnType;
 import com.zhan.app.nearby.comm.UserType;
@@ -41,6 +43,18 @@ public class BaseUser {
 	private String _ua;
 	@JSONField(serialize = false)
 	private String aid;
+
+	@JSONField(format = "yyyy-MM-dd")
+	@DateTimeFormat(pattern = "yyyy-MM-dd")
+	private Date birthday;
+
+	public Date getBirthday() {
+		return birthday;
+	}
+
+	public void setBirthday(Date birthday) {
+		this.birthday = birthday;
+	}
 
 	public long getUser_id() {
 		return user_id;

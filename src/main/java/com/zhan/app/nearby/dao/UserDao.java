@@ -20,6 +20,7 @@ import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.bean.user.BaseVipUser;
 import com.zhan.app.nearby.bean.user.DetailUser;
 import com.zhan.app.nearby.bean.user.LocationUser;
+import com.zhan.app.nearby.bean.user.SimpleUser;
 import com.zhan.app.nearby.comm.FoundUserRelationship;
 import com.zhan.app.nearby.comm.Relationship;
 import com.zhan.app.nearby.comm.UserType;
@@ -503,7 +504,7 @@ public class UserDao extends BaseDao {
 	}
 	
 	public List<BaseUser> loadSpecialUsers(int limit) {
-		String sql="select u.user_id,u.nick_name,u.avatar,u.sex,u.type from t_special_user us left join t_user u on us.uid=u.user_id";
+		String sql="select u.user_id,u.nick_name,u.avatar,u.sex,u.type,u.birthday from t_special_user us left join t_user u on us.uid=u.user_id";
 		List<BaseUser> users=jdbcTemplate.query(sql, new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
 		return users;
 	}

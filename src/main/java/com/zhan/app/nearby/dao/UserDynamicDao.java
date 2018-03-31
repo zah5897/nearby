@@ -180,7 +180,7 @@ public class UserDynamicDao extends BaseDao {
 
 		String atSql="select cc.id as at_commtent_id,cc.content as at_content, cc.comment_time as at_comment_time,cc.user_id as at_u_id ,au.nick_name as at_nick_name ,au.avatar as at_avatar,au.sex as at_sex ,cc.comment_time as at_create_time ,atv.vip_id as at_vip_id "
 				+ "from t_dynamic_comment cc left join t_user au on cc.user_id=au.user_id left join t_user_vip atv on au.user_id=atv.user_id";
-		String sql = "select c.*,u.nick_name,u.avatar,u.sex,v.vip_id"
+		String sql = "select c.*,u.nick_name,u.avatar,u.sex,v.vip_id, "
 				+ "at_c.* from t_dynamic_comment c  left join t_user u on c.user_id=u.user_id "
 				+ "left join ( "+atSql+" ) as at_c on c.at_comment_id=at_c.at_commtent_id  left join t_user_vip v on c.user_id=v.user_id  where c.dynamic_id=? and c.id=?";
 		List<DynamicComment> comments = jdbcTemplate.query(sql, new Object[] { dynamic_id, comment_id },

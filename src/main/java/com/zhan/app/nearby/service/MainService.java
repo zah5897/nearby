@@ -19,6 +19,7 @@ import com.zhan.app.nearby.bean.PersonalInfo;
 import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.bean.user.BaseVipUser;
+import com.zhan.app.nearby.bean.user.SimpleUser;
 import com.zhan.app.nearby.cache.UserCacheService;
 import com.zhan.app.nearby.comm.DynamicMsgType;
 import com.zhan.app.nearby.comm.ExchangeState;
@@ -205,29 +206,27 @@ public class MainService {
 		ext.put("nickname", user.getNick_name());
 		ext.put("avatar", user.getAvatar());
 		ext.put("origin_avatar", user.getOrigin_avatar());
-		  Main.sendTxtMessage(String.valueOf(user.getUser_id()),
-				new String[] { String.valueOf(with_user.getUser_id()) }, chatSessionTxt, ext,PushMsgType.TYPE_NEW_CONVERSATION);
-	 
+		Main.sendTxtMessage(String.valueOf(user.getUser_id()), new String[] { String.valueOf(with_user.getUser_id()) },
+				chatSessionTxt, ext, PushMsgType.TYPE_NEW_CONVERSATION);
 
 		// 发送给自己
 		ext = new HashMap<String, String>();
 		ext.put("nickname", with_user.getNick_name());
 		ext.put("avatar", with_user.getAvatar());
 		ext.put("origin_avatar", with_user.getOrigin_avatar());
-		  Main.sendTxtMessage(String.valueOf(with_user.getUser_id()),
-				new String[] { String.valueOf(user.getUser_id()) }, chatSessionTxt, ext,PushMsgType.TYPE_NEW_CONVERSATION);
-		 
+		Main.sendTxtMessage(String.valueOf(with_user.getUser_id()), new String[] { String.valueOf(user.getUser_id()) },
+				chatSessionTxt, ext, PushMsgType.TYPE_NEW_CONVERSATION);
 
-//		// 系统推"附近有人喜欢了你"给对方
-//		String msg = "附近有人喜欢了你！";
-//		ext.put("msg", msg);
-//
-//		result = Main.sendTxtMessage(Main.SYS, new String[] { String.valueOf(with_user.getUser_id()) }, msg, ext);
-//		if (result != null) {
-//			System.out.println(result);
-//		}
+		// // 系统推"附近有人喜欢了你"给对方
+		// String msg = "附近有人喜欢了你！";
+		// ext.put("msg", msg);
+		//
+		// result = Main.sendTxtMessage(Main.SYS, new String[] {
+		// String.valueOf(with_user.getUser_id()) }, msg, ext);
+		// if (result != null) {
+		// System.out.println(result);
+		// }
 	}
-
 
 	public ModelMap reset_city() {
 		List<UserDynamic> dynamics = userDynamicDao.getAllDynamic();
@@ -302,20 +301,38 @@ public class MainService {
 				systemDao.loadExchangeHistory(user_id, aid, page_index, count));
 	}
 
-	 
-	public ModelMap exchange_rmb(long user_id, String token, String aid, int diamond) {
+	public ModelMap exchange_rmb(long user_id, String token, String aid, int diamond, String zhifubao_access_number,
+			String mobile, String code) {
+
+		if (TextUtils.isEmpty(zhifubao_access_number)) {
+			return ResultUtil.getResultMap(ERROR.ERR_FAILED, "请输入支付宝帐号");
+		}
+
 		boolean isLogin = userService.checkLogin(user_id, token);
 		if (!isLogin) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		// 验证code合法性
+		if (TextUtils.isEmpty(code) || !userCacheService.valideCode(mobile, code)) {
+			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "验证码错误");
+		}else {
+			//userCacheService.clearCode(mobile);
+		}
+
+		PersonalInfo info = systemDao.loadPersonalInfo(user_id, aid);
+		if (info == null) {
+			return ResultUtil.getResultMap(ERROR.ERR_FAILED, "请先绑定个人信息");
+		} else if (!zhifubao_access_number.equals(info.getZhifubao_access_number())) {
+			return ResultUtil.getResultMap(ERROR.ERR_ZHIFUBAO_ACCOUNT_NOT_MATCH).addAttribute("personal_info", info);
 		}
 
 		int val = giftDao.getVal(user_id);
 		if (diamond > val) {
 			return ResultUtil.getResultMap(ERROR.ERR_FAILED, "钻石数量不足");
 		}
-		int newVal=val-diamond;
-		giftDao.updateGiftCoins(user_id,newVal );
-		
+		int newVal = val - diamond;
+		giftDao.updateGiftCoins(user_id, newVal);
+
 		Exchange exchange = new Exchange();
 		exchange.setUser_id(user_id);
 		exchange.setAid(aid);
@@ -341,14 +358,15 @@ public class MainService {
 		}
 
 		List<BaseVipUser> users = systemDao.loadMaxRateMeiLiRandom(fix_user_id, gender, page_index, limit);
-//		List<BaseUser> users = systemDao.loadMaxRateMeiLi(fix_user_id, gender, page_index, limit);
+		// List<BaseUser> users = systemDao.loadMaxRateMeiLi(fix_user_id, gender,
+		// page_index, limit);
 		if (users.size() < limit) {
 			users = systemDao.loadMaxMeiLi(fix_user_id, gender, page_index, limit);
 		}
 
 		if (fix_user != null) {
-			
-			for(BaseVipUser user:users) {
+
+			for (BaseVipUser user : users) {
 				user.setVip(vipDao.isVip(user.getUser_id()));
 			}
 			users.add(0, fix_user);
@@ -362,18 +380,18 @@ public class MainService {
 	}
 
 	public ModelMap check_submit_personal_id(PersonalInfo personal) {
-	    String token=userService.getUserToken(personal.getUser_id());
+		String token = userService.getUserToken(personal.getUser_id());
 		if (TextUtils.isEmpty(token)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
-		
-		if(!token.equals(personal.getToken())) {
+
+		if (!token.equals(personal.getToken())) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
-		
-		PersonalInfo info = systemDao.loadPersonalInfo(personal.getUser_id(),personal.getAid());
-		if(info!=null) {
-			return ResultUtil.getResultMap(ERROR.ERR_FAILED,"当前帐号已绑定身份证");
+
+		PersonalInfo info = systemDao.loadPersonalInfo(personal.getUser_id(), personal.getAid());
+		if (info != null) {
+			return ResultUtil.getResultMap(ERROR.ERR_FAILED, "当前帐号已绑定身份证");
 		}
 		systemDao.savePersonalInfo(personal);
 		return ResultUtil.getResultOKMap().addAttribute("personal_info", personal);
@@ -449,19 +467,20 @@ public class MainService {
 		}
 		ModelMap data = ResultUtil.getResultOKMap();
 		HashMap<String, Object> result = SMSHelper.smsExchangeCode(mobile, code);
-		boolean smsOK=SMSHelper.isSuccess(result);
+		boolean smsOK = SMSHelper.isSuccess(result);
 		if (smsOK) {
 			userCacheService.cacheValidateCode(mobile, code);
 			data.put("validate_code", code);
 		} else {
-			String errorMsg="错误码=" + result.get("statusCode") + " 错误信息= " + result.get("statusMsg");
-//			data = ResultUtil.getResultMap(ERROR.ERR_FAILED, "验证码发送失败:"+errorMsg);
-			data = ResultUtil.getResultMap(ERROR.ERR_FAILED,"获取验证码次数过多");
+			String errorMsg = "错误码=" + result.get("statusCode") + " 错误信息= " + result.get("statusMsg");
+			// data = ResultUtil.getResultMap(ERROR.ERR_FAILED, "验证码发送失败:"+errorMsg);
+			data = ResultUtil.getResultMap(ERROR.ERR_FAILED, "获取验证码次数过多，明天再试。");
 		}
 		return data;
 	}
+
 	public ModelMap getSpecialUsers(Integer limit) {
-		List<BaseUser> users=  userService.loadSpecialUsers(limit);
+		List<BaseUser> users = userService.loadSpecialUsers(limit);
 		ImagePathUtil.completeAvatarsPath(users, true);
 		return ResultUtil.getResultOKMap().addAttribute("users", users);
 	}

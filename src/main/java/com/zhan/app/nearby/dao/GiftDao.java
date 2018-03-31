@@ -229,7 +229,7 @@ public class GiftDao extends BaseDao {
 					public MeiLi mapRow(ResultSet rs, int rowNum) throws SQLException {
 						MeiLi m = new MeiLi();
 						m.setValue(rs.getInt("tuhao_val"));
-
+                        m.setShanbei(m.getValue());
 						BaseUser user = new BaseUser();
 						user.setUser_id(rs.getLong("user_id"));
 						user.setNick_name(rs.getString("nick_name"));

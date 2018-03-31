@@ -31,6 +31,7 @@ public class BottleDao extends BaseDao {
 
 	@Resource
 	private VipDao vipDao;
+
 	// ---------------------------------------bottle-------------------------------------------------
 	public long insert(Bottle bottle) {
 		long id = saveObj(jdbcTemplate, TABLE_BOTTLE, bottle);
@@ -144,13 +145,29 @@ public class BottleDao extends BaseDao {
 			}
 		};
 		if (type == null) {
-			String sql = "select b.*,u.nick_name,u.avatar,u.birthday,u.birth_city_id, " + getAgeSql()
-					+ ",u.sex,c.name as city_name from t_bottle_pool p left join  t_bottle b on p.bottle_id=b.id  left join t_user u on b.user_id=u.user_id left join t_sys_city c on u.birth_city_id=c.id where b.user_id<>?   and u.sex=? order by RAND() limit ?";
-			return jdbcTemplate.query(sql, new Object[] { user_id, gender, limit }, mapper);
+			// 固定性别
+			if (gender == 0 || gender == 1) {
+				String sql = "select b.*,u.nick_name,u.avatar,u.birthday,u.birth_city_id, " + getAgeSql()
+						+ ",u.sex,c.name as city_name from t_bottle_pool p left join  t_bottle b on p.bottle_id=b.id  left join t_user u on b.user_id=u.user_id left join t_sys_city c on u.birth_city_id=c.id where b.user_id<>?   and u.sex=? order by RAND() limit ?";
+				return jdbcTemplate.query(sql, new Object[] { user_id, gender, limit }, mapper);
+			} else {
+				String sql = "select b.*,u.nick_name,u.avatar,u.birthday,u.birth_city_id, " + getAgeSql()
+						+ ",u.sex,c.name as city_name from t_bottle_pool p left join  t_bottle b on p.bottle_id=b.id  left join t_user u on b.user_id=u.user_id left join t_sys_city c on u.birth_city_id=c.id where b.user_id<>? order by RAND() limit ?";
+				return jdbcTemplate.query(sql, new Object[] { user_id, limit }, mapper);
+			}
+
 		} else {
-			String sql = "select b.*,u.nick_name,u.avatar,u.birthday,u.birth_city_id, " + getAgeSql()
-					+ ",u.sex,c.name as city_name from t_bottle_pool p left join  t_bottle b on p.bottle_id=b.id  left join t_user u on b.user_id=u.user_id left join t_sys_city c on u.birth_city_id=c.id where b.user_id<>? and b.type=?  and u.sex=? order by RAND() limit ?";
-			return jdbcTemplate.query(sql, new Object[] { user_id, type, gender, limit }, mapper);
+			// 固定性别
+			if (gender == 0 || gender == 1) {
+				String sql = "select b.*,u.nick_name,u.avatar,u.birthday,u.birth_city_id, " + getAgeSql()
+						+ ",u.sex,c.name as city_name from t_bottle_pool p left join  t_bottle b on p.bottle_id=b.id  left join t_user u on b.user_id=u.user_id left join t_sys_city c on u.birth_city_id=c.id where b.user_id<>? and b.type=?  and u.sex=? order by RAND() limit ?";
+				return jdbcTemplate.query(sql, new Object[] { user_id, type, gender, limit }, mapper);
+			} else {
+				String sql = "select b.*,u.nick_name,u.avatar,u.birthday,u.birth_city_id, " + getAgeSql()
+						+ ",u.sex,c.name as city_name from t_bottle_pool p left join  t_bottle b on p.bottle_id=b.id  left join t_user u on b.user_id=u.user_id left join t_sys_city c on u.birth_city_id=c.id where b.user_id<>? and b.type=?   order by RAND() limit ?";
+				return jdbcTemplate.query(sql, new Object[] { user_id, type, limit }, mapper);
+			}
+
 		}
 
 	}

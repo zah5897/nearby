@@ -38,6 +38,18 @@ public class SystemDao extends BaseDao {
 		return jdbcTemplate.query("select *from  t_exchange_history where user_id=? and aid=? order by id desc limit ?,?",new Object[]{user_id,aid,(pageIndex-1)*count,count} ,new BeanPropertyRowMapper<Exchange>(Exchange.class));
 	}
 	
+	
+	public Exchange loadExchange(int id){
+		List<Exchange> es= jdbcTemplate.query("select *from  t_exchange_history where id=?",new Object[]{id} ,new BeanPropertyRowMapper<Exchange>(Exchange.class));
+		
+		if(es!=null&&es.size()>0) {
+			return es.get(0);
+		}
+		return null;
+	}
+	
+	
+	
 	public Integer getTotalExchangeRmmbByState(long user_id,String aid,ExchangeState state){
 		Integer total=
 		 jdbcTemplate.queryForObject("select sum(rmb_fen) from  t_exchange_history where user_id=? and aid=? and state=?",new Object[]{user_id,aid,state.ordinal()} ,Integer.class);

@@ -315,8 +315,8 @@ public class MainService {
 		// 验证code合法性
 		if (TextUtils.isEmpty(code) || !userCacheService.valideCode(mobile, code)) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "验证码错误");
-		}else {
-			//userCacheService.clearCode(mobile);
+		} else {
+			// userCacheService.clearCode(mobile);
 		}
 
 		PersonalInfo info = systemDao.loadPersonalInfo(user_id, aid);
@@ -483,6 +483,12 @@ public class MainService {
 		List<BaseUser> users = userService.loadSpecialUsers(limit);
 		ImagePathUtil.completeAvatarsPath(users, true);
 		return ResultUtil.getResultOKMap().addAttribute("users", users);
+	}
+
+	public boolean backExchange(int id) {
+		Exchange ex = systemDao.loadExchange(id);
+		int i = giftDao.addGiftCoins(ex.getUser_id(), ex.getDiamond_count());
+		return i > 0;
 	}
 
 }

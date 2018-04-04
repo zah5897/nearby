@@ -455,9 +455,8 @@ public class UserDao extends BaseDao {
 	 * @return
 	 */
 	public List<BaseUser> getLikeList(long user_id, Integer page_index, Integer count) {
-		return jdbcTemplate.query(
-				"select u.user_id,u.nick_name,u.avatar,u.sex from t_user_relationship tur left join t_user u on tur.user_id= u.user_id where tur.with_user_id=? and  tur.relationship=? order by tur.create_time limit ?,?",
-				new Object[] { user_id, Relationship.LIKE.ordinal(), (page_index - 1) * count, count },
+		String sql="select u.user_id,u.nick_name,u.avatar,u.sex from t_user_relationship tur left join t_user u on tur.user_id= u.user_id where tur.with_user_id=? and  tur.relationship=? order by tur.create_time limit ?,?";
+		return jdbcTemplate.query(sql,new Object[] { user_id, Relationship.LIKE.ordinal(), (page_index - 1) * count, count },
 				new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
 	}
 

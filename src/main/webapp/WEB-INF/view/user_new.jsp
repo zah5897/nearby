@@ -221,7 +221,7 @@
 			  toAdd+="<a class='button border-main' href='javascript:void(0)'	onclick='return edit_fun("+user_id+")'><span class='icon-edit'></span>编辑限制</a>";
 			  toAdd+="<a class='button border-main' href='javascript:void(0)'	onclick='return add_to_meet_bottle("+user_id+")'><span class='icon-edit'></span>加入邂逅瓶待选区</a>";
 			  toAdd+="<a class='button border-main' href='javascript:void(0)'	onclick='return add_to_found_user("+user_id+")'><span class='icon-edit'></span>添加到发现用户</a>";
-			  toAdd+="<a class='button border-yellow' href='javascript:void(0)'	onclick='return add_to_found_black_list("+user_id+")'><span class='icon-edit'></span>加入发现黑名单</a>";
+			  toAdd+="<a class='button border-yellow' href='javascript:void(0)'	onclick='return add_to_found_black_list("+user_id+")'><span class='icon-edit'></span>加入黑名单</a>";
 			  
 			  
 			  toAdd+="</div></td></tr>";

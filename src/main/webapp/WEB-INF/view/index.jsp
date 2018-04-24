@@ -27,7 +27,7 @@
 <div class="leftnav">
   <div class="leftnav-title"><strong><span class="icon-list"></span>菜单列表</strong></div>
   <h2><span class="icon-user"></span>基本设置</h2>
-  <ul style="display:block">
+  <ul>
     <li><a href="<%=path %>/manager/forword?path=dynamic_selected" target="right"><span class="icon-caret-right"></span>首页推荐动态</a></li>
     <li><a href="<%=path %>/manager/forword?path=dynamic_unselected" target="right"><span class="icon-caret-right"></span>非首页动态(已过审)</a></li>
     <li><a href="<%=path %>/manager/forword?path=dynamic_check" target="right"><span class="icon-caret-right"></span>待审核动态</a></li>
@@ -39,7 +39,7 @@
   </ul>   
   
    <h2><span class="icon-user"></span>用户管理</h2>
-   <ul style="display:block">
+   <ul>
     <li><a href="<%=path %>/manager/forword?path=user_all" target="right"><span class="icon-caret-right"></span>所有用户</a></li>
     <li><a href="<%=path %>/manager/forword?path=user_new" target="right"><span class="icon-caret-right"></span>新增用户</a></li>
     <li><a href="<%=path %>/manager/forword?path=user_found_list" target="right"><span class="icon-caret-right"></span>发现用户列表</a></li>
@@ -49,25 +49,22 @@
   
   
    <h2><span class="icon-user"></span>会员管理</h2>
-   <ul style="display:block">
+   <ul>
     <li><a href="<%=path %>/manager/forword?path=vip_manager" target="right"><span class="icon-caret-right"></span>会员类型</a></li>
   </ul>   
    <h2><span class="icon-user"></span>金币管理</h2>
-   <ul style="display:block">
+   <ul>
     <li><a href="<%=path %>/manager/forword?path=rule_manager" target="right"><span class="icon-caret-right"></span>金币购买规则项</a></li>
   </ul>   
    <h2><span class="icon-user"></span>提现管理</h2>
-   <ul style="display:block">
+   <ul>
     <li><a href="<%=path %>/manager/forword?path=exchange_manager" target="right"><span class="icon-caret-right"></span>提现审批</a></li>
   </ul> 
-  <!--
-  <h2><span class="icon-pencil-square-o"></span>栏目管理</h2>
-  <ul>
-    <li><a href="<%=path %>/list.html" target="right"><span class="icon-caret-right"></span>内容管理</a></li>
-    <li><a href="<%=path %>/add.html" target="right"><span class="icon-caret-right"></span>添加内容</a></li>
-    <li><a href="<%=path %>/cate.html" target="right"><span class="icon-caret-right"></span>分类管理</a></li>        
-  </ul>  
-  -->
+  
+   <h2><span class="icon-user"></span>举报管理</h2>
+   <ul>
+    <li><a href="<%=path %>/manager/forword?path=report_manager" target="right"><span class="icon-caret-right"></span>举报列表</a></li>
+  </ul> 
 </div>
 <script type="text/javascript">
 $(function(){

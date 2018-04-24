@@ -47,6 +47,9 @@ public class BaseUser {
 	@JSONField(format = "yyyy-MM-dd")
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	private Date birthday;
+	
+	@JSONField(serialize = false)
+	private int account_state;
 
 	public Date getBirthday() {
 		return birthday;
@@ -162,4 +165,13 @@ public class BaseUser {
 	public void set_ua(String _ua) {
 		this._ua = _ua;
 	}
+
+	public int getAccount_state() {
+		return account_state;
+	}
+
+	public void setAccount_state(int account_state) {
+		this.account_state = account_state;
+	}
+	
 }

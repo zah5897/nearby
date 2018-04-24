@@ -66,12 +66,12 @@ public class BottleService {
 			bolltes = bottleDao.getBottles(user_id, page_size,type);
 		} else {
 			VipUser vip = vipDao.loadUserVip(user_id);
-			if (vip == null) {
-				return ResultUtil.getResultMap(ERROR.ERR_NOT_VIP, "普通用户获取瓶子");
-			} else if (vip.getDayDiff() < 0) {
-				return ResultUtil.getResultMap(ERROR.ERR_VIP_EXPIRE);
+			if (vip == null||vip.getDayDiff() < 0) {
+				//result= ResultUtil.getResultMap(ERROR.ERR_VIP_EXPIRE);
+				bolltes = bottleDao.getBottles(user_id, page_size,type);
+			}else {
+				bolltes = bottleDao.getBottlesByGender(user_id, page_size, look_sex == null ? -1 : look_sex,type);
 			}
-			bolltes = bottleDao.getBottlesByGender(user_id, page_size, look_sex == null ? -1 : look_sex,type);
 		}
 
 		for (Bottle bottle : bolltes) {
@@ -237,6 +237,7 @@ public class BottleService {
 				//BaseUser withUser = userDao.getBaseUser(withUserID);
 				//makeChatSession(u, withUser, bottleID);
 				user_ids.add(withUserID);
+				//replay(user_id,withUserID,"有人喜欢了你",bottleID);
 			}
 		}
 		return ResultUtil.getResultOKMap().addAttribute("with_user_id", user_ids);

@@ -94,24 +94,32 @@ public class VipService {
 		// 获取已购买的vip数据
 		VipUser userVip = vipDao.loadUserVip(vipUser.getUser_id());
 		// 已经是vip了，计算复杂
-			if (userVip==null||userVip.getDayDiff()<=0) {//以天为精度的过期
-				vipDao.delUserVip(vipUser.getUser_id());
-			}else{
-				Date newEndDate=DateTimeUtil.getVipEndDate(userVip.getEnd_time(), vip.getTerm_mount());
-				userVip.setEnd_time(newEndDate);
-				userVip.setLast_order_no(vipUser.getLast_order_no());
-				vipDao.updateUserVip(userVip);
-				return "success";
-			}
+		if (userVip == null || userVip.getDayDiff() <= 0) {// 以天为精度的过期
+			vipDao.delUserVip(vipUser.getUser_id());
+			vipUser.setStart_time(now);
+			vipUser.setEnd_time(DateTimeUtil.getVipEndDate(now, vip.getTerm_mount()));
+			vipDao.insert(vipUser);
+			return "success";
+		} else {
+			Date newEndDate = DateTimeUtil.getVipEndDate(userVip.getEnd_time(), vip.getTerm_mount());
+			userVip.setEnd_time(newEndDate);
+			userVip.setLast_order_no(vipUser.getLast_order_no());
+			vipDao.updateUserVip(userVip);
+			return "success";
+		}
 		// 还不是vip
-		vipUser.setStart_time(now);
-		vipUser.setEnd_time(DateTimeUtil.getVipEndDate(now, vip.getTerm_mount()));
-		vipDao.insert(vipUser);
-		return "success";
 	}
 
 	public Map<?, ?> load(long user_id) {
-		VipUser userVip =vipDao.loadUserVip(user_id);
+		VipUser userVip = vipDao.loadUserVip(user_id);
 		return ResultUtil.getResultOKMap().addAttribute("vip_info", userVip);
+	}
+
+	public int clearExpireVip() {
+		List<VipUser> vips = vipDao.loadExpireVip();
+		for (VipUser vip : vips) {
+			vipDao.delUserVip(vip.getUser_id());
+		}
+		return vips.size();
 	}
 }

@@ -16,11 +16,12 @@ import com.zhan.app.nearby.bean.City;
 import com.zhan.app.nearby.bean.Exchange;
 import com.zhan.app.nearby.bean.MeiLi;
 import com.zhan.app.nearby.bean.PersonalInfo;
+import com.zhan.app.nearby.bean.Report;
 import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.bean.user.BaseVipUser;
-import com.zhan.app.nearby.bean.user.SimpleUser;
 import com.zhan.app.nearby.cache.UserCacheService;
+import com.zhan.app.nearby.comm.AccountStateType;
 import com.zhan.app.nearby.comm.DynamicMsgType;
 import com.zhan.app.nearby.comm.ExchangeState;
 import com.zhan.app.nearby.comm.PushMsgType;
@@ -31,7 +32,6 @@ import com.zhan.app.nearby.dao.UserDao;
 import com.zhan.app.nearby.dao.UserDynamicDao;
 import com.zhan.app.nearby.dao.VipDao;
 import com.zhan.app.nearby.exception.ERROR;
-import com.zhan.app.nearby.util.HttpService;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.RandomCodeUtil;
 import com.zhan.app.nearby.util.ResultUtil;
@@ -491,4 +491,35 @@ public class MainService {
 		return i > 0;
 	}
 
+	public void saveReport(Report report) {
+		if (!systemDao.existReport(report)) {
+			report.setCreate_time(new Date());
+			systemDao.insertReport(report);
+		}
+	}
+
+	public List<Report> listReport(int type, int page, int count) {
+		List<Report> list = systemDao.listReport(type, page, count);
+		return list;
+	}
+
+	public List<Report> listManagerReport(int approval_type, int count, int page) {
+		return systemDao.listManagerReport(approval_type, page, count);
+	}
+
+	public int getReportSizeByApproval(int approval_type) {
+		return systemDao.getReportSizeByApproval(approval_type);
+	}
+
+	public void handleReport(int id) {
+		Report report = systemDao.getReport(id);
+		if (report != null) {
+			if (report.getType() == 0) {
+				userDao.updateAccountState(report.getTarget_id(), AccountStateType.LOCK.ordinal());
+			} else {
+				userDynamicDao.delete(report.getUser_id(), report.getTarget_id());
+			}
+			systemDao.updateReportState(id);
+		}
+	}
 }

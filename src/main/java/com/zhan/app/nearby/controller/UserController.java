@@ -27,6 +27,7 @@ import com.zhan.app.nearby.bean.user.DetailUser;
 import com.zhan.app.nearby.bean.user.LocationUser;
 import com.zhan.app.nearby.bean.user.LoginUser;
 import com.zhan.app.nearby.cache.UserCacheService;
+import com.zhan.app.nearby.comm.AccountStateType;
 import com.zhan.app.nearby.comm.Relationship;
 import com.zhan.app.nearby.comm.UserType;
 import com.zhan.app.nearby.exception.ERROR;
@@ -230,6 +231,11 @@ public class UserController {
 		if (user == null) {
 			return ResultUtil.getResultMap(ERROR.ERR_USER_NOT_EXIST, "该账号不存在");
 		}
+		
+		if(user.getAccount_state()==AccountStateType.LOCK.ordinal()) {
+			return ResultUtil.getResultMap(ERROR.ERR_USER_NOT_EXIST, "该账号因举报而无法登录");
+		}
+		
 		try {
 			String md5 = MD5Util.getMd5(password);
 			if (md5.equals(user.getPassword())) {

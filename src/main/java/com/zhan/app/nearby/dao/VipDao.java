@@ -70,7 +70,7 @@ public class VipDao extends BaseDao {
 		int count = jdbcTemplate.queryForObject(
 				"select count(*) from " + TABLE_NAME_VIP_USER + " vip where vip.user_id=?", new Object[] { user_id },
 				Integer.class);
-		return count>0;
+		return count > 0;
 	}
 
 	public int delUserVip(long user_id) {
@@ -83,5 +83,10 @@ public class VipDao extends BaseDao {
 				new Object[] { userVip.getLast_order_no(), userVip.getEnd_time(), userVip.getUser_id(),
 						userVip.getVip_id() });
 
+	}
+
+	public List<VipUser> loadExpireVip() {
+		String sql = "select vip.* from " + TABLE_NAME_VIP_USER + " vip where TIMESTAMPDIFF(DAY,now(),vip.end_time) < 0";
+		return jdbcTemplate.query( sql, new BeanPropertyRowMapper<VipUser>(VipUser.class));
 	}
 }

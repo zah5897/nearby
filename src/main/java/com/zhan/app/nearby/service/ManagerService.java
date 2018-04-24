@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.easemob.server.example.Main;
 import com.zhan.app.nearby.bean.ManagerUser;
+import com.zhan.app.nearby.bean.Report;
 import com.zhan.app.nearby.bean.Topic;
 import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.bean.user.BaseUser;
@@ -33,8 +34,7 @@ public class ManagerService {
 
 	@Resource
 	private MainService mainService;
-	
-	
+
 	public int getHomeFoundSelectedCount() {
 		return managerDao.getHomeFoundSelectedCount();
 	}
@@ -129,7 +129,7 @@ public class ManagerService {
 		return managerDao.setUserFoundRelationshipState(uid, FoundUserRelationship.values()[state]);
 	}
 
-	public void sendMsgToAll(final String msg,final String type) {
+	public void sendMsgToAll(final String msg, final String type) {
 		new java.lang.Thread() {
 			public void run() {
 				int page_size = 20;
@@ -145,13 +145,13 @@ public class ManagerService {
 							hxIds[i] = ids.get(i).toString();
 						}
 						last_id = ids.get(page_size - 1);
-						Main.sendTxtMessage(Main.SYS, hxIds, msg, null,type);
+						Main.sendTxtMessage(Main.SYS, hxIds, msg, null, type);
 					} else if (ids.size() > 0 && ids.size() < page_size) {
 						String[] hxIds = new String[ids.size()];
 						for (int i = 0; i < hxIds.length; i++) {
 							hxIds[i] = ids.get(i).toString();
 						}
-						Main.sendTxtMessage(Main.SYS, hxIds, msg, null,type);
+						Main.sendTxtMessage(Main.SYS, hxIds, msg, null, type);
 						break;
 					} else {
 						break;
@@ -198,8 +198,8 @@ public class ManagerService {
 	 * @param pageIndex
 	 * @return
 	 */
-	public List<BaseUser> getFoundUsersByState(int pageSize, int pageIndex,FoundUserRelationship ship) {
-		return userService.getFoundUsersByState(pageSize, pageIndex,ship);
+	public List<BaseUser> getFoundUsersByState(int pageSize, int pageIndex, FoundUserRelationship ship) {
+		return userService.getFoundUsersByState(pageSize, pageIndex, ship);
 	}
 
 	/**
@@ -224,10 +224,9 @@ public class ManagerService {
 	 * 
 	 * @param user_id
 	 */
-	public void editUserFoundState(long user_id,FoundUserRelationship ship) {
-		managerDao.editUserFoundState(user_id,ship);
+	public void editUserFoundState(long user_id, FoundUserRelationship ship) {
+		managerDao.editUserFoundState(user_id, ship);
 	}
-
 
 	/**
 	 * 移除状态
@@ -237,6 +236,7 @@ public class ManagerService {
 	public void removeUserFoundState(long user_id) {
 		managerDao.removeUserFoundState(user_id);
 	}
+
 	/**
 	 * 添加到邂逅瓶待选用户区
 	 * 
@@ -246,7 +246,6 @@ public class ManagerService {
 		managerDao.editUserMeetBottle(user_id, fun);
 	}
 
-	
 	/**
 	 * 获取提现记录
 	 * 
@@ -281,6 +280,25 @@ public class ManagerService {
 			mainService.backExchange(id);
 			return managerDao.updateExchageState(id, ExchangeState.REJECT) == 1;
 		}
+	}
+
+	public void handleReport(int id) {
+		mainService.handleReport(id);
+	}
+
+	/**
+	 * 获取提现记录
+	 * 
+	 * @param pageSize
+	 * @param pageIndex
+	 * @return
+	 */
+	public List<Report> getReports(int approval_type, int pageSize, int pageIndex) {
+		return mainService.listManagerReport(approval_type, pageSize, pageIndex);
+	}
+
+	public int getReportSize(int approval_type) {
+		return mainService.getReportSizeByApproval(approval_type);
 	}
 
 }

@@ -9,7 +9,9 @@ public class VipUser {
 	private long user_id;
 	private int vip_id;
 	private String aid;
+	@JSONField(format = "yyyy-MM-dd")
 	private Date start_time;
+	@JSONField(format = "yyyy-MM-dd")
 	private Date end_time;
 	private String last_order_no;
 

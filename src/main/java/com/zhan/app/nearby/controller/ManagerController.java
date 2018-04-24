@@ -20,6 +20,7 @@ import org.springframework.web.servlet.ModelAndView;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.zhan.app.nearby.bean.ManagerUser;
+import com.zhan.app.nearby.bean.Report;
 import com.zhan.app.nearby.bean.Topic;
 import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.bean.user.BaseUser;
@@ -367,11 +368,11 @@ public class ManagerController {
 	}
 
 	@RequestMapping(value = "/send_msg_to_all")
-	public @ResponseBody ModelMap send_msg_to_all(String msg,String type) {
+	public @ResponseBody ModelMap send_msg_to_all(String msg, String type) {
 		if (TextUtils.isEmpty(msg)) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM);
 		}
-		managerService.sendMsgToAll(msg,type);
+		managerService.sendMsgToAll(msg, type);
 		return ResultUtil.getResultOKMap();
 	}
 
@@ -646,7 +647,7 @@ public class ManagerController {
 	@RequestMapping(value = "/list_user_found")
 	public @ResponseBody ModelMap list_user_found_by_state(int pageSize, int pageIndex, int state) {
 		ModelMap r = ResultUtil.getResultOKMap();
-		FoundUserRelationship ship=FoundUserRelationship.values()[state];
+		FoundUserRelationship ship = FoundUserRelationship.values()[state];
 		List<BaseUser> users = managerService.getFoundUsersByState(pageSize, pageIndex, ship);
 
 		if (pageIndex == 1) {
@@ -706,7 +707,7 @@ public class ManagerController {
 	public @ResponseBody ModelMap remove_user_found_state(long user_id, Integer pageSize, Integer pageIndex,
 			int state) {
 		managerService.removeUserFoundState(user_id);
-		return list_user_found_by_state(pageSize, pageIndex,state);
+		return list_user_found_by_state(pageSize, pageIndex, state);
 	}
 
 	// 添加到邂逅瓶待选
@@ -740,11 +741,40 @@ public class ManagerController {
 		r.put("currentPageIndex", pageIndex);
 		return r;
 	}
+
 	@RequestMapping(value = "/exchange_handle")
 	public @ResponseBody ModelMap exchange_handle(int id, boolean agreeOrReject, int pageSize, int pageIndex,
 			int type) {
 		managerService.handleExchange(id, agreeOrReject);
 		return list_exchange_history(pageSize, pageIndex, type);
 	}
+
+	// 获取提现申请记录
+	@RequestMapping(value = "/list_report_history")
+	public @ResponseBody ModelMap list_report_history(int type, int pageSize, int pageIndex) {
+		ModelMap r = ResultUtil.getResultOKMap();
+		List<Report> exchanges = managerService.getReports(type, pageSize, pageIndex);
+		if (pageIndex == 1) {
+			int totalSize = managerService.getReportSize(type);
+			int pageCount = totalSize / pageSize;
+			if (totalSize % 10 > 0) {
+				pageCount += 1;
+			}
+			if (pageCount == 0) {
+				pageCount = 1;
+			}
+			r.put("pageCount", pageCount);
+		}
+		r.put("reports", exchanges);
+		r.put("currentPageIndex", pageIndex);
+		return r;
+	}
+	
+	// 获取提现申请记录
+		@RequestMapping(value = "/handleReport")
+		public @ResponseBody ModelMap handleReport(int id,int type, int pageSize, int pageIndex) {
+			managerService.handleReport(id);
+			return list_report_history(type,pageSize, pageIndex);
+		}
 	
 }

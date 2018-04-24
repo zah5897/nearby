@@ -13,6 +13,7 @@ import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.dao.UserDao;
 import com.zhan.app.nearby.service.BottleService;
 import com.zhan.app.nearby.service.MainService;
+import com.zhan.app.nearby.service.VipService;
 import com.zhan.app.nearby.util.SpringContextUtil;
 
 @Component
@@ -67,4 +68,13 @@ public class TimerTask {
 	// System.out.println("timerPull");
 	// System.out.println(Thread.currentThread().getName());
 	// }
+
+	@Scheduled(cron = "0 10 0 * * ?") // 每天12点10分执行1次
+//	@Scheduled(cron = "0 0/5 * * * ?") // 每5分钟执行一次
+	public void clearExpireVip() {
+		VipService vipService = SpringContextUtil.getBean("vipService");
+		int clearCount = vipService.clearExpireVip();
+		System.out.println("clear Expire vip count:" + clearCount);
+	}
+
 }

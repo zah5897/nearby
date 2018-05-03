@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.easemob.server.example.Main;
+import com.zhan.app.nearby.bean.Bottle;
 import com.zhan.app.nearby.bean.ManagerUser;
 import com.zhan.app.nearby.bean.Report;
 import com.zhan.app.nearby.bean.Topic;
@@ -19,6 +20,7 @@ import com.zhan.app.nearby.comm.ExchangeState;
 import com.zhan.app.nearby.comm.FoundUserRelationship;
 import com.zhan.app.nearby.dao.ManagerDao;
 import com.zhan.app.nearby.dao.UserDao;
+import com.zhan.app.nearby.util.SpringContextUtil;
 
 @Service
 @Transactional("transactionManager")
@@ -34,6 +36,8 @@ public class ManagerService {
 
 	@Resource
 	private MainService mainService;
+	@Resource
+	private BottleService bottleService;
 
 	public int getHomeFoundSelectedCount() {
 		return managerDao.getHomeFoundSelectedCount();
@@ -299,6 +303,18 @@ public class ManagerService {
 
 	public int getReportSize(int approval_type) {
 		return mainService.getReportSizeByApproval(approval_type);
+	}
+
+	public List<Bottle> listBottleByState(int state, int pageSize, int pageIndex) {
+		return bottleService.getBottlesByState(state, pageSize, pageIndex);
+	}
+	
+	public int getBottleCountWithState(int state) {
+		return bottleService.getBottleCountWithState(state);
+	}
+
+	public void changeBottleState(int id, int to_state) {
+		bottleService.changeBottleState(id,to_state);
 	}
 
 }

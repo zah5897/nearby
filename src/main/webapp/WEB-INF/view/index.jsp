@@ -65,6 +65,13 @@
    <ul>
     <li><a href="<%=path %>/manager/forword?path=report_manager" target="right"><span class="icon-caret-right"></span>举报列表</a></li>
   </ul> 
+  
+  
+  <h2><span class="icon-user"></span>瓶子管理（池部分）</h2>
+   <ul>
+    <li><a href="<%=path %>/manager/forword?path=bottle_manager" target="right"><span class="icon-caret-right"></span>瓶子列表</a></li>
+  </ul> 
+  
 </div>
 <script type="text/javascript">
 $(function(){

@@ -59,18 +59,18 @@ public class BottleService {
 		return null;
 	}
 
-	public ModelMap getBottles(long user_id, int page_size, Integer look_sex,Integer type) {
+	public ModelMap getBottles(long user_id, int page_size, Integer look_sex, Integer type) {
 		ModelMap result = ResultUtil.getResultOKMap();
 		List<Bottle> bolltes = null;
 		if (look_sex == null) {
-			bolltes = bottleDao.getBottles(user_id, page_size,type);
+			bolltes = bottleDao.getBottles(user_id, page_size, type);
 		} else {
 			VipUser vip = vipDao.loadUserVip(user_id);
-			if (vip == null||vip.getDayDiff() < 0) {
-				//result= ResultUtil.getResultMap(ERROR.ERR_VIP_EXPIRE);
-				bolltes = bottleDao.getBottles(user_id, page_size,type);
-			}else {
-				bolltes = bottleDao.getBottlesByGender(user_id, page_size, look_sex == null ? -1 : look_sex,type);
+			if (vip == null || vip.getDayDiff() < 0) {
+				// result= ResultUtil.getResultMap(ERROR.ERR_VIP_EXPIRE);
+				bolltes = bottleDao.getBottles(user_id, page_size, type);
+			} else {
+				bolltes = bottleDao.getBottlesByGender(user_id, page_size, look_sex == null ? -1 : look_sex, type);
 			}
 		}
 
@@ -195,15 +195,16 @@ public class BottleService {
 		ext.put("avatar", user.getAvatar());
 		ext.put("origin_avatar", user.getOrigin_avatar());
 		Main.sendTxtMessage(String.valueOf(user.getUser_id()), new String[] { String.valueOf(with_user.getUser_id()) },
-				expressMsg, ext,PushMsgType.TYPE_NEW_CONVERSATION);
+				expressMsg, ext, PushMsgType.TYPE_NEW_CONVERSATION);
 
 		// 发送给自己
-//		ext = new HashMap<String, String>();
-//		ext.put("nickname", with_user.getNick_name());
-//		ext.put("avatar", with_user.getAvatar());
-//		ext.put("origin_avatar", with_user.getOrigin_avatar());
-//		Main.sendTxtMessage(String.valueOf(with_user.getUser_id()), new String[] { String.valueOf(user.getUser_id()) },
-//				expressMsg, ext);
+		// ext = new HashMap<String, String>();
+		// ext.put("nickname", with_user.getNick_name());
+		// ext.put("avatar", with_user.getAvatar());
+		// ext.put("origin_avatar", with_user.getOrigin_avatar());
+		// Main.sendTxtMessage(String.valueOf(with_user.getUser_id()), new String[] {
+		// String.valueOf(user.getUser_id()) },
+		// expressMsg, ext);
 
 	}
 
@@ -233,17 +234,17 @@ public class BottleService {
 				}
 				userDao.updateRelationship(user_id, withUserID, Relationship.LIKE);
 				dynamicMsgService.insertActionMsg(DynamicMsgType.TYPE_MEET, user_id, bottleID, withUserID, "");
-				//BaseUser u = userDao.getBaseUser(user_id);
-				//BaseUser withUser = userDao.getBaseUser(withUserID);
-				//makeChatSession(u, withUser, bottleID);
+				// BaseUser u = userDao.getBaseUser(user_id);
+				// BaseUser withUser = userDao.getBaseUser(withUserID);
+				// makeChatSession(u, withUser, bottleID);
 				user_ids.add(withUserID);
-				//replay(user_id,withUserID,"有人喜欢了你",bottleID);
+				// replay(user_id,withUserID,"有人喜欢了你",bottleID);
 			}
 		}
 		return ResultUtil.getResultOKMap().addAttribute("with_user_id", user_ids);
 	}
 
-	public ModelMap replay(long user_id, long target, String msg,long bottle_id) {
+	public ModelMap replay(long user_id, long target, String msg, long bottle_id) {
 		BaseUser user = userDao.getBaseUser(user_id);
 		ImagePathUtil.completeAvatarPath(user, true);
 		// 发送给对方
@@ -252,18 +253,48 @@ public class BottleService {
 		ext.put("avatar", user.getAvatar());
 		ext.put("origin_avatar", user.getOrigin_avatar());
 		ext.put("bottle_id", String.valueOf(bottle_id));
-		Main.sendTxtMessage(String.valueOf(user.getUser_id()), new String[] { String.valueOf(target) },
-				msg, ext,PushMsgType.TYPE_NEW_CONVERSATION);
+		Main.sendTxtMessage(String.valueOf(user.getUser_id()), new String[] { String.valueOf(target) }, msg, ext,
+				PushMsgType.TYPE_NEW_CONVERSATION);
 		return ResultUtil.getResultOKMap();
 	}
 
 	/**
 	 * 清理掉过期的语音瓶子
+	 * 
 	 * @param maxValidate
 	 * @return
 	 */
 	public int clearExpireAudioBottle(int maxValidate) {
 		return bottleDao.clearExpireAudioBottle(maxValidate);
 	}
-	
+
+	public int sendAutoBottle(String id, String content) {
+		boolean hasSend = bottleDao.hasSend(id) > 0;
+		if (!hasSend) {
+			long uid = bottleDao.getRandomUidToSendAutoBottle();
+			if (uid > 0) {
+				bottleDao.insertAutoSendTextBottle(id);
+				Bottle bottle = new Bottle();
+				bottle.setCreate_time(new Date());
+				bottle.setUser_id(uid);
+				bottle.setType(BottleType.TXT.ordinal());
+				bottle.setContent(content);
+				insert(bottle);
+			}
+			return 1;
+		}
+		return 0;
+	}
+
+	public List<Bottle> getBottlesByState(int state, int pageSize, int pageIndex) {
+		return bottleDao.getBottlesByState(state, pageSize, pageIndex);
+	}
+
+	public int getBottleCountWithState(int state) {
+		return bottleDao.getBottleCountWithState(state);
+	}
+
+	public void changeBottleState(int id, int to_state) {
+		bottleDao.changeBottleState(id,to_state);
+	}
 }

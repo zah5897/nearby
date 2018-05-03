@@ -19,6 +19,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.zhan.app.nearby.bean.Bottle;
 import com.zhan.app.nearby.bean.ManagerUser;
 import com.zhan.app.nearby.bean.Report;
 import com.zhan.app.nearby.bean.Topic;
@@ -769,12 +770,39 @@ public class ManagerController {
 		r.put("currentPageIndex", pageIndex);
 		return r;
 	}
-	
+
 	// 获取提现申请记录
-		@RequestMapping(value = "/handleReport")
-		public @ResponseBody ModelMap handleReport(int id,int type, int pageSize, int pageIndex) {
-			managerService.handleReport(id);
-			return list_report_history(type,pageSize, pageIndex);
+	@RequestMapping(value = "/handleReport")
+	public @ResponseBody ModelMap handleReport(int id, int type, int pageSize, int pageIndex) {
+		managerService.handleReport(id);
+		return list_report_history(type, pageSize, pageIndex);
+	}
+
+	// 获取提现申请记录
+	@RequestMapping(value = "/list_bottle")
+	public @ResponseBody ModelMap list_bottle(int type, int pageSize, int pageIndex) {
+		ModelMap r = ResultUtil.getResultOKMap();
+		List<Bottle> exchanges = managerService.listBottleByState(type, pageSize, pageIndex);
+		if (pageIndex == 1) {
+			int totalSize = managerService.getBottleCountWithState(type);
+			int pageCount = totalSize / pageSize;
+			if (totalSize % pageSize > 0) {
+				pageCount += 1;
+			}
+			if (pageCount == 0) {
+				pageCount = 1;
+			}
+			r.put("pageCount", pageCount);
 		}
-	
+		r.put("bottles", exchanges);
+		r.put("currentPageIndex", pageIndex);
+		return r;
+	}
+
+	// 获取提现申请记录
+	@RequestMapping(value = "/changeBottleState")
+	public @ResponseBody ModelMap changeBottleState(int id, int type, int pageSize, int pageIndex,int to_state) {
+		managerService.changeBottleState(id,to_state);
+		return list_bottle(type, pageSize, pageIndex);
+	}
 }

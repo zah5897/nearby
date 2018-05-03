@@ -18,15 +18,18 @@ public class HttpUtil {
 	 * @return URL 所代表远程资源的响应结果
 	 */
 	public static String sendGet(String url, String param) {
-		String result = "";
+		String urlNameString = url;
+		if (!TextUtils.isEmpty(param)) {
+			urlNameString = url + "?" + param;
+		}
+		return sendGet(urlNameString);
+
+	}
+
+	public static String sendGet(String url) {
 		BufferedReader in = null;
 		try {
-			String urlNameString = url;
-			if (!TextUtils.isEmpty(param)) {
-				urlNameString = url + "?" + param;
-				// urlNameString = url + "?" + param;
-			}
-			URL realUrl = new URL(urlNameString);
+			URL realUrl = new URL(url);
 			// 打开和URL之间的连接
 			URLConnection connection = realUrl.openConnection();
 			// 设置通用的请求属性
@@ -35,18 +38,14 @@ public class HttpUtil {
 			connection.setRequestProperty("user-agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1;SV1)");
 			// 建立实际的连接
 			connection.connect();
-			// 获取所有响应头字段
-			// Map<String, List<String>> map = connection.getHeaderFields();
-			// 遍历所有的响应头字段
-			// for (String key : map.keySet()) {
-			// System.out.println(key + "--->" + map.get(key));
-			// }
 			// 定义 BufferedReader输入流来读取URL的响应
 			in = new BufferedReader(new InputStreamReader(connection.getInputStream(), "UTF-8"));
 			String line;
+			StringBuilder sb = new StringBuilder();
 			while ((line = in.readLine()) != null) {
-				result += line;
+				sb.append(line);
 			}
+			return sb.toString();
 		} catch (Exception e) {
 			// System.out.println("发送GET请求出现异常！" + e);
 			e.printStackTrace();
@@ -61,7 +60,7 @@ public class HttpUtil {
 				e2.printStackTrace();
 			}
 		}
-		return result;
+		return "";
 	}
 
 	/**
@@ -102,8 +101,8 @@ public class HttpUtil {
 				result += line;
 			}
 		} catch (Exception e) {
-			//System.out.println("发送 POST 请求出现异常！" + e);
-			//e.printStackTrace();
+			// System.out.println("发送 POST 请求出现异常！" + e);
+			// e.printStackTrace();
 		}
 		// 使用finally块来关闭输出流、输入流
 		finally {
@@ -115,7 +114,7 @@ public class HttpUtil {
 					in.close();
 				}
 			} catch (IOException ex) {
-				//ex.printStackTrace();
+				// ex.printStackTrace();
 			}
 		}
 		return result;
@@ -142,8 +141,8 @@ public class HttpUtil {
 				result += line;
 			}
 		} catch (Exception e) {
-			//System.out.println("发送 POST 请求出现异常！" + e);
-			//e.printStackTrace();
+			// System.out.println("发送 POST 请求出现异常！" + e);
+			// e.printStackTrace();
 		}
 		// 使用finally块来关闭输出流、输入流
 		finally {
@@ -152,9 +151,10 @@ public class HttpUtil {
 					in.close();
 				}
 			} catch (IOException ex) {
-				//ex.printStackTrace();
+				// ex.printStackTrace();
 			}
 		}
 		return result;
 	}
+
 }

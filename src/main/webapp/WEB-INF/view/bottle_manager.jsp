@@ -36,6 +36,7 @@ td {
 							<option value="-1">全部</option>
 							<option value="0">正常状态</option>
 							<option value="1">黑名单</option>
+							<option value="2">审核状态</option>
 					</select></li>
 				</ul>
 			</div>
@@ -78,7 +79,6 @@ td {
 	     
 	    //前一页
 		function previous() {
-			alert('previous');
 			if(currentPageIndex>1){
 				page(currentPageIndex-1);
 			}
@@ -206,15 +206,24 @@ td {
 			 toAdd+="<td>"+pageData['create_time']+"</td>";
 			 
 			 var state=pageData["state"];
-			 toAdd+="<td>"+(state==0?"正常状态":"黑名单状态")+"</td>";
+			 
+			 var stateStr="正常状态";
+			 if(state==1){
+				 stateStr="黑名单状态";
+			 }else if(state==2){
+				 stateStr="苹果审核状态"
+			 }
+			 
+			 toAdd+="<td>"+stateStr+"</td>";
 			 //操作单元格
 			  toAdd+="<td><div class='button-group'>";
 			  //操作单元格
 			  if(state==0){
 				  toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return changeBottleState("+id+",1)'><span class='icon-edit'></span>编辑为黑名单状态</a>";
-			  }else{
+				  toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return changeBottleState("+id+",2)'><span class='icon-edit'></span>编辑为ios审核状态</a>";
+			  }else  {
 				  toAdd+="<a class='button border-main' href='javascript:void(0)'	onclick='return changeBottleState("+id+",0)'><span class='icon-edit'></span>编辑为正常状态</a>";
-			  }
+			  } 
 			  toAdd+="</div></td></tr>";
 			 tr.after(toAdd);
 		}

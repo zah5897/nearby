@@ -21,6 +21,7 @@ import com.zhan.app.nearby.bean.BottleExpress;
 import com.zhan.app.nearby.bean.VipUser;
 import com.zhan.app.nearby.bean.type.BottleType;
 import com.zhan.app.nearby.bean.user.BaseUser;
+import com.zhan.app.nearby.comm.BottleState;
 import com.zhan.app.nearby.comm.DynamicMsgType;
 import com.zhan.app.nearby.comm.PushMsgType;
 import com.zhan.app.nearby.comm.Relationship;
@@ -61,16 +62,17 @@ public class BottleService {
 
 	public ModelMap getBottles(long user_id, int page_size, Integer look_sex, Integer type) {
 		ModelMap result = ResultUtil.getResultOKMap();
+		BottleState state = BottleState.NORMAL;
 		List<Bottle> bolltes = null;
 		if (look_sex == null) {
-			bolltes = bottleDao.getBottles(user_id, page_size, type);
+			bolltes = bottleDao.getBottles(user_id, page_size, type, state);
 		} else {
 			VipUser vip = vipDao.loadUserVip(user_id);
 			if (vip == null || vip.getDayDiff() < 0) {
-				// result= ResultUtil.getResultMap(ERROR.ERR_VIP_EXPIRE);
-				bolltes = bottleDao.getBottles(user_id, page_size, type);
+				bolltes = bottleDao.getBottles(user_id, page_size, type, state);
 			} else {
-				bolltes = bottleDao.getBottlesByGender(user_id, page_size, look_sex == null ? -1 : look_sex, type);
+				int sex = (look_sex == null ? -1 : look_sex);
+				bolltes = bottleDao.getBottlesByGender(user_id, page_size, sex, type, state);
 			}
 		}
 
@@ -295,6 +297,6 @@ public class BottleService {
 	}
 
 	public void changeBottleState(int id, int to_state) {
-		bottleDao.changeBottleState(id,to_state);
+		bottleDao.changeBottleState(id, to_state);
 	}
 }

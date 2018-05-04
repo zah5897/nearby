@@ -77,7 +77,7 @@ public class BottleDao extends BaseDao {
 				});
 	}
 
-	public List<Bottle> getBottles(long user_id, int limit, Integer type) {
+	public List<Bottle> getBottles(long user_id, int limit, Integer type,BottleState state) {
 
 		BeanPropertyRowMapper<Bottle> mapper = new BeanPropertyRowMapper<Bottle>(Bottle.class) {
 			@Override
@@ -109,13 +109,13 @@ public class BottleDao extends BaseDao {
 			String sql = "select b.*,u.nick_name,u.avatar,u.birthday,u.birth_city_id," + getAgeSql()
 					+ ", u.sex ,c.name as city_name from t_bottle_pool p left join  t_bottle b  on p.bottle_id=b.id left join t_user u on b.user_id=u.user_id left join t_sys_city c on u.birth_city_id=c.id where b.user_id<>? and b.state=? "
 					+ fiflterBlock() + "  order by RAND()  limit ?";
-			return jdbcTemplate.query(sql, new Object[] { user_id, BottleState.NORMAL.ordinal(), user_id,
+			return jdbcTemplate.query(sql, new Object[] { user_id, state.ordinal(), user_id,
 					Relationship.BLACK.ordinal(), limit }, mapper);
 		} else {
 			String sql = "select b.*,u.nick_name,u.avatar,u.birthday,u.birth_city_id," + getAgeSql()
 					+ ", u.sex ,c.name as city_name from t_bottle_pool p left join  t_bottle b  on p.bottle_id=b.id left join t_user u on b.user_id=u.user_id left join t_sys_city c on u.birth_city_id=c.id where b.user_id<>? and b.type=? and b.state=? "
 					+ fiflterBlock() + " order by RAND()  limit ?";
-			return jdbcTemplate.query(sql, new Object[] { user_id, type, BottleState.NORMAL.ordinal(), user_id,
+			return jdbcTemplate.query(sql, new Object[] { user_id, type,state.ordinal(), user_id,
 					Relationship.BLACK.ordinal(), limit }, mapper);
 		}
 
@@ -125,7 +125,7 @@ public class BottleDao extends BaseDao {
 		return " and p.user_id not in (select with_user_id from t_user_relationship where user_id=? and relationship=?) ";
 	}
 
-	public List<Bottle> getBottlesByGender(long user_id, int limit, int gender, Integer type) {
+	public List<Bottle> getBottlesByGender(long user_id, int limit, int gender, Integer type,BottleState state) {
 
 		BeanPropertyRowMapper<Bottle> mapper = new BeanPropertyRowMapper<Bottle>(Bottle.class) {
 			@Override
@@ -159,12 +159,12 @@ public class BottleDao extends BaseDao {
 			if (gender == 0 || gender == 1) {
 				String sql = "select b.*,u.nick_name,u.avatar,u.birthday,u.birth_city_id, " + getAgeSql()
 						+ ",u.sex,c.name as city_name from t_bottle_pool p left join  t_bottle b on p.bottle_id=b.id  left join t_user u on b.user_id=u.user_id left join t_sys_city c on u.birth_city_id=c.id where b.user_id<>? and b.state=?   and u.sex=? order by RAND() limit ?";
-				return jdbcTemplate.query(sql, new Object[] { user_id, BottleState.NORMAL.ordinal(), gender, limit },
+				return jdbcTemplate.query(sql, new Object[] { user_id,state.ordinal(), gender, limit },
 						mapper);
 			} else {
 				String sql = "select b.*,u.nick_name,u.avatar,u.birthday,u.birth_city_id, " + getAgeSql()
 						+ ",u.sex,c.name as city_name from t_bottle_pool p left join  t_bottle b on p.bottle_id=b.id  left join t_user u on b.user_id=u.user_id left join t_sys_city c on u.birth_city_id=c.id where b.user_id<>? and b.state=? order by RAND() limit ?";
-				return jdbcTemplate.query(sql, new Object[] { user_id, BottleState.NORMAL.ordinal(), limit }, mapper);
+				return jdbcTemplate.query(sql, new Object[] { user_id, state.ordinal(), limit }, mapper);
 			}
 
 		} else {
@@ -173,11 +173,11 @@ public class BottleDao extends BaseDao {
 				String sql = "select b.*,u.nick_name,u.avatar,u.birthday,u.birth_city_id, " + getAgeSql()
 						+ ",u.sex,c.name as city_name from t_bottle_pool p left join  t_bottle b on p.bottle_id=b.id  left join t_user u on b.user_id=u.user_id left join t_sys_city c on u.birth_city_id=c.id where b.user_id<>?  and b.type=? and b.state=? and u.sex=? order by RAND() limit ?";
 				return jdbcTemplate.query(sql,
-						new Object[] { user_id, type, BottleState.NORMAL.ordinal(), gender, limit }, mapper);
+						new Object[] { user_id, type, state.ordinal(), gender, limit }, mapper);
 			} else {
 				String sql = "select b.*,u.nick_name,u.avatar,u.birthday,u.birth_city_id, " + getAgeSql()
 						+ ",u.sex,c.name as city_name from t_bottle_pool p left join  t_bottle b on p.bottle_id=b.id  left join t_user u on b.user_id=u.user_id left join t_sys_city c on u.birth_city_id=c.id where b.user_id<>? and b.type=? and b.state=?   order by RAND() limit ?";
-				return jdbcTemplate.query(sql, new Object[] { user_id, type, BottleState.NORMAL.ordinal(), limit },
+				return jdbcTemplate.query(sql, new Object[] { user_id, type, state.ordinal(), limit },
 						mapper);
 			}
 

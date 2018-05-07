@@ -472,7 +472,7 @@ public class MainService {
 			userCacheService.cacheValidateCode(mobile, code);
 			data.put("validate_code", code);
 		} else {
-			String errorMsg = "错误码=" + result.get("statusCode") + " 错误信息= " + result.get("statusMsg");
+			//String errorMsg = "错误码=" + result.get("statusCode") + " 错误信息= " + result.get("statusMsg");
 			// data = ResultUtil.getResultMap(ERROR.ERR_FAILED, "验证码发送失败:"+errorMsg);
 			data = ResultUtil.getResultMap(ERROR.ERR_FAILED, "获取验证码次数过多，明天再试。");
 		}

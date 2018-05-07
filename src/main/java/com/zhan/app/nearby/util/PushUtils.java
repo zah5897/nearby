@@ -2,9 +2,7 @@ package com.zhan.app.nearby.util;
 
 import org.springframework.data.redis.core.RedisTemplate;
 
-import com.alibaba.fastjson.JSONObject;
 import com.zhan.app.nearby.comm.DynamicMsgType;
-import com.zhan.app.nearby.service.UserService;
 
 public class PushUtils {
 	public static final String APP_NAME = "nearby";

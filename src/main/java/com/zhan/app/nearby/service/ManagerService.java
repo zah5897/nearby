@@ -20,7 +20,6 @@ import com.zhan.app.nearby.comm.ExchangeState;
 import com.zhan.app.nearby.comm.FoundUserRelationship;
 import com.zhan.app.nearby.dao.ManagerDao;
 import com.zhan.app.nearby.dao.UserDao;
-import com.zhan.app.nearby.util.SpringContextUtil;
 
 @Service
 @Transactional("transactionManager")

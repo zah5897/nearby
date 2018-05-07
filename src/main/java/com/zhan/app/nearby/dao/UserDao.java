@@ -27,7 +27,6 @@ import com.zhan.app.nearby.util.DateTimeUtil;
 import com.zhan.app.nearby.util.SQLUtil;
 import com.zhan.app.nearby.util.TextUtils;
 
-import javassist.bytecode.stackmap.BasicBlock.Catch;
 
 @Repository("userDao")
 public class UserDao extends BaseDao {

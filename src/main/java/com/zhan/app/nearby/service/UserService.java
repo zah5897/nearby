@@ -245,7 +245,7 @@ public class UserService {
 
 		user.setAge(DateTimeUtil.getAge(user.getBirthday()));
 
-		List<UserDynamic> dys = userDynamicService.getUserDynamic(user_id_for, 5);
+		List<UserDynamic> dys = userDynamicService.getUserDynamic(user_id_for,1, 5);
 		user.setImages(dys);
 		// //
 		// Map<String, Object> userJson = new HashMap<>();

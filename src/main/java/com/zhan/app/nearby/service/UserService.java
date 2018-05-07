@@ -209,10 +209,6 @@ public class UserService {
 		userDao.uploadToken(user_id, token, zh_cn);
 	}
 
-	public String getDeviceToken(long user_id) {
-		return userDao.getDeviceToken(user_id);
-	}
-
 	public void setCity(Long user_id, Integer city_id) {
 
 		if (user_id == null || user_id > 0) {
@@ -245,7 +241,7 @@ public class UserService {
 
 		user.setAge(DateTimeUtil.getAge(user.getBirthday()));
 
-		List<UserDynamic> dys = userDynamicService.getUserDynamic(user_id_for,1, 5);
+		List<UserDynamic> dys = userDynamicService.getUserDynamic(user_id_for, 1, 5);
 		user.setImages(dys);
 		// //
 		// Map<String, Object> userJson = new HashMap<>();
@@ -267,13 +263,13 @@ public class UserService {
 		Relationship heWithMe = getRelationShip(user_id_for, uid == null ? 0 : uid);
 		int relationShip = 0;
 		if (iWithHim == Relationship.LIKE && heWithMe == Relationship.LIKE) {
-			relationShip=4;
-		}else if(iWithHim == Relationship.LIKE&& heWithMe != Relationship.LIKE) {
-			relationShip=5;
-		}else if(iWithHim != Relationship.LIKE&& heWithMe == Relationship.LIKE) {
-			relationShip=6;
-		}else {
-			relationShip=7;
+			relationShip = 4;
+		} else if (iWithHim == Relationship.LIKE && heWithMe != Relationship.LIKE) {
+			relationShip = 5;
+		} else if (iWithHim != Relationship.LIKE && heWithMe == Relationship.LIKE) {
+			relationShip = 6;
+		} else {
+			relationShip = 7;
 		}
 		r.put("relationship", relationShip);
 		r.addAttribute("meili", giftService.getUserMeiLiVal(user_id_for));
@@ -576,13 +572,13 @@ public class UserService {
 			throw new AppException(ERROR.ERR_SYS, new RuntimeException("环信注册失败"));
 		}
 	}
-	
+
 	public void addSpecialUser(long uid) {
 		userDao.addSpecialUser(uid);
 	}
-	public List<BaseUser> loadSpecialUsers(Integer limit){
-		return userDao.loadSpecialUsers(limit==null?5:limit);
+
+	public List<BaseUser> loadSpecialUsers(Integer limit) {
+		return userDao.loadSpecialUsers(limit == null ? 5 : limit);
 	}
-	
-	
+
 }

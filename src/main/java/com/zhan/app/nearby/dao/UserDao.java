@@ -19,6 +19,7 @@ import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.bean.user.BaseVipUser;
 import com.zhan.app.nearby.bean.user.DetailUser;
 import com.zhan.app.nearby.bean.user.LocationUser;
+import com.zhan.app.nearby.comm.AccountStateType;
 import com.zhan.app.nearby.comm.FoundUserRelationship;
 import com.zhan.app.nearby.comm.Relationship;
 import com.zhan.app.nearby.comm.UserType;
@@ -26,6 +27,7 @@ import com.zhan.app.nearby.util.DateTimeUtil;
 import com.zhan.app.nearby.util.SQLUtil;
 import com.zhan.app.nearby.util.TextUtils;
 
+import javassist.bytecode.stackmap.BasicBlock.Catch;
 
 @Repository("userDao")
 public class UserDao extends BaseDao {
@@ -233,11 +235,6 @@ public class UserDao extends BaseDao {
 		return jdbcTemplate.update(sql, new Object[] { token, zh_cn, user_id });
 	}
 
-	public String getDeviceToken(long user_id) {
-		return jdbcTemplate.queryForObject("select device_token from t_user user where user.user_id=?",
-				new Object[] { user_id }, String.class);
-	}
-
 	public Object setCity(Long user_id, Integer city_id) {
 		return jdbcTemplate.update("update  t_user set city_id=? where user.user_id=?",
 				new Object[] { city_id, user_id });
@@ -372,6 +369,7 @@ public class UserDao extends BaseDao {
 	 * @return
 	 */
 	public int getUserSize(int type, String keyword) {
+
 		if (TextUtils.isEmpty(keyword)) {
 			return jdbcTemplate.queryForObject("select count(*) from t_user where type=?", new Object[] { type },
 					Integer.class);
@@ -379,7 +377,6 @@ public class UserDao extends BaseDao {
 			return jdbcTemplate.queryForObject("select count(*) from t_user where type=? and nick_name like ?",
 					new Object[] { type, "%" + keyword + "%" }, Integer.class);
 		}
-
 	}
 
 	/**
@@ -439,8 +436,13 @@ public class UserDao extends BaseDao {
 	}
 
 	public String getUserGenderByID(long user_id) {
-		return jdbcTemplate.queryForObject("select sex from t_user where user_id=?", new Object[] { user_id },
-				String.class);
+		try {
+			return jdbcTemplate.queryForObject("select sex from t_user where user_id=?", new Object[] { user_id },
+					String.class);
+		} catch (Exception e) {
+		}
+		return "";
+
 	}
 
 	/**
@@ -452,8 +454,9 @@ public class UserDao extends BaseDao {
 	 * @return
 	 */
 	public List<BaseUser> getLikeList(long user_id, Integer page_index, Integer count) {
-		String sql="select u.user_id,u.nick_name,u.avatar,u.sex from t_user_relationship tur left join t_user u on tur.user_id= u.user_id where tur.with_user_id=? and  tur.relationship=? order by tur.create_time limit ?,?";
-		return jdbcTemplate.query(sql,new Object[] { user_id, Relationship.LIKE.ordinal(), (page_index - 1) * count, count },
+		String sql = "select u.user_id,u.nick_name,u.avatar,u.sex from t_user_relationship tur left join t_user u on tur.user_id= u.user_id where tur.with_user_id=? and  tur.relationship=? order by tur.create_time limit ?,?";
+		return jdbcTemplate.query(sql,
+				new Object[] { user_id, Relationship.LIKE.ordinal(), (page_index - 1) * count, count },
 				new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
 	}
 
@@ -498,18 +501,25 @@ public class UserDao extends BaseDao {
 		}
 		jdbcTemplate.update("insert into t_special_user (uid) values(?)", new Object[] { String.valueOf(uid) });
 	}
-	
+
 	public List<BaseUser> loadSpecialUsers(int limit) {
-		String sql="select u.user_id,u.nick_name,u.avatar,u.sex,u.type,u.birthday from t_special_user us left join t_user u on us.uid=u.user_id";
-		List<BaseUser> users=jdbcTemplate.query(sql, new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+		String sql = "select u.user_id,u.nick_name,u.avatar,u.sex,u.type,u.birthday from t_special_user us left join t_user u on us.uid=u.user_id";
+		List<BaseUser> users = jdbcTemplate.query(sql, new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
 		return users;
 	}
 
-	public int updateAccountState(long user_id,int state) {
-		return jdbcTemplate.update("update t_user set account_state=? where user_id=?",new Object[] {state,user_id});
+	public int updateAccountState(long user_id, int state) {
+		return jdbcTemplate.update("update t_user set account_state=? where user_id=?",
+				new Object[] { state, user_id });
 	}
-	
+
 	public int getUserState(long user_id) {
-		return jdbcTemplate.queryForObject("select account_state from  t_user where user_id=?",new Object[] {user_id},Integer.class);
+		try {
+		return jdbcTemplate.queryForObject("select account_state from  t_user where user_id=?",
+				new Object[] { user_id }, Integer.class);
+		}catch (Exception e) {
+			// TODO: handle exception
+		}
+		return AccountStateType.NORMAL.ordinal();
 	}
 }

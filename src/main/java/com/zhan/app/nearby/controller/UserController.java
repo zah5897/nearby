@@ -188,7 +188,7 @@ public class UserController {
 			return ResultUtil.getResultMap(ERROR.ERR_USER_EXIST, "该手机号码已经注册过");
 		}
 		// userService.updateToken(user); // 更新token，弱登录
-		userCacheService.cacheLoginToken(user); // 缓存token，缓解检查登陆查询
+		// userCacheService.cacheLoginToken(user); // 缓存token，缓解检查登陆查询
 
 		ModelMap result = ResultUtil.getResultOKMap();
 		user.setUser_id(id);
@@ -231,11 +231,11 @@ public class UserController {
 		if (user == null) {
 			return ResultUtil.getResultMap(ERROR.ERR_USER_NOT_EXIST, "该账号不存在");
 		}
-		
-		if(user.getAccount_state()==AccountStateType.LOCK.ordinal()) {
+
+		if (user.getAccount_state() == AccountStateType.LOCK.ordinal()) {
 			return ResultUtil.getResultMap(ERROR.ERR_USER_NOT_EXIST, "该账号因举报而无法登录");
 		}
-		
+
 		try {
 			String md5 = MD5Util.getMd5(password);
 			if (md5.equals(user.getPassword())) {
@@ -246,7 +246,7 @@ public class UserController {
 				userService.updateToken(user); // 更新token，弱登录
 				user.set_ua(null);
 				user.setAge(DateTimeUtil.getAge(user.getBirthday()));
-				userCacheService.cacheLoginToken(user); // 缓存token，缓解检查登陆查询
+				// userCacheService.cacheLoginToken(user); // 缓存token，缓解检查登陆查询
 
 				ImagePathUtil.completeAvatarPath(user, true); // 补全图片链接地址
 				if (user.getCity() == null) {
@@ -280,7 +280,6 @@ public class UserController {
 		if (user != null) {
 			if (token.equals(user.getToken())) {
 				userService.updateToken(new BaseUser(user_id));
-				userCacheService.clearLoginUser(token, user_id);
 			}
 		}
 		return ResultUtil.getResultOKMap();
@@ -412,8 +411,6 @@ public class UserController {
 			return ResultUtil.getResultMap(ERROR.ERR_USER_NOT_EXIST, "该用户不存在！");
 		} else if (!token.equals(user.getToken())) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
-		} else {
-			userCacheService.cacheLoginToken(user);
 		}
 		String newAcatar = null;
 		if (multipartRequest != null) {
@@ -515,7 +512,7 @@ public class UserController {
 	}
 
 	@RequestMapping("dynamic")
-	public ModelMap dynamic(Long user_id_for, Integer page,Integer count) {
+	public ModelMap dynamic(Long user_id_for, Integer page, Integer count) {
 
 		if (user_id_for == null || user_id_for < 1) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "请确定用户ID");
@@ -524,11 +521,11 @@ public class UserController {
 		if (count == null) {
 			count = 10;
 		}
-		if(page==null) {
-			page=1;
+		if (page == null) {
+			page = 1;
 		}
 		ModelMap result = ResultUtil.getResultOKMap();
-		List<UserDynamic> dynamics = userDynamicService.getUserDynamic(user_id_for,page, count);
+		List<UserDynamic> dynamics = userDynamicService.getUserDynamic(user_id_for, page, count);
 		result.put("dynamics", dynamics);
 
 		if (dynamics == null || dynamics.size() < count) {

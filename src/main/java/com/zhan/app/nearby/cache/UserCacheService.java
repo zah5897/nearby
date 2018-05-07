@@ -27,20 +27,19 @@ public class UserCacheService {
 
 	private String welcome;
 
-	public void cacheLoginToken(BaseUser user) {
-		try {
-			String id = String.valueOf(user.getUser_id());
-			redisTemplate.opsForValue().set(id, user.getToken());
-			redisTemplate.expire(id, 60, TimeUnit.DAYS);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+	// public void cacheLoginToken(BaseUser user) {
+	// try {
+	// String id = String.valueOf(user.getUser_id());
+	// redisTemplate.opsForValue().set(id, user.getToken());
+	// redisTemplate.expire(id, 60, TimeUnit.DAYS);
+	// } catch (Exception e) {
+	// e.printStackTrace();
+	// }
+	// }
 
 	public void cacheValidateCode(String mobile, String code) {
 		try {
-			redisTemplate.opsForValue().set(mobile, code);
-			redisTemplate.expire(mobile, 60, TimeUnit.MINUTES);
+			redisTemplate.opsForValue().set(mobile, code, 60, TimeUnit.MINUTES);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -76,27 +75,6 @@ public class UserCacheService {
 	public void clearCode(String mobile) {
 		try {
 			redisTemplate.delete(mobile);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	public String getCacheToken(long user_id) {
-		try {
-			Object tokenObj = redisTemplate.opsForValue().get(user_id);
-			if (tokenObj != null) {
-				return tokenObj.toString();
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-
-	public void clearLoginUser(String token, long user_id) {
-		try {
-			String sid = String.valueOf(user_id);
-			redisTemplate.delete(sid);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -146,8 +124,8 @@ public class UserCacheService {
 	public void setLastUploadTime(long user_id) {
 		try {
 			String key = PERFIX_UPLOAD_TIME + String.valueOf(user_id);
-			redisTemplate.opsForValue().set(key, String.valueOf(System.currentTimeMillis() / 1000));
-			redisTemplate.expire(key, 1, TimeUnit.MINUTES);
+			redisTemplate.opsForValue().set(key, String.valueOf(System.currentTimeMillis() / 1000), 1,
+					TimeUnit.MINUTES);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

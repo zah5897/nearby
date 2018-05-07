@@ -44,16 +44,22 @@ public class BottleDao extends BaseDao {
 	public Bottle getBottleById(long id) {
 		String sql = "select bottle.*,user.nick_name,user.gender,user.avatar from " + TABLE_BOTTLE
 				+ " bottle left join t_user user on bottle.user_id=user.id where bottle.id=?";
-		return jdbcTemplate.queryForObject(sql, new Object[] { id }, new BeanPropertyRowMapper<Bottle>(Bottle.class) {
+		List<Bottle> bottles = jdbcTemplate.query(sql, new Object[] { id },
+				new BeanPropertyRowMapper<Bottle>(Bottle.class) {
 
-			@Override
-			public Bottle mapRow(ResultSet rs, int rowNumber) throws SQLException {
-				Bottle bottle = super.mapRow(rs, rowNumber);
-				bottle.setSender(resultSetToUser(rs));
-				return bottle;
-			}
+					@Override
+					public Bottle mapRow(ResultSet rs, int rowNumber) throws SQLException {
+						Bottle bottle = super.mapRow(rs, rowNumber);
+						bottle.setSender(resultSetToUser(rs));
+						return bottle;
+					}
 
-		});
+				});
+		if (bottles.size() > 0) {
+			return bottles.get(0);
+		}else {
+			return null;
+		}
 	}
 
 	public int insertToPool(Bottle bottle) {
@@ -128,9 +134,8 @@ public class BottleDao extends BaseDao {
 				String sql = "select b.*,u.nick_name,u.avatar,u.birthday,u.birth_city_id," + getAgeSql()
 						+ ", u.sex ,c.name as city_name from t_bottle_pool p left join  t_bottle b  on p.bottle_id=b.id left join t_user u on b.user_id=u.user_id left join t_sys_city c on u.birth_city_id=c.id where b.user_id<>? and b.type=? and b.state<>? "
 						+ fiflterBlock() + " order by RAND()  limit ?";
-				return jdbcTemplate.query(sql,
-						new Object[] { user_id, type, BottleState.BLACK.ordinal(), user_id, Relationship.BLACK.ordinal(), limit },
-						mapper);
+				return jdbcTemplate.query(sql, new Object[] { user_id, type, BottleState.BLACK.ordinal(), user_id,
+						Relationship.BLACK.ordinal(), limit }, mapper);
 			} else {
 				String sql = "select b.*,u.nick_name,u.avatar,u.birthday,u.birth_city_id," + getAgeSql()
 						+ ", u.sex ,c.name as city_name from t_bottle_pool p left join  t_bottle b  on p.bottle_id=b.id left join t_user u on b.user_id=u.user_id left join t_sys_city c on u.birth_city_id=c.id where b.user_id<>? and b.type=? and b.state=? "

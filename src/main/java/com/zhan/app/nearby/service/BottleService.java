@@ -71,7 +71,7 @@ public class BottleService {
 	public boolean checkTime(Bottle bottle) {
 		long last_time=userCacheService.getLastBottleSendTime(bottle.getUser_id());
 		long now=System.currentTimeMillis()/1000;
-		boolean r= now-last_time>6;
+		boolean r= now-last_time>10;
 		userCacheService.setLastBottleSendTime(bottle.getUser_id());
 	   return r;
 	}

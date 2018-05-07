@@ -583,4 +583,6 @@ public class UserService {
 	public List<BaseUser> loadSpecialUsers(Integer limit){
 		return userDao.loadSpecialUsers(limit==null?5:limit);
 	}
+	
+	
 }

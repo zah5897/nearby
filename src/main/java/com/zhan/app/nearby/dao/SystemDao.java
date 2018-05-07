@@ -7,8 +7,6 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import org.apache.catalina.User;
-import org.joda.time.DateTime;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -33,9 +31,9 @@ public class SystemDao extends BaseDao {
 	public int insertReport(Report report) {
 
 		int count = jdbcTemplate.update(
-				"insert into t_report_record (user_id,target_id,tag_id,content,type,create_time) values(?,?,?,?,?,?)",
+				"insert into t_report_record (user_id,target_id,tag_id,content,type,create_time,approval_result) values(?,?,?,?,?,?,?)",
 				new Object[] { report.getUser_id(), report.getTarget_id(), report.getTag_id(), report.getContent(),
-						report.getType(), report.getCreate_time() });
+						report.getType(), report.getCreate_time(), report.getApproval_result() });
 		return count;
 	}
 
@@ -75,26 +73,29 @@ public class SystemDao extends BaseDao {
 
 	public Report getReport(int id) {
 		// TODO Auto-generated method stub
-		List<Report> list= jdbcTemplate.query("select *from t_report_record where id=?",new Object[] {id},new BeanPropertyRowMapper<Report>(Report.class));
-		if(list.size()>0) {
+		List<Report> list = jdbcTemplate.query("select *from t_report_record where id=?", new Object[] { id },
+				new BeanPropertyRowMapper<Report>(Report.class));
+		if (list.size() > 0) {
 			return list.get(0);
-		}else {
+		} else {
 			return null;
 		}
 	}
-	
+
 	public int updateReportState(int id) {
-		return jdbcTemplate.update("update t_report_record set approval_result=?,approval_time=? where id=?",new Object[] {1,new Date(),id});
+		return jdbcTemplate.update("update t_report_record set approval_result=?,approval_time=? where id=?",
+				new Object[] { 1, new Date(), id });
 	}
-	
+
 	public List<Report> listManagerReport(int approval_type, int page, int count) {
 		String sql = "select *from t_report_record where approval_result=? order by create_time desc limit ?,?";
 		return jdbcTemplate.query(sql, new Object[] { approval_type, (page - 1) * count, count },
 				new BeanPropertyRowMapper<Report>(Report.class));
 	}
-	
+
 	public int getReportSizeByApproval(int appro) {
-		return jdbcTemplate.queryForObject("select count(*) from t_report_record where approval_result=?",new Object[] {appro}, Integer.class);
+		return jdbcTemplate.queryForObject("select count(*) from t_report_record where approval_result=?",
+				new Object[] { appro }, Integer.class);
 	}
 
 	public void addExchangeHistory(Exchange exchange) {
@@ -234,7 +235,5 @@ public class SystemDao extends BaseDao {
 						personalInfo.getPersonal_name(), personalInfo.getPersonal_id(), personalInfo.getUser_id(),
 						personalInfo.getAid() });
 	}
-
-	
 
 }

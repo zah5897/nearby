@@ -160,11 +160,11 @@ public class UserDynamicDao extends BaseDao {
 				new Object[] { hasPraiseCount, dynamic_id });
 	}
 
-	public List<UserDynamic> getUserDynamic(long user_id, int count) {
+	public List<UserDynamic> getUserDynamic(long user_id,int page, int count) {
 //		String sql = "select  * from " + TABLE_USER_DYNAMIC+ "   where user_id=? order by id desc limit ?";
 		String sql = "select dy.*,coalesce(t_like.relationship, '0') as like_state,u.nick_name,u.avatar,u.sex,u.type,u.birthday from " + TABLE_USER_DYNAMIC
-				+ " dy left join t_like_dynamic t_like on dy.id=t_like.dynamic_id and dy.user_id=t_like.user_id left join t_user u on dy.user_id=u.user_id  where dy.user_id=? order by dy.id desc limit ?";
-		return jdbcTemplate.query(sql,new Object[] {user_id,count}, new DynamicMapper());
+				+ " dy left join t_like_dynamic t_like on dy.id=t_like.dynamic_id and dy.user_id=t_like.user_id left join t_user u on dy.user_id=u.user_id  where dy.user_id=? order by dy.id desc limit ?,?";
+		return jdbcTemplate.query(sql,new Object[] {user_id,(page-1)*count,count}, new DynamicMapper());
 	}
 
 	public List<UserDynamic> getAllDynamic() {

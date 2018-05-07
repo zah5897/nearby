@@ -508,4 +508,8 @@ public class UserDao extends BaseDao {
 	public int updateAccountState(long user_id,int state) {
 		return jdbcTemplate.update("update t_user set account_state=? where user_id=?",new Object[] {state,user_id});
 	}
+	
+	public int getUserState(long user_id) {
+		return jdbcTemplate.queryForObject("select account_state from  t_user where user_id=?",new Object[] {user_id},Integer.class);
+	}
 }

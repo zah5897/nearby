@@ -35,6 +35,14 @@ public class BottleController {
 		if (bottle.getUser_id() <= 0) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
+		if (!bottleService.checkTime(bottle)) {
+			return ResultUtil.getResultMap(ERROR.ERR_FREUENT);
+		}
+		
+		if(bottleService.isBlockUser(bottle.getUser_id())) {
+			return ResultUtil.getResultMap(ERROR.ERR_FAILED,"该帐号状态异常");
+		}
+		
 		if (bottle.getType() == BottleType.IMG.ordinal() && (request instanceof DefaultMultipartHttpServletRequest)) {
 			DefaultMultipartHttpServletRequest multiRequest = (DefaultMultipartHttpServletRequest) request;
 			Iterator<String> iterator = multiRequest.getFileNames();
@@ -50,14 +58,14 @@ public class BottleController {
 				}
 			}
 		}
+
 		bottleService.insert(bottle);
 		return ResultUtil.getResultOKMap().addAttribute("bottle", bottle);
 	}
 
 	@RequestMapping("list")
-	public ModelMap list(Long user_id, Integer count, Integer look_sex,Integer type) {
-		return bottleService.getBottles(user_id == null ? 0 : user_id,
-				count == null ? 5 : count, look_sex,type);
+	public ModelMap list(Long user_id, Integer count, Integer look_sex, Integer type,Integer state) {
+		return bottleService.getBottles(user_id == null ? 0 : user_id, count == null ? 5 : count, look_sex, type,state);
 	}
 
 	@RequestMapping("load")
@@ -87,17 +95,18 @@ public class BottleController {
 	public ModelMap like(long user_id, String token, String with_user_id) {
 		return bottleService.like(user_id, with_user_id);
 	}
-	
-	
+
 	@RequestMapping("ignore")
 	public ModelMap ignore() {
-		//long user_id, String token, String with_user_id
+		// long user_id, String token, String with_user_id
 		return ResultUtil.getResultOKMap();
 	}
+
 	@RequestMapping("replay")
-	public ModelMap replay(long user_id, long target,long bottle_id, String msg) {
-		return bottleService.replay(user_id, target,msg,bottle_id);
+	public ModelMap replay(long user_id, long target, long bottle_id, String msg) {
+		return bottleService.replay(user_id, target, msg, bottle_id);
 	}
+
 	@RequestMapping("express/{to_user_id}")
 	public ModelMap like(@PathVariable long to_user_id, long user_id, String content) {
 		return bottleService.express(user_id, to_user_id, content);

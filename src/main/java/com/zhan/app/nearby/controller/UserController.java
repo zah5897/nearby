@@ -515,7 +515,7 @@ public class UserController {
 	}
 
 	@RequestMapping("dynamic")
-	public ModelMap dynamic(Long user_id_for, Integer count) {
+	public ModelMap dynamic(Long user_id_for, Integer page,Integer count) {
 
 		if (user_id_for == null || user_id_for < 1) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "请确定用户ID");
@@ -524,8 +524,11 @@ public class UserController {
 		if (count == null) {
 			count = 10;
 		}
+		if(page==null) {
+			page=1;
+		}
 		ModelMap result = ResultUtil.getResultOKMap();
-		List<UserDynamic> dynamics = userDynamicService.getUserDynamic(user_id_for, count);
+		List<UserDynamic> dynamics = userDynamicService.getUserDynamic(user_id_for,page, count);
 		result.put("dynamics", dynamics);
 
 		if (dynamics == null || dynamics.size() < count) {

@@ -21,6 +21,8 @@ import com.zhan.app.nearby.bean.BottleExpress;
 import com.zhan.app.nearby.bean.VipUser;
 import com.zhan.app.nearby.bean.type.BottleType;
 import com.zhan.app.nearby.bean.user.BaseUser;
+import com.zhan.app.nearby.cache.UserCacheService;
+import com.zhan.app.nearby.comm.AccountStateType;
 import com.zhan.app.nearby.comm.BottleState;
 import com.zhan.app.nearby.comm.DynamicMsgType;
 import com.zhan.app.nearby.comm.PushMsgType;
@@ -50,7 +52,10 @@ public class BottleService {
 
 	@Resource
 	private UserService userService;
-
+	
+	@Resource
+	private UserCacheService userCacheService;
+	
 	public Bottle getBottleFromPool(long user_id) {
 
 		List<Bottle> bottles = bottleDao.getBottleRandomInPool(user_id, 1);
@@ -59,10 +64,40 @@ public class BottleService {
 		}
 		return null;
 	}
+	
+	
+	
+	
+	public boolean checkTime(Bottle bottle) {
+		long last_time=userCacheService.getLastBottleSendTime(bottle.getUser_id());
+		long now=System.currentTimeMillis()/1000;
+		boolean r= now-last_time>6;
+		userCacheService.setLastBottleSendTime(bottle.getUser_id());
+	   return r;
+	}
+	
+	
+	public boolean isBlockUser(long user_id) {
+		int state=userDao.getUserState(user_id);
+		return state==AccountStateType.LOCK.ordinal();
+	}
+	
 
-	public ModelMap getBottles(long user_id, int page_size, Integer look_sex, Integer type) {
+	public ModelMap getBottles(long user_id, int page_size, Integer look_sex, Integer type,Integer state_val) {
 		ModelMap result = ResultUtil.getResultOKMap();
 		BottleState state = BottleState.NORMAL;
+		
+		if(state_val==null) {
+			state = BottleState.NORMAL;
+		}
+		if(state_val==1) {
+			state = BottleState.BLACK;
+		}else if(state_val==2) {
+			state = BottleState.IOS_REVIEW;
+		}else {
+			state = BottleState.NORMAL;
+		}
+		
 		List<Bottle> bolltes = null;
 		if (look_sex == null) {
 			bolltes = bottleDao.getBottles(user_id, page_size, type, state);

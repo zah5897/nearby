@@ -511,7 +511,7 @@ public class MainService {
 				if (report.getType() == 0) {
 					BaseUser user = userDao.getBaseUser(report.getTarget_id());
 					ImagePathUtil.completeAvatarPath(user, false);
-					report.setRef(user);
+					report.setUser(user);
 				}
 			}
 		}

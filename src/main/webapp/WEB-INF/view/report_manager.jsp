@@ -50,9 +50,10 @@ td {
 				<tr>
 					<th width="5%">ID</th>
 					<th width="5%">举报类型</th>
-					<th width="10%">被举报对象ID</th>
+					<th width="5%">被举报ID</th>
+					<th width="10%">被举报对象信息</th>
 					<th width="5%">举报人</th>
-					<th width="15%">描述</th>
+					<th width="10%">描述</th>
 					<th width="10%">举报时间</th>
 					<th width="10%">状态状态</th>
 					<th width="10%">审批时间</th>
@@ -192,10 +193,15 @@ td {
 			 
 			 
 			 toAdd+="<td>"+(type==0?"举报用户":"举报动态")+"</td>";
+			 
+			 toAdd+="<td>"+pageData["target_id"]+"</td>";
+			 
 			 if(type==0){
-				 toAdd+="<td><a href='#' onclick='return showUser("+pageData["ref"]+")' color='red'>"+pageData["target_id"]+"</a></td>";
+				 var user=pageData["user"];
+				 var avatar=user.avatar;
+				 toAdd+="<td><img  src='"+avatar+"' alt='"+avatar+"'  height='50' onclick='show(this)'/></td>";
 			 }else{
-				 toAdd+="<td><a href='#' onclick='return showDy("+pageData["ref"]+")' color='red'>"+pageData["target_id"]+"</a></td>";
+				 toAdd+="<td>#</td>";
 			 }
 			 
 			 //用户类型
@@ -253,12 +259,9 @@ td {
 			}
 		}
 		
-		function showUser(ref){
-			parent.showUserInfo(ref);
-		}
-		function showDy(ref){
-		}
-		
+		 function show(img){
+		    	parent.showOriginImg(img);
+		 }
 	</script>
 </body>
 </html>

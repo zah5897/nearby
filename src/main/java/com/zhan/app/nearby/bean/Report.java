@@ -19,12 +19,9 @@ public class Report {
 	@JSONField(format = "yyyy-MM-dd HH:mm:ss")
 	private Date approval_time;
 	private int approval_result;
-
+	@ColumnType
 	private BaseUser user;
 
-	@ColumnType
-	private Object ref;
-	
 	public long getUser_id() {
 		return user_id;
 	}
@@ -104,14 +101,4 @@ public class Report {
 	public void setId(int id) {
 		this.id = id;
 	}
-
-	public Object getRef() {
-		return ref;
-	}
-
-	public void setRef(Object ref) {
-		this.ref = ref;
-	}
-
-	
 }

@@ -89,6 +89,7 @@ public class BottleService {
 		
 		if(state_val==null) {
 			state = BottleState.NORMAL;
+			state_val=0;
 		}
 		if(state_val==1) {
 			state = BottleState.BLACK;

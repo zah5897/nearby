@@ -19,7 +19,9 @@
 <script src="<%=path%>/js/jquery.js"></script>
 <script src="<%=path%>/js/pintuer.js"></script>
 <style type="text/css">
-   td {word-break:break-all}
+td {
+	word-break: break-all
+}
 </style>
 </head>
 <body>
@@ -28,42 +30,40 @@
 			<div class="panel-head">
 				<strong class="icon-reorder">&nbsp;提现管理</strong>
 			</div>
-			
+
 			<div class="padding border-bottom">
-			   
+
 				<ul class="search">
-				 <li> 类型：</li>
-				  <li>
-				    <select id="user_type" name="user_type" class="input" onchange="changeType(this)"  style="line-height:17px;display:inline-block" >
-                          <option value="0" selected="selected">未审批</option>
-                          <option value="1">已审批</option>
-                      </select>
-				  </li>
+					<li>类型：</li>
+					<li><select id="user_type" name="user_type" class="input"
+						onchange="changeType(this)"
+						style="line-height: 17px; display: inline-block">
+							<option value="0" selected="selected">未审批</option>
+							<option value="1">已审批</option>
+					</select></li>
 				</ul>
 			</div>
-			
-		 
-			
+
+
+
 			<table class="table table-hover text-center">
 				<tr>
-					<th width="5%">举报类型</th>
+					<th width="5%">ID</th>
 					<th width="5%">举报类型</th>
 					<th width="10%">被举报对象ID</th>
 					<th width="5%">举报人</th>
-					<th width="10%">描述</th>
+					<th width="15%">描述</th>
 					<th width="10%">举报时间</th>
-					<th width="15%">状态状态</th>
+					<th width="10%">状态状态</th>
 					<th width="10%">审批时间</th>
-					<th width="20%">审批</th>
+					<th width="30%">审批</th>
 				</tr>
 				<tr id="bottom">
 					<td colspan="8">
 						<div class="pagelist">
 							<a href="javascript:void(0)" onclick="return previous()">上一页</a>
-							<a id="next_flag" href="javascript:void(0)"
-								onclick="next()">下一页</a>
-							<a href="javascript:void(0)"
-								onclick="end()">尾页</a>
+							<a id="next_flag" href="javascript:void(0)" onclick="next()">下一页</a>
+							<a href="javascript:void(0)" onclick="end()">尾页</a>
 						</div>
 					</td>
 				</tr>
@@ -186,8 +186,18 @@
 			 
 			 var toAdd="<tr id='tr_"+id+"'>";
 			 toAdd+="<td><input type='checkbox' name='id[]' value='"+id+"' />"+id+"</td>";
-			 toAdd+="<td>"+(pageData.type==0?"举报用户":"举报动态")+"</td>";
-			 toAdd+="<td>"+pageData["target_id"]+"</td>";
+			 
+			 var type=pageData.type;
+			 
+			 
+			 
+			 toAdd+="<td>"+(type==0?"举报用户":"举报动态")+"</td>";
+			 if(type==0){
+				 toAdd+="<td><a href='#' onclick='return showUser("+pageData["ref"]+")' color='red'>"+pageData["target_id"]+"</a></td>";
+			 }else{
+				 toAdd+="<td><a href='#' onclick='return showDy("+pageData["ref"]+")' color='red'>"+pageData["target_id"]+"</a></td>";
+			 }
+			 
 			 //用户类型
 			 toAdd+="<td>"+pageData.user_id+"</td>";
 			 
@@ -218,26 +228,37 @@
 	  
 	  
 	  function handleReport(id){
-		  $.post("<%=path%>/manager/handleReport",{'id':id,'type':type,'pageIndex':currentPageIndex,'pageSize':pageSize},function(result){
-				 var json=JSON.parse(result);
-				 if(json.code==0){
-			        	$("table tr[id*='tr_'").each(function(i){
-				        	this.remove();//移除当前的元素
-				        })
-			        	refreshTable(json);
-			        }
-		    });
-	  }
-	  
-		 
-		function changeType(selectView){
-		   var	typeSelect=$('#user_type option:selected') .val();
-		   if(type!=typeSelect){
-			   type=typeSelect;
-			   currentPageIndex=0;
-			   page(1);
-		   }
+		  $.post("<%=path%>/manager/handleReport", {
+				'id' : id,
+				'type' : type,
+				'pageIndex' : currentPageIndex,
+				'pageSize' : pageSize
+			}, function(result) {
+				var json = JSON.parse(result);
+				if (json.code == 0) {
+					$("table tr[id*='tr_'").each(function(i) {
+						this.remove();//移除当前的元素
+					})
+					refreshTable(json);
+				}
+			});
 		}
+
+		function changeType(selectView) {
+			var typeSelect = $('#user_type option:selected').val();
+			if (type != typeSelect) {
+				type = typeSelect;
+				currentPageIndex = 0;
+				page(1);
+			}
+		}
+		
+		function showUser(ref){
+			parent.showUserInfo(ref);
+		}
+		function showDy(ref){
+		}
+		
 	</script>
 </body>
 </html>

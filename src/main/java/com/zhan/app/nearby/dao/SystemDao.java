@@ -72,7 +72,6 @@ public class SystemDao extends BaseDao {
 	}
 
 	public Report getReport(int id) {
-		// TODO Auto-generated method stub
 		List<Report> list = jdbcTemplate.query("select *from t_report_record where id=?", new Object[] { id },
 				new BeanPropertyRowMapper<Report>(Report.class));
 		if (list.size() > 0) {

@@ -22,6 +22,9 @@ public class Report {
 
 	private BaseUser user;
 
+	@ColumnType
+	private Object ref;
+	
 	public long getUser_id() {
 		return user_id;
 	}
@@ -102,4 +105,13 @@ public class Report {
 		this.id = id;
 	}
 
+	public Object getRef() {
+		return ref;
+	}
+
+	public void setRef(Object ref) {
+		this.ref = ref;
+	}
+
+	
 }

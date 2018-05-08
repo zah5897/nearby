@@ -96,6 +96,16 @@ function showOriginImg(img){
  	 });
 }
 
+
+function showUserInfo(user){
+	 var alt=$(user['avatar']).attr("alt");
+    var parentdiv=$('<img></img>');        //创建一个父div
+    parentdiv.attr('src',alt);        //给父div设置id
+	 $(parentdiv).dialog({
+		title : "",
+	 });
+}
+
 function showAuth(img){
 	 var alt=$(img).attr("alt");
     var parentdiv=$('<img></img>');        //创建一个父div

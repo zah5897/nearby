@@ -472,7 +472,8 @@ public class MainService {
 			userCacheService.cacheValidateCode(mobile, code);
 			data.put("validate_code", code);
 		} else {
-			//String errorMsg = "错误码=" + result.get("statusCode") + " 错误信息= " + result.get("statusMsg");
+			// String errorMsg = "错误码=" + result.get("statusCode") + " 错误信息= " +
+			// result.get("statusMsg");
 			// data = ResultUtil.getResultMap(ERROR.ERR_FAILED, "验证码发送失败:"+errorMsg);
 			data = ResultUtil.getResultMap(ERROR.ERR_FAILED, "获取验证码次数过多，明天再试。");
 		}
@@ -504,7 +505,17 @@ public class MainService {
 	}
 
 	public List<Report> listManagerReport(int approval_type, int count, int page) {
-		return systemDao.listManagerReport(approval_type, page, count);
+		List<Report> reports = systemDao.listManagerReport(approval_type, page, count);
+		if (reports != null) {
+			for (Report report : reports) {
+				if (report.getType() == 0) {
+					BaseUser user = userDao.getBaseUser(report.getTarget_id());
+					ImagePathUtil.completeAvatarPath(user, false);
+					report.setRef(user);
+				}
+			}
+		}
+		return reports;
 	}
 
 	public int getReportSizeByApproval(int approval_type) {

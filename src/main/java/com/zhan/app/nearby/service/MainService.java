@@ -522,15 +522,16 @@ public class MainService {
 		return systemDao.getReportSizeByApproval(approval_type);
 	}
 
-	public void handleReport(int id) {
+	public void handleReport(int id,boolean isIgnore) {
 		Report report = systemDao.getReport(id);
 		if (report != null) {
 			if (report.getType() == 0) {
+				Main.disconnectUser(String.valueOf(report.getTarget_id()));
 				userDao.updateAccountState(report.getTarget_id(), AccountStateType.LOCK.ordinal());
 			} else {
 				userDynamicDao.delete(report.getUser_id(), report.getTarget_id());
 			}
-			systemDao.updateReportState(id);
+			systemDao.updateReportState(id,isIgnore?-1:1);
 		}
 	}
 }

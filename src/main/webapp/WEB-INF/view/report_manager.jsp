@@ -225,6 +225,7 @@ td {
 					  txt="删除该动态";
 				  }
 				  toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return handleReport("+id+")'><span class='icon-trash-o'></span>"+txt+"</a>";
+				  toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return ignore("+id+")'><span class='icon-trash-o'></span>"+txt+"</a>";
 			  } 
 			  toAdd+="</div></td></tr>";
 			 tr.after(toAdd);
@@ -237,6 +238,24 @@ td {
 		  $.post("<%=path%>/manager/handleReport", {
 				'id' : id,
 				'type' : type,
+				 'isIgnore':false,
+				'pageIndex' : currentPageIndex,
+				'pageSize' : pageSize
+			}, function(result) {
+				var json = JSON.parse(result);
+				if (json.code == 0) {
+					$("table tr[id*='tr_'").each(function(i) {
+						this.remove();//移除当前的元素
+					})
+					refreshTable(json);
+				}
+			});
+		}
+	  function ignore(id){
+		  $.post("<%=path%>/manager/handleReport", {
+				'id' : id,
+				'type' : type,
+				 'isIgnore':true,
 				'pageIndex' : currentPageIndex,
 				'pageSize' : pageSize
 			}, function(result) {

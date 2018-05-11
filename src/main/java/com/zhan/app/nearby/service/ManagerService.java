@@ -285,8 +285,8 @@ public class ManagerService {
 		}
 	}
 
-	public void handleReport(int id) {
-		mainService.handleReport(id);
+	public void handleReport(int id,boolean isIgnore) {
+		mainService.handleReport(id,isIgnore);
 	}
 
 	/**

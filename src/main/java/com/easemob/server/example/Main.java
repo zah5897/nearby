@@ -21,9 +21,8 @@ import com.zhan.app.nearby.util.MD5Util;
 @SuppressWarnings("unused")
 public class Main {
 	private static EasemobRestAPIFactory factory;
-	public static final String SYS="admin";
+	public static final String SYS = "admin";
 
-	
 	private static void initFactory() {
 		if (factory == null) {
 			factory = ClientContext.getInstance().init(ClientContext.INIT_FROM_PROPERTIES).getAPIFactory();
@@ -64,15 +63,13 @@ public class Main {
 		// "HelloWorld");
 		// user.createNewIMUserSingle(userBody);
 		/*
-		 * // Create a IM user // BodyWrapper userBody = new
-		 * IMUserBody("User101", "123456", "HelloWorld"); //
-		 * user.createNewIMUserSingle(userBody);
+		 * // Create a IM user // BodyWrapper userBody = new IMUserBody("User101",
+		 * "123456", "HelloWorld"); // user.createNewIMUserSingle(userBody);
 		 * 
-		 * // Create some IM users List<IMUserBody> users = new
-		 * ArrayList<IMUserBody>(); users.add(new IMUserBody("User002",
-		 * "123456", null)); users.add(new IMUserBody("User003", "123456",
-		 * null)); BodyWrapper usersBody = new IMUsersBody(users);
-		 * user.createNewIMUserBatch(usersBody);
+		 * // Create some IM users List<IMUserBody> users = new ArrayList<IMUserBody>();
+		 * users.add(new IMUserBody("User002", "123456", null)); users.add(new
+		 * IMUserBody("User003", "123456", null)); BodyWrapper usersBody = new
+		 * IMUsersBody(users); user.createNewIMUserBatch(usersBody);
 		 * 
 		 * // Get a IM user user.getIMUsersByUserName("User001");
 		 * 
@@ -97,18 +94,22 @@ public class Main {
 		// ext.put("action",
 		// String.valueOf(MessageAction.ACTION_SOMEONE_LIKE_ME_TIP.ordinal()));
 		//
-//		 System.out.println(sendTxtMessage("admin",new String[]{"15"},"",new HashMap<String, String>()));
+		// System.out.println(sendTxtMessage("admin",new String[]{"15"},"",new
+		// HashMap<String, String>()));
 
-		String password = MD5Util.getMd5_16(90046+"");
-		Object obj = registUser("90046", password, "90046");
-		if (obj instanceof ResponseWrapper) {
-			ResponseWrapper response = (ResponseWrapper) obj;
-//
-			ObjectNode node = (ObjectNode) response.getResponseBody();
-//
-			System.out.println(response.getResponseStatus());
-			System.out.println(node.get("error"));
-		}
+		// String password = MD5Util.getMd5_16(90046+"");
+		// Object obj = registUser("90046", password, "90046");
+		// if (obj instanceof ResponseWrapper) {
+		// ResponseWrapper response = (ResponseWrapper) obj;
+		////
+		// ObjectNode node = (ObjectNode) response.getResponseBody();
+		////
+		// System.out.println(response.getResponseStatus());
+		// System.out.println(node.get("error"));
+		// }
+
+		boolean r= disconnectUser("41");
+		 System.out.println(r);
 	}
 
 	public static Object registUser(String userName, String password, String nickname) {
@@ -116,6 +117,24 @@ public class Main {
 		IMUserAPI user = (IMUserAPI) factory.newInstance(EasemobRestAPIFactory.USER_CLASS);
 		BodyWrapper userBody = new IMUserBody(userName, password, nickname);
 		return user.createNewIMUserSingle(userBody);
+	}
+
+	public static boolean disconnectUser(String userName) {
+		initFactory();
+		IMUserAPI user = (IMUserAPI) factory.newInstance(EasemobRestAPIFactory.USER_CLASS);
+		ResponseWrapper wrapper = (ResponseWrapper) user.disconnectIMUser(userName);
+
+		ObjectNode node = (ObjectNode) wrapper.getResponseBody();
+		Map<String, Object> requestResult = JSONUtil.jsonToMap(node.toString());
+
+		try {
+			boolean b = (boolean) ((Map<String, Object>) requestResult.get("data")).get("result");
+			return b;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return false;
 	}
 
 	public static Object updateNickName(String userName, String nickname) {
@@ -127,13 +146,14 @@ public class Main {
 		return user.modifyIMUserNickNameWithAdminToken(userName, payload);
 	}
 
-	public static Object sendTxtMessage(String from, String[] users, String msgTxt, Map<String, String> ext,String TYPE) {
-		
-		if(ext==null) {
-			ext=new HashMap<String, String>();
+	public static Object sendTxtMessage(String from, String[] users, String msgTxt, Map<String, String> ext,
+			String TYPE) {
+
+		if (ext == null) {
+			ext = new HashMap<String, String>();
 		}
 		ext.put("send_by_admim", "admin");
-		Map<String, String> apns=new HashMap<String,String>();
+		Map<String, String> apns = new HashMap<String, String>();
 		apns.put("type", TYPE);
 		apns.put("msg", msgTxt);
 		try {
@@ -150,12 +170,12 @@ public class Main {
 	}
 
 	public static Object sendCmdMessage(String from, String[] users, Map<String, String> ext) {
-		
-		if(ext==null) {
-			ext=new HashMap<String, String>();
+
+		if (ext == null) {
+			ext = new HashMap<String, String>();
 		}
 		ext.put("send_by_admim", "admin");
-		
+
 		initFactory();
 		BodyWrapper payload = new CmdMessageBody("users", users, from, ext);
 		SendMessageAPI message = (SendMessageAPI) factory.newInstance(EasemobRestAPIFactory.SEND_MESSAGE_CLASS);

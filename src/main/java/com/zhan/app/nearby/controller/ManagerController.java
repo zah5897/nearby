@@ -773,8 +773,8 @@ public class ManagerController {
 
 	// 获取提现申请记录
 	@RequestMapping(value = "/handleReport")
-	public @ResponseBody ModelMap handleReport(int id, int type, int pageSize, int pageIndex) {
-		managerService.handleReport(id);
+	public @ResponseBody ModelMap handleReport(int id, int type, int pageSize, int pageIndex,Boolean isIgnore) {
+		managerService.handleReport(id,isIgnore==null?false:isIgnore);
 		return list_report_history(type, pageSize, pageIndex);
 	}
 

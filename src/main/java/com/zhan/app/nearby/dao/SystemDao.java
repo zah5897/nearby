@@ -81,9 +81,9 @@ public class SystemDao extends BaseDao {
 		}
 	}
 
-	public int updateReportState(int id) {
+	public int updateReportState(int id,int state) {
 		return jdbcTemplate.update("update t_report_record set approval_result=?,approval_time=? where id=?",
-				new Object[] { 1, new Date(), id });
+				new Object[] { state, new Date(), id });
 	}
 
 	public List<Report> listManagerReport(int approval_type, int page, int count) {

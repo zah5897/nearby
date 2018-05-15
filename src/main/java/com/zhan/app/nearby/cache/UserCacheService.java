@@ -8,6 +8,7 @@ import javax.annotation.Resource;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import com.zhan.app.nearby.util.BottleKeyWordUtil;
 import com.zhan.app.nearby.util.TextUtils;
 
 /**
@@ -21,6 +22,7 @@ public class UserCacheService {
 
 	public static final String PERFIX_UPLOAD_TIME = "last_upload_time";
 	public static final String PERFIX_BOTTLE_SEND_TIME = "user_bottle_send_time";
+	public static final String PERFIX_BOTTLE_KEY_WORD = BottleKeyWordUtil.KEY;
 	@Resource
 	protected RedisTemplate<String, Serializable> redisTemplate;
 
@@ -147,6 +149,18 @@ public class UserCacheService {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	public void setBottleKeyWord(String keywords) {
+		redisTemplate.opsForValue().set(PERFIX_BOTTLE_KEY_WORD, keywords);
+	}
+
+	public String getBottleKeyWord() {
+		Object obj = redisTemplate.opsForValue().get(PERFIX_BOTTLE_KEY_WORD);
+		if (obj != null) {
+			return obj.toString();
+		}
+		return "";
 	}
 
 }

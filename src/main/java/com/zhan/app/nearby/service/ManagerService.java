@@ -181,8 +181,8 @@ public class ManagerService {
 	 * @param currentPage
 	 * @return
 	 */
-	public List<BaseUser> getAllUser(int pageSize, int currentPage, int type, String keyword) {
-		return userService.getAllUser(pageSize, currentPage, type, keyword);
+	public List<BaseUser> getAllUser(int pageSize, int currentPage, int type, String keyword,Long user_id) {
+		return userService.getAllUser(pageSize, currentPage, type, keyword,user_id);
 	}
 
 	/**
@@ -190,8 +190,8 @@ public class ManagerService {
 	 * 
 	 * @return
 	 */
-	public int getUserSize(int type, String keyword) {
-		return userService.getUserSize(type, keyword);
+	public int getUserSize(int type, String keyword,Long user_id) {
+		return userService.getUserSize(type, keyword,user_id);
 	}
 
 	/**

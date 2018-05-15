@@ -19,6 +19,7 @@ import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.service.DynamicMsgService;
 import com.zhan.app.nearby.service.UserDynamicService;
 import com.zhan.app.nearby.service.UserService;
+import com.zhan.app.nearby.util.BottleKeyWordUtil;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.ResultUtil;
 import com.zhan.app.nearby.util.TextUtils;
@@ -40,6 +41,19 @@ public class DynamicController {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "用户id异常");
 		}
 		comment.setComment_time(new Date());
+		
+		
+		//敏感词过滤
+		List<String> bottleKeyWords=BottleKeyWordUtil.loadKeyWolds();
+		if(bottleKeyWords!=null&&bottleKeyWords.size()>0) {
+			String content=comment.getContent();
+			for(String key:bottleKeyWords) {
+				content=content.replace(key, BottleKeyWordUtil.getStar(key.length()));
+			}
+			comment.setContent(content);
+		}
+		
+		
 		long id = userDynamicService.comment(comment);
 
 		ModelMap result;

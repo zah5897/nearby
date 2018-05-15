@@ -1,6 +1,7 @@
 package com.zhan.app.nearby.controller;
 
 import java.util.Iterator;
+import java.util.List;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -17,6 +18,7 @@ import com.zhan.app.nearby.bean.type.BottleType;
 import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.service.BottleService;
 import com.zhan.app.nearby.service.MainService;
+import com.zhan.app.nearby.util.BottleKeyWordUtil;
 import com.zhan.app.nearby.util.ImageSaveUtils;
 import com.zhan.app.nearby.util.ResultUtil;
 
@@ -57,8 +59,17 @@ public class BottleController {
 					}
 				}
 			}
+		}else if(bottle.getType() == BottleType.TXT.ordinal()) {
+			//敏感词过滤
+			List<String> bottleKeyWords=BottleKeyWordUtil.loadKeyWolds();
+			if(bottleKeyWords!=null&&bottleKeyWords.size()>0) {
+				String content=bottle.getContent();
+				for(String key:bottleKeyWords) {
+					content=content.replace(key, BottleKeyWordUtil.getStar(key.length()));
+				}
+				bottle.setContent(content);
+			}
 		}
-
 		bottleService.insert(bottle);
 		return ResultUtil.getResultOKMap().addAttribute("bottle", bottle);
 	}

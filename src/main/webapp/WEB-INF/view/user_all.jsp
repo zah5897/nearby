@@ -45,6 +45,10 @@
 			         <input type="text" placeholder="请输入用户昵称" name="keywords" class="input" style="width:250px; line-height:17px;display:inline-block" />
                      <a href="javascript:void(0)" class="button border-main icon-search" onclick="doSearch()" > 搜索</a>
                    </li> 
+                   <li>
+			         <input type="text" placeholder="请输入用户id" name="user_id_input" class="input" style="width:250px; line-height:17px;display:inline-block" />
+                     <a href="javascript:void(0)" class="button border-main icon-search" onclick="doSearchById()" > 搜索</a>
+                   </li> 
 				</ul>
 			</div>
 			
@@ -80,6 +84,7 @@
 	    var pageCount = 100;
 	    var type=-1;
 	    var keyword;
+	    var user_id;
 	    //默认加载第一页
 	    $(document).ready(function(){ 
 		    page(1);
@@ -118,12 +123,27 @@
 	    	currentPageIndex=0;
 	    	page(1);
 	    }
+	    
+	    function doSearchById(){
+	    	var key=$("[name='user_id_input']").val().replace(/^\s+|\s+$/g,"");
+	    	if(user_id==''){
+	    		if(key==''){
+		    		return;
+		    	}
+	    	}
+	    	if(user_id==key){
+	    		return;
+	    	}
+	    	user_id=key;
+	    	currentPageIndex=0;
+	    	page(1);
+	    }
 	     //获取对应页面
 		function page(index) {
 			if (currentPageIndex == index) {
 				return false;
 			}
-			$.post("<%=path%>/manager/list_user_all",{'pageIndex':index,'pageSize':pageSize,'type':type,'keyword':keyword},function(result){
+			$.post("<%=path%>/manager/list_user_all",{'pageIndex':index,'pageSize':pageSize,'type':type,'keyword':keyword,'user_id':user_id},function(result){
 				 var json=JSON.parse(result);
 			        if(json.code==0){
 			        	$("table tr[id*='tr_'").each(function(i){

@@ -468,11 +468,11 @@ public class UserService {
 	 * @param currentPage
 	 * @return
 	 */
-	public List<BaseUser> getAllUser(int pageSize, int currentPage, int type, String keyword) {
+	public List<BaseUser> getAllUser(int pageSize, int currentPage, int type, String keyword,Long user_id) {
 		if (type == -1) {
-			return userDao.getUsers(pageSize, currentPage, keyword);
+			return userDao.getUsers(pageSize, currentPage, keyword,user_id==null?0:user_id);
 		} else {
-			return userDao.getUsers(pageSize, currentPage, type, keyword);
+			return userDao.getUsers(pageSize, currentPage, type, keyword,user_id==null?0:user_id);
 		}
 	}
 
@@ -481,11 +481,11 @@ public class UserService {
 	 * 
 	 * @return
 	 */
-	public int getUserSize(int type, String keyword) {
+	public int getUserSize(int type, String keyword,Long user_id) {
 		if (type == -1) {
-			return userDao.getUserSize(keyword);
+			return userDao.getUserSize(keyword,user_id==null?0:user_id);
 		} else {
-			return userDao.getUserSize(type, keyword);
+			return userDao.getUserSize(type, keyword,user_id==null?0:user_id);
 		}
 	}
 

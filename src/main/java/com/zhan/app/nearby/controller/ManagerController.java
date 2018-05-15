@@ -1,5 +1,6 @@
 package com.zhan.app.nearby.controller;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -29,6 +30,7 @@ import com.zhan.app.nearby.comm.DynamicState;
 import com.zhan.app.nearby.comm.FoundUserRelationship;
 import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.service.ManagerService;
+import com.zhan.app.nearby.util.BottleKeyWordUtil;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.ImageSaveUtils;
 import com.zhan.app.nearby.util.ResultUtil;
@@ -623,12 +625,12 @@ public class ManagerController {
 
 	// 获取所有用户
 	@RequestMapping(value = "/list_user_all")
-	public @ResponseBody ModelMap list_user_all(int pageSize, int pageIndex, int type, String keyword) {
+	public @ResponseBody ModelMap list_user_all(int pageSize, int pageIndex, int type, String keyword,Long user_id) {
 		ModelMap r = ResultUtil.getResultOKMap();
-		List<BaseUser> users = managerService.getAllUser(pageSize, pageIndex, type, keyword);
+		List<BaseUser> users = managerService.getAllUser(pageSize, pageIndex, type, keyword,user_id);
 
 		if (pageIndex == 1) {
-			int totalSize = managerService.getUserSize(type, keyword);
+			int totalSize = managerService.getUserSize(type, keyword,user_id);
 			int pageCount = totalSize / pageSize;
 			if (totalSize % 10 > 0) {
 				pageCount += 1;
@@ -773,8 +775,8 @@ public class ManagerController {
 
 	// 获取提现申请记录
 	@RequestMapping(value = "/handleReport")
-	public @ResponseBody ModelMap handleReport(int id, int type, int pageSize, int pageIndex,Boolean isIgnore) {
-		managerService.handleReport(id,isIgnore==null?false:isIgnore);
+	public @ResponseBody ModelMap handleReport(int id, int type, int pageSize, int pageIndex, Boolean isIgnore) {
+		managerService.handleReport(id, isIgnore == null ? false : isIgnore);
 		return list_report_history(type, pageSize, pageIndex);
 	}
 
@@ -801,8 +803,19 @@ public class ManagerController {
 
 	// 获取提现申请记录
 	@RequestMapping(value = "/changeBottleState")
-	public @ResponseBody ModelMap changeBottleState(int id, int type, int pageSize, int pageIndex,int to_state) {
-		managerService.changeBottleState(id,to_state);
+	public @ResponseBody ModelMap changeBottleState(int id, int type, int pageSize, int pageIndex, int to_state) {
+		managerService.changeBottleState(id, to_state);
 		return list_bottle(type, pageSize, pageIndex);
+	}
+
+	// 获取提现申请记录
+	@RequestMapping(value = "/bottle_txt_key_word")
+	public @ResponseBody ModelMap bottle_txt_key_word(int type, String keyWord) {
+		if (type == 0) {
+			return ResultUtil.getResultOKMap().addAttribute("key_word", BottleKeyWordUtil.loadKeyWold());
+		} else {
+			BottleKeyWordUtil.saveKeyWord(keyWord.trim());
+			return ResultUtil.getResultOKMap().addAttribute("key_word", keyWord);
+		}
 	}
 }

@@ -53,7 +53,14 @@ public class UserDao extends BaseDao {
 	 * @param type
 	 * @return
 	 */
-	public List<BaseUser> getUsers(int pageSize, int currentPage, int type, String keyword) {
+	public List<BaseUser> getUsers(int pageSize, int currentPage, int type, String keyword,long user_id) {
+		
+		if(user_id>0) {
+			return jdbcTemplate.query("select *from t_user   where user_id=? and  type=? order by user_id desc limit ?,?",
+					new Object[] { user_id,type, (currentPage - 1) * pageSize, pageSize },
+					new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+		}
+		
 		if (TextUtils.isEmpty(keyword)) {
 			return jdbcTemplate.query("select *from t_user  where type=? order by user_id desc limit ?,?",
 					new Object[] { type, (currentPage - 1) * pageSize, pageSize },
@@ -73,7 +80,14 @@ public class UserDao extends BaseDao {
 	 * @param currentPage
 	 * @return
 	 */
-	public List<BaseUser> getUsers(int pageSize, int currentPage, String keyword) {
+	public List<BaseUser> getUsers(int pageSize, int currentPage, String keyword,long user_id) {
+		
+		if(user_id>0) {
+			return jdbcTemplate.query("select *from t_user where user_id=? order by user_id desc limit ?,?",
+					new Object[] {user_id, (currentPage - 1) * pageSize, pageSize },
+					new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+		}
+		
 		if (TextUtils.isEmpty(keyword)) {
 			return jdbcTemplate.query("select *from t_user order by user_id desc limit ?,?",
 					new Object[] { (currentPage - 1) * pageSize, pageSize },
@@ -351,7 +365,12 @@ public class UserDao extends BaseDao {
 	 * 
 	 * @return
 	 */
-	public int getUserSize(String keyword) {
+	public int getUserSize(String keyword,long user_id) {
+		
+		if(user_id>0) {
+			return jdbcTemplate.queryForObject("select count(*) from t_user where user_id=?",new Object[] {user_id}, Integer.class);
+		}
+		
 		if (TextUtils.isEmpty(keyword)) {
 			return jdbcTemplate.queryForObject("select count(*) from t_user", Integer.class);
 		} else {
@@ -367,8 +386,11 @@ public class UserDao extends BaseDao {
 	 * @param type
 	 * @return
 	 */
-	public int getUserSize(int type, String keyword) {
-
+	public int getUserSize(int type, String keyword,long user_id) {
+		if(user_id>0) {
+			return jdbcTemplate.queryForObject("select count(*) from t_user where user_id=?",new Object[] {user_id}, Integer.class);
+		}
+		
 		if (TextUtils.isEmpty(keyword)) {
 			return jdbcTemplate.queryForObject("select count(*) from t_user where type=?", new Object[] { type },
 					Integer.class);

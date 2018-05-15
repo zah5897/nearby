@@ -86,17 +86,25 @@ public class TimerTask {
 		String url = "http://app.weimobile.com/yuehui/m_lianai!findLove.action?_ua=a|8.1|shiguangliu|1.1|CocoaPods|df67470b7146390726dd8ee072f47413|320|568|0&aid=1044969149&ver=1.1&ln=en&sid=1001&de=2018-04-15%2016:29:15&mod=iPhone%20Simulator&mno=&mos=iPhone%20Simulator&cd=o57aTreul3QUX+4usDu0mA==&sync=1&companyId=89jq3jrsdfu0as98dfh34ho&deviceId=df67470b7146390726dd8ee072f47413&page=1&";
 		String result = HttpUtil.sendGet(url);
 		Map<String, Object> map = JSONUtil.jsonToMap(result);
-		if (map != null) {
-			Map<String, Object> body = (Map<String, Object>) map.get("body");
-			if (body != null) {
-				List<Object> resultList = (List<Object>) body.get("result");
-				for (Object obj : resultList) {
-					Map<String, Object> data = (Map<String, Object>) obj;
-					String id = (String) data.get("id");
-					String title = (String) data.get("title");
-					bottleService.sendAutoBottle(id, title);
-				}
-			}
+
+		if (map == null) {
+			return;
+		}
+		Map<String, Object> body = (Map<String, Object>) map.get("body");
+
+		if (body == null) {
+			return;
+		}
+		List<Object> resultList = (List<Object>) body.get("result");
+		if (resultList == null) {
+			return;
+		}
+
+		for (Object obj : resultList) {
+			Map<String, Object> data = (Map<String, Object>) obj;
+			String id = (String) data.get("id");
+			String title = (String) data.get("title");
+			bottleService.sendAutoBottle(id, title);
 		}
 
 	}

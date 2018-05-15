@@ -61,14 +61,8 @@ public class BottleController {
 			}
 		}else if(bottle.getType() == BottleType.TXT.ordinal()) {
 			//敏感词过滤
-			List<String> bottleKeyWords=BottleKeyWordUtil.loadKeyWolds();
-			if(bottleKeyWords!=null&&bottleKeyWords.size()>0) {
-				String content=bottle.getContent();
-				for(String key:bottleKeyWords) {
-					content=content.replace(key, BottleKeyWordUtil.getStar(key.length()));
-				}
-				bottle.setContent(content);
-			}
+			String newContent=BottleKeyWordUtil.filterContent(bottle.getContent());
+			bottle.setContent(newContent);
 		}
 		bottleService.insert(bottle);
 		return ResultUtil.getResultOKMap().addAttribute("bottle", bottle);

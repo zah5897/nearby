@@ -22,7 +22,7 @@ public class UserCacheService {
 
 	public static final String PERFIX_UPLOAD_TIME = "last_upload_time";
 	public static final String PERFIX_BOTTLE_SEND_TIME = "user_bottle_send_time";
-	public static final String PERFIX_BOTTLE_KEY_WORD = BottleKeyWordUtil.KEY;
+	public static final String PERFIX_BOTTLE_KEY_WORD = "bottle_key_word";
 	@Resource
 	protected RedisTemplate<String, Serializable> redisTemplate;
 

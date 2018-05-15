@@ -44,15 +44,8 @@ public class DynamicController {
 		
 		
 		//敏感词过滤
-		List<String> bottleKeyWords=BottleKeyWordUtil.loadKeyWolds();
-		if(bottleKeyWords!=null&&bottleKeyWords.size()>0) {
-			String content=comment.getContent();
-			for(String key:bottleKeyWords) {
-				content=content.replace(key, BottleKeyWordUtil.getStar(key.length()));
-			}
-			comment.setContent(content);
-		}
-		
+		String newContent=BottleKeyWordUtil.filterContent(comment.getContent());
+		comment.setContent(newContent);
 		
 		long id = userDynamicService.comment(comment);
 

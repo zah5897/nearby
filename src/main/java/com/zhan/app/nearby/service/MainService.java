@@ -534,4 +534,5 @@ public class MainService {
 			systemDao.updateReportState(id,isIgnore?-1:1);
 		}
 	}
+	
 }

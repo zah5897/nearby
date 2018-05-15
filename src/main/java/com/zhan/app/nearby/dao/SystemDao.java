@@ -235,4 +235,15 @@ public class SystemDao extends BaseDao {
 						personalInfo.getAid() });
 	}
 
+	public String  loadFilterKeyword(int type) {
+		//type=0 为瓶子敏感词
+		return jdbcTemplate.queryForObject("select filter_keywords from  t_filter_keyword where type=? limit ?",new Object[] {type,1},String.class);
+	}
+	
+	
+	public int  updateFilterKeywords(int type,String keywords) {
+		//type=0 为瓶子敏感词
+		return jdbcTemplate.update("update t_filter_keyword set filter_keywords=? where type=?",new Object[] {keywords,type});
+	}
+
 }

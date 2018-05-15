@@ -1,18 +1,13 @@
 package com.zhan.app.nearby.util;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Properties;
 
 import com.zhan.app.nearby.cache.UserCacheService;
+import com.zhan.app.nearby.dao.SystemDao;
 
 public class BottleKeyWordUtil {
 
-	public static final String NAME = "bottle_key_word.properties";
-	public static final String KEY = "bottle_key_word";
 
 	public static String loadKeyWold() {
 		String keywords = null;
@@ -20,8 +15,12 @@ public class BottleKeyWordUtil {
 		if (TextUtils.isNotBlank(keywords)) {
 			return keywords;
 		}
-		Properties prop = PropertiesUtil.load(NAME);
-		keywords = PropertiesUtil.getProperty(prop, KEY);
+		SystemDao dao=SpringContextUtil.getBean("systemDao");
+		//获取瓶子敏感词
+		keywords = dao.loadFilterKeyword(0);
+		if(keywords==null) {
+			keywords="";
+		}
 		return keywords;
 	}
 
@@ -33,11 +32,24 @@ public class BottleKeyWordUtil {
 		return Arrays.asList(keywords.split(","));
 	}
 
+	public static String filterContent(String content) {
+		if (TextUtils.isEmpty(content)) {
+			return content;
+		}
+		List<String> bottleKeyWords = loadKeyWolds();
+		if (bottleKeyWords != null && bottleKeyWords.size() > 0) {
+			for (String key : bottleKeyWords) {
+				content = content.replace(key, getStar(key.length()));
+			}
+		}
+		return content;
+	}
+
 	public static void saveKeyWord(String keywords) {
 		if (keywords == null) {
 			keywords = "";
 		}
-		keywords=keywords.trim();
+		keywords = keywords.trim();
 		if (TextUtils.isNotEmpty(keywords)) {
 			keywords = keywords.replace("，", ",");
 			String[] keys = keywords.split(",");
@@ -51,18 +63,11 @@ public class BottleKeyWordUtil {
 			keywords = sb.toString();
 			keywords = keywords.substring(0, keywords.length() - 1);
 		}
-		
-		Properties prop = PropertiesUtil.load(NAME);
-		prop.setProperty(KEY, keywords);
 
-		String file = ImageSaveUtils.class.getClassLoader().getResource(NAME).getFile();
-		try {
-			prop.store(new FileOutputStream(new File(file)), "");
-			toCache(keywords);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		
+		SystemDao dao=SpringContextUtil.getBean("systemDao");
+		dao.updateFilterKeywords(0, keywords);
+		toCache(keywords);
 	}
 
 	public static String loadKeyWoldFromCache() {
@@ -75,13 +80,13 @@ public class BottleKeyWordUtil {
 		UserCacheService cache = SpringContextUtil.getBean("userCacheService");
 		cache.setBottleKeyWord(keys);
 	}
-	
+
 	public static String getStar(int len) {
-		char[] stars=new char[len];
-		for(int i=0;i<len;i++) {
-			stars[i]='*';
+		char[] stars = new char[len];
+		for (int i = 0; i < len; i++) {
+			stars[i] = '*';
 		}
 		return new String(stars, 0, len);
 	}
-	
+
 }

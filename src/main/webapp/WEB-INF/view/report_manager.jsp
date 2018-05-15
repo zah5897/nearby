@@ -225,7 +225,7 @@ td {
 					  txt="删除该动态";
 				  }
 				  toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return handleReport("+id+")'><span class='icon-trash-o'></span>"+txt+"</a>";
-				  toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return ignore("+id+")'><span class='icon-trash-o'></span>"+txt+"</a>";
+				  toAdd+="<a class='button border-blue' href='javascript:void(0)'	onclick='return ignore("+id+")'><span class='icon-trash-o'></span>没问题</a>";
 			  } 
 			  toAdd+="</div></td></tr>";
 			 tr.after(toAdd);

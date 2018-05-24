@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import javax.annotation.Resource;
 
@@ -14,6 +15,7 @@ import org.springframework.ui.ModelMap;
 
 import com.easemob.server.example.Main;
 import com.easemob.server.example.comm.wrapper.ResponseWrapper;
+import com.zhan.app.nearby.bean.Avatar;
 import com.zhan.app.nearby.bean.DynamicMessage;
 import com.zhan.app.nearby.bean.Tag;
 import com.zhan.app.nearby.bean.UserDynamic;
@@ -35,8 +37,12 @@ import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.util.AddressUtil;
 import com.zhan.app.nearby.util.DateTimeUtil;
 import com.zhan.app.nearby.util.HttpService;
+import com.zhan.app.nearby.util.HttpsUtil;
 import com.zhan.app.nearby.util.ImagePathUtil;
+import com.zhan.app.nearby.util.ImageSaveUtils;
+import com.zhan.app.nearby.util.JSONUtil;
 import com.zhan.app.nearby.util.MD5Util;
+import com.zhan.app.nearby.util.PropertiesUtil;
 import com.zhan.app.nearby.util.ResultUtil;
 import com.zhan.app.nearby.util.TextUtils;
 
@@ -140,6 +146,23 @@ public class UserService {
 		return userDao.updateAvatar(user_id, newAcatar);
 	}
 
+	public int saveAvatar(long user_id, String avatar) {
+		return userDao.saveAvatar(user_id, avatar);
+	}
+
+	public String deleteAvatar(long user_id, String avatar_id) {
+		int count = userDao.getAvatarCount(user_id);
+		if (count > 1) {
+			String delAvatar = userDao.deleteAvatar(user_id, avatar_id);
+			ImageSaveUtils.removeAcatar(delAvatar);
+			String topAvatar = userDao.getLastAvatar(user_id);
+			updateAvatar(user_id, topAvatar);
+			return delAvatar;
+		} else {
+			return null;
+		}
+	}
+
 	public int updateLocation(long user_id, String lat, String lng) {
 		int count = userDao.updateLocation(user_id, lat, lng);
 		// userCacheService.cacheValidateCode(mobile, code);
@@ -154,7 +177,6 @@ public class UserService {
 	public DetailUser getUserDetailInfo(long user_id_for) {
 		DetailUser user = userDao.getUserDetailInfo(user_id_for);
 		if (user != null) {
-
 			if (user.getCity_id() > 0) {
 				user.setCity(cityService.getSimpleCity(user.getCity_id()));
 			}
@@ -257,6 +279,7 @@ public class UserService {
 
 		ModelMap r = ResultUtil.getResultOKMap();
 		user.setIs_vip(vipDao.isVip(user_id_for));
+		user.setAvatars(getUserAvatars(user_id_for));
 		r.addAttribute("user", user);
 
 		Relationship iWithHim = getRelationShip(uid == null ? 0 : uid, user_id_for);
@@ -278,6 +301,13 @@ public class UserService {
 		return r;
 	}
 
+	
+	
+	
+	public List<Avatar> getUserAvatars(long user_id){
+		return ImagePathUtil.completeAvatarsPath(userDao.getUserAvatars(user_id));
+	}
+	
 	public List<Tag> getTagsByType(int type) {
 		return tagDao.getTagsByType(type);
 	}
@@ -468,11 +498,11 @@ public class UserService {
 	 * @param currentPage
 	 * @return
 	 */
-	public List<BaseUser> getAllUser(int pageSize, int currentPage, int type, String keyword,Long user_id) {
+	public List<BaseUser> getAllUser(int pageSize, int currentPage, int type, String keyword, Long user_id) {
 		if (type == -1) {
-			return userDao.getUsers(pageSize, currentPage, keyword,user_id==null?0:user_id);
+			return userDao.getUsers(pageSize, currentPage, keyword, user_id == null ? 0 : user_id);
 		} else {
-			return userDao.getUsers(pageSize, currentPage, type, keyword,user_id==null?0:user_id);
+			return userDao.getUsers(pageSize, currentPage, type, keyword, user_id == null ? 0 : user_id);
 		}
 	}
 
@@ -481,11 +511,11 @@ public class UserService {
 	 * 
 	 * @return
 	 */
-	public int getUserSize(int type, String keyword,Long user_id) {
+	public int getUserSize(int type, String keyword, Long user_id) {
 		if (type == -1) {
-			return userDao.getUserSize(keyword,user_id==null?0:user_id);
+			return userDao.getUserSize(keyword, user_id == null ? 0 : user_id);
 		} else {
-			return userDao.getUserSize(type, keyword,user_id==null?0:user_id);
+			return userDao.getUserSize(type, keyword, user_id == null ? 0 : user_id);
 		}
 	}
 
@@ -581,4 +611,42 @@ public class UserService {
 		return userDao.loadSpecialUsers(limit == null ? 5 : limit);
 	}
 
+	public Map<String, Object> checkIn(long user_id, String token, String aid) {
+		if (checkLogin(user_id, token)) {
+			int count = userDao.todayCheckInCount(user_id);
+			if (count == 0) {
+				userDao.todayCheckIn(user_id);
+				return addExtra(user_id, aid, 3);
+			} else {
+				return ResultUtil.getResultMap(ERROR.ERR_FAILED, "已经签过到");
+			}
+		} else {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+	}
+
+	private String MODULE_ORDER_A_EXTRA;
+
+	private Map<String, Object> addExtra(long user_id, String aid, int count) {
+		if (TextUtils.isEmpty(MODULE_ORDER_A_EXTRA)) {
+			Properties prop = PropertiesUtil.load("config.properties");
+			String value = PropertiesUtil.getProperty(prop, "MODULE_ORDER_A_EXTRA");
+			MODULE_ORDER_A_EXTRA = value;
+		}
+		String result = null;
+		try {
+			result = HttpsUtil.sendHttpsPost(
+					MODULE_ORDER_A_EXTRA + "?id_user=" + user_id + "$&aid=" + aid + "&extra=" + count + "_");
+			if (!TextUtils.isEmpty(result)) {
+				Map<String, Object> resultData = JSONUtil.jsonToMap(result);
+				resultData.put("coins_checkin", count);
+				return resultData;
+			} else {
+				return ResultUtil.getResultMap(ERROR.ERR_FAILED);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return ResultUtil.getResultMap(ERROR.ERR_FAILED);
+	}
 }

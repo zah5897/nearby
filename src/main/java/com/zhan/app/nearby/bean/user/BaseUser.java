@@ -1,11 +1,13 @@
 package com.zhan.app.nearby.bean.user;
 
 import java.util.Date;
+import java.util.List;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.zhan.app.nearby.annotation.ColumnType;
+import com.zhan.app.nearby.bean.Avatar;
 import com.zhan.app.nearby.comm.UserType;
 
 public class BaseUser {
@@ -28,6 +30,9 @@ public class BaseUser {
 	private String nick_name;
 	private String sex; // 0 女，1 男，2 未知
 
+	@ColumnType // 忽略保存
+	private List<Avatar> avatars;
+
 	private String avatar;
 	@ColumnType // 忽略保存
 	private String origin_avatar;
@@ -47,7 +52,7 @@ public class BaseUser {
 	@JSONField(format = "yyyy-MM-dd")
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	private Date birthday;
-	
+
 	@JSONField(serialize = false)
 	private int account_state;
 
@@ -173,5 +178,13 @@ public class BaseUser {
 	public void setAccount_state(int account_state) {
 		this.account_state = account_state;
 	}
-	
+
+	public List<Avatar> getAvatars() {
+		return avatars;
+	}
+
+	public void setAvatars(List<Avatar> avatars) {
+		this.avatars = avatars;
+	}
+
 }

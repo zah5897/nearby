@@ -15,8 +15,10 @@ public class AppExceptionHandler implements HandlerExceptionResolver {
 
 	public ModelAndView resolveException(HttpServletRequest request, HttpServletResponse response, Object obj,
 			Exception ex) {
+		String url = request.getRequestURI();
+		System.out.println(url);
 		WriteJsonUtil.write(response, ex);
-		log.error(ex.getMessage());
+		log.error(url+"\n"+ex.getMessage());
 		ex.printStackTrace();
 		return new ModelAndView();
 	}

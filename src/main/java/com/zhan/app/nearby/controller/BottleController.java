@@ -1,7 +1,6 @@
 package com.zhan.app.nearby.controller;
 
 import java.util.Iterator;
-import java.util.List;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -52,7 +51,7 @@ public class BottleController {
 				MultipartFile file = multiRequest.getFile((String) iterator.next());
 				if (!file.isEmpty()) {
 					try {
-						String imageName = ImageSaveUtils.saveBottleImages(file, request.getServletContext());
+						String imageName = ImageSaveUtils.saveBottleImages(file);
 						bottle.setContent(imageName);
 					} catch (Exception e) {
 						e.printStackTrace();

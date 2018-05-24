@@ -129,7 +129,7 @@ public class UserDynamicService {
 		return userDynamicDao.updateLikeState(dynamicRelationShip);
 	}
 
-	public String delete(ServletContext servletContext, Long user_id, String dynamic_ids) {
+	public String delete(Long user_id, String dynamic_ids) {
 		String[] dy_ids = dynamic_ids.split(",");
 		String successid = null;
 		for (String id : dy_ids) {
@@ -138,7 +138,7 @@ public class UserDynamicService {
 				UserDynamic dy = userDynamicDao.basic(dy_id);
 				if (dy != null && dy.getUser_id() == user_id) {
 					userDynamicDao.delete(user_id, dy_id);
-					ImageSaveUtils.removeUserImages(servletContext, dy.getLocal_image_name());
+					ImageSaveUtils.removeUserImages( dy.getLocal_image_name());
 				}
 				if (successid == null) {
 					successid = id;

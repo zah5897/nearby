@@ -6,6 +6,12 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.zhan.app.nearby.bean.Bottle;
 
 public class HttpUtil {
 	/**
@@ -155,6 +161,25 @@ public class HttpUtil {
 			}
 		}
 		return result;
+	}
+
+	public static void main(String[] args) {
+		List<Integer> ids = new ArrayList<>();
+		int repateCount = 0;
+		for (int i = 0, len = 10; i < len; i++) {
+			Map<String, Object> result = JSONUtil.jsonToMap(
+					HttpUtil.sendGet("http://127.0.0.1:9527/nearby/bottle/list?user_id=41&_ua=111111111111111&count=10"));
+			List<Object> bottles = (List<Object>) result.get("bottles");
+			for (Object obj : bottles) {
+				int bottle_id=(int) ((LinkedHashMap<String, Object>)obj).get("id");
+				if (ids.contains(bottle_id)) {
+					repateCount++;
+				} else {
+					ids.add(bottle_id);
+				}
+			}
+		}
+		System.out.println("重复次数："+repateCount);
 	}
 
 }

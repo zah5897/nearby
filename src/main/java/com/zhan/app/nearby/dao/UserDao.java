@@ -13,6 +13,7 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import com.zhan.app.nearby.bean.Avatar;
 import com.zhan.app.nearby.bean.DynamicMessage;
 import com.zhan.app.nearby.bean.mapper.SimpkleUserMapper;
 import com.zhan.app.nearby.bean.user.BaseUser;
@@ -26,7 +27,6 @@ import com.zhan.app.nearby.comm.UserType;
 import com.zhan.app.nearby.util.DateTimeUtil;
 import com.zhan.app.nearby.util.SQLUtil;
 import com.zhan.app.nearby.util.TextUtils;
-
 
 @Repository("userDao")
 public class UserDao extends BaseDao {
@@ -53,14 +53,15 @@ public class UserDao extends BaseDao {
 	 * @param type
 	 * @return
 	 */
-	public List<BaseUser> getUsers(int pageSize, int currentPage, int type, String keyword,long user_id) {
-		
-		if(user_id>0) {
-			return jdbcTemplate.query("select *from t_user   where user_id=? and  type=? order by user_id desc limit ?,?",
-					new Object[] { user_id,type, (currentPage - 1) * pageSize, pageSize },
+	public List<BaseUser> getUsers(int pageSize, int currentPage, int type, String keyword, long user_id) {
+
+		if (user_id > 0) {
+			return jdbcTemplate.query(
+					"select *from t_user   where user_id=? and  type=? order by user_id desc limit ?,?",
+					new Object[] { user_id, type, (currentPage - 1) * pageSize, pageSize },
 					new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
 		}
-		
+
 		if (TextUtils.isEmpty(keyword)) {
 			return jdbcTemplate.query("select *from t_user  where type=? order by user_id desc limit ?,?",
 					new Object[] { type, (currentPage - 1) * pageSize, pageSize },
@@ -80,14 +81,14 @@ public class UserDao extends BaseDao {
 	 * @param currentPage
 	 * @return
 	 */
-	public List<BaseUser> getUsers(int pageSize, int currentPage, String keyword,long user_id) {
-		
-		if(user_id>0) {
+	public List<BaseUser> getUsers(int pageSize, int currentPage, String keyword, long user_id) {
+
+		if (user_id > 0) {
 			return jdbcTemplate.query("select *from t_user where user_id=? order by user_id desc limit ?,?",
-					new Object[] {user_id, (currentPage - 1) * pageSize, pageSize },
+					new Object[] { user_id, (currentPage - 1) * pageSize, pageSize },
 					new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
 		}
-		
+
 		if (TextUtils.isEmpty(keyword)) {
 			return jdbcTemplate.query("select *from t_user order by user_id desc limit ?,?",
 					new Object[] { (currentPage - 1) * pageSize, pageSize },
@@ -365,12 +366,13 @@ public class UserDao extends BaseDao {
 	 * 
 	 * @return
 	 */
-	public int getUserSize(String keyword,long user_id) {
-		
-		if(user_id>0) {
-			return jdbcTemplate.queryForObject("select count(*) from t_user where user_id=?",new Object[] {user_id}, Integer.class);
+	public int getUserSize(String keyword, long user_id) {
+
+		if (user_id > 0) {
+			return jdbcTemplate.queryForObject("select count(*) from t_user where user_id=?", new Object[] { user_id },
+					Integer.class);
 		}
-		
+
 		if (TextUtils.isEmpty(keyword)) {
 			return jdbcTemplate.queryForObject("select count(*) from t_user", Integer.class);
 		} else {
@@ -386,11 +388,12 @@ public class UserDao extends BaseDao {
 	 * @param type
 	 * @return
 	 */
-	public int getUserSize(int type, String keyword,long user_id) {
-		if(user_id>0) {
-			return jdbcTemplate.queryForObject("select count(*) from t_user where user_id=?",new Object[] {user_id}, Integer.class);
+	public int getUserSize(int type, String keyword, long user_id) {
+		if (user_id > 0) {
+			return jdbcTemplate.queryForObject("select count(*) from t_user where user_id=?", new Object[] { user_id },
+					Integer.class);
 		}
-		
+
 		if (TextUtils.isEmpty(keyword)) {
 			return jdbcTemplate.queryForObject("select count(*) from t_user where type=?", new Object[] { type },
 					Integer.class);
@@ -515,9 +518,9 @@ public class UserDao extends BaseDao {
 	}
 
 	public void addSpecialUser(long uid) {
-		Integer countObj = jdbcTemplate.queryForObject("select count(*)  from t_special_user where uid=?",
+		int countObj = jdbcTemplate.queryForObject("select count(*)  from t_special_user where uid=?",
 				new String[] { String.valueOf(uid) }, Integer.class);
-		if (countObj != null && countObj > 0) {
+		if (countObj > 0) {
 			return;
 		}
 		jdbcTemplate.update("insert into t_special_user (uid) values(?)", new Object[] { String.valueOf(uid) });
@@ -536,11 +539,53 @@ public class UserDao extends BaseDao {
 
 	public int getUserState(long user_id) {
 		try {
-		return jdbcTemplate.queryForObject("select account_state from  t_user where user_id=?",
-				new Object[] { user_id }, Integer.class);
-		}catch (Exception e) {
+			return jdbcTemplate.queryForObject("select account_state from  t_user where user_id=?",
+					new Object[] { user_id }, Integer.class);
+		} catch (Exception e) {
 			// TODO: handle exception
 		}
 		return AccountStateType.NORMAL.ordinal();
+	}
+
+	public int todayCheckInCount(long user_id) {
+		String sql = "select count(*) from t_check_in_record  where uid=" + user_id
+				+ " and to_days(check_in_date) = to_days(now())";
+		return jdbcTemplate.queryForObject(sql, Integer.class);
+	}
+	
+	public int todayCheckIn(long user_id) {
+		String sql = "select count(*) from t_check_in_record  where uid=" + user_id;
+		int hasExist= jdbcTemplate.queryForObject(sql, Integer.class);
+		if(hasExist>0) {
+			return jdbcTemplate.update("update t_check_in_record set check_in_date=? where uid=?",new Object[] {new Date(),user_id});
+		}else {
+			return jdbcTemplate.update("insert into t_check_in_record (uid,check_in_date) values(?,?)",new Object[] {user_id,new Date()});
+		}
+	}
+
+	public int saveAvatar(long user_id, String avatar) {
+		String sql="insert into t_user_avatars (uid,avatar,state) values(?,?,?)"; 
+		return jdbcTemplate.update(sql,new Object[] {user_id,avatar,0});
+	}
+
+	public String deleteAvatar(long user_id,String avatar_id) {
+		List<String> avatars=jdbcTemplate.queryForList("select avatar from t_user_avatars where uid="+user_id+" and id="+avatar_id, String.class);
+		jdbcTemplate.update("delete from t_user_avatars  where uid="+user_id+" and  id="+avatar_id);
+		if(avatars.size()>0) {
+			return avatars.get(0);
+		}
+		return null;
+	}
+	
+	public String getLastAvatar(long user_id) {
+		return jdbcTemplate.queryForObject("select avatar from t_user_avatars where uid="+user_id+"order by id desc  limit 1", String.class);	
+	}
+	
+	public int getAvatarCount(long user_id) {
+		return jdbcTemplate.queryForObject("select count(*) from t_user_avatars where uid="+user_id, Integer.class);	
+	}
+	
+	public List<Avatar> getUserAvatars(long user_id){
+		return jdbcTemplate.query("select *  from t_user_avatars where uid="+user_id+" order by id desc limit 6", new BeanPropertyRowMapper<Avatar>(Avatar.class));	
 	}
 }

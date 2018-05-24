@@ -1,6 +1,5 @@
 package com.zhan.app.nearby.controller;
 
-import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -332,16 +331,14 @@ public class ManagerController {
 
 					if ("small_img".equals(name)) {
 						try {
-							String imagePath = ImageSaveUtils.saveTopicImages(file,
-									multipartRequest.getServletContext());
+							String imagePath = ImageSaveUtils.saveTopicImages(file);
 							topic.setIcon(imagePath);
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
 					} else if ("big_img".equals(name)) {
 						try {
-							String imagePath = ImageSaveUtils.saveTopicImages(file,
-									multipartRequest.getServletContext());
+							String imagePath = ImageSaveUtils.saveTopicImages(file);
 							topic.setBig_icon(imagePath);
 						} catch (Exception e) {
 							e.printStackTrace();

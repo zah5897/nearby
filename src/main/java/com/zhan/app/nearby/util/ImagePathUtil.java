@@ -2,6 +2,7 @@ package com.zhan.app.nearby.util;
 
 import java.util.List;
 
+import com.zhan.app.nearby.bean.Avatar;
 import com.zhan.app.nearby.bean.DynamicComment;
 import com.zhan.app.nearby.bean.Gift;
 import com.zhan.app.nearby.bean.GiftOwn;
@@ -43,6 +44,32 @@ public class ImagePathUtil {
 			completeAvatarPath(user, true);
 		}
 	}
+	
+	
+	public static Avatar completeAvatarPath(Avatar avatarModel) {
+		String avatar = avatarModel.getAvatar();
+		if (TextUtils.isEmpty(avatar)) {
+			return avatarModel;
+		}
+		if (avatar.startsWith("http://")) {
+			avatarModel.setOrigin_avatar(HOST_PROFIX + ImageSaveUtils.FILE_ROOT_AVATAR_ORIGIN
+						+ avatar.substring(avatar.lastIndexOf("/") + 1, avatar.length()));
+			return avatarModel;
+		}
+		avatarModel.setAvatar(HOST_PROFIX + ImageSaveUtils.FILE_ROOT_AVATAR_THUMB + avatar);
+		avatarModel.setOrigin_avatar(HOST_PROFIX + ImageSaveUtils.FILE_ROOT_AVATAR_ORIGIN + avatar);
+		return avatarModel;
+	}
+	public static List<Avatar> completeAvatarsPath(List<Avatar> avatars) {
+		if (avatars == null || avatars.size() == 0) {
+			return avatars;
+		}
+		for (Avatar avatar : avatars) {
+			completeAvatarPath(avatar);
+		}
+		return avatars;
+	}
+	
 
 	public static void completeManagerUserAvatarsPath(List<ManagerUser> users, boolean thumbAndOrigin) {
 		if (users == null || users.size() == 0) {

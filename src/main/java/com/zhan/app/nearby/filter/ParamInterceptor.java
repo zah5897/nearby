@@ -16,7 +16,7 @@ public class ParamInterceptor implements HandlerInterceptor {
 			throws Exception {
 		String _ua = request.getParameter("_ua");
 		String url = request.getRequestURI();
-		System.out.println(url);
+//		System.out.println(url);
 		if (url.contains("nearby/manager")) {
 			return true;
 		}

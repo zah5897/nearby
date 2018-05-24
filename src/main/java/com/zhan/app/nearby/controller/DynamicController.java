@@ -4,7 +4,6 @@ import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -173,14 +172,14 @@ public class DynamicController {
 	}
 
 	@RequestMapping("delete")
-	public ModelMap delete(HttpServletRequest request, Long user_id, String dynamic_id) {
+	public ModelMap delete(Long user_id, String dynamic_id) {
 		if (user_id == null || user_id < 1l) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "请确定当前用户：user_id=" + user_id);
 		}
 		if (TextUtils.isEmpty(dynamic_id)) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "请确定您要操作的动态信息");
 		}
-		String id = userDynamicService.delete(request.getServletContext(), user_id, dynamic_id);
+		String id = userDynamicService.delete( user_id, dynamic_id);
 		ModelMap result = ResultUtil.getResultOKMap();
 		result.put("delete_id", id);
 		return result;

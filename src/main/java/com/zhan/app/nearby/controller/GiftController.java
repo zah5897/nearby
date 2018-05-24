@@ -45,7 +45,7 @@ public class GiftController {
 				MultipartFile file = multiRequest.getFile((String) iterator.next());
 				if (!file.isEmpty()) {
 					try {
-						String imageName = ImageSaveUtils.saveGiftImages(file, request.getServletContext());
+						String imageName = ImageSaveUtils.saveGiftImages(file);
 						gift.setImage_url(imageName);
 					} catch (Exception e) {
 						e.printStackTrace();

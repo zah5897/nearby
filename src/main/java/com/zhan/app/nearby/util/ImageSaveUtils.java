@@ -9,7 +9,6 @@ import java.io.InputStream;
 import java.util.Properties;
 import java.util.UUID;
 
-import javax.servlet.ServletContext;
 
 import org.springframework.web.multipart.MultipartFile;
 
@@ -59,40 +58,40 @@ public class ImageSaveUtils {
 		return IMAGE_ROOT_PATH;
 	}
 
-	public static String getOriginAvatarPath(ServletContext servletContext) {
+	public static String getOriginAvatarPath() {
 		return getRootPath() + FILE_ROOT_AVATAR_ORIGIN;
 	}
 
-	public static String getThumbAvatarPath(ServletContext servletContext) {
+	public static String getThumbAvatarPath() {
 		return getRootPath() + FILE_ROOT_AVATAR_THUMB;
 	}
 
-	public static String getOriginImagesPath(ServletContext servletContext) {
+	public static String getOriginImagesPath() {
 		return getRootPath() + FILE_ROOT_IMAGES_ORIGIN;
 	}
 
-	public static String getThumbImagesPath(ServletContext servletContext) {
+	public static String getThumbImagesPath() {
 		return getRootPath() + FILE_ROOT_IMAGES_THUMB;
 	}
 
-	public static String getTopicOriginImagesPath(ServletContext servletContext) {
+	public static String getTopicOriginImagesPath() {
 		return getRootPath() + FILE_ROOT_TOPIC_ORIGIN;
 	}
 
-	public static String getTopicThumbImagesPath(ServletContext servletContext) {
+	public static String getTopicThumbImagesPath() {
 		return getRootPath() + FILE_ROOT_TOPIC_THUMB;
 	}
 	
-	public static String getGiftOriginImagesPath(ServletContext servletContext) {
+	public static String getGiftOriginImagesPath() {
 		return getRootPath() + FILE_ROOT_GIFT_ORIGIN;
 	}
-	public static String getGiftThumbImagesPath(ServletContext servletContext) {
+	public static String getGiftThumbImagesPath() {
 		return getRootPath() + FILE_ROOT_GIFT_THUMB;
 	}
 
-	public static String saveAvatar(MultipartFile file, ServletContext servletContext)
+	public static String saveAvatar(MultipartFile file)
 			throws IllegalStateException, IOException {
-		String filePath = getOriginAvatarPath(servletContext);
+		String filePath = getOriginAvatarPath();
 		String shortName = file.getOriginalFilename();
 		if (!TextUtils.isEmpty(shortName)) {
 			String fileShortName = null;
@@ -105,16 +104,16 @@ public class ImageSaveUtils {
 			uploadFile.mkdirs();
 			file.transferTo(uploadFile);// 保存到一个目标文件中。
 
-			String thumbFile = getThumbAvatarPath(servletContext) + fileShortName;
+			String thumbFile = getThumbAvatarPath() + fileShortName;
 			pressImageByWidth(uploadFile.getAbsolutePath(), PRESS_AVATAR_WIDTH, thumbFile);
 			return fileShortName;
 		}
 		return null;
 	}
 
-	public static String saveUserImages(MultipartFile file, ServletContext servletContext)
+	public static String saveUserImages(MultipartFile file)
 			throws IllegalStateException, IOException {
-		String filePath = getOriginImagesPath(servletContext);
+		String filePath = getOriginImagesPath();
 		String shortName = file.getOriginalFilename();
 		if (!TextUtils.isEmpty(shortName)) {
 			String fileShortName = null;
@@ -132,7 +131,7 @@ public class ImageSaveUtils {
 			uploadFile.mkdirs();
 			file.transferTo(uploadFile);// 保存到一个目标文件中。
 
-			String thumbFile = getThumbImagesPath(servletContext) + fileShortName;
+			String thumbFile = getThumbImagesPath() + fileShortName;
 			if (isGif) {
 				copyfile(uploadFile, new File(thumbFile), false);
 			} else {
@@ -143,9 +142,9 @@ public class ImageSaveUtils {
 		return null;
 	}
 
-	public static String saveTopicImages(MultipartFile file, ServletContext servletContext)
+	public static String saveTopicImages(MultipartFile file)
 			throws IllegalStateException, IOException {
-		String filePath = getTopicOriginImagesPath(servletContext);
+		String filePath = getTopicOriginImagesPath();
 		String shortName = file.getOriginalFilename();
 		if (!TextUtils.isEmpty(shortName)) {
 			String fileShortName = null;
@@ -158,7 +157,7 @@ public class ImageSaveUtils {
 			uploadFile.mkdirs();
 			file.transferTo(uploadFile);// 保存到一个目标文件中。
 
-			String thumbFile = getTopicThumbImagesPath(servletContext) + fileShortName;
+			String thumbFile = getTopicThumbImagesPath() + fileShortName;
 			pressImageByWidth(uploadFile.getAbsolutePath(), PRESS_IMAGE_WIDTH, thumbFile);
 			return fileShortName;
 		}
@@ -166,9 +165,9 @@ public class ImageSaveUtils {
 	}
 	
 	
-	public static String saveBottleImages(MultipartFile file, ServletContext servletContext)
+	public static String saveBottleImages(MultipartFile file)
 			throws IllegalStateException, IOException {
-		String filePath = getTopicOriginImagesPath(servletContext);
+		String filePath = getTopicOriginImagesPath();
 		String shortName = file.getOriginalFilename();
 		if (!TextUtils.isEmpty(shortName)) {
 			String fileShortName = null;
@@ -181,15 +180,15 @@ public class ImageSaveUtils {
 			uploadFile.mkdirs();
 			file.transferTo(uploadFile);// 保存到一个目标文件中。
 
-			String thumbFile = getTopicThumbImagesPath(servletContext) + fileShortName;
+			String thumbFile = getTopicThumbImagesPath() + fileShortName;
 			pressImageByWidth(uploadFile.getAbsolutePath(), PRESS_IMAGE_WIDTH, thumbFile);
 			return fileShortName;
 		}
 		return null;
 	}
-	public static String saveGiftImages(MultipartFile file, ServletContext servletContext)
+	public static String saveGiftImages(MultipartFile file)
 			throws IllegalStateException, IOException {
-		String filePath = getGiftOriginImagesPath(servletContext);
+		String filePath = getGiftOriginImagesPath();
 		String shortName = file.getOriginalFilename();
 		if (!TextUtils.isEmpty(shortName)) {
 			String fileShortName = null;
@@ -202,7 +201,7 @@ public class ImageSaveUtils {
 			uploadFile.mkdirs();
 			file.transferTo(uploadFile);// 保存到一个目标文件中。
 			
-			String thumbFile = getGiftThumbImagesPath(servletContext) + fileShortName;
+			String thumbFile = getGiftThumbImagesPath() + fileShortName;
 			pressImageByWidth(uploadFile.getAbsolutePath(), PRESS_IMAGE_WIDTH, thumbFile);
 			return fileShortName;
 		}
@@ -216,17 +215,20 @@ public class ImageSaveUtils {
 	 * @param oldFileName
 	 *            旧头像名称
 	 */
-	public static void removeAcatar(ServletContext servletContext, String oldFileName) {
+	public static void removeAcatar(String oldFileName) {
 		// 删除大图
 
-		String filePath = getOriginAvatarPath(servletContext);
+		if(TextUtils.isEmpty(oldFileName)) {
+			return;
+		}
+		String filePath = getOriginAvatarPath();
 		File uploadFile = new File(filePath + oldFileName);
 		if (uploadFile.exists()) {
 			uploadFile.delete();
 		}
 
 		// 删除小图
-		String smallPath = getThumbAvatarPath(servletContext);
+		String smallPath = getThumbAvatarPath();
 		File uploadSmallFile = new File(smallPath + oldFileName);
 		if (uploadSmallFile.exists()) {
 			uploadSmallFile.delete();
@@ -240,17 +242,17 @@ public class ImageSaveUtils {
 	 * @param oldFileName
 	 *            要删除的图片名称
 	 */
-	public static void removeUserImages(ServletContext servletContext, String oldFileName) {
+	public static void removeUserImages(String oldFileName) {
 		// 删除大图
 
-		String filePath = getOriginImagesPath(servletContext);
+		String filePath = getOriginImagesPath();
 		File uploadFile = new File(filePath + oldFileName);
 		if (uploadFile.exists()) {
 			uploadFile.delete();
 		}
 
 		// 删除小图
-		String smallPath = getThumbImagesPath(servletContext);
+		String smallPath = getThumbImagesPath();
 		File uploadSmallFile = new File(smallPath + oldFileName);
 		if (uploadSmallFile.exists()) {
 			uploadSmallFile.delete();

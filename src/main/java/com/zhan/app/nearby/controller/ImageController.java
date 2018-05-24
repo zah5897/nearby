@@ -77,7 +77,7 @@ public class ImageController {
 				MultipartFile file = multipartRequest.getFile((String) iterator.next());
 				if (!file.isEmpty()) {
 					try {
-						String imagePath = ImageSaveUtils.saveUserImages(file, multipartRequest.getServletContext());
+						String imagePath = ImageSaveUtils.saveUserImages(file);
 						dynamic.setUser_id(user_id);
 						dynamic.setState(DynamicState.T_CREATE.ordinal());
 						dynamic.setLocal_image_name(imagePath);

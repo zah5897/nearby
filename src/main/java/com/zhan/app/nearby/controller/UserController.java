@@ -1,9 +1,11 @@
 package com.zhan.app.nearby.controller;
 
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.annotation.Resource;
@@ -159,7 +161,7 @@ public class UserController {
 				MultipartFile file = multipartRequest.getFile((String) iterator.next());
 				if (!file.isEmpty()) {
 					try {
-						String newAcatar = ImageSaveUtils.saveAvatar(file, multipartRequest.getServletContext());
+						String newAcatar = ImageSaveUtils.saveAvatar(file);
 						user.setAvatar(newAcatar);
 						break;
 					} catch (Exception e) {
@@ -187,9 +189,7 @@ public class UserController {
 		if (id == -1l) {
 			return ResultUtil.getResultMap(ERROR.ERR_USER_EXIST, "该手机号码已经注册过");
 		}
-		// userService.updateToken(user); // 更新token，弱登录
-		// userCacheService.cacheLoginToken(user); // 缓存token，缓解检查登陆查询
-
+		userService.saveAvatar(id, user.getAvatar());
 		ModelMap result = ResultUtil.getResultOKMap();
 		user.setUser_id(id);
 		user.setAge(DateTimeUtil.getAge(user.getBirthday()));
@@ -200,6 +200,7 @@ public class UserController {
 			user.setBirth_city(city);
 		}
 
+		user.setAvatars(userService.getUserAvatars(user.getUser_id()));
 		result.put("user", user);
 		// 注册完毕，则可以清理掉redis关于code缓存了
 		userCacheService.clearCode(user.getMobile());
@@ -398,13 +399,10 @@ public class UserController {
 	 */
 	@RequestMapping("modify_avatar")
 	public ModelMap modify_avatar(DefaultMultipartHttpServletRequest multipartRequest, long user_id, String token) {
-		if (user_id < 1) {
-			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "用户ID异常");
-		}
-
-		if (TextUtils.isEmpty(token)) {
+		if (!userService.checkLogin(user_id, token)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
+
 		BaseUser user = userService.getBasicUser(user_id);
 
 		if (user == null) {
@@ -412,19 +410,17 @@ public class UserController {
 		} else if (!token.equals(user.getToken())) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
-		String newAcatar = null;
+
 		if (multipartRequest != null) {
 			Iterator<String> iterator = multipartRequest.getFileNames();
 			while (iterator.hasNext()) {
 				MultipartFile file = multipartRequest.getFile((String) iterator.next());
 				if (!file.isEmpty()) {
 					try {
-						newAcatar = ImageSaveUtils.saveAvatar(file, multipartRequest.getServletContext());
-						String old = user.getAvatar();
-						if (!TextUtils.isEmpty(old)) {
-							ImageSaveUtils.removeAcatar(multipartRequest.getServletContext(), old);
-						}
+						String newAcatar = ImageSaveUtils.saveAvatar(file);
 						user.setAvatar(newAcatar);
+						userService.updateAvatar(user_id, newAcatar);
+						userService.saveAvatar(user_id, newAcatar);
 						break;
 					} catch (Exception e) {
 						e.printStackTrace();
@@ -435,12 +431,57 @@ public class UserController {
 			}
 		}
 
-		userService.updateAvatar(user_id, newAcatar);
 		ModelMap result = ResultUtil.getResultOKMap();
 		user.set_ua(null);
 		ImagePathUtil.completeAvatarPath(user, true); // 补全图片链接地址
 		result.put("user", user);
 		return result;
+	}
+
+	@RequestMapping("upload_avatars")
+	public ModelMap upload_avatars(DefaultMultipartHttpServletRequest multipartRequest, long user_id, String token) {
+		if (!userService.checkLogin(user_id, token)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		if (multipartRequest != null) {
+			Iterator<String> iterator = multipartRequest.getFileNames();
+			List<String> avatarFiles = new ArrayList<String>();
+			while (iterator.hasNext()) {
+				MultipartFile file = multipartRequest.getFile((String) iterator.next());
+				if (!file.isEmpty()) {
+					try {
+						String avatarName = ImageSaveUtils.saveAvatar(file);
+						avatarFiles.add(avatarName);
+					} catch (Exception e) {
+					}
+				}
+			}
+			// 文件保存完毕
+
+			for (String name : avatarFiles) {
+				userService.saveAvatar(user_id, name);
+			}
+			// 更新头像
+			if (avatarFiles.size() > 0) {
+				userService.updateAvatar(user_id, avatarFiles.get(avatarFiles.size() - 1));
+			}
+			return ResultUtil.getResultOKMap().addAttribute("avatars", userService.getUserAvatars(user_id));
+		}
+		return ResultUtil.getResultMap(ERROR.ERR_FAILED, "no files.");
+	}
+
+	@RequestMapping("delete_avatar")
+	public ModelMap delete_avatar(HttpServletRequest request, long user_id, String token, String avatar_ids) {
+		if (!userService.checkLogin(user_id, token)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+
+		String[] ids = avatar_ids.split(",");
+
+		for (String sid : ids) {
+			userService.deleteAvatar(user_id, sid);
+		}
+		return ResultUtil.getResultOKMap();
 	}
 
 	/**
@@ -653,12 +694,6 @@ public class UserController {
 		return userService.getUserCenterData(token, aid, user_id_for, user_id);
 	}
 
-	/**
-	 * 获取系统标签
-	 * 
-	 * @param type
-	 * @return
-	 */
 	@RequestMapping("avatar/{user_id}")
 	public ModelMap getTags(@PathVariable long user_id) {
 		return userService.getUserAvatar(user_id);
@@ -705,6 +740,11 @@ public class UserController {
 	@RequestMapping("like_list/{user_id}")
 	public ModelMap like_list(@PathVariable long user_id, Integer page_index, Integer count) {
 		return userService.likeList(user_id, page_index, count);
+	}
+
+	@RequestMapping("check_in")
+	public Map<String, Object> check_in(long user_id, String token, String aid) {
+		return userService.checkIn(user_id, token, aid);
 	}
 
 	private City getDefaultCityId() {

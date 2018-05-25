@@ -8,6 +8,10 @@ public class AppException extends RuntimeException {
 	private ERROR error;
 	private RuntimeException realException;
 
+	public AppException(ERROR error) {
+		this.error = error;
+	}
+
 	public AppException(ERROR error, RuntimeException realException) {
 		this.error = error;
 		this.realException = realException;

@@ -30,7 +30,9 @@ import com.zhan.app.nearby.comm.Relationship;
 import com.zhan.app.nearby.dao.BottleDao;
 import com.zhan.app.nearby.dao.UserDao;
 import com.zhan.app.nearby.dao.VipDao;
+import com.zhan.app.nearby.exception.AppException;
 import com.zhan.app.nearby.exception.ERROR;
+import com.zhan.app.nearby.util.BottleKeyWordUtil;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.ResultUtil;
 import com.zhan.app.nearby.util.TextUtils;
@@ -52,10 +54,10 @@ public class BottleService {
 
 	@Resource
 	private UserService userService;
-	
+
 	@Resource
 	private UserCacheService userCacheService;
-	
+
 	public Bottle getBottleFromPool(long user_id) {
 
 		List<Bottle> bottles = bottleDao.getBottleRandomInPool(user_id, 1);
@@ -64,41 +66,36 @@ public class BottleService {
 		}
 		return null;
 	}
-	
-	
-	
-	
-	public boolean checkTime(Bottle bottle) {
-		long last_time=userCacheService.getLastBottleSendTime(bottle.getUser_id());
-		long now=System.currentTimeMillis()/1000;
-		boolean r= now-last_time>10;
-		userCacheService.setLastBottleSendTime(bottle.getUser_id());
-	   return r;
-	}
-	
-	
-	public boolean isBlockUser(long user_id) {
-		int state=userDao.getUserState(user_id);
-		return state==AccountStateType.LOCK.ordinal();
-	}
-	
 
-	public ModelMap getBottles(long user_id, int page_size, Integer look_sex, Integer type,Integer state_val) {
+	public boolean checkTime(Bottle bottle) {
+		long last_time = userCacheService.getLastBottleSendTime(bottle.getUser_id());
+		long now = System.currentTimeMillis() / 1000;
+		boolean r = now - last_time > 10;
+		userCacheService.setLastBottleSendTime(bottle.getUser_id());
+		return r;
+	}
+
+	public boolean isBlockUser(long user_id) {
+		int state = userDao.getUserState(user_id);
+		return state == AccountStateType.LOCK.ordinal();
+	}
+
+	public ModelMap getBottles(long user_id, int page_size, Integer look_sex, Integer type, Integer state_val) {
 		ModelMap result = ResultUtil.getResultOKMap();
 		BottleState state = BottleState.NORMAL;
-		
-		if(state_val==null) {
+
+		if (state_val == null) {
 			state = BottleState.NORMAL;
-			state_val=0;
+			state_val = 0;
 		}
-		if(state_val==1) {
+		if (state_val == 1) {
 			state = BottleState.BLACK;
-		}else if(state_val==2) {
+		} else if (state_val == 2) {
 			state = BottleState.IOS_REVIEW;
-		}else {
+		} else {
 			state = BottleState.NORMAL;
 		}
-		
+
 		List<Bottle> bolltes = null;
 		if (look_sex == null) {
 			bolltes = bottleDao.getBottles(user_id, page_size, type, state);
@@ -130,7 +127,24 @@ public class BottleService {
 		return bottleDao.getBottleRandomInPool(user_id, LIMIT_COUNT);
 	}
 
-	public void insert(Bottle bottle) {
+	public void send(Bottle bottle, String aid) {
+
+		if (bottle.getType() == BottleType.DM_TXT.ordinal() || bottle.getType() == BottleType.DM_VOICE.ordinal()) {
+			Map<String, Object> extraData=userService.modifyExtra(bottle.getUser_id(), aid, 1, -1);
+			if(extraData!=null&&extraData.containsKey("all_coins")) {
+				int all_coins=(int) extraData.get("all_coins");
+				if(all_coins<0) {
+					 throw new AppException(ERROR.ERR_COINS_SHORT);
+				}
+				
+			}
+		}
+		if (bottle.getType() == BottleType.TXT.ordinal() || bottle.getType() == BottleType.DM_TXT.ordinal()) {
+			// 敏感词过滤
+			String newContent = BottleKeyWordUtil.filterContent(bottle.getContent());
+			bottle.setContent(newContent);
+		}
+
 		bottle.setCreate_time(new Date());
 		bottleDao.insert(bottle);
 		if (bottle.getId() > 0) {
@@ -266,7 +280,7 @@ public class BottleService {
 						bottle.setUser_id(withUserID);
 						bottle.setType(BottleType.MEET.ordinal());
 						bottle.setContent(String.valueOf(withUserID));
-						insert(bottle);
+						send(bottle,null);
 						bottleID = bottle.getId();
 					}
 				}
@@ -317,7 +331,7 @@ public class BottleService {
 				bottle.setUser_id(uid);
 				bottle.setType(BottleType.TXT.ordinal());
 				bottle.setContent(content);
-				insert(bottle);
+				send(bottle,null);
 			}
 			return 1;
 		}

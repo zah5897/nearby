@@ -439,7 +439,7 @@ public class UserController {
 	}
 
 	@RequestMapping("upload_avatars")
-	public ModelMap upload_avatars(DefaultMultipartHttpServletRequest multipartRequest, long user_id, String token) {
+	public ModelMap upload_avatars(DefaultMultipartHttpServletRequest multipartRequest, long user_id,String aid, String token) {
 		if (!userService.checkLogin(user_id, token)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
@@ -465,13 +465,15 @@ public class UserController {
 			if (avatarFiles.size() > 0) {
 				userService.updateAvatar(user_id, avatarFiles.get(avatarFiles.size() - 1));
 			}
-			return ResultUtil.getResultOKMap().addAttribute("avatars", userService.getUserAvatars(user_id));
+			
+			return userService.getUserCenterData("", aid, user_id, user_id);
+//			return ResultUtil.getResultOKMap().addAttribute("avatars", userService.getUserAvatars(user_id));
 		}
 		return ResultUtil.getResultMap(ERROR.ERR_FAILED, "no files.");
 	}
 
 	@RequestMapping("delete_avatar")
-	public ModelMap delete_avatar(HttpServletRequest request, long user_id, String token, String avatar_ids) {
+	public ModelMap delete_avatar(HttpServletRequest request, long user_id, String token,String aid, String avatar_ids) {
 		if (!userService.checkLogin(user_id, token)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
@@ -481,7 +483,7 @@ public class UserController {
 		for (String sid : ids) {
 			userService.deleteAvatar(user_id, sid);
 		}
-		return ResultUtil.getResultOKMap();
+		return userService.getUserCenterData("", aid, user_id, user_id);
 	}
 
 	/**

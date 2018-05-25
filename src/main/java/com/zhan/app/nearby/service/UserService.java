@@ -616,7 +616,7 @@ public class UserService {
 			int count = userDao.todayCheckInCount(user_id);
 			if (count == 0) {
 				userDao.todayCheckIn(user_id);
-				return addExtra(user_id, aid, 3);
+				return modifyExtra(user_id, aid, 3,1);
 			} else {
 				return ResultUtil.getResultMap(ERROR.ERR_FAILED, "已经签过到");
 			}
@@ -627,7 +627,7 @@ public class UserService {
 
 	private String MODULE_ORDER_A_EXTRA;
 
-	private Map<String, Object> addExtra(long user_id, String aid, int count) {
+	public Map<String, Object> modifyExtra(long user_id, String aid, int count,int type) {
 		if (TextUtils.isEmpty(MODULE_ORDER_A_EXTRA)) {
 			Properties prop = PropertiesUtil.load("config.properties");
 			String value = PropertiesUtil.getProperty(prop, "MODULE_ORDER_A_EXTRA");
@@ -636,7 +636,7 @@ public class UserService {
 		String result = null;
 		try {
 			result = HttpsUtil.sendHttpsPost(
-					MODULE_ORDER_A_EXTRA + "?id_user=" + user_id + "$&aid=" + aid + "&extra=" + count + "_");
+					MODULE_ORDER_A_EXTRA + "?id_user=" + user_id + "$&aid=" + aid + "&extra=" + count + "_&type="+type);
 			if (!TextUtils.isEmpty(result)) {
 				Map<String, Object> resultData = JSONUtil.jsonToMap(result);
 				resultData.put("coins_checkin", count);

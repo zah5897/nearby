@@ -39,7 +39,7 @@ public class TimerTask {
 				bottle.setUser_id(u.getUser_id());
 				bottle.setType(BottleType.MEET.ordinal());
 				bottle.setContent(String.valueOf(u.getUser_id()));
-				bottleService.insert(bottle);
+				bottleService.send(bottle,null);
 			}
 
 		}

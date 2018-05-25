@@ -17,7 +17,6 @@ import com.zhan.app.nearby.bean.type.BottleType;
 import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.service.BottleService;
 import com.zhan.app.nearby.service.MainService;
-import com.zhan.app.nearby.util.BottleKeyWordUtil;
 import com.zhan.app.nearby.util.ImageSaveUtils;
 import com.zhan.app.nearby.util.ResultUtil;
 
@@ -31,7 +30,7 @@ public class BottleController {
 	private MainService mainService;
 
 	@RequestMapping("send")
-	public ModelMap send(Bottle bottle, HttpServletRequest request) {
+	public ModelMap send(Bottle bottle,String aid, HttpServletRequest request) {
 
 		if (bottle.getUser_id() <= 0) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
@@ -39,11 +38,11 @@ public class BottleController {
 		if (!bottleService.checkTime(bottle)) {
 			return ResultUtil.getResultMap(ERROR.ERR_FREUENT);
 		}
-		
-		if(bottleService.isBlockUser(bottle.getUser_id())) {
-			return ResultUtil.getResultMap(ERROR.ERR_FAILED,"该帐号状态异常");
+
+		if (bottleService.isBlockUser(bottle.getUser_id())) {
+			return ResultUtil.getResultMap(ERROR.ERR_FAILED, "该帐号状态异常");
 		}
-		
+
 		if (bottle.getType() == BottleType.IMG.ordinal() && (request instanceof DefaultMultipartHttpServletRequest)) {
 			DefaultMultipartHttpServletRequest multiRequest = (DefaultMultipartHttpServletRequest) request;
 			Iterator<String> iterator = multiRequest.getFileNames();
@@ -58,18 +57,20 @@ public class BottleController {
 					}
 				}
 			}
-		}else if(bottle.getType() == BottleType.TXT.ordinal()) {
-			//敏感词过滤
-			String newContent=BottleKeyWordUtil.filterContent(bottle.getContent());
-			bottle.setContent(newContent);
 		}
-		bottleService.insert(bottle);
+		bottleService.send(bottle,aid);
 		return ResultUtil.getResultOKMap().addAttribute("bottle", bottle);
 	}
 
 	@RequestMapping("list")
-	public ModelMap list(Long user_id, Integer count, Integer look_sex, Integer type,Integer state) {
-		return bottleService.getBottles(user_id == null ? 0 : user_id, count == null ? 5 : count, look_sex, type,state);
+	public ModelMap list(Long user_id, Integer count, Integer look_sex, Integer type, Integer state) {
+		return bottleService.getBottles(user_id == null ? 0 : user_id, count == null ? 5 : count, look_sex, type,
+				state);
+	}
+	@RequestMapping("list_dm")
+	public ModelMap list_dm(Long user_id, Integer count, Integer look_sex, Integer type, Integer state) {
+		return bottleService.getBottles(user_id == null ? 0 : user_id, count == null ? 5 : count, look_sex, type,
+				state);
 	}
 
 	@RequestMapping("load")

@@ -578,7 +578,7 @@ public class UserDao extends BaseDao {
 	}
 	
 	public String getLastAvatar(long user_id) {
-		return jdbcTemplate.queryForObject("select avatar from t_user_avatars where uid="+user_id+"order by id desc  limit 1", String.class);	
+		return jdbcTemplate.queryForObject("select avatar from t_user_avatars where uid="+user_id+" order by id desc  limit 1", String.class);	
 	}
 	
 	public int getAvatarCount(long user_id) {

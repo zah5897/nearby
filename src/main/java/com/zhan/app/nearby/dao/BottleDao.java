@@ -86,9 +86,12 @@ public class BottleDao extends BaseDao {
 	}
 
 	public List<Bottle> getBottles(long user_id, int limit, int type, BottleState state) {
-		if(type==BottleType.DM_TXT.ordinal()||type==BottleType.DM_VOICE.ordinal()) {
-			return new ArrayList<Bottle>();
+		if(type!=-1) {
+			if(type==BottleType.DM_TXT.ordinal()||type==BottleType.DM_VOICE.ordinal()) {
+				return new ArrayList<Bottle>();
+			}
 		}
+		
 		if(state==BottleState.NORMAL) {
 			if(type==-1) {
 				String sql = "select b.*,u.nick_name,u.avatar,u.birthday,u.birth_city_id," + getAgeSql()
@@ -128,10 +131,12 @@ public class BottleDao extends BaseDao {
 	 * @return
 	 */
 	public List<Bottle> getLatestDMBottles(long user_id, int limit, int type, BottleState state,int timeType) {
-
-		if(type!=BottleType.DM_TXT.ordinal()||type!=BottleType.DM_VOICE.ordinal()) {
-			return new ArrayList<Bottle>();
+		if(type!=-1) {
+			if(type!=BottleType.DM_TXT.ordinal()||type!=BottleType.DM_VOICE.ordinal()) {
+				return new ArrayList<Bottle>();
+			}
 		}
+		
 		if(state==BottleState.NORMAL) {
 			if(type==-1) {
 				String sql = "select b.*,u.nick_name,u.avatar,u.birthday,u.birth_city_id," + getAgeSql()
@@ -161,6 +166,7 @@ public class BottleDao extends BaseDao {
 	        	return jdbcTemplate.query(sql,new Object[] { user_id, state.ordinal(),type,limit },getBottleMapper());
 			}
 		}
+		
 	}
 
 	private String fiflterBlock(long user_id) {
@@ -174,13 +180,13 @@ public class BottleDao extends BaseDao {
 			String day=DateTimeUtil.getDayStr(new Date());
 			String timestart=day+" 10:00:00";
 			String timeEnd=day+" 11:00:00";
-			return " and p.bottle_id not in (select bid from t_dm_bottle_had_get where uid="+user_id+") and p.create_time between "+timestart+" and "+timeEnd;
+			return " and p.bottle_id not in (select bid from t_dm_bottle_had_get where uid="+user_id+") and p.create_time between '"+timestart+"' and '"+timeEnd+"'";
 		}
 		
 	}
 	
 	public List<Bottle> getBottlesByGender(long user_id, int limit, int gender, Integer type, BottleState state) {
-		if (type == null) {
+		if (type == -1) {
 			// 固定性别
 			if (gender == 0 || gender == 1) {
 				String sql = "select b.*,u.nick_name,u.avatar,u.birthday,u.birth_city_id, " + getAgeSql()

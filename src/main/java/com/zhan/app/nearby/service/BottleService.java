@@ -8,7 +8,6 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
@@ -36,6 +35,7 @@ import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.util.BottleKeyWordUtil;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.ResultUtil;
+import com.zhan.app.nearby.util.SpringContextUtil;
 import com.zhan.app.nearby.util.TextUtils;
 
 @Service
@@ -44,19 +44,19 @@ public class BottleService {
 
 	public static final int LIMIT_COUNT = 5;
 
-	@Autowired
+	@Resource
 	private BottleDao bottleDao;
-	@Autowired
+	@Resource
 	private VipDao vipDao;
-	@Autowired
+	@Resource
 	private UserDao userDao;
-	@Autowired
+	@Resource
 	private DynamicMsgService dynamicMsgService;
 
-	@Autowired
+	@Resource
 	private UserService userService;
 
-	@Autowired
+	@Resource
 	private UserCacheService userCacheService;
 
 	public Bottle getBottleFromPool(long user_id) {
@@ -94,12 +94,6 @@ public class BottleService {
 	public ModelMap getBottles(long user_id, int page_size, Integer look_sex, Integer type, Integer state_val) {
 		ModelMap result = ResultUtil.getResultOKMap();
 		BottleState state = BottleState.NORMAL;
-
-		if(bottleDao==null) {
-			System.out.println("null");
-		}
-		
-		
 		if (state_val == null) {
 			state = BottleState.NORMAL;
 			state_val = 0;
@@ -113,15 +107,19 @@ public class BottleService {
 		}
 
 		List<Bottle> bolltes = null;
+		
+		int realType = type == null ? -1 : type;
+		
+		
 		if (look_sex == null) {
-			bolltes = bottleDao.getBottles(user_id, page_size, type, state);
+			bolltes = bottleDao.getBottles(user_id, page_size, realType, state);
 		} else {
 			VipUser vip = vipDao.loadUserVip(user_id);
 			if (vip == null || vip.getDayDiff() < 0) {
-				bolltes = bottleDao.getBottles(user_id, page_size, type, state);
+				bolltes = bottleDao.getBottles(user_id, page_size, realType, state);
 			} else {
 				int sex = (look_sex == null ? -1 : look_sex);
-				bolltes = bottleDao.getBottlesByGender(user_id, page_size, sex, type, state);
+				bolltes = bottleDao.getBottlesByGender(user_id, page_size, sex, realType, state);
 			}
 		}
 

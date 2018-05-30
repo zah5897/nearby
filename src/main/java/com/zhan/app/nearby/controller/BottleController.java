@@ -30,7 +30,7 @@ public class BottleController {
 	private MainService mainService;
 
 	@RequestMapping("send")
-	public ModelMap send(Bottle bottle,String aid, HttpServletRequest request) {
+	public ModelMap send(Bottle bottle,String aid) {
 
 		if (bottle.getUser_id() <= 0) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
@@ -41,22 +41,6 @@ public class BottleController {
 
 		if (bottleService.isBlockUser(bottle.getUser_id())) {
 			return ResultUtil.getResultMap(ERROR.ERR_FAILED, "该帐号状态异常");
-		}
-
-		if (bottle.getType() == BottleType.IMG.ordinal() && (request instanceof DefaultMultipartHttpServletRequest)) {
-			DefaultMultipartHttpServletRequest multiRequest = (DefaultMultipartHttpServletRequest) request;
-			Iterator<String> iterator = multiRequest.getFileNames();
-			if (iterator.hasNext()) {
-				MultipartFile file = multiRequest.getFile((String) iterator.next());
-				if (!file.isEmpty()) {
-					try {
-						String imageName = ImageSaveUtils.saveBottleImages(file);
-						bottle.setContent(imageName);
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				}
-			}
 		}
 		bottleService.send(bottle,aid);
 		return ResultUtil.getResultOKMap().addAttribute("bottle", bottle);

@@ -69,7 +69,7 @@ public class BottleController {
 	}
 	@RequestMapping("list_dm")
 	public ModelMap list_dm(Long user_id, Integer count, Integer look_sex, Integer type, Integer state) {
-		return bottleService.getBottles(user_id == null ? 0 : user_id, count == null ? 5 : count, look_sex, type,
+		return bottleService.getDMBottles(user_id == null ? 0 : user_id, count == null ? 5 : count,type,
 				state);
 	}
 

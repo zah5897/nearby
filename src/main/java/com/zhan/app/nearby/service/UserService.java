@@ -301,13 +301,10 @@ public class UserService {
 		return r;
 	}
 
-	
-	
-	
-	public List<Avatar> getUserAvatars(long user_id){
+	public List<Avatar> getUserAvatars(long user_id) {
 		return ImagePathUtil.completeAvatarsPath(userDao.getUserAvatars(user_id));
 	}
-	
+
 	public List<Tag> getTagsByType(int type) {
 		return tagDao.getTagsByType(type);
 	}
@@ -603,12 +600,20 @@ public class UserService {
 		}
 	}
 
-	public void addSpecialUser(long uid) {
-		userDao.addSpecialUser(uid);
+	public int addSpecialUser(long uid) {
+		return userDao.addSpecialUser(uid);
 	}
 
-	public List<BaseUser> loadSpecialUsers(Integer limit) {
-		return userDao.loadSpecialUsers(limit == null ? 5 : limit);
+	public int delSpecialUser(long uid) {
+		return userDao.delSpecialUser(uid);
+	}
+
+	public List<BaseUser> loadSpecialUsers(Integer pageIndex, Integer limit) {
+		return userDao.loadSpecialUsers(pageIndex == null ? 1 : pageIndex, limit == null ? 5 : limit);
+	}
+
+	public int getSpecialUsersCount() {
+		return userDao.getSpecialUsersCount();
 	}
 
 	public Map<String, Object> checkIn(long user_id, String token, String aid) {
@@ -616,7 +621,7 @@ public class UserService {
 			int count = userDao.todayCheckInCount(user_id);
 			if (count == 0) {
 				userDao.todayCheckIn(user_id);
-				return modifyExtra(user_id, aid, 3,1);
+				return modifyExtra(user_id, aid, 3, 1);
 			} else {
 				return ResultUtil.getResultMap(ERROR.ERR_FAILED, "已经签过到");
 			}
@@ -627,7 +632,7 @@ public class UserService {
 
 	private String MODULE_ORDER_A_EXTRA;
 
-	public Map<String, Object> modifyExtra(long user_id, String aid, int count,int type) {
+	public Map<String, Object> modifyExtra(long user_id, String aid, int count, int type) {
 		if (TextUtils.isEmpty(MODULE_ORDER_A_EXTRA)) {
 			Properties prop = PropertiesUtil.load("config.properties");
 			String value = PropertiesUtil.getProperty(prop, "MODULE_ORDER_A_EXTRA");
@@ -635,8 +640,8 @@ public class UserService {
 		}
 		String result = null;
 		try {
-			result = HttpsUtil.sendHttpsPost(
-					MODULE_ORDER_A_EXTRA + "?id_user=" + user_id + "$&aid=" + aid + "&extra=" + count + "_&type="+type);
+			result = HttpsUtil.sendHttpsPost(MODULE_ORDER_A_EXTRA + "?id_user=" + user_id + "$&aid=" + aid + "&extra="
+					+ count + "_&type=" + type);
 			if (!TextUtils.isEmpty(result)) {
 				Map<String, Object> resultData = JSONUtil.jsonToMap(result);
 				resultData.put("coins_checkin", count);
@@ -649,4 +654,5 @@ public class UserService {
 		}
 		return ResultUtil.getResultMap(ERROR.ERR_FAILED);
 	}
+
 }

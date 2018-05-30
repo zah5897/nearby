@@ -1,7 +1,5 @@
 package com.easemob.server.example.api.impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.easemob.server.example.api.AuthTokenAPI;
 import com.easemob.server.example.api.EasemobRestAPI;
@@ -15,7 +13,6 @@ public class EasemobAuthToken extends EasemobRestAPI implements AuthTokenAPI{
 	
 	public static final String ROOT_URI = "/token";
 	
-	private static final Logger log = LoggerFactory.getLogger(EasemobAuthToken.class);
 	
 	@Override
 	public String getResourceRootURI() {

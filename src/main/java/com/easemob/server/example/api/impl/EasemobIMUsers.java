@@ -1,7 +1,5 @@
 package com.easemob.server.example.api.impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.easemob.server.example.api.EasemobRestAPI;
 import com.easemob.server.example.api.IMUserAPI;
@@ -13,7 +11,6 @@ import com.easemob.server.example.comm.wrapper.QueryWrapper;
 
 public class EasemobIMUsers extends EasemobRestAPI implements IMUserAPI {
 
-	private static final Logger log = LoggerFactory.getLogger(EasemobIMUsers.class);
 	
 	private static final String ROOT_URI = "/users";
 

@@ -205,6 +205,7 @@ public class AddressUtil {
 	}
 
 	public static void main(String[] args) {
-		getAddressByIp("117.143.221.190");//	  http://117.143.221.190:8899/nearby/bottle/send
+		String[] addr=getAddressByIp("223.104.190.48");//	  http://117.143.221.190:8899/nearby/bottle/send
+		System.out.println(addr);
 	}
 }

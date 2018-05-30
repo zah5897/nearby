@@ -73,7 +73,10 @@
     <li><a href="<%=path %>/manager/forword?path=bottle_txt_key_word" target="right"><span class="icon-caret-right"></span>瓶子敏感词管理</a></li>
   </ul> 
   
-  
+    <h2><span class="icon-user"></span>推广</h2>
+   <ul>
+    <li><a href="<%=path %>/manager/forword?path=user_spread_list" target="right"><span class="icon-caret-right"></span>推广用户</a></li>
+  </ul> 
    
   
   

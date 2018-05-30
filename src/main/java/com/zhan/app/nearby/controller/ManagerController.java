@@ -622,12 +622,12 @@ public class ManagerController {
 
 	// 获取所有用户
 	@RequestMapping(value = "/list_user_all")
-	public @ResponseBody ModelMap list_user_all(int pageSize, int pageIndex, int type, String keyword,Long user_id) {
+	public @ResponseBody ModelMap list_user_all(int pageSize, int pageIndex, int type, String keyword, Long user_id) {
 		ModelMap r = ResultUtil.getResultOKMap();
-		List<BaseUser> users = managerService.getAllUser(pageSize, pageIndex, type, keyword,user_id);
+		List<BaseUser> users = managerService.getAllUser(pageSize, pageIndex, type, keyword, user_id);
 
 		if (pageIndex == 1) {
-			int totalSize = managerService.getUserSize(type, keyword,user_id);
+			int totalSize = managerService.getUserSize(type, keyword, user_id);
 			int pageCount = totalSize / pageSize;
 			if (totalSize % 10 > 0) {
 				pageCount += 1;
@@ -815,4 +815,40 @@ public class ManagerController {
 			return ResultUtil.getResultOKMap().addAttribute("key_word", keyWord);
 		}
 	}
+
+	// 获取提现申请记录
+	@RequestMapping(value = "/list_spread_user")
+	public @ResponseBody ModelMap list_spread_user() {
+		return managerService.getSpecialUsers(1, 1000);
+	}
+
+	@RequestMapping(value = "/add_spread_user")
+	public @ResponseBody ModelMap add_spread_user(long uid) {
+		int count = managerService.addSpreadUser(uid);
+		if (count == 1) {
+			return managerService.getSpecialUsers(1, 1000);
+		} else {
+			
+			String err_msg;
+			if(count==-1) {
+				err_msg="该用户已存在推广列表中";
+			}else if(count==-2){
+				err_msg="该用户ID不存在";
+			}else {
+				err_msg="操作失败";
+			}
+			return ResultUtil.getResultMap(ERROR.ERR_FAILED,err_msg);
+		}
+	}
+
+	@RequestMapping(value = "/del_spread_user")
+	public @ResponseBody ModelMap del_spread_user(long uid) {
+		int count = managerService.delSpecialUser(uid);
+		if (count == 1) {
+			return managerService.getSpecialUsers(1, 1000);
+		} else {
+			return ResultUtil.getResultOKMap().addAttribute("count", count);
+		}
+	}
+
 }

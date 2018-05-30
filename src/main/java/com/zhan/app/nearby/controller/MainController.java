@@ -154,10 +154,8 @@ public class MainController {
 	}
 	
 	@RequestMapping("load_special_users")
-	public ModelMap special_users(Integer limit) {
-		return mainService.getSpecialUsers(limit);
+	public ModelMap special_users(Integer count) {
+		return mainService.getSpecialUsers(1,count==null?5:count);
 	}
-		
-		
  
 }

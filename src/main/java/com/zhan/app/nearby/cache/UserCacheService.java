@@ -8,7 +8,6 @@ import javax.annotation.Resource;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-import com.zhan.app.nearby.util.BottleKeyWordUtil;
 import com.zhan.app.nearby.util.TextUtils;
 
 /**

@@ -6,6 +6,7 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.ModelMap;
 
 import com.easemob.server.example.Main;
 import com.zhan.app.nearby.bean.Bottle;
@@ -316,4 +317,17 @@ public class ManagerService {
 		bottleService.changeBottleState(id,to_state);
 	}
 
+	public ModelMap getSpecialUsers(int pageIndex,int pageSize) {
+		return mainService.getSpecialUsers(pageIndex,pageSize);
+	}
+	public int getSpecialUsersCount() {
+		return mainService.getSpecialUsersCount();
+	}
+	public int delSpecialUser(long uid) {
+		return mainService.delSpecialUser(uid);
+	}
+
+	public int addSpreadUser(long uid) {
+		return mainService.addSpreadUser(uid);
+	}
 }

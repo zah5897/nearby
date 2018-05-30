@@ -28,7 +28,7 @@ import com.zhan.app.nearby.util.DateTimeUtil;
 import com.zhan.app.nearby.util.SQLUtil;
 import com.zhan.app.nearby.util.TextUtils;
 
-@Repository("userDao")
+@Repository
 public class UserDao extends BaseDao {
 	@Resource
 	private JdbcTemplate jdbcTemplate;
@@ -110,6 +110,10 @@ public class UserDao extends BaseDao {
 		}
 	}
 
+	public int isUidExist(long user_id) {
+		return jdbcTemplate.queryForObject("select count(*) from t_user where user_id="+user_id, Integer.class);
+	}
+	
 	public LocationUser findLocationUserByMobile(String mobile) {
 		List<LocationUser> list = jdbcTemplate.query(
 				"select user.* ,city.name as city_name from t_user user left join t_sys_city city on user.city_id=city.id where user.mobile=?",
@@ -517,19 +521,29 @@ public class UserDao extends BaseDao {
 		}
 	}
 
-	public void addSpecialUser(long uid) {
-		int countObj = jdbcTemplate.queryForObject("select count(*)  from t_special_user where uid=?",
-				new String[] { String.valueOf(uid) }, Integer.class);
-		if (countObj > 0) {
-			return;
+	public int addSpecialUser(long uid) {
+		
+		int countObj=isUidExist(uid);
+		if(countObj==0) {
+			return -2;
 		}
-		jdbcTemplate.update("insert into t_special_user (uid) values(?)", new Object[] { String.valueOf(uid) });
+		countObj = jdbcTemplate.queryForObject("select count(*)  from t_special_user where uid="+uid,Integer.class);
+		if (countObj > 0) {
+			return -1;
+		}
+		return jdbcTemplate.update("insert into t_special_user (uid,create_time) values(?,?)", new Object[] { String.valueOf(uid),new Date() });
 	}
-
-	public List<BaseUser> loadSpecialUsers(int limit) {
-		String sql = "select u.user_id,u.nick_name,u.avatar,u.sex,u.type,u.birthday from t_special_user us left join t_user u on us.uid=u.user_id";
-		List<BaseUser> users = jdbcTemplate.query(sql, new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+	public int delSpecialUser(long uid) {
+		return jdbcTemplate.update("delete from t_special_user where uid=?", new Object[] { String.valueOf(uid)});
+	}
+	public List<BaseUser> loadSpecialUsers(int pageIndex,int limit) {
+		String sql = "select u.user_id,u.nick_name,u.avatar,u.sex,u.type,u.birthday from t_special_user us left join t_user u on us.uid=u.user_id order by us.create_time desc limit ?,?";
+		List<BaseUser> users = jdbcTemplate.query(sql,new Object[] {(pageIndex-1)*limit,limit}, new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
 		return users;
+	}
+	public int getSpecialUsersCount(){
+		String sql = "select count(*) from t_special_user";
+		return jdbcTemplate.queryForObject(sql, Integer.class);
 	}
 
 	public int updateAccountState(long user_id, int state) {

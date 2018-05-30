@@ -8,6 +8,7 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
@@ -43,19 +44,19 @@ public class BottleService {
 
 	public static final int LIMIT_COUNT = 5;
 
-	@Resource
+	@Autowired
 	private BottleDao bottleDao;
-	@Resource
+	@Autowired
 	private VipDao vipDao;
-	@Resource
+	@Autowired
 	private UserDao userDao;
-	@Resource
+	@Autowired
 	private DynamicMsgService dynamicMsgService;
 
-	@Resource
+	@Autowired
 	private UserService userService;
 
-	@Resource
+	@Autowired
 	private UserCacheService userCacheService;
 
 	public Bottle getBottleFromPool(long user_id) {
@@ -80,10 +81,25 @@ public class BottleService {
 		return state == AccountStateType.LOCK.ordinal();
 	}
 
+	/**
+	 * 获取非弹幕瓶子
+	 * 
+	 * @param user_id
+	 * @param page_size
+	 * @param look_sex
+	 * @param type
+	 * @param state_val
+	 * @return
+	 */
 	public ModelMap getBottles(long user_id, int page_size, Integer look_sex, Integer type, Integer state_val) {
 		ModelMap result = ResultUtil.getResultOKMap();
 		BottleState state = BottleState.NORMAL;
 
+		if(bottleDao==null) {
+			System.out.println("null");
+		}
+		
+		
 		if (state_val == null) {
 			state = BottleState.NORMAL;
 			state_val = 0;
@@ -119,6 +135,51 @@ public class BottleService {
 		return result;
 	}
 
+	/**
+	 * 获取弹幕瓶子
+	 * 
+	 * @param user_id
+	 * @param page_size
+	 * @param look_sex
+	 * @param type
+	 * @param state_val
+	 * @return
+	 */
+	public ModelMap getDMBottles(long user_id, int page_size, Integer type, Integer state_val) {
+		ModelMap result = ResultUtil.getResultOKMap();
+		BottleState state = BottleState.NORMAL;
+
+		if (state_val == null) {
+			state = BottleState.NORMAL;
+			state_val = 0;
+		}
+		if (state_val == 1) {
+			state = BottleState.BLACK;
+		} else if (state_val == 2) {
+			state = BottleState.IOS_REVIEW;
+		} else {
+			state = BottleState.NORMAL;
+		}
+		List<Bottle> bottles = null;
+		int realType = type == null ? -1 : type;
+		
+		int timeType=0;
+		bottles = bottleDao.getLatestDMBottles(user_id, page_size, realType, state,timeType);
+		
+		if(bottles==null||bottles.size()==0) {
+			timeType=1;
+			bottles = bottleDao.getLatestDMBottles(user_id, page_size, realType, state,timeType);
+		}
+		
+		if(bottles!=null) {
+			for(Bottle b:bottles) {
+				bottleDao.markDMBottleHadGet(user_id,b.getId());
+			}
+		}
+		result.addAttribute("bottles", bottles);
+		return result;
+	}
+
 	public boolean existBottles(String content, String img) {
 		return bottleDao.existBottles(content, img);
 	}
@@ -130,13 +191,13 @@ public class BottleService {
 	public void send(Bottle bottle, String aid) {
 
 		if (bottle.getType() == BottleType.DM_TXT.ordinal() || bottle.getType() == BottleType.DM_VOICE.ordinal()) {
-			Map<String, Object> extraData=userService.modifyExtra(bottle.getUser_id(), aid, 1, -1);
-			if(extraData!=null&&extraData.containsKey("all_coins")) {
-				int all_coins=(int) extraData.get("all_coins");
-				if(all_coins<0) {
-					 throw new AppException(ERROR.ERR_COINS_SHORT);
+			Map<String, Object> extraData = userService.modifyExtra(bottle.getUser_id(), aid, 1, -1);
+			if (extraData != null && extraData.containsKey("all_coins")) {
+				int all_coins = (int) extraData.get("all_coins");
+				if (all_coins < 0) {
+					throw new AppException(ERROR.ERR_COINS_SHORT);
 				}
-				
+
 			}
 		}
 		if (bottle.getType() == BottleType.TXT.ordinal() || bottle.getType() == BottleType.DM_TXT.ordinal()) {
@@ -280,7 +341,7 @@ public class BottleService {
 						bottle.setUser_id(withUserID);
 						bottle.setType(BottleType.MEET.ordinal());
 						bottle.setContent(String.valueOf(withUserID));
-						send(bottle,null);
+						send(bottle, null);
 						bottleID = bottle.getId();
 					}
 				}
@@ -331,7 +392,7 @@ public class BottleService {
 				bottle.setUser_id(uid);
 				bottle.setType(BottleType.TXT.ordinal());
 				bottle.setContent(content);
-				send(bottle,null);
+				send(bottle, null);
 			}
 			return 1;
 		}

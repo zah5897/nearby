@@ -30,6 +30,14 @@ public class DateTimeUtil {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		return sdf.format(result);
 	}
+	
+	public static String getDayStr(Date result) {
+		if (result == null) {
+			return new String();
+		}
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		return sdf.format(result);
+	}
 
 	public static String getAge(Date birthday) {
 		if (birthday == null) {

@@ -480,12 +480,20 @@ public class MainService {
 		return data;
 	}
 
-	public ModelMap getSpecialUsers(Integer limit) {
-		List<BaseUser> users = userService.loadSpecialUsers(limit);
+	public ModelMap getSpecialUsers(int page,int limit) {
+		List<BaseUser> users = userService.loadSpecialUsers(page,limit);
 		ImagePathUtil.completeAvatarsPath(users, true);
 		return ResultUtil.getResultOKMap().addAttribute("users", users);
 	}
-
+	public int getSpecialUsersCount() {
+		return userService.getSpecialUsersCount();
+	}	
+	public int delSpecialUser(long uid) {
+		return userService.delSpecialUser(uid);
+	}
+	public int addSpreadUser(long uid) {
+		return userService.addSpecialUser(uid);
+	}
 	public boolean backExchange(int id) {
 		Exchange ex = systemDao.loadExchange(id);
 		int i = giftDao.addGiftCoins(ex.getUser_id(), ex.getDiamond_count());
@@ -534,5 +542,11 @@ public class MainService {
 			systemDao.updateReportState(id,isIgnore?-1:1);
 		}
 	}
+
+
+
+
+
+
 	
 }

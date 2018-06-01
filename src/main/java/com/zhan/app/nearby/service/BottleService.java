@@ -169,11 +169,10 @@ public class BottleService {
 			bottles = bottleDao.getLatestDMBottles(user_id, page_size, realType, state,timeType);
 		}
 		
-		if(bottles!=null) {
-			for(Bottle b:bottles) {
-				bottleDao.markDMBottleHadGet(user_id,b.getId());
-			}
+		for(Bottle b:bottles) {
+			bottleDao.markDMBottleHadGet(user_id,b.getId());
 		}
+		
 		result.addAttribute("bottles", bottles);
 		return result;
 	}

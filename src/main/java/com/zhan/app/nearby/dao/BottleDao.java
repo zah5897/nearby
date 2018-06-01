@@ -136,34 +136,33 @@ public class BottleDao extends BaseDao {
 				return new ArrayList<Bottle>();
 			}
 		}
-		
 		if(state==BottleState.NORMAL) {
 			if(type==-1) {
 				String sql = "select b.*,u.nick_name,u.avatar,u.birthday,u.birth_city_id," + getAgeSql()
 				+ ", u.sex ,c.name as city_name from t_bottle_pool p left join  t_bottle b  on p.bottle_id=b.id left join t_user u on b.user_id=u.user_id left join t_sys_city c on u.birth_city_id=c.id"
-				+ " where b.user_id<>? and b.state<>? and (b.type=? or b.type=?) "
+				+ " where b.state<>? and (b.type=? or b.type=?) "
 				+ fiflterBlock(user_id)+fiflterHadGetWithout(user_id,timeType) + "  order by RAND()  limit ?";
-		        return jdbcTemplate.query(sql, new Object[] { user_id,BottleState.BLACK.ordinal(),BottleType.DM_TXT.ordinal(),BottleType.DM_VOICE.ordinal(), limit}, getBottleMapper());
+		        return jdbcTemplate.query(sql, new Object[] { BottleState.BLACK.ordinal(),BottleType.DM_TXT.ordinal(),BottleType.DM_VOICE.ordinal(), limit}, getBottleMapper());
 			}else {
 				String sql = "select b.*,u.nick_name,u.avatar,u.birthday,u.birth_city_id," + getAgeSql()
 				+ ", u.sex ,c.name as city_name from t_bottle_pool p left join  t_bottle b  on p.bottle_id=b.id left join t_user u on b.user_id=u.user_id left join t_sys_city c on u.birth_city_id=c.id "
-				+ " where b.user_id<>? and b.state<>? and b.type=? "
+				+ " where  b.state<>? and b.type=? "
 				+ fiflterBlock(user_id) +fiflterHadGetWithout(user_id,timeType)+ " order by RAND()  limit ?";
-		        return jdbcTemplate.query(sql, new Object[] { user_id,BottleState.BLACK.ordinal(),type,limit }, getBottleMapper());
+		        return jdbcTemplate.query(sql, new Object[] { BottleState.BLACK.ordinal(),type,limit }, getBottleMapper());
 			}
 		}else {
 			if(type==-1) {
 				String sql = "select b.*,u.nick_name,u.avatar,u.birthday,u.birth_city_id," + getAgeSql()
 				+ ", u.sex ,c.name as city_name from t_bottle_pool p left join  t_bottle b  on p.bottle_id=b.id left join t_user u on b.user_id=u.user_id left join t_sys_city c on u.birth_city_id=c.id"
-				+ "  where b.user_id<>? and b.state=?  and (b.type=? or b.type=?) "
+				+ "  where   b.state=?  and (b.type=? or b.type=?) "
 				+ fiflterBlock(user_id)+fiflterHadGetWithout(user_id,timeType) + "  order by RAND()  limit ?";
-		       return jdbcTemplate.query(sql,new Object[] { user_id, state.ordinal(), BottleType.DM_TXT.ordinal(),BottleType.DM_VOICE.ordinal(),limit },getBottleMapper());
+		       return jdbcTemplate.query(sql,new Object[] {   state.ordinal(), BottleType.DM_TXT.ordinal(),BottleType.DM_VOICE.ordinal(),limit },getBottleMapper());
 			}else {
 				String sql = "select b.*,u.nick_name,u.avatar,u.birthday,u.birth_city_id," + getAgeSql()
 				+ ", u.sex ,c.name as city_name from t_bottle_pool p left join  t_bottle b  on p.bottle_id=b.id left join t_user u on b.user_id=u.user_id left join t_sys_city c on u.birth_city_id=c.id "
-				+ " where b.user_id<>? and b.state=?  and b.type=? "
+				+ " where  b.state=?  and b.type=? "
 				+ fiflterBlock(user_id)+fiflterHadGetWithout(user_id,timeType) + " order by RAND()  limit ?";
-	        	return jdbcTemplate.query(sql,new Object[] { user_id, state.ordinal(),type,limit },getBottleMapper());
+	        	return jdbcTemplate.query(sql,new Object[] { state.ordinal(),type,limit },getBottleMapper());
 			}
 		}
 		
@@ -175,12 +174,9 @@ public class BottleDao extends BaseDao {
 	
 	private String fiflterHadGetWithout(long user_id,int timeType) {
 		if(timeType==0) {
-			return " and p.bottle_id not in (select bid from t_dm_bottle_had_get where uid="+user_id+") and p.create_time >= now()-interval 5 minute ";
+			return " and p.bottle_id not in (select bid from t_dm_bottle_had_get where uid="+user_id+") ";
 		}else {
-			String day=DateTimeUtil.getDayStr(new Date());
-			String timestart=day+" 10:00:00";
-			String timeEnd=day+" 11:00:00";
-			return " and p.bottle_id not in (select bid from t_dm_bottle_had_get where uid="+user_id+") and p.create_time between '"+timestart+"' and '"+timeEnd+"'";
+			return " and b.user_id<>"+user_id+"  and p.create_time >= now()-interval 30 day ";
 		}
 		
 	}

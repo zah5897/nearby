@@ -621,7 +621,7 @@ public class UserService {
 			int count = userDao.todayCheckInCount(user_id);
 			if (count == 0) {
 				userDao.todayCheckIn(user_id);
-				return modifyExtra(user_id, aid, 3, 1);
+				return modifyExtra(user_id, aid, 1, 1);
 			} else {
 				return ResultUtil.getResultMap(ERROR.ERR_FAILED, "已经签过到");
 			}

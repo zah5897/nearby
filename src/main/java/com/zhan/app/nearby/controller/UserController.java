@@ -398,7 +398,7 @@ public class UserController {
 	 * @return
 	 */
 	@RequestMapping("modify_avatar")
-	public ModelMap modify_avatar(DefaultMultipartHttpServletRequest multipartRequest, long user_id, String token) {
+	public ModelMap modify_avatar(DefaultMultipartHttpServletRequest multipartRequest, long user_id,String aid, String token) {
 		if (!userService.checkLogin(user_id, token)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
@@ -431,11 +431,7 @@ public class UserController {
 			}
 		}
 
-		ModelMap result = ResultUtil.getResultOKMap();
-		user.set_ua(null);
-		ImagePathUtil.completeAvatarPath(user, true); // 补全图片链接地址
-		result.put("user", user);
-		return result;
+		return userService.getUserCenterData("", aid, user_id, user_id);
 	}
 
 	@RequestMapping("upload_avatars")

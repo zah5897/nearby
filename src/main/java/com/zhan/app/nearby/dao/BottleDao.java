@@ -21,7 +21,6 @@ import com.zhan.app.nearby.bean.user.BaseVipUser;
 import com.zhan.app.nearby.bean.user.LocationUser;
 import com.zhan.app.nearby.comm.BottleState;
 import com.zhan.app.nearby.comm.Relationship;
-import com.zhan.app.nearby.util.DateTimeUtil;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.TextUtils;
 
@@ -44,8 +43,8 @@ public class BottleDao extends BaseDao {
 	}
 
 	public Bottle getBottleById(long id) {
-		String sql = "select bottle.*,user.nick_name,user.gender,user.avatar from " + TABLE_BOTTLE
-				+ " bottle left join t_user user on bottle.user_id=user.id where bottle.id=?";
+		String sql = "select bottle.*,user.nick_name,user.sex,user.avatar from " + TABLE_BOTTLE
+				+ " bottle left join t_user user on bottle.user_id=user.user_id where bottle.id=?";
 		List<Bottle> bottles = jdbcTemplate.query(sql, new Object[] { id },
 				new BeanPropertyRowMapper<Bottle>(Bottle.class) {
 
@@ -176,7 +175,7 @@ public class BottleDao extends BaseDao {
 		if(timeType==0) {
 			return " and p.bottle_id not in (select bid from t_dm_bottle_had_get where uid="+user_id+") ";
 		}else {
-			return " and b.user_id<>"+user_id+"  and p.create_time >= now()-interval 30 day ";
+			return " and p.create_time >= now()-interval 30 day ";
 		}
 		
 	}
@@ -232,6 +231,7 @@ public class BottleDao extends BaseDao {
 		sender.setNick_name(rs.getString("nick_name"));
 		sender.setAvatar(rs.getString("avatar"));
 		sender.setVip(vipDao.isVip(sender.getUser_id()));
+		ImagePathUtil.completeAvatarPath(sender, true);
 		return sender;
 	}
 

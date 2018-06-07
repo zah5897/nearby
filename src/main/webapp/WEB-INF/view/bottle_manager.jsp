@@ -197,8 +197,12 @@ td {
 				 typeStr="图片瓶子";
 			 }else if(type==2){
 				 typeStr="语音瓶子";
-			 }else{
+			 }else if(type==3){
 				 typeStr="邂逅瓶子";
+			 }else if(type==4){
+				 typeStr="文本弹幕瓶子";
+			 }else if(type==5){
+				 typeStr="语音弹幕瓶子";
 			 }
 			 
 			 toAdd+="<td>"+typeStr+"</td>";

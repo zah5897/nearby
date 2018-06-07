@@ -305,11 +305,20 @@ public class ManagerService {
 		return mainService.getReportSizeByApproval(approval_type);
 	}
 
-	public List<Bottle> listBottleByState(int state, int pageSize, int pageIndex) {
-		return bottleService.getBottlesByState(state, pageSize, pageIndex);
+	public List<Bottle> listBottleByState(int state, int pageSize, int pageIndex,Long bottle_id) {
+		long realId;
+		if(bottle_id==null||bottle_id<1) {
+			realId=0;
+		}else {
+			realId=bottle_id;
+		}
+		return bottleService.getBottlesByState(state, pageSize, pageIndex,realId);
 	}
 	
-	public int getBottleCountWithState(int state) {
+	public int getBottleCountWithState(int state,Long bottle_id) {
+		if(bottle_id!=null&&bottle_id>0) {
+			return 1;
+		}
 		return bottleService.getBottleCountWithState(state);
 	}
 

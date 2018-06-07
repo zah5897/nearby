@@ -396,8 +396,8 @@ public class BottleService {
 		return 0;
 	}
 
-	public List<Bottle> getBottlesByState(int state, int pageSize, int pageIndex) {
-		return bottleDao.getBottlesByState(state, pageSize, pageIndex);
+	public List<Bottle> getBottlesByState(int state, int pageSize, int pageIndex,long bottle_id) {
+		return bottleDao.getBottlesByState(state, pageSize, pageIndex,bottle_id);
 	}
 
 	public int getBottleCountWithState(int state) {

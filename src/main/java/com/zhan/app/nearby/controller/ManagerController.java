@@ -779,11 +779,11 @@ public class ManagerController {
 
 	// 获取提现申请记录
 	@RequestMapping(value = "/list_bottle")
-	public @ResponseBody ModelMap list_bottle(int type, int pageSize, int pageIndex) {
+	public @ResponseBody ModelMap list_bottle(int type, int pageSize, int pageIndex,Long bottle_id) {
 		ModelMap r = ResultUtil.getResultOKMap();
-		List<Bottle> exchanges = managerService.listBottleByState(type, pageSize, pageIndex);
+		List<Bottle> exchanges = managerService.listBottleByState(type, pageSize, pageIndex,bottle_id);
 		if (pageIndex == 1) {
-			int totalSize = managerService.getBottleCountWithState(type);
+			int totalSize = managerService.getBottleCountWithState(type,bottle_id);
 			int pageCount = totalSize / pageSize;
 			if (totalSize % pageSize > 0) {
 				pageCount += 1;
@@ -800,9 +800,9 @@ public class ManagerController {
 
 	// 获取提现申请记录
 	@RequestMapping(value = "/changeBottleState")
-	public @ResponseBody ModelMap changeBottleState(int id, int type, int pageSize, int pageIndex, int to_state) {
+	public @ResponseBody ModelMap changeBottleState(int id, int type, int pageSize, int pageIndex, int to_state,Long bottle_id) {
 		managerService.changeBottleState(id, to_state);
-		return list_bottle(type, pageSize, pageIndex);
+		return list_bottle(type, pageSize, pageIndex,bottle_id);
 	}
 
 	// 获取提现申请记录

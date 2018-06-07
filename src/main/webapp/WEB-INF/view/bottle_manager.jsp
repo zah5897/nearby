@@ -38,6 +38,12 @@ td {
 							<option value="1">黑名单</option>
 							<option value="2">审核状态</option>
 					</select></li>
+					
+					<li>
+			         <input type="text" placeholder="请输入瓶子ID" name="bottle_id" class="input" style="width:250px; line-height:17px;display:inline-block" />
+                     <a href="javascript:void(0)" class="button border-main icon-search" onclick="doSearch()" > 搜索</a>
+                   </li> 
+                     
 				</ul>
 			</div>
 
@@ -100,7 +106,7 @@ td {
 			if (currentPageIndex == index) {
 				return false;
 			}
-			$.post("<%=path%>/manager/list_bottle",{'pageIndex':index,'pageSize':pageSize,'type':type},function(result){
+			$.post("<%=path%>/manager/list_bottle",{'pageIndex':index,'pageSize':pageSize,'type':type,'bottle_id':current_bottle_id},function(result){
 				 var json=JSON.parse(result);
 			        if(json.code==0){
 			        	$("table tr[id*='tr_'").each(function(i){
@@ -236,7 +242,7 @@ td {
 	    	parent.showOriginImg(img);
 	    }
  	    function changeBottleState(id,state){
-			$.post("<%=path%>/manager/changeBottleState",{'id':id,'type':type,'pageIndex':currentPageIndex,'pageSize':pageSize,'to_state':state},function(result){
+			$.post("<%=path%>/manager/changeBottleState",{'id':id,'type':type,'pageIndex':currentPageIndex,'pageSize':pageSize,'to_state':state,'bottle_id':current_bottle_id},function(result){
 				 var json=JSON.parse(result);
 			        if(json.code==0){
 			        	$("table tr[id*='tr_'").each(function(i){
@@ -255,6 +261,31 @@ td {
 				page(1);
 			}
 		}
+		
+		var current_bottle_id=0;
+		
+		 function doSearch(){
+			 
+		    	var key=$("[name='bottle_id']").val().replace(/^\s+|\s+$/g,"");
+		    	 
+		    	var intKey;
+		    	  
+		    		intKey=Number(key);
+		    		
+		    		if(isNaN(intKey)){
+		    			alert("请输入数字");
+		    			return;
+		    		}
+		    		
+		    		 
+		    		if(intKey==current_bottle_id){
+		    			return;
+		    		}
+		    		currentPageIndex=0;
+		    		current_bottle_id=intKey;
+		    		page(1);
+		    }
+		
 	</script>
 </body>
 </html>

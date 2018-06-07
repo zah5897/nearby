@@ -332,12 +332,25 @@ public class BottleDao extends BaseDao {
 		return -1;
 	}
 
-	public List<Bottle> getBottlesByState(int state, int pageSize, int pageIndex) {
-		String sql = "select b.*,u.nick_name from t_bottle_pool p left join  t_bottle b on p.bottle_id=b.id left join t_user u on b.user_id=u.user_id where b.state=? order by p.create_time  desc limit ?,?";
-		if (state == -1) {
-			sql = "select b.*,u.nick_name from t_bottle_pool p left join  t_bottle b on p.bottle_id=b.id left join t_user u on b.user_id=u.user_id where b.state<>? order by p.create_time desc limit ?,?";
+	public List<Bottle> getBottlesByState(int state, int pageSize, int pageIndex,long bottle_id) {
+		
+		Object[] param;
+		String sql;
+		if(bottle_id>0) {
+			sql = "select b.*,u.nick_name from t_bottle_pool p left join  t_bottle b on p.bottle_id=b.id left join t_user u on b.user_id=u.user_id where b.id=? and  b.state=? order by p.create_time  desc limit ?,?";	
+			if(state == -1) {
+				sql = "select b.*,u.nick_name from t_bottle_pool p left join  t_bottle b on p.bottle_id=b.id left join t_user u on b.user_id=u.user_id where b.id=? and  b.state<>? order by p.create_time desc limit ?,?";
+			}
+			param=new Object[] {bottle_id, state, (pageIndex - 1) * pageSize, pageSize };
+		}else {
+			sql = "select b.*,u.nick_name from t_bottle_pool p left join  t_bottle b on p.bottle_id=b.id left join t_user u on b.user_id=u.user_id where   b.state=? order by p.create_time  desc limit ?,?";	
+			if(state == -1) {
+				sql = "select b.*,u.nick_name from t_bottle_pool p left join  t_bottle b on p.bottle_id=b.id left join t_user u on b.user_id=u.user_id where     b.state<>? order by p.create_time desc limit ?,?";
+			}
+			param=new Object[] { state, (pageIndex - 1) * pageSize, pageSize };
 		}
-		return jdbcTemplate.query(sql, new Object[] { state, (pageIndex - 1) * pageSize, pageSize },
+		 
+		return jdbcTemplate.query(sql, param,
 				new BeanPropertyRowMapper<Bottle>(Bottle.class) {
 					@Override
 					public Bottle mapRow(ResultSet rs, int rowNumber) throws SQLException {

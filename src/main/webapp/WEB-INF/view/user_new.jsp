@@ -34,9 +34,9 @@
 				<ul class="search">
 				 <li> 时间筛选：</li>
 				  <li>
-				    <select id="user_type" name="user_type" class="input" onchange="changeType(this)"  style="line-height:17px;display:inline-block">
+				    <select id="user_type" name="user_type" class="input" onchange="changeType(this)"  style="line-height:17px;display:inline-block" >
                           <option value="-1">今日新增</option>
-                          <option value="0">近两日新增</option>
+                          <option value="0" selected="selected">近两日新增</option>
                           <option value="1">近7日新增</option>
                           <option value="2">近30日新增</option>
                       </select>
@@ -76,7 +76,7 @@
 	    var currentPageIndex = 0;
 	    var pageSize = 10;
 	    var pageCount = 100;
-	    var type=-1;
+	    var type=0;
 	    //默认加载第一页
 	    $(document).ready(function(){ 
 		    page(1);

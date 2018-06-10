@@ -141,4 +141,12 @@ public class DynamicMsgService {
 				msg,ext,PushMsgType.TYPE_NEW_CONVERSATION);
 	 
 	}
+
+	public int clearMeetMsg(long user_id) {
+		return dynamicMsgDao.clearMeetMsg(user_id);
+	}
+	
+	public int delMeetMsg(long user_id,long id) {
+		return dynamicMsgDao.delMeetMsg(user_id, id, DynamicMsgType.TYPE_MEET.ordinal());
+	}
 }

@@ -13,6 +13,7 @@ import com.zhan.app.nearby.bean.GiftOwn;
 import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.service.DynamicMsgService;
 import com.zhan.app.nearby.service.GiftService;
+import com.zhan.app.nearby.service.UserService;
 import com.zhan.app.nearby.util.ResultUtil;
 import com.zhan.app.nearby.util.TextUtils;
 
@@ -25,6 +26,10 @@ public class MsgController {
 	@Resource
 	private GiftService giftService;
 
+	
+	@Resource
+	private UserService userService;
+	
 	@RequestMapping("delete")
 	public ModelMap delete(Long user_id, long msg_id) {
 		dynamicMsgService.delete(msg_id);
@@ -88,4 +93,23 @@ public class MsgController {
 		return result.addAttribute("notice", notices);
 	}
 
+	@RequestMapping("clear_meet_msg")
+	public ModelMap clear_meet_msg(long user_id,String token) {
+		if(!userService.checkLogin(user_id, token)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		int count= dynamicMsgService.clearMeetMsg(user_id);
+		return ResultUtil.getResultOKMap();
+	}
+	
+	@RequestMapping("del_meet_msg")
+	public ModelMap del_meet_msg(long user_id,long msg_id,String token) {
+		
+		if(!userService.checkLogin(user_id, token)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		
+		int count= dynamicMsgService.delMeetMsg(user_id, msg_id);
+		return ResultUtil.getResultOKMap();
+	}
 }

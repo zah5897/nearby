@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 
 import com.zhan.app.nearby.bean.DynamicMessage;
 import com.zhan.app.nearby.bean.mapper.DynamicMsgMapper;
+import com.zhan.app.nearby.comm.DynamicMsgType;
 import com.zhan.app.nearby.comm.MsgState;
 import com.zhan.app.nearby.comm.Relationship;
 
@@ -68,5 +69,15 @@ public class DynamicMsgDao extends BaseDao {
 
 	private String fiflterBlock() {
 		return " and msg.by_user_id not in (select with_user_id from t_user_relationship where user_id=? and relationship=?) ";
+	}
+
+	public int clearMeetMsg(long user_id) {
+		String sql = "delete from " + TABLE_DYNAMIC_MSG + " where user_id=? and type=?";
+	    return jdbcTemplate.update(sql, new Object[] { user_id,DynamicMsgType.TYPE_MEET.ordinal() });
+	}
+	
+	public int delMeetMsg(long user_id,long id,int type) {
+		String sql = "delete from " + TABLE_DYNAMIC_MSG + " where user_id=? and type=? and id=?";
+	    return jdbcTemplate.update(sql, new Object[] { user_id,DynamicMsgType.TYPE_MEET.ordinal(),id});
 	}
 }

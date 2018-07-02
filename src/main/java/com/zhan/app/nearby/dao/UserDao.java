@@ -21,6 +21,7 @@ import com.zhan.app.nearby.bean.user.BaseVipUser;
 import com.zhan.app.nearby.bean.user.DetailUser;
 import com.zhan.app.nearby.bean.user.LocationUser;
 import com.zhan.app.nearby.comm.AccountStateType;
+import com.zhan.app.nearby.comm.AvatarIMGStatus;
 import com.zhan.app.nearby.comm.FoundUserRelationship;
 import com.zhan.app.nearby.comm.Relationship;
 import com.zhan.app.nearby.comm.UserType;
@@ -601,5 +602,29 @@ public class UserDao extends BaseDao {
 	
 	public List<Avatar> getUserAvatars(long user_id){
 		return jdbcTemplate.query("select *  from t_user_avatars where uid="+user_id+" order by id desc limit 6", new BeanPropertyRowMapper<Avatar>(Avatar.class));	
+	}
+
+	public void editAvatarState(long user_id, int state) {
+		String sql = "select avatar from t_user where user_id="+user_id;
+		List<String> avatars=jdbcTemplate.queryForList(sql, String.class);
+		if(!avatars.isEmpty()) {
+			String avatar=avatars.get(0);
+			AvatarIMGStatus status=AvatarIMGStatus.values()[state];
+			String illegalName="illegal.jpg";
+			if(status==AvatarIMGStatus.ILLEGAL) {
+				sql="update t_user_avatars set avatar=?,illegal_avatar=?,state=?,checked_time=? where uid=? and avatar=?";
+				int count=jdbcTemplate.update(sql,new Object[] {illegalName,avatar,state,new Date(),user_id,avatar});
+				if(count==1) {
+					sql="update t_user set avatar=? where user_id=?";
+					jdbcTemplate.update(sql,new Object[] {illegalName,user_id});
+				}
+			}else {
+				//TODO 纠正之前的审核
+			}
+		}
+	}
+
+	public List<String> loadIllegalAvatar() {
+		return jdbcTemplate.queryForList("select illegal_avatar from t_user_avatars  where  state=? and checked_time < date_sub(NOW(), INTERVAL 2 DAY)", new Object[] {AvatarIMGStatus.ILLEGAL.ordinal()},String.class);
 	}
 }

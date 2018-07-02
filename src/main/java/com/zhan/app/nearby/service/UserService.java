@@ -25,6 +25,7 @@ import com.zhan.app.nearby.bean.user.DetailUser;
 import com.zhan.app.nearby.bean.user.LocationUser;
 import com.zhan.app.nearby.bean.user.SimpleUser;
 import com.zhan.app.nearby.cache.UserCacheService;
+import com.zhan.app.nearby.comm.AvatarIMGStatus;
 import com.zhan.app.nearby.comm.FoundUserRelationship;
 import com.zhan.app.nearby.comm.PushMsgType;
 import com.zhan.app.nearby.comm.Relationship;
@@ -653,6 +654,18 @@ public class UserService {
 			e.printStackTrace();
 		}
 		return ResultUtil.getResultMap(ERROR.ERR_FAILED);
+	}
+
+	public void editAvatarState(long user_id) {
+		userDao.editAvatarState(user_id,AvatarIMGStatus.ILLEGAL.ordinal());
+	}
+
+	public void deleteIllegalAvatarFile() {
+		List<String> avatars=userDao.loadIllegalAvatar();
+		for(String avatar:avatars) {
+			ImageSaveUtils.removeAcatar(avatar);
+		}
+		
 	}
 
 }

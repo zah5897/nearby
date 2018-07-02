@@ -235,11 +235,24 @@ public class SystemDao extends BaseDao {
 						personalInfo.getAid() });
 	}
 
+	public String getContact(long user_id,String aid) {
+		List<String> weixins = jdbcTemplate.query("select contact from t_personal_info where user_id=? and aid=? limit 1",
+				new Object[] { user_id, aid }, new BeanPropertyRowMapper<String>(String.class));
+		if (weixins.size() > 0) {
+			return weixins.get(0);
+		} else {
+			return null;
+		}
+	}
+	
+	
 	public String  loadFilterKeyword(int type) {
 		//type=0 为瓶子敏感词
 		return jdbcTemplate.queryForObject("select filter_keywords from  t_filter_keyword where type=? limit ?",new Object[] {type,1},String.class);
 	}
 	
+	
+
 	
 	public int  updateFilterKeywords(int type,String keywords) {
 		//type=0 为瓶子敏感词

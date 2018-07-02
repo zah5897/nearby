@@ -214,8 +214,8 @@ public class BottleService {
 		return bottleDao.getBottleById(bottle_id);
 	}
 
-	public ModelMap getMineBottles(long user_id, long last_id, int page_size) {
-		List<Bottle> bottles = bottleDao.getMineBottles(user_id, last_id, page_size);
+	public ModelMap getMineBottles(long user_id, int page, int page_size) {
+		List<Bottle> bottles = bottleDao.getMineBottles(user_id, page, page_size);
 		if (bottles != null) {
 			for (Bottle bottle : bottles) {
 				List<BaseUser> users = bottleDao.getScanUserList(bottle.getId(), 8);
@@ -240,6 +240,7 @@ public class BottleService {
 		}
 		ModelMap result = ResultUtil.getResultOKMap();
 		result.put("bottles", bottles);
+		result.put("hasMore", bottles.size()==page_size);
 		return result;
 	}
 

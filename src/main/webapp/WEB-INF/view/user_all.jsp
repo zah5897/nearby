@@ -226,6 +226,19 @@
 			        }
 		    });
 		}
+		
+		function edit_avatar_state(user_id){
+			$.post("<%=path%>/manager/edit_avatar_state",{'user_id':user_id},function(result){
+				 
+				 var json=JSON.parse(result);
+			        if(json.code==0){
+			        	 alert("操作成功！");
+			        	 $("#"+user_id).hide();
+			        	 $("#img_"+user_id).hide();
+			        }
+		    });
+		}
+		
 		function add_to_found_user(user_id){
 			$.post("<%=path%>/manager/edit_user_found_state",{'user_id':user_id,'fun':1,'state':0},function(result){
 				 var json=JSON.parse(result);
@@ -257,7 +270,7 @@
 			 toAdd+="<td>"+nick_name+"</td>";
 			 
 			 if(pageData.avatar!=null){
-				 toAdd+="<td><img  src='"+pageData.avatar+"' alt='"+pageData.origin_avatar+"'  height='50' onclick='show(this)'/></td>";
+				 toAdd+="<td><img id='img_"+user_id+"' src='"+pageData.avatar+"' alt='"+pageData.origin_avatar+"'  height='50' onclick='show(this)'/></td>";
 			 }else{
 				 toAdd+="<td><img  src='#' alt='#'  height='50'/></td>";
 			 }
@@ -281,6 +294,12 @@
 			  toAdd+="<a class='button border-main' href='javascript:void(0)'	onclick='return edit_fun("+user_id+")'><span class='icon-edit'></span>编辑限制</a>";
 			  toAdd+="<a class='button border-main' href='javascript:void(0)'	onclick='return add_to_meet_bottle("+user_id+")'><span class='icon-edit'></span>加入邂逅瓶待选区</a>";
 			  toAdd+="<a class='button border-main' href='javascript:void(0)'	onclick='return add_to_found_user("+user_id+")'><span class='icon-edit'></span>添加到发现用户</a>";
+			  
+			  
+			  if(pageData.avatar&&pageData.avatar.indexOf('illegal.jpg')==-1){
+				  toAdd+="<a id="+user_id+" class='button border-yellow' href='javascript:void(0)'	onclick='return edit_avatar_state("+user_id+")'><span class='icon-edit'></span>头像违法</a>";
+			  }
+		
 			  toAdd+="<a class='button border-yellow' href='javascript:void(0)'	onclick='return add_to_found_black_list("+user_id+")'><span class='icon-edit'></span>加入黑名单</a>";
 			  
 			  toAdd+="</div></td></tr>";

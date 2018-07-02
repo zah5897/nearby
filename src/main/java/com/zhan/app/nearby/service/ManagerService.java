@@ -339,4 +339,8 @@ public class ManagerService {
 	public int addSpreadUser(long uid) {
 		return mainService.addSpreadUser(uid);
 	}
+
+	public void editAvatarState(long user_id) {
+		userService.editAvatarState(user_id);
+	}
 }

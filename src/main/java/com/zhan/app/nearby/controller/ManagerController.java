@@ -850,5 +850,12 @@ public class ManagerController {
 			return ResultUtil.getResultOKMap().addAttribute("count", count);
 		}
 	}
+	@RequestMapping(value = "/edit_avatar_state")
+	public @ResponseBody ModelMap edit_avatar_state(long user_id) {
+		 managerService.editAvatarState(user_id);
+		 return ResultUtil.getResultOKMap();
+	}
 
+	
+	
 }

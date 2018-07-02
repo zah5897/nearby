@@ -68,25 +68,23 @@ public class DynamicController {
 	}
 
 	@RequestMapping("comment_list")
-	public ModelMap comment_list(Long dynamic_id, Integer count, Long last_comment_id) {
+	public ModelMap comment_list(Long dynamic_id, Integer count, Long last_id) {
 		if (dynamic_id == null || dynamic_id < 1l) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM);
 		}
 		if (count == null || count < 1) {
 			count = 5;
 		}
-		List<DynamicComment> comments = userDynamicService.commentList(dynamic_id, count, last_comment_id);
+		List<DynamicComment> comments = userDynamicService.commentList(dynamic_id, count, last_id);
 		ModelMap result = ResultUtil.getResultOKMap();
 		ImagePathUtil.completeCommentImagePath(comments, true);
 		result.put("comments", comments);
-		long last_id = 0l;
+		long lastId = 0l;
 		if (comments != null && comments.size() > 0 && comments.size() == count) {
-			last_id = comments.get(comments.size() - 1).getId();
+			lastId = comments.get(comments.size() - 1).getId();
 		}
-
-		result.put("hasMore", last_id > 0);
-
-		result.put("last_id", last_id);
+		result.put("hasMore", lastId > 0);
+		result.put("last_id", lastId);
 		return result;
 	}
 

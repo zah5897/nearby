@@ -14,6 +14,7 @@ import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.dao.UserDao;
 import com.zhan.app.nearby.service.BottleService;
 import com.zhan.app.nearby.service.MainService;
+import com.zhan.app.nearby.service.UserService;
 import com.zhan.app.nearby.service.VipService;
 import com.zhan.app.nearby.util.HttpUtil;
 import com.zhan.app.nearby.util.JSONUtil;
@@ -50,6 +51,8 @@ public class TimerTask {
 		MainService mainService = SpringContextUtil.getBean("mainService");
 		int rateCount = mainService.injectRate();
 		System.out.println("inject rate count:" + rateCount);
+		
+		deleteIllegalAvatarFile();
 	}
 
 	// 每小时清理下漂流瓶池中的瓶子
@@ -109,4 +112,10 @@ public class TimerTask {
 
 	}
 
+	
+	private void deleteIllegalAvatarFile() {
+		UserService userService = SpringContextUtil.getBean("userService");
+		userService.deleteIllegalAvatarFile();
+	}
+	
 }

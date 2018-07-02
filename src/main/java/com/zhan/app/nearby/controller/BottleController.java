@@ -59,8 +59,8 @@ public class BottleController {
 	}
 
 	@RequestMapping("mine")
-	public ModelMap mine(long user_id, Long last_id, Integer page_size) {
-		return bottleService.getMineBottles(user_id, last_id == null ? 0 : last_id, page_size == null ? 20 : page_size);
+	public ModelMap mine(long user_id, Integer page, Integer page_size) {
+		return bottleService.getMineBottles(user_id, page == null ?1 : page, page_size == null ? 10 : page_size);
 	}
 
 	@RequestMapping("scan")

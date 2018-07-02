@@ -31,6 +31,7 @@ import com.zhan.app.nearby.dao.SystemDao;
 import com.zhan.app.nearby.dao.UserDao;
 import com.zhan.app.nearby.dao.UserDynamicDao;
 import com.zhan.app.nearby.dao.VipDao;
+import com.zhan.app.nearby.exception.AppException;
 import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.RandomCodeUtil;
@@ -543,10 +544,24 @@ public class MainService {
 		}
 	}
 
-
-
-
-
-
+	public ModelMap getContact(long by_user_id, long user_id, String token, String aid) {
+		 if(!userService.checkLogin(user_id, token)) {
+			 return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		 }
+		 
+		 String weixin=systemDao.getContact(by_user_id,aid);
+		 if(TextUtils.isEmpty(weixin)) {
+			 return ResultUtil.getResultOKMap().addAttribute("contract", weixin);
+		 }
+		 //金币减1
+		 Map<String, Object> extraData = userService.modifyExtra(user_id, aid, 1, -1);
+		    if (extraData != null && extraData.containsKey("all_coins")) {
+				int all_coins = (int) extraData.get("all_coins");
+				if (all_coins < 0) {
+					throw new AppException(ERROR.ERR_COINS_SHORT);
+				}
+			}
+		    return ResultUtil.getResultOKMap().addAttribute("weixin", weixin);
+	}
 	
 }

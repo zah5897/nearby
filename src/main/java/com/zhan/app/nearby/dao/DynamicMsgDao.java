@@ -1,5 +1,6 @@
 package com.zhan.app.nearby.dao;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -8,6 +9,7 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import com.zhan.app.nearby.bean.DynamicComment;
 import com.zhan.app.nearby.bean.DynamicMessage;
 import com.zhan.app.nearby.bean.mapper.DynamicMsgMapper;
 import com.zhan.app.nearby.comm.DynamicMsgType;
@@ -79,5 +81,23 @@ public class DynamicMsgDao extends BaseDao {
 	public int delMeetMsg(long user_id,long id,int type) {
 		String sql = "delete from " + TABLE_DYNAMIC_MSG + " where user_id=? and type=? and id=?";
 	    return jdbcTemplate.update(sql, new Object[] { user_id,DynamicMsgType.TYPE_MEET.ordinal(),id});
+	}
+
+	public List<DynamicMessage> getMyMeetLatest (long user_id) {
+		 String sql="select msg.* from  "+TABLE_DYNAMIC_MSG+" msg  left join t_bottle b on msg.dynamic_id=b.id  left join t_latest_tip_time la on msg.user_id=la.uid  where msg.user_id=? and msg.type=? and msg.create_time>coalesce(la.last_time,'1900-01-01 00:00:00') order by msg.create_time";
+		 return jdbcTemplate.query(sql, new Object[] {user_id,DynamicMsgType.TYPE_MEET.ordinal()},new BeanPropertyRowMapper<DynamicMessage>(DynamicMessage.class));
+	}
+	
+	public List<DynamicComment> getMyDynamicCommentLatest(long user_id) {
+		 String sql="select comm.* from  t_dynamic_comment comm  left join t_user_dynamic dy on comm.dynamic_id=dy.id  left join t_latest_tip_time la on dy.user_id=la.uid  where dy.user_id=? and comm.comment_time>coalesce(la.last_time,'1900-01-01 00:00:00') order by comm.comment_time";
+		 return jdbcTemplate.query(sql, new Object[] {user_id},new BeanPropertyRowMapper<DynamicComment>(DynamicComment.class));
+	}
+	
+	public void updateLatestTipTime(long user_id) {
+		
+	    int count=jdbcTemplate.update("update t_latest_tip_time set last_time=? where uid=?",new Object[] {new Date(),user_id});
+		if(count==0) {
+			jdbcTemplate.update("insert into  t_latest_tip_time (last_time,uid) values(?,?)",new Object[] {new Date(),user_id});
+		}
 	}
 }

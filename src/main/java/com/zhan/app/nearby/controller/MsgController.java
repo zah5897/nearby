@@ -112,4 +112,10 @@ public class MsgController {
 		int count= dynamicMsgService.delMeetMsg(user_id, msg_id);
 		return ResultUtil.getResultOKMap();
 	}
+	
+	
+	@RequestMapping("latest_msg_tip")
+	public ModelMap latest_dynamic_msg_tip(long user_id) {
+		return dynamicMsgService.getMyDynamicMsg(user_id);
+	}
 }

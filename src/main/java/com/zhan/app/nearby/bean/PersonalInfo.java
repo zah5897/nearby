@@ -11,6 +11,7 @@ public class PersonalInfo {
 	private String personal_name;
 	private String personal_id;
 	private String mobile;
+	private String contact;
 	private String zhifubao_access_number;
 	private String aid;
 
@@ -69,5 +70,14 @@ public class PersonalInfo {
 	public void setToken(String token) {
 		this.token = token;
 	}
+
+	public String getContact() {
+		return contact;
+	}
+
+	public void setContact(String contact) {
+		this.contact = contact;
+	}
+ 
 
 }

@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 
 import com.easemob.server.example.Main;
+import com.zhan.app.nearby.bean.DynamicComment;
 import com.zhan.app.nearby.bean.DynamicMessage;
 import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.comm.DynamicMsgType;
@@ -141,6 +142,15 @@ public class DynamicMsgService {
 				msg,ext,PushMsgType.TYPE_NEW_CONVERSATION);
 	 
 	}
+	
+	
+	public ModelMap getMyDynamicMsg(long user_id){
+		List<DynamicComment> comms= dynamicMsgDao.getMyDynamicCommentLatest(user_id);
+		List<DynamicMessage> msgs= dynamicMsgDao.getMyMeetLatest(user_id);
+		dynamicMsgDao.updateLatestTipTime(user_id);
+		return ResultUtil.getResultOKMap().addAttribute("comments", comms).addAttribute("msgs", msgs);
+	}
+	
 
 	public int clearMeetMsg(long user_id) {
 		return dynamicMsgDao.clearMeetMsg(user_id);

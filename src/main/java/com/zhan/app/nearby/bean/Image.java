@@ -1,11 +1,11 @@
 package com.zhan.app.nearby.bean;
 
-import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class Image {
 	public long id; // 主键
 
-	@JSONField(serialize = false)
+	@JsonIgnore
 	private String local_image_name;
 	
 	private String thumb; // 无关数据库，主要json展示 缩略图

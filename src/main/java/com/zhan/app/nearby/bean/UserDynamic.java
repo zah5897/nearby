@@ -5,7 +5,8 @@ import java.util.Date;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
-import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.zhan.app.nearby.annotation.ColumnType;
 import com.zhan.app.nearby.bean.user.BaseUser;
 
@@ -19,8 +20,7 @@ public class UserDynamic implements Serializable {
 	@ColumnType
 	private long id; // 主键
 
-	// @JsonIgnore
-	@JSONField(serialize = false)
+	@JsonIgnore
 	private long user_id; // 外键，关联user id字段，不json 序列化
 
 	private String description; // 描述
@@ -32,10 +32,10 @@ public class UserDynamic implements Serializable {
 	private String region;
 
 	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-	@JSONField(format = "yyyy-MM-dd")
+	@JsonFormat(pattern = "yyyy-MM-dd", locale = "zh", timezone = "GMT+8")
 	private Date create_time;
 
-	@JSONField(serialize = false)
+	@JsonIgnore
 	private String local_image_name;
 
 	@ColumnType
@@ -50,22 +50,22 @@ public class UserDynamic implements Serializable {
 	@ColumnType // 客户端组合数据
 	private int like_state;
 
-	@JSONField(serialize = false)
+	@JsonIgnore
 	private int province_id;
 	// @JsonIgnore
-	@JSONField(serialize = false)
+	@JsonIgnore
 	private int city_id;
 	// @JsonIgnore
-	@JSONField(serialize = false)
+	@JsonIgnore
 	private int district_id;
 	@ColumnType
 	private BaseUser user;
-	
+
 	private long topic_id;
 	private String ip;
 
-	
 	private int state;
+
 	public long getId() {
 		return id;
 	}
@@ -114,7 +114,7 @@ public class UserDynamic implements Serializable {
 		this.addr = addr;
 	}
 
-	@JSONField(format = "yyyy-MM-dd")
+	@JsonFormat(pattern = "yyyy-MM-dd", locale = "zh", timezone = "GMT+8")
 	public Date getCreate_time() {
 		return create_time;
 	}
@@ -163,7 +163,6 @@ public class UserDynamic implements Serializable {
 		this.local_image_name = local_image_name;
 	}
 
-
 	public BaseUser getUser() {
 		return user;
 	}
@@ -171,7 +170,6 @@ public class UserDynamic implements Serializable {
 	public void setUser(BaseUser user) {
 		this.user = user;
 	}
-
 
 	public String getStreet() {
 		return street;

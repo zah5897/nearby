@@ -5,10 +5,10 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.apache.jasper.compiler.JspUtil;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-import com.alibaba.fastjson.JSON;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.zhan.app.nearby.bean.City;
 import com.zhan.app.nearby.bean.GiftOwn;
@@ -31,7 +31,8 @@ public class InfoCacheService {
 	public List<Tag> getTagsByKey(String key) {
 		Object obj = redisTemplate.opsForValue().get(key);
 		if (obj != null) {
-			List<Tag> tags = JSON.parseArray(obj.toString(), Tag.class);
+			List<Tag> tags = JSONUtil.jsonToList(obj.toString(), new TypeReference<List<Tag>>() {
+			});
 			return tags;
 		}
 		return null;
@@ -39,14 +40,15 @@ public class InfoCacheService {
 
 	public void setTagsByKey(String key, List<Tag> tags) {
 		if (tags != null) {
-			redisTemplate.opsForValue().set(key, JSON.toJSONString(tags));
+			redisTemplate.opsForValue().set(key, JSONUtil.writeValueAsString(tags));
 		}
 	}
 
 	public List<City> getCities(String key) {
 		Object obj = redisTemplate.opsForValue().get(key);
 		if (obj != null) {
-			List<City> cities = JSON.parseArray(obj.toString(), City.class);
+			List<City> cities = JSONUtil.jsonToList(obj.toString(), new TypeReference<List<City>>() {
+			});
 			return cities;
 		}
 		return null;
@@ -54,7 +56,7 @@ public class InfoCacheService {
 
 	public void setCities(String key, List<City> cities) {
 		if (cities != null) {
-			redisTemplate.opsForValue().set(key, JSON.toJSONString(cities));
+			redisTemplate.opsForValue().set(key, JSONUtil.writeValueAsString(cities));
 		}
 	}
 

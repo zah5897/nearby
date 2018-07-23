@@ -5,7 +5,8 @@ import java.util.List;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
-import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.zhan.app.nearby.annotation.ColumnType;
 import com.zhan.app.nearby.bean.Avatar;
 import com.zhan.app.nearby.comm.UserType;
@@ -21,10 +22,10 @@ public class BaseUser {
 
 	@ColumnType
 	private long user_id;
-	@JSONField(serialize = false)
+	@JsonIgnore
 	private String mobile;
 
-	@JSONField(serialize = false)
+	@JsonIgnore
 	private String password;
 	private String name;
 	private String nick_name;
@@ -40,20 +41,20 @@ public class BaseUser {
 	// 区分游客和正式用户
 	private short type = (short) UserType.OFFIEC.ordinal(); // 默认为正式用户
 
-	@JSONField(serialize = false)
+	@JsonIgnore
 	private Date create_time;
 
 	private String token;
-	@JSONField(name = "_ua", serialize = false)
+	@JsonIgnore
 	private String _ua;
-	@JSONField(serialize = false)
+	@JsonIgnore
 	private String aid;
 
-	@JSONField(format = "yyyy-MM-dd")
+	@JsonFormat(pattern = "yyyy-MM-dd", locale = "zh", timezone = "GMT+8")
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	private Date birthday;
 
-	@JSONField(serialize = false)
+	@JsonIgnore
 	private int account_state;
 
 	private String contact;
@@ -75,7 +76,7 @@ public class BaseUser {
 		this.user_id = user_id;
 	}
 
-	@JSONField(serialize = false)
+	@JsonIgnore
 	public String getMobile() {
 		return mobile;
 	}
@@ -92,7 +93,7 @@ public class BaseUser {
 		this.password = password;
 	}
 
-	@JSONField(serialize = false)
+	@JsonIgnore
 	public String getName() {
 		return name;
 	}
@@ -141,7 +142,7 @@ public class BaseUser {
 		this.aid = aid;
 	}
 
-	@JSONField(serialize = false)
+	@JsonIgnore
 	public String getToken() {
 		return token;
 	}

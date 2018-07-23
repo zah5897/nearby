@@ -128,12 +128,16 @@
 
 
 
-		<!-- fastjson工具类 -->
+		<!-- json工具类 -->
+
+
+		<!--jackson -->
 		<dependency>
-			<groupId>com.alibaba</groupId>
-			<artifactId>fastjson</artifactId>
-			<version>1.2.21</version>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-core</artifactId>
+			<version>2.9.6</version>
 		</dependency>
+
 
 		<!-- 自动绑定Date 参数 -->
 

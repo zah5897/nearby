@@ -20,7 +20,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.multipart.support.DefaultMultipartHttpServletRequest;
 
-import com.alibaba.fastjson.JSONObject;
 import com.zhan.app.nearby.bean.City;
 import com.zhan.app.nearby.bean.Tag;
 import com.zhan.app.nearby.bean.UserDynamic;
@@ -185,7 +184,7 @@ public class UserController {
 			}
 		} else {
 			id = userService.insertUser(user);
-			
+
 		}
 		if (id == -1l) {
 			return ResultUtil.getResultMap(ERROR.ERR_USER_EXIST, "该手机号码已经注册过");
@@ -245,7 +244,7 @@ public class UserController {
 				user.setToken(UUID.randomUUID().toString());
 				user.set_ua(_ua);
 				userService.pushLongTimeNoLoginMsg(user.getUser_id(), user.getLast_login_time());
-                userService.saveUserOnline(user.getUser_id());
+				userService.saveUserOnline(user.getUser_id());
 				userService.updateToken(user); // 更新token，弱登录
 				user.set_ua(null);
 				user.setAge(DateTimeUtil.getAge(user.getBirthday()));
@@ -383,7 +382,7 @@ public class UserController {
 			ModelMap result = ResultUtil.getResultOKMap();
 			u.hideSysInfo();
 			ImagePathUtil.completeAvatarPath(u, true); // 补全图片链接地址
-			JSONObject juser = JSONUtil.obj2JSON(u);
+			Map<String, Object> juser = JSONUtil.jsonToMap(u);
 			juser.put("relationship", userService.getRelationShip(user_id, user_id_for).ordinal());
 			result.put("user", juser);
 			return result;
@@ -763,17 +762,15 @@ public class UserController {
 	}
 
 	@RequestMapping("autoLogin")
-	public ModelMap autoLogin(long user_id,String md5pwd,String aid) {
-		return userService.autoLogin(user_id,md5pwd,aid);
+	public ModelMap autoLogin(long user_id, String md5pwd, String aid) {
+		return userService.autoLogin(user_id, md5pwd, aid);
 	}
 
-	
 	@RequestMapping("online_list")
-	public ModelMap online_list(int page,int count) {
-	   return	ResultUtil.getResultOKMap().addAttribute("users", userService.getOnlineUsers(page, count));
+	public ModelMap online_list(int page, int count) {
+		return ResultUtil.getResultOKMap().addAttribute("users", userService.getOnlineUsers(page, count));
 	}
 
-	
 	private City getDefaultCityId() {
 
 		City city = new City();

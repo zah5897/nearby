@@ -17,8 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.support.DefaultMultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.zhan.app.nearby.bean.Bottle;
 import com.zhan.app.nearby.bean.ManagerUser;
 import com.zhan.app.nearby.bean.Report;
@@ -32,6 +31,7 @@ import com.zhan.app.nearby.service.ManagerService;
 import com.zhan.app.nearby.util.BottleKeyWordUtil;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.ImageSaveUtils;
+import com.zhan.app.nearby.util.JSONUtil;
 import com.zhan.app.nearby.util.ResultUtil;
 import com.zhan.app.nearby.util.TextUtils;
 
@@ -181,12 +181,10 @@ public class ManagerController {
 		if (TextUtils.isEmpty(ids)) {
 			return ResultUtil.getResultMap(ERROR.ERR_FAILED);
 		}
-		JSONArray idsArray = JSON.parseArray(ids);
+		List<Long> idlist = JSONUtil.jsonToList(ids,new TypeReference<List<Long>>() {
+		});
 
-		int len = idsArray.size();
-		for (int i = 0; i < len; i++) {
-			String strId = idsArray.getString(i);
-			long id = Long.parseLong(strId);
+		for (long id:idlist) {
 			managerService.removeFromSelected(id);
 		}
 		ModelMap r = ResultUtil.getResultOKMap();
@@ -194,10 +192,10 @@ public class ManagerController {
 		List<UserDynamic> dys = managerService.getHomeFoundSelected(currentPage, 10);
 		if (dys != null && dys.size() > 0) {
 			ImagePathUtil.completeDynamicsPath(dys, true);
-			if (len >= dys.size()) {
+			if (idlist.size() >= dys.size()) {
 				r.put("pageData", dys);
 			} else {
-				int from = dys.size() - len;
+				int from = dys.size() - idlist.size();
 				List<UserDynamic> subList = dys.subList(from, dys.size());
 				r.put("pageData", subList);
 			}
@@ -259,12 +257,11 @@ public class ManagerController {
 		if (TextUtils.isEmpty(ids)) {
 			return ResultUtil.getResultMap(ERROR.ERR_FAILED);
 		}
-		JSONArray idsArray = JSON.parseArray(ids);
 
-		int len = idsArray.size();
-		for (int i = 0; i < len; i++) {
-			String strId = idsArray.getString(i);
-			long id = Long.parseLong(strId);
+		List<Long> idList=JSONUtil.jsonToList(ids, new TypeReference<List<Long>>() {
+		});
+		int len = idList.size();
+		for (long id:idList) {
 			managerService.addToSelected(id);
 		}
 		ModelMap r = ResultUtil.getResultOKMap();
@@ -502,12 +499,11 @@ public class ManagerController {
 		if (TextUtils.isEmpty(ids)) {
 			return ResultUtil.getResultMap(ERROR.ERR_FAILED);
 		}
-		JSONArray idsArray = JSON.parseArray(ids);
+		List<Long> idList=JSONUtil.jsonToList(ids, new TypeReference<List<Long>>() {
+		});
 
-		int len = idsArray.size();
-		for (int i = 0; i < len; i++) {
-			String strId = idsArray.getString(i);
-			long id = Long.parseLong(strId);
+		int len = idList.size();
+		for (long id:idList) {
 			managerService.updateDynamicState(id, DynamicState.T_FORMAL);
 		}
 		ModelMap r = ResultUtil.getResultOKMap();
@@ -555,12 +551,11 @@ public class ManagerController {
 		if (TextUtils.isEmpty(ids)) {
 			return ResultUtil.getResultMap(ERROR.ERR_FAILED);
 		}
-		JSONArray idsArray = JSON.parseArray(ids);
+		List<Long> idList=JSONUtil.jsonToList(ids, new TypeReference<List<Long>>() {
+		});
 
-		int len = idsArray.size();
-		for (int i = 0; i < len; i++) {
-			String strId = idsArray.getString(i);
-			long id = Long.parseLong(strId);
+		int len = idList.size();
+		for (long id:idList) {
 			managerService.removeDyanmicByState(id, DynamicState.T_ILLEGAL);
 		}
 		ModelMap r = ResultUtil.getResultOKMap();

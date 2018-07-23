@@ -1,11 +1,8 @@
 package com.easemob.server.example;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import com.alibaba.fastjson.JSONObject;
 import com.easemob.server.example.api.IMUserAPI;
 import com.easemob.server.example.api.SendMessageAPI;
 import com.easemob.server.example.comm.ClientContext;
@@ -18,9 +15,7 @@ import com.easemob.server.example.comm.wrapper.ResponseWrapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.zhan.app.nearby.util.JSONUtil;
-import com.zhan.app.nearby.util.MD5Util;
 
-@SuppressWarnings("unused")
 public class Main {
 	private static EasemobRestAPIFactory factory;
 	public static final String SYS = "admin";
@@ -110,9 +105,9 @@ public class Main {
 		// System.out.println(node.get("error"));
 		// }
 
-//		boolean r = disconnectUser("41");
-//		System.out.println(r);
-		
+		// boolean r = disconnectUser("41");
+		// System.out.println(r);
+
 	}
 
 	public static Object registUser(String userName, String password, String nickname) {
@@ -131,6 +126,7 @@ public class Main {
 		Map<String, Object> requestResult = JSONUtil.jsonToMap(node.toString());
 
 		try {
+			@SuppressWarnings("unchecked")
 			boolean b = (boolean) ((Map<String, Object>) requestResult.get("data")).get("result");
 			return b;
 		} catch (Exception e) {
@@ -144,7 +140,7 @@ public class Main {
 		initFactory();
 
 		IMUserAPI user = (IMUserAPI) factory.newInstance(EasemobRestAPIFactory.USER_CLASS);
-		JSONObject payload = new JSONObject();
+		Map<String, String> payload = new HashMap<String, String>();
 		payload.put("nickname", nickname);
 		return user.modifyIMUserNickNameWithAdminToken(userName, payload);
 	}
@@ -161,8 +157,7 @@ public class Main {
 		apns.put("msg", msgTxt);
 		try {
 			ext.put("em_apns_ext", JSONUtil.writeValueAsString(apns));
-		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		initFactory();
@@ -191,6 +186,5 @@ public class Main {
 		IMUserAPI user = (IMUserAPI) factory.newInstance(EasemobRestAPIFactory.USER_CLASS);
 		return user.addFriendSingle(user_id, friend_id);
 	}
-
 
 }

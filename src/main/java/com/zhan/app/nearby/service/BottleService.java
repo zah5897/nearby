@@ -12,10 +12,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import com.easemob.server.example.Main;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.zhan.app.nearby.bean.Bottle;
 import com.zhan.app.nearby.bean.BottleExpress;
 import com.zhan.app.nearby.bean.VipUser;
@@ -34,6 +32,7 @@ import com.zhan.app.nearby.exception.AppException;
 import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.util.BottleKeyWordUtil;
 import com.zhan.app.nearby.util.ImagePathUtil;
+import com.zhan.app.nearby.util.JSONUtil;
 import com.zhan.app.nearby.util.ResultUtil;
 import com.zhan.app.nearby.util.SpringContextUtil;
 import com.zhan.app.nearby.util.TextUtils;
@@ -322,12 +321,12 @@ public class BottleService {
 	public ModelMap like(long user_id, String with_user_id) {
 		List<Long> user_ids = new ArrayList<Long>();
 		if (!TextUtils.isEmpty(with_user_id)) {
-			JSONArray array = JSON.parseArray(with_user_id);
-			int len = array.size();
-			for (int i = 0; i < len; i++) {
-				JSONObject u_b = array.getJSONObject(i);
-				long withUserID = Long.parseLong(u_b.getString("uid"));
-				long bottleID = Long.parseLong(u_b.getString("bottle_id"));
+			@SuppressWarnings("rawtypes")
+			List<Map> idList=JSONUtil.jsonToList(with_user_id, new TypeReference<List<Map>>() {
+			});
+			for (Map<?, ?> u_b:idList) {
+				long withUserID = Long.parseLong(u_b.get("uid").toString());
+				long bottleID = Long.parseLong(u_b.get("bottle_id").toString());
 				// 判断瓶子是否存在，不存在的话要新建
 				if (bottleID < 1) {
 					List<Long> ids = bottleDao.getMeetBottleIDByUser(withUserID);

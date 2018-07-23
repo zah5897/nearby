@@ -4,7 +4,8 @@ import java.util.Date;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
-import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.zhan.app.nearby.annotation.ColumnType;
 import com.zhan.app.nearby.bean.property.MsgAttention;
 import com.zhan.app.nearby.bean.user.BaseUser;
@@ -13,13 +14,13 @@ public class DynamicMessage {
 	private long id;
 	private long dynamic_id;
 	private String content;
-	@JSONField(serialize = false)
+	@JsonIgnore
 	private long user_id;
-	@JSONField(serialize = false)
+	@JsonIgnore
 	private long by_user_id;
 
 	private int type;
-	@JSONField(format = "yyyy-MM-dd HH:mm")
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm", locale = "zh", timezone = "GMT+8")
 	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
 	private Date create_time;
 

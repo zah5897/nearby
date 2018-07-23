@@ -5,7 +5,8 @@ import java.util.List;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
-import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.zhan.app.nearby.annotation.ColumnType;
 import com.zhan.app.nearby.bean.user.BaseUser;
 
@@ -14,12 +15,12 @@ public class Bottle {
 	private long id;
 	private String content;
 
-	@JSONField(format = "yyyy-MM-dd HH:mm")
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm", locale = "zh", timezone = "GMT+8")
 	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
 	private Date create_time;
 	private int type;
 
-	@JSONField(serialize = false)
+	@JsonIgnore
 	private long user_id;
 	@ColumnType
 	private BaseUser sender;

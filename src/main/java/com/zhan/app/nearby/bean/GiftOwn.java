@@ -4,7 +4,7 @@ import java.util.Date;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
-import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.zhan.app.nearby.annotation.ColumnType;
 import com.zhan.app.nearby.bean.user.BaseUser;
 
@@ -13,7 +13,7 @@ public class GiftOwn extends Gift {
 	private int count;
 	private long give_uid;
 	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-	@JSONField(format = "yyyy-MM-dd HH:mm:ss")
+	@JsonFormat(pattern = "yyyy-MM-dd  HH:mm:ss", locale = "zh", timezone = "GMT+8")
 	private Date give_time;
 
 	

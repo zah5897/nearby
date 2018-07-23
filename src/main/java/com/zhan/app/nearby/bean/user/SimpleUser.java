@@ -3,7 +3,8 @@ package com.zhan.app.nearby.bean.user;
 import java.util.Date;
 
 
-import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.zhan.app.nearby.annotation.ColumnType;
 
 public class SimpleUser extends BaseUser {
@@ -23,16 +24,14 @@ public class SimpleUser extends BaseUser {
 	private String weight;// 体重
 	private String height;// 身高
 
-	@JSONField(format = "yyyy-MM-dd HH:mm:ss")
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", locale = "zh", timezone = "GMT+8")
 	private Date last_login_time;
 
 	// 区分国外用户
-	// @JsonIgnore
-	@JSONField(serialize = false)
+	@JsonIgnore
 	private String zh_cn;
 	// 设备token
-	// @JsonIgnore
-	@JSONField(serialize = false)
+	@JsonIgnore
 	private String device_token;
 
 	public String getAge() {

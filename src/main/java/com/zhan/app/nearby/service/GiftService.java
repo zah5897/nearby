@@ -203,13 +203,8 @@ public class GiftService {
 		}
 
 		if (owns.size() == count && page == 1) {
-			try {
-				String json = JSONUtil.writeValueAsString(owns);
-				infoCacheService.cacheGiftSendNotice(json);
-			} catch (JsonProcessingException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			String json = JSONUtil.writeValueAsString(owns);
+			infoCacheService.cacheGiftSendNotice(json);
 		}
 		return owns;
 	}

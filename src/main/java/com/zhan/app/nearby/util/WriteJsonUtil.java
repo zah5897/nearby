@@ -1,10 +1,10 @@
 package com.zhan.app.nearby.util;
 
 import java.io.PrintWriter;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
-import com.alibaba.fastjson.JSONObject;
 import com.zhan.app.nearby.exception.AppException;
 import com.zhan.app.nearby.exception.ERROR;
 
@@ -20,9 +20,8 @@ public class WriteJsonUtil {
 			} else {
 				err = ERROR.ERR_SYS;
 			}
-			JSONObject json = new JSONObject();
-			json.put("code", err.getValue());
-			json.put("msg", err.getErrorMsg());
+			 
+			Map<String, Object> json=ResultUtil.getResultMap(err);
 			writer.write(json.toString());
 			writer.flush();
 		} catch (Exception e) {
@@ -35,9 +34,7 @@ public class WriteJsonUtil {
 		response.setCharacterEncoding("UTF-8");
 		try {
 			PrintWriter writer = response.getWriter();
-			JSONObject json = new JSONObject();
-			json.put("code", error.ordinal());
-			json.put("msg", error.getErrorMsg());
+			Map<String, Object> json=ResultUtil.getResultMap(error);
 			writer.write(json.toString());
 			writer.flush();
 		} catch (Exception e) {

@@ -2,10 +2,10 @@ package com.zhan.app.nearby.util;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.alibaba.fastjson.JSONObject;
 
 public class IPUtil {
 	public static String getIpAddress(HttpServletRequest request) {
@@ -49,9 +49,9 @@ public class IPUtil {
 		String result = HttpUtil.sendGet(city_name_url, null);
 		String cityName = null;
 		if (!TextUtils.isEmpty(result)) {
-			JSONObject address = JSONObject.parseObject(result);
+			Map<String, Object> address = JSONUtil.jsonToMap(result);
 			if (address != null) {
-					cityName = address.getString("city");
+				cityName = address.get("city").toString();
 			}
 		}
 		return cityName;

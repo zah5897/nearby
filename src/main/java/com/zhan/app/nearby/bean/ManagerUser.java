@@ -2,7 +2,7 @@ package com.zhan.app.nearby.bean;
 
 import java.util.Date;
 
-import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.zhan.app.nearby.comm.UserType;
 
 public class ManagerUser {
@@ -14,7 +14,7 @@ public class ManagerUser {
 	private String avatar;
 	private String origin_avatar;
 	private Date birthday;
-	@JSONField(format = "yyyy-MM-dd HH:mm:ss")
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", locale = "zh", timezone = "GMT+8")
 	private Date create_time;
 
 	// 区分游客和正式用户

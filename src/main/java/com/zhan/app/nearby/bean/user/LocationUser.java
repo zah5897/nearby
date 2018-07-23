@@ -1,6 +1,7 @@
 package com.zhan.app.nearby.bean.user;
 
-import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.zhan.app.nearby.annotation.ColumnType;
 import com.zhan.app.nearby.bean.City;
 
@@ -16,19 +17,19 @@ public class LocationUser extends SimpleUser {
 	private String lat;
 	private String lng;
 
-	@JSONField(serialize = false)
+	@JsonIgnore
 	private int city_id;
 	private City city;
-	@JSONField(serialize = false)
+	@JsonIgnore
 	private int birth_city_id;
 	private City birth_city;
 
 	// @JsonIgnore
-	@JSONField(serialize = false)
+	@JsonIgnore
 	private String disc;
 
 	@ColumnType
-	@JSONField(name="is_vip")
+	@JsonProperty("is_vip")
 	private boolean isVip;
 	public String getLat() {
 		return lat;

@@ -4,30 +4,29 @@ import java.util.Date;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
-import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.zhan.app.nearby.annotation.ColumnType;
 import com.zhan.app.nearby.bean.user.BaseVipUser;
 
 public class DynamicComment {
 	@ColumnType
 	private long id;
-	// @JsonIgnore
-	@JSONField(serialize = false)
+	@JsonIgnore
 	private long user_id;
 
-	// @JsonIgnore
-	@JSONField(serialize = false)
+	@JsonIgnore
 	private long dynamic_id;
 
 	private String content;
 	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-	@JSONField(format = "yyyy-MM-dd")
+	@JsonFormat(pattern = "yyyy-MM-dd", locale = "zh", timezone = "GMT+8")
 	private Date comment_time;
 	@ColumnType
 	private BaseVipUser user;
-	@JSONField(serialize = false)
+	@JsonIgnore
 	private long at_user_id;
-	@JSONField(serialize = false)
+	@JsonIgnore
 	private long at_comment_id;
 	@ColumnType
 	private BaseVipUser at_user;

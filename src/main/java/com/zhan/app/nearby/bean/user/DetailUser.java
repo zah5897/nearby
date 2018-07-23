@@ -5,7 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.zhan.app.nearby.annotation.ColumnType;
 import com.zhan.app.nearby.bean.Tag;
 import com.zhan.app.nearby.bean.UserDynamic;
@@ -23,13 +24,13 @@ public class DetailUser extends LocationUser {
 	private List<UserDynamic> images;
 	// 数据库中以逗号分割，json不序列号
 	// @JsonIgnore
-	@JSONField(serialize = false)
+	@JsonIgnore
 	private String job_ids;
 	@ColumnType // 忽略保存
 	private List<Tag> jobs;
 
 	// @JsonIgnore
-	@JSONField(serialize = false)
+	@JsonIgnore
 	private String my_tag_ids;
 
 	@ColumnType // 忽略保存
@@ -44,27 +45,27 @@ public class DetailUser extends LocationUser {
 	// @JsonIgnore
 	private List<Tag> my_tags;
 	// @JsonIgnore
-	@JSONField(serialize = false)
+	@JsonIgnore
 	private String interest_ids;
 	@ColumnType // 忽略保存
 	// @JsonIgnore
 	private List<Tag> interest;
 
 	// @JsonIgnore
-	@JSONField(serialize = false)
+	@JsonIgnore
 	private String animal_ids;
 	@ColumnType // 忽略保存
 	// @JsonIgnore
 	private List<Tag> favourite_animal;
 
 	// @JsonIgnore
-	@JSONField(serialize = false)
+	@JsonIgnore
 	private String music_ids;
 	@ColumnType // 忽略保存
 	// @JsonIgnore
 	private List<Tag> favourite_music;
 	// @JsonIgnore
-	@JSONField(serialize = false)
+	@JsonIgnore
 	private String weekday_todo_ids;
 	@ColumnType // 忽略保存
 
@@ -72,7 +73,7 @@ public class DetailUser extends LocationUser {
 	private List<Tag> weekday_todo;
 
 	// @JsonIgnore
-	@JSONField(serialize = false)
+	@JsonIgnore
 	private String footstep_ids;
 	@ColumnType // 忽略保存
 
@@ -80,11 +81,11 @@ public class DetailUser extends LocationUser {
 	private List<Tag> footsteps;
 
 	// @JsonIgnore
-	@JSONField(serialize = false)
+	@JsonIgnore
 	private String want_to_where;
 	
 	@ColumnType
-	@JSONField(name="is_vip")
+	@JsonProperty("is_vip")
 	private boolean is_vip;
 
 	public String getJob_ids() {
@@ -209,7 +210,7 @@ public class DetailUser extends LocationUser {
 
 
 	// @JsonIgnore
-	@JSONField(serialize = false)
+	@JsonIgnore
 	public Object getBasicUserInfoMap() {
 		Map<String, Object> basicInfo = new HashMap<String, Object>();
 		basicInfo.put("user_id", getUser_id());

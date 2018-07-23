@@ -1,12 +1,12 @@
 package com.zhan.app.nearby.bean;
 
-import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.zhan.app.nearby.annotation.ColumnType;
 
 public class PersonalInfo {
 	private long user_id;
 	@ColumnType
-	@JSONField(serialize = false)
+	@JsonIgnore
 	private String token;
 	private String personal_name;
 	private String personal_id;

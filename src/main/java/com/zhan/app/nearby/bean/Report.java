@@ -2,7 +2,7 @@ package com.zhan.app.nearby.bean;
 
 import java.util.Date;
 
-import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.zhan.app.nearby.annotation.ColumnType;
 import com.zhan.app.nearby.bean.user.BaseUser;
 
@@ -14,9 +14,9 @@ public class Report {
 	private String tag_id;
 	private String content;
 	private int type;
-	@JSONField(format = "yyyy-MM-dd HH:mm:ss")
+	@JsonFormat(pattern = "yyyy-MM-ddyyyy-MM-dd HH:mm:ss", locale = "zh", timezone = "GMT+8")
 	private Date create_time;
-	@JSONField(format = "yyyy-MM-dd HH:mm:ss")
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", locale = "zh", timezone = "GMT+8")
 	private Date approval_time;
 	private int approval_result;
 	@ColumnType

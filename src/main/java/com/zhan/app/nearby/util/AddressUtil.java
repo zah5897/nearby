@@ -1,9 +1,8 @@
 package com.zhan.app.nearby.util;
 
 import java.util.List;
+import java.util.Map;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.zhan.app.nearby.bean.City;
 import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.dao.CityDao;
@@ -22,11 +21,11 @@ public class AddressUtil {
 				String[] address = null;
 				if (!TextUtils.isEmpty(ios_addr)) {
 					try {
-						JSONObject obj = JSON.parseObject(ios_addr);
+						Map<String, Object> obj=JSONUtil.jsonToMap(ios_addr);
 						address = new String[8];
-						String city = obj.getString("City");
-						String SubLocality = obj.getString("SubLocality");
-						String Street = obj.getString("Street");
+						String city = obj.get("City").toString();
+						String SubLocality = obj.get("SubLocality").toString();
+						String Street = obj.get("Street").toString();
 						address[1] = city;
 						address[2] = SubLocality;
 						address[3] = Street;
@@ -115,22 +114,22 @@ public class AddressUtil {
 		String url = "http://api.map.baidu.com/geocoder/v2/?location="+lat+","+lng+"&output=json&pois=0&ak="+BAIDU_AK;
 		String result = HttpUtil.sendGet(url, null);
 		if (!TextUtils.isEmpty(result)) {
-			JSONObject obj = JSON.parseObject(result);
-			int status = obj.getIntValue("status");
+			Map<String, Object> obj = JSONUtil.jsonToMap(result);
+			int status = Integer.parseInt(obj.get("status").toString());
 			if (status == 0) {
-				JSONObject resultObj = obj.getJSONObject("result");
-				JSONObject addressComponent = resultObj.getJSONObject("addressComponent");
+				Map<String, Object> resultObj = (Map<String, Object>) obj.get("result");
+				Map<String, Object> addressComponent = (Map<String, Object>) resultObj.get("addressComponent");
 				
 				
 				
-				String province = addressComponent.getString("province");
-				String city = addressComponent.getString("city");
-				String district = addressComponent.getString("district");
-				String street = addressComponent.getString("street");
+				String province = addressComponent.get("province").toString();
+				String city = addressComponent.get("city").toString();
+				String district = addressComponent.get("district").toString();
+				String street = addressComponent.get("street").toString();
 				
 				
-				String street_number=addressComponent.getString("street_number");
-				String city_code=resultObj.getString("cityCode");
+				String street_number=addressComponent.get("street_number").toString();
+				String city_code=resultObj.get("cityCode").toString();
 			 
 				return new String[] { province, city, district, street, street_number, city_code,lat,lng };
 			}
@@ -143,17 +142,17 @@ public class AddressUtil {
 		String result = HttpUtil.sendGet(url, null);
 		String addrArray[]=new String[8];
 		if (!TextUtils.isEmpty(result)) {
-			JSONObject obj = JSON.parseObject(result);
-			JSONObject contentObj = obj.getJSONObject("content");
+			Map<String, Object> obj = JSONUtil.jsonToMap(result);
+			Map<String, Object>  contentObj = (Map<String, Object>) obj.get("content");
 			if (contentObj != null) {
-				JSONObject address_detail = contentObj.getJSONObject("address_detail");
+				Map<String, Object> address_detail = (Map<String, Object>) contentObj.get("address_detail");
 				if(address_detail!=null) {
-					String province=address_detail.getString("province");
-					String city=address_detail.getString("city");
-					String district=address_detail.getString("district");
-					String street=address_detail.getString("street");
-					String street_number=address_detail.getString("street_number");
-					String city_code=address_detail.getString("city_code");
+					String province=address_detail.get("province").toString();
+					String city=address_detail.get("city").toString();
+					String district=address_detail.get("district").toString();
+					String street=address_detail.get("street").toString();
+					String street_number=address_detail.get("street_number").toString();
+					String city_code=address_detail.get("city_code").toString();
 					addrArray[0]=province;
 					addrArray[1]=city;
 					addrArray[2]=district;
@@ -161,10 +160,10 @@ public class AddressUtil {
 					addrArray[4]=street_number;
 					addrArray[5]=city_code;
 				}
-				JSONObject point = contentObj.getJSONObject("point");
+				Map<String, Object> point = (Map<String, Object>) contentObj.get("point");
 				if(point!=null) {
-					String x=point.getString("x");
-					String y=point.getString("y");
+					String x=point.get("x").toString();
+					String y=point.get("y").toString();
 					addrArray[6]=x;
 					addrArray[7]=y;
 				}
@@ -184,12 +183,12 @@ public class AddressUtil {
 		String[] location = null;
 		if (!TextUtils.isEmpty(result)) {
 			try {
-				JSONObject obj = JSON.parseObject(result);
+				Map<String, Object> obj = JSONUtil.jsonToMap(result);
 				location = new String[4];
-				location[0] = obj.getString("province");
-				location[1] = obj.getString("city");
+				location[0] = obj.get("province").toString();
+				location[1] = obj.get("city").toString();
 				
-				String rectangle=obj.getString("rectangle");
+				String rectangle=obj.get("rectangle").toString();
 				String[] latlng=rectangle.split(";");
 				
 			    String[] lat_lng=latlng[0].split(",");

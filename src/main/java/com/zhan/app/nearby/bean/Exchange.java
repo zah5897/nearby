@@ -2,18 +2,19 @@ package com.zhan.app.nearby.bean;
 
 import java.util.Date;
 
-import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class Exchange {
-	@JSONField(serialize = false)
+	@JsonIgnore
 	private long user_id;
-	@JSONField(serialize = false)
+	@JsonIgnore
 	private String aid;
 	private int diamond_count;
 	private int rmb_fen;
-	@JSONField(format = "yyyy-MM-dd HH:mm")
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm", locale = "zh", timezone = "GMT+8")
 	private Date create_time;
-	@JSONField(format = "yyyy-MM-dd HH:mm")
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm", locale = "zh", timezone = "GMT+8")
 	private Date finish_time;
 	private int state;
 

@@ -2,21 +2,21 @@ package com.zhan.app.nearby.bean;
 
 import java.util.Date;
 
-import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.zhan.app.nearby.annotation.ColumnType;
 
 public class Avatar {
 	@ColumnType // 忽略保存
 	private int id;
-	@JSONField(serialize = false)
+	@JsonIgnore
 	private long uid;
 	private String avatar;
 	@ColumnType // 忽略保存
 	private String origin_avatar;
 	
-	@JSONField(serialize = false)
+	@JsonIgnore
 	private String illegal_avatar;
-	@JSONField(serialize = false)
+	@JsonIgnore
 	private Date checked_time;
 	public long getUid() {
 		return uid;

@@ -2,7 +2,7 @@ package com.zhan.app.nearby.bean;
 
 import java.io.Serializable;
 
-import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.zhan.app.nearby.annotation.ColumnType;
 
 public class UserDynamicRelationShip implements Serializable {
@@ -11,7 +11,7 @@ public class UserDynamicRelationShip implements Serializable {
 	 */
 	@ColumnType
 	private static final long serialVersionUID = 1L;
-	@JSONField(serialize = false)
+	@JsonIgnore
 	private long user_id;
 	private long dynamic_id;
 	private int relationship;

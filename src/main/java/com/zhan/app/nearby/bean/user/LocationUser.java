@@ -100,11 +100,11 @@ public class LocationUser extends SimpleUser {
 		}
 	}
 
-	
+	 @JsonIgnore
 	public boolean isVip() {
 		return isVip;
 	}
-
+	 @JsonIgnore
 	public void setVip(boolean isVip) {
 		this.isVip = isVip;
 	}

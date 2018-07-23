@@ -148,7 +148,7 @@ public class DynamicMsgService {
 		List<DynamicComment> comms= dynamicMsgDao.getMyDynamicCommentLatest(user_id);
 		List<DynamicMessage> msgs= dynamicMsgDao.getMyMeetLatest(user_id);
 		dynamicMsgDao.updateLatestTipTime(user_id);
-		return ResultUtil.getResultOKMap().addAttribute("comments", comms).addAttribute("msgs", msgs);
+		return ResultUtil.getResultOKMap().addAttribute("comments", comms).addAttribute("xiehou_msgs", msgs);
 	}
 	
 

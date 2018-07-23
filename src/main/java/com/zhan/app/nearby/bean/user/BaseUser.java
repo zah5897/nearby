@@ -56,6 +56,9 @@ public class BaseUser {
 	@JSONField(serialize = false)
 	private int account_state;
 
+	private String contact;
+	
+	
 	public Date getBirthday() {
 		return birthday;
 	}
@@ -185,6 +188,14 @@ public class BaseUser {
 
 	public void setAvatars(List<Avatar> avatars) {
 		this.avatars = avatars;
+	}
+
+	public String getContact() {
+		return contact;
+	}
+
+	public void setContact(String contact) {
+		this.contact = contact;
 	}
 
 }

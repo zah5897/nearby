@@ -1,6 +1,8 @@
 package com.easemob.server.example;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSONObject;
@@ -108,8 +110,9 @@ public class Main {
 		// System.out.println(node.get("error"));
 		// }
 
-		boolean r= disconnectUser("41");
-		 System.out.println(r);
+//		boolean r = disconnectUser("41");
+//		System.out.println(r);
+		
 	}
 
 	public static Object registUser(String userName, String password, String nickname) {
@@ -188,4 +191,6 @@ public class Main {
 		IMUserAPI user = (IMUserAPI) factory.newInstance(EasemobRestAPIFactory.USER_CLASS);
 		return user.addFriendSingle(user_id, friend_id);
 	}
+
+
 }

@@ -17,6 +17,7 @@ public class Tag implements Serializable {
 	public static final int TYPE_LIKE_MUSIC = 5;
 	public static final int TYPE_WEEKDAY = 6;
 	public static final int TYPE_FOOTSTEPS = 7;
+	public static final int TYPE_REPORT = 8;
 	// 系统主键 （不入库，不json序列化）
 	@JSONField(serialize = false)
 	@ColumnType

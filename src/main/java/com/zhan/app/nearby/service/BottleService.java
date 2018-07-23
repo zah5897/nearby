@@ -408,4 +408,8 @@ public class BottleService {
 	public void changeBottleState(int id, int to_state) {
 		bottleDao.changeBottleState(id, to_state);
 	}
+
+	public void clearExpireBottle() {
+		bottleDao.clearExpireBottle();
+	}
 }

@@ -125,6 +125,16 @@ public class UserDao extends BaseDao {
 			return null;
 		}
 	}
+	public LocationUser findLocationUserById(long user_id) {
+		List<LocationUser> list = jdbcTemplate.query(
+				"select user.* ,city.name as city_name from t_user user left join t_sys_city city on user.city_id=city.id where user.user_id=?",
+				new Object[] { user_id }, new BeanPropertyRowMapper<LocationUser>(LocationUser.class));
+		if (list != null && list.size() > 0) {
+			return list.get(0);
+		} else {
+			return null;
+		}
+	}
 
 	public BaseUser findUserByDeviceId(String deviceId) {
 		List<BaseUser> list = jdbcTemplate.query("select *from t_user user where user.mobile=? and type=?",
@@ -162,9 +172,9 @@ public class UserDao extends BaseDao {
 		return count;
 	}
 
-	public int updateToken(long userId, String token, String _ua, Date last_login_time) {
-		return jdbcTemplate.update("update t_user set token=?,_ua=?,last_login_time=? where user_id=?",
-				new Object[] { token, _ua, last_login_time, userId });
+	public int updateToken(long userId, String token,  Date last_login_time) {
+		return jdbcTemplate.update("update t_user set token=?,last_login_time=? where user_id=?",
+				new Object[] { token,  last_login_time, userId });
 	}
 
 	public int updatePassword(String mobile, String password) {
@@ -196,7 +206,7 @@ public class UserDao extends BaseDao {
 
 	public int modify_info(long user_id, String nick_name, String birthday, String job, String height, String weight,
 			String signature, String my_tags, String interests, String animals, String musics, String weekday_todo,
-			String footsteps, String want_to_where, Integer birth_city_id) {
+			String footsteps, String want_to_where, Integer birth_city_id,String contact) {
 
 		String sql = "update t_user set ";
 		StringBuilder names = new StringBuilder();
@@ -232,6 +242,16 @@ public class UserDao extends BaseDao {
 			SQLUtil.appendSql(names, String.valueOf(birth_city_id), "birth_city_id", values);
 		}
 
+		
+		if (contact!=null) {
+				if (values.size() > 0) {
+					names.append(",contact=?");
+				} else {
+					names.append("contact=?");
+				}
+				values.add(contact);
+		}
+		
 		if (values.size() == 0) {
 			return 0;
 		}
@@ -252,6 +272,10 @@ public class UserDao extends BaseDao {
 	public int uploadToken(long user_id, String token, String zh_cn) {
 		String sql = "update t_user set device_token=?,zh_cn=? where user_id=?";
 		return jdbcTemplate.update(sql, new Object[] { token, zh_cn, user_id });
+	}
+	public int uploadLastLoginTime(long user_id) {
+		String sql = "update t_user set last_login_time=? where user_id=?";
+		return jdbcTemplate.update(sql, new Object[] { new Date(), user_id });
 	}
 
 	public Object setCity(Long user_id, Integer city_id) {
@@ -627,4 +651,50 @@ public class UserDao extends BaseDao {
 	public List<String> loadIllegalAvatar() {
 		return jdbcTemplate.queryForList("select illegal_avatar from t_user_avatars  where  state=? and checked_time < date_sub(NOW(), INTERVAL 2 DAY)", new Object[] {AvatarIMGStatus.ILLEGAL.ordinal()},String.class);
 	}
+	
+	
+	public String getContact(long user_id) {
+		String contact = jdbcTemplate.queryForObject("select contact from t_user where user_id="+user_id, String.class);
+		return contact;
+	}
+	
+	public int markContactRel(long user_id,long target_uid) {
+		return jdbcTemplate.update("insert into t_contact_get_rel (uid,target_uid) values(?,?)",new Object[] {user_id,target_uid});
+	}
+	
+	public boolean hadGetContact(long user_id,long target_uid) {
+		int count= jdbcTemplate.queryForObject("select count(*) from t_contact_get_rel where uid=? and target_uid=?",new Object[] {user_id,target_uid},Integer.class);
+		return count>0;
+	}
+
+	public boolean checkExistByIdAndPwd(long user_id, String md5_pwd) {
+		int count= jdbcTemplate.queryForObject("select count(*) from t_user where user_id=? and password=?",new Object[] {user_id,md5_pwd},Integer.class);
+		return count>0;
+	}
+	
+	public void saveUserOnline(long uid) {
+		jdbcTemplate.update("insert into t_user_online (uid,check_time) values(?,?)",new Object[] {uid,new Date()});
+	}
+	public void updateOnlineCheckTime(long uid) {
+		jdbcTemplate.update("update t_user_online set check_time=? where uid=?",new Object[] {new Date(),uid});
+	}
+	
+	public List<BaseUser> getOnlineUsers(int page,int count){
+		String sql="select u.user_id,u.nick_name,u.avatar from t_user_online l left join t_user u on l.uid=u.user_id order by l.check_time desc limit ?,?";
+		return jdbcTemplate.query(sql, new Object[] {(page-1)*count,count},new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+	}
+	public void removeOnline(long uid) {
+		jdbcTemplate.update("delete from t_user_online where uid="+uid);
+	}
+	
+	public List<Long> getLatestLoginUserIds(int limit){
+		String sql="select user_id from t_user where user_id not in(select uid from t_user_online) order by last_login_time desc limit "+limit;
+		return jdbcTemplate.queryForList(sql, Long.class);
+	}
+	
+	public void  removeTimeoutOnlineUsers(int timeoutMintes){
+		String sql="delete from t_user_online where check_time >= DATE_SUB(NOW(),INTERVAL ? MINUTE)";
+		 jdbcTemplate.update(sql,new Object[] {timeoutMintes});
+	}
+	
 }

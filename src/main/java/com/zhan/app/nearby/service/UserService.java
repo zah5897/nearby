@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.UUID;
 
 import javax.annotation.Resource;
 
@@ -108,6 +109,7 @@ public class UserService {
 		long id = (Long) userDao.insert(user);
 		user.setUser_id(id);
 		if (id > 0 && user.getType() == UserType.OFFIEC.ordinal()) {
+			saveUserOnline(user.getUser_id());
 			registHX(user);
 		}
 		return id;
@@ -119,7 +121,7 @@ public class UserService {
 
 	public int updateToken(BaseUser user) {
 		// 更新登陆时间
-		return userDao.updateToken(user.getUser_id(), user.getToken(), user.get_ua(), new Date());
+		return userDao.updateToken(user.getUser_id(), user.getToken(), new Date());
 	}
 
 	public void pushLongTimeNoLoginMsg(long user_id, Date lastLoginTime) {
@@ -193,9 +195,9 @@ public class UserService {
 
 	public int modify_info(long user_id, String nick_name, String birthday, String job, String height, String weight,
 			String signature, String my_tags, String interests, String animals, String musics, String weekday_todo,
-			String footsteps, String want_to_where, boolean isNick_modify, Integer birth_city_id) {
+			String footsteps, String want_to_where, boolean isNick_modify, Integer birth_city_id, String contact) {
 		return userDao.modify_info(user_id, nick_name, birthday, job, height, weight, signature, my_tags, interests,
-				animals, musics, weekday_todo, footsteps, want_to_where, birth_city_id);
+				animals, musics, weekday_todo, footsteps, want_to_where, birth_city_id, contact);
 	}
 
 	public int visitorToNormal(SimpleUser user) {
@@ -255,11 +257,11 @@ public class UserService {
 
 	public ModelMap getUserCenterData(String token, String aid, Long user_id_for, Long uid) {
 		if (user_id_for == null || user_id_for <= 0) {
-			return ResultUtil.getResultMap(ERROR.ERR_FAILED, "not login");
+			return ResultUtil.getResultMap(ERROR.ERR_FAILED, "对应用户不存在");
 		}
 		DetailUser user = userDao.getUserDetailInfo(user_id_for);
 		if (user == null) {
-			return ResultUtil.getResultMap(ERROR.ERR_FAILED, "not exist");
+			return ResultUtil.getResultMap(ERROR.ERR_FAILED, "对应ID不存在");
 		}
 
 		user.setAge(DateTimeUtil.getAge(user.getBirthday()));
@@ -281,6 +283,13 @@ public class UserService {
 		ModelMap r = ResultUtil.getResultOKMap();
 		user.setIs_vip(vipDao.isVip(user_id_for));
 		user.setAvatars(getUserAvatars(user_id_for));
+
+		if (uid != user_id_for) {
+			if (!userDao.hadGetContact(uid == null ? 0 : uid, user_id_for == null ? 0 : user_id_for)) {
+				user.setContact("花费金币查看");
+			}
+		}
+
 		r.addAttribute("user", user);
 
 		Relationship iWithHim = getRelationShip(uid == null ? 0 : uid, user_id_for);
@@ -657,14 +666,104 @@ public class UserService {
 	}
 
 	public void editAvatarState(long user_id) {
-		userDao.editAvatarState(user_id,AvatarIMGStatus.ILLEGAL.ordinal());
+		userDao.editAvatarState(user_id, AvatarIMGStatus.ILLEGAL.ordinal());
 	}
 
 	public void deleteIllegalAvatarFile() {
-		List<String> avatars=userDao.loadIllegalAvatar();
-		for(String avatar:avatars) {
+		List<String> avatars = userDao.loadIllegalAvatar();
+		for (String avatar : avatars) {
 			ImageSaveUtils.removeAcatar(avatar);
 		}
+
+	}
+
+	public ModelMap openApp(long user_id, String token, String aid) {
+		if (checkLogin(user_id, token)) {
+			saveUserOnline(user_id);
+
+			userDao.uploadLastLoginTime(user_id);
+			return ResultUtil.getResultOKMap();
+		} else {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+	}
+
+	public ModelMap getContact(long by_user_id, long user_id, String token, String aid) {
+		if (!checkLogin(user_id, token)) {
+			if (TextUtils.isEmpty(token)) {
+				return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+			} else {
+				return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN, "Token过期");
+			}
+
+		}
+
+		String weixin = userDao.getContact(by_user_id);
+		if (TextUtils.isEmpty(weixin)) {
+			return ResultUtil.getResultOKMap().addAttribute("contract", weixin);
+		}
+
+		if (userDao.hadGetContact(user_id, by_user_id)) {
+			return ResultUtil.getResultOKMap().addAttribute("contract", weixin);
+		}
+		// 金币减1
+		Map<String, Object> extraData = modifyExtra(user_id, aid, 1, -1);
+		if (extraData != null && extraData.containsKey("all_coins")) {
+			int all_coins = (int) extraData.get("all_coins");
+			if (all_coins < 0) {
+				throw new AppException(ERROR.ERR_COINS_SHORT);
+			} else {
+				modifyExtra(by_user_id, aid, 1, 1);
+				try {
+					userDao.markContactRel(user_id, by_user_id);
+				} catch (Exception e) {
+					// 主键约束导致插入语失败
+				}
+			}
+		}
+		return ResultUtil.getResultOKMap().addAttribute("contact", weixin).addAttribute("contact_cost_coins", 1);
+	}
+
+	public ModelMap autoLogin(long user_id, String md5_pwd, String aid) {
+		boolean exist = userDao.checkExistByIdAndPwd(user_id, md5_pwd);
+		if (exist) {
+			String token=UUID.randomUUID().toString();
+			userDao.updateToken(user_id, token, new Date());
+
+			saveUserOnline(user_id);
+
+			ModelMap result = ResultUtil.getResultOKMap();
+			BaseUser user = userDao.getUserDetailInfo(user_id);
+			user.setToken(token);
+			result.put("user", user);
+			result.put("all_coins", loadUserCoins(aid, user.getUser_id()));
+			result.put("vip", loadUserVipInfo(aid, user.getUser_id()));
+			return result;
+		} else {
+			return ResultUtil.getResultMap(ERROR.ERR_FAILED, "登录失败");
+		}
+	}
+
+	public void saveUserOnline(long uid) {
+		try {
+			userDao.saveUserOnline(uid);
+		} catch (Exception e) {
+			userDao.updateOnlineCheckTime(uid);
+		}
+	}
+
+	public List<BaseUser> getOnlineUsers(int page, int count) {
+		List<BaseUser> users = userDao.getOnlineUsers(page, count);
+		ImagePathUtil.completeAvatarsPath(users, true);
+		return users;
+	}
+
+	public void removeOnline(long uid) {
+		userDao.removeOnline(uid);
+	}
+
+	public void removeTimeoutOnlineUsers(int timeoutMaxMinute) {
+		userDao.removeTimeoutOnlineUsers(timeoutMaxMinute);
 		
 	}
 

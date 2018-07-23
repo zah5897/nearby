@@ -53,6 +53,12 @@ public class TimerTask {
 		System.out.println("inject rate count:" + rateCount);
 		
 		deleteIllegalAvatarFile();
+		
+		
+		
+		
+		BottleService bottleService = SpringContextUtil.getBean("bottleService");
+		bottleService.clearExpireBottle();
 	}
 
 	// 每小时清理下漂流瓶池中的瓶子
@@ -112,6 +118,16 @@ public class TimerTask {
 
 	}
 
+	
+	
+	
+	// 每小时清理下漂流瓶池中的瓶子
+	@Scheduled(cron = "0 0/20 * * * ?") // 每5分钟执行一次
+	public void checkUserOnline() {
+		UserService userService = SpringContextUtil.getBean("userService");
+		userService.removeTimeoutOnlineUsers(4*60);
+	}
+	
 	
 	private void deleteIllegalAvatarFile() {
 		UserService userService = SpringContextUtil.getBean("userService");

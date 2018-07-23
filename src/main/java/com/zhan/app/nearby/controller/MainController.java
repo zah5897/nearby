@@ -1,11 +1,9 @@
 package com.zhan.app.nearby.controller;
 
 import javax.annotation.Resource;
-import javax.websocket.server.PathParam;
 
 import org.apache.log4j.Logger;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -159,10 +157,4 @@ public class MainController {
 	public ModelMap special_users(Integer count) {
 		return mainService.getSpecialUsers(1,count==null?5:count);
 	}
- 
-	@RequestMapping("getContact/{by_user_id}")
-	public ModelMap getWeixin(@PathVariable long by_user_id, long user_id,String token,String aid) {
-		return mainService.getContact(by_user_id,user_id,token,aid);
-	}
-	
 }

@@ -234,16 +234,6 @@ public class SystemDao extends BaseDao {
 						personalInfo.getPersonal_name(), personalInfo.getPersonal_id(), personalInfo.getUser_id(),
 						personalInfo.getAid() });
 	}
-
-	public String getContact(long user_id,String aid) {
-		List<String> weixins = jdbcTemplate.query("select contact from t_personal_info where user_id=? and aid=? limit 1",
-				new Object[] { user_id, aid }, new BeanPropertyRowMapper<String>(String.class));
-		if (weixins.size() > 0) {
-			return weixins.get(0);
-		} else {
-			return null;
-		}
-	}
 	
 	
 	public String  loadFilterKeyword(int type) {

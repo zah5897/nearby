@@ -185,6 +185,7 @@ public class UserController {
 			}
 		} else {
 			id = userService.insertUser(user);
+			
 		}
 		if (id == -1l) {
 			return ResultUtil.getResultMap(ERROR.ERR_USER_EXIST, "该手机号码已经注册过");
@@ -244,6 +245,7 @@ public class UserController {
 				user.setToken(UUID.randomUUID().toString());
 				user.set_ua(_ua);
 				userService.pushLongTimeNoLoginMsg(user.getUser_id(), user.getLast_login_time());
+                userService.saveUserOnline(user.getUser_id());
 				userService.updateToken(user); // 更新token，弱登录
 				user.set_ua(null);
 				user.setAge(DateTimeUtil.getAge(user.getBirthday()));
@@ -280,6 +282,7 @@ public class UserController {
 		BaseUser user = userService.getBasicUser(user_id);
 		if (user != null) {
 			if (token.equals(user.getToken())) {
+				userService.removeOnline(user_id);
 				userService.updateToken(new BaseUser(user_id));
 			}
 		}
@@ -398,7 +401,8 @@ public class UserController {
 	 * @return
 	 */
 	@RequestMapping("modify_avatar")
-	public ModelMap modify_avatar(DefaultMultipartHttpServletRequest multipartRequest, long user_id,String aid, String token) {
+	public ModelMap modify_avatar(DefaultMultipartHttpServletRequest multipartRequest, long user_id, String aid,
+			String token) {
 		if (!userService.checkLogin(user_id, token)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
@@ -435,7 +439,8 @@ public class UserController {
 	}
 
 	@RequestMapping("upload_avatars")
-	public ModelMap upload_avatars(DefaultMultipartHttpServletRequest multipartRequest, long user_id,String aid, String token) {
+	public ModelMap upload_avatars(DefaultMultipartHttpServletRequest multipartRequest, long user_id, String aid,
+			String token) {
 		if (!userService.checkLogin(user_id, token)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
@@ -461,15 +466,17 @@ public class UserController {
 			if (avatarFiles.size() > 0) {
 				userService.updateAvatar(user_id, avatarFiles.get(avatarFiles.size() - 1));
 			}
-			
+
 			return userService.getUserCenterData("", aid, user_id, user_id);
-//			return ResultUtil.getResultOKMap().addAttribute("avatars", userService.getUserAvatars(user_id));
+			// return ResultUtil.getResultOKMap().addAttribute("avatars",
+			// userService.getUserAvatars(user_id));
 		}
 		return ResultUtil.getResultMap(ERROR.ERR_FAILED, "no files.");
 	}
 
 	@RequestMapping("delete_avatar")
-	public ModelMap delete_avatar(HttpServletRequest request, long user_id, String token,String aid, String avatar_ids) {
+	public ModelMap delete_avatar(HttpServletRequest request, long user_id, String token, String aid,
+			String avatar_ids) {
 		if (!userService.checkLogin(user_id, token)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
@@ -505,8 +512,8 @@ public class UserController {
 	@RequestMapping("modify_info")
 	public ModelMap modify_info(long user_id, String aid, String token, String nick_name, String birthday, String jobs,
 			String height, String weight, String signature, String my_tags, String interest, String favourite_animal,
-			String favourite_music, String weekday_todo, String footsteps, String want_to_where,
-			Integer birth_city_id) {
+			String favourite_music, String weekday_todo, String footsteps, String want_to_where, Integer birth_city_id,
+			String contact) {
 		if (user_id < 1) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "用户ID异常");
 		}
@@ -526,8 +533,8 @@ public class UserController {
 		}
 
 		userService.modify_info(user_id, nick_name, birthday, jobs, height, weight, signature, my_tags, interest,
-				favourite_animal, favourite_music, weekday_todo, footsteps, want_to_where, isNick_modify,
-				birth_city_id);
+				favourite_animal, favourite_music, weekday_todo, footsteps, want_to_where, isNick_modify, birth_city_id,
+				contact);
 		return userService.getUserCenterData(token, aid, user_id, user_id);
 	}
 
@@ -693,7 +700,7 @@ public class UserController {
 	}
 
 	@RequestMapping("avatar/{user_id}")
-	public ModelMap getTags(@PathVariable long user_id) {
+	public ModelMap getUserAvatar(@PathVariable long user_id) {
 		return userService.getUserAvatar(user_id);
 	}
 
@@ -745,6 +752,28 @@ public class UserController {
 		return userService.checkIn(user_id, token, aid);
 	}
 
+	@RequestMapping("/open_app")
+	public ModelMap openApp(long user_id, String token, String aid) {
+		return userService.openApp(user_id, token, aid);
+	}
+
+	@RequestMapping("getContact/{by_user_id}")
+	public ModelMap getContact(@PathVariable long by_user_id, long user_id, String token, String aid) {
+		return userService.getContact(by_user_id, user_id, token, aid);
+	}
+
+	@RequestMapping("autoLogin")
+	public ModelMap autoLogin(long user_id,String md5pwd,String aid) {
+		return userService.autoLogin(user_id,md5pwd,aid);
+	}
+
+	
+	@RequestMapping("online_list")
+	public ModelMap online_list(int page,int count) {
+	   return	ResultUtil.getResultOKMap().addAttribute("users", userService.getOnlineUsers(page, count));
+	}
+
+	
 	private City getDefaultCityId() {
 
 		City city = new City();

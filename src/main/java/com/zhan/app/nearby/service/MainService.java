@@ -481,20 +481,24 @@ public class MainService {
 		return data;
 	}
 
-	public ModelMap getSpecialUsers(int page,int limit) {
-		List<BaseUser> users = userService.loadSpecialUsers(page,limit);
+	public ModelMap getSpecialUsers(int page, int limit) {
+		List<BaseUser> users = userService.loadSpecialUsers(page, limit);
 		ImagePathUtil.completeAvatarsPath(users, true);
 		return ResultUtil.getResultOKMap().addAttribute("users", users);
 	}
+
 	public int getSpecialUsersCount() {
 		return userService.getSpecialUsersCount();
-	}	
+	}
+
 	public int delSpecialUser(long uid) {
 		return userService.delSpecialUser(uid);
 	}
+
 	public int addSpreadUser(long uid) {
 		return userService.addSpecialUser(uid);
 	}
+
 	public boolean backExchange(int id) {
 		Exchange ex = systemDao.loadExchange(id);
 		int i = giftDao.addGiftCoins(ex.getUser_id(), ex.getDiamond_count());
@@ -531,37 +535,21 @@ public class MainService {
 		return systemDao.getReportSizeByApproval(approval_type);
 	}
 
-	public void handleReport(int id,boolean isIgnore) {
+	public void handleReport(int id, boolean isIgnore) {
 		Report report = systemDao.getReport(id);
 		if (report != null) {
-			if (report.getType() == 0) {
-				Main.disconnectUser(String.valueOf(report.getTarget_id()));
-				userDao.updateAccountState(report.getTarget_id(), AccountStateType.LOCK.ordinal());
-			} else {
-				userDynamicDao.delete(report.getUser_id(), report.getTarget_id());
+			if(!isIgnore) {
+				if (report.getType() == 0) {
+					Main.disconnectUser(String.valueOf(report.getTarget_id()));
+					userDao.updateAccountState(report.getTarget_id(), AccountStateType.LOCK.ordinal());
+				} else {
+					userDynamicDao.delete(report.getUser_id(), report.getTarget_id());
+				}
 			}
-			systemDao.updateReportState(id,isIgnore?-1:1);
+			systemDao.updateReportState(id, isIgnore ? -1 : 1);
 		}
 	}
 
-	public ModelMap getContact(long by_user_id, long user_id, String token, String aid) {
-		 if(!userService.checkLogin(user_id, token)) {
-			 return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
-		 }
-		 
-		 String weixin=systemDao.getContact(by_user_id,aid);
-		 if(TextUtils.isEmpty(weixin)) {
-			 return ResultUtil.getResultOKMap().addAttribute("contract", weixin);
-		 }
-		 //金币减1
-		 Map<String, Object> extraData = userService.modifyExtra(user_id, aid, 1, -1);
-		    if (extraData != null && extraData.containsKey("all_coins")) {
-				int all_coins = (int) extraData.get("all_coins");
-				if (all_coins < 0) {
-					throw new AppException(ERROR.ERR_COINS_SHORT);
-				}
-			}
-		    return ResultUtil.getResultOKMap().addAttribute("weixin", weixin);
-	}
 	
+
 }

@@ -37,8 +37,15 @@ public class SystemController {
 
 	@RequestMapping("list_report")
 	public ModelMap list_report(int page, Integer count, int type) {
-		List<Report> list=mainService.listReport(type, page, count==null?10:count);
-		return ResultUtil.getResultOKMap().addAttribute("users",list );
+		 count=(count==null?10:count);
+		List<Report> list=mainService.listReport(type, page, count);
+		ModelMap r=ResultUtil.getResultOKMap().addAttribute("users",list );
+		if(list.size()==count) {
+			r.addAttribute("hasMore", true);
+		}else {
+			r.addAttribute("hasMore", false);
+		}
+		return r;
 	}
 
 	@RequestMapping("prootl")

@@ -1,12 +1,11 @@
 package com.zhan.app.nearby.util;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class JSONUtil {
@@ -20,9 +19,9 @@ public class JSONUtil {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static Map<String, Object> jsonToMap(String jsonStr) {
+	public static LinkedHashMap<String, Object> jsonToMap(String jsonStr) {
 		try {
-			return getMapper().readValue(jsonStr, Map.class);
+			return getMapper().readValue(jsonStr, LinkedHashMap.class);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

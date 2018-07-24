@@ -56,12 +56,16 @@ public class UserDynamicService {
 		return result;
 	}
 
-	public List<UserDynamic> getUserDynamic(long user_id, int page, int count) {
-		List<UserDynamic> dynamics = userDynamicDao.getUserDynamic(user_id,page,  count);
+	public List<UserDynamic> getUserDynamic(long user_id, int page, int count,boolean filterBlock) {
+		List<UserDynamic> dynamics = userDynamicDao.getUserDynamic(user_id,page,  count,filterBlock);
 		ImagePathUtil.completeDynamicsPath(dynamics, true);
 		return dynamics;
 	}
 
+	public List<UserDynamic> getUserDynamic(long user_id, int page, int count) {
+	 return getUserDynamic(user_id,page,count,false);
+	}
+	
 	public long comment(DynamicComment comment) {
 		long id = userDynamicDao.comment(comment);
 		if (id > 0) {

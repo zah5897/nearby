@@ -142,7 +142,6 @@ public class BaseUser {
 		this.aid = aid;
 	}
 
-	@JsonIgnore
 	public String getToken() {
 		return token;
 	}

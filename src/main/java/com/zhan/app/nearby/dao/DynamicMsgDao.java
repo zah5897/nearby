@@ -84,12 +84,12 @@ public class DynamicMsgDao extends BaseDao {
 	}
 
 	public List<DynamicMessage> getMyMeetLatest (long user_id) {
-		 String sql="select msg.* from  "+TABLE_DYNAMIC_MSG+" msg  left join t_bottle b on msg.dynamic_id=b.id  left join t_latest_tip_time la on msg.user_id=la.uid  where msg.user_id=? and msg.type=? and msg.create_time>coalesce(la.last_time,'1900-01-01 00:00:00') order by msg.create_time";
+		 String sql="select msg.* from  "+TABLE_DYNAMIC_MSG+" msg  left join t_bottle b on msg.dynamic_id=b.id     where msg.user_id=? and msg.type=?  order by msg.create_time";
 		 return jdbcTemplate.query(sql, new Object[] {user_id,DynamicMsgType.TYPE_MEET.ordinal()},new BeanPropertyRowMapper<DynamicMessage>(DynamicMessage.class));
 	}
 	
 	public List<DynamicComment> getMyDynamicCommentLatest(long user_id) {
-		 String sql="select comm.* from  t_dynamic_comment comm  left join t_user_dynamic dy on comm.dynamic_id=dy.id  left join t_latest_tip_time la on dy.user_id=la.uid  where dy.user_id=? and comm.comment_time>coalesce(la.last_time,'1900-01-01 00:00:00') order by comm.comment_time";
+		 String sql="select comm.* from  t_dynamic_comment comm  left join t_user_dynamic dy on comm.dynamic_id=dy.id     where dy.user_id=?  order by comm.comment_time";
 		 return jdbcTemplate.query(sql, new Object[] {user_id},new BeanPropertyRowMapper<DynamicComment>(DynamicComment.class));
 	}
 	

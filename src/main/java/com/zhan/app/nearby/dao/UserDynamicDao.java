@@ -16,6 +16,7 @@ import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.bean.UserDynamicRelationShip;
 import com.zhan.app.nearby.bean.mapper.DynamicCommentMapper;
 import com.zhan.app.nearby.bean.mapper.DynamicMapper;
+import com.zhan.app.nearby.comm.DynamicState;
 import com.zhan.app.nearby.comm.ImageStatus;
 import com.zhan.app.nearby.comm.LikeDynamicState;
 import com.zhan.app.nearby.comm.Relationship;
@@ -160,12 +161,21 @@ public class UserDynamicDao extends BaseDao {
 				new Object[] { hasPraiseCount, dynamic_id });
 	}
 
-	public List<UserDynamic> getUserDynamic(long user_id, int page, int count) {
+	public List<UserDynamic> getUserDynamic(long user_id, int page, int count,boolean filterBlock) {
 		// String sql = "select * from " + TABLE_USER_DYNAMIC+ " where user_id=? order
 		// by id desc limit ?";
-		String sql = "select dy.*,coalesce(t_like.relationship, '0') as like_state,u.nick_name,u.avatar,u.sex,u.type,u.birthday from "
-				+ TABLE_USER_DYNAMIC
-				+ " dy left join t_like_dynamic t_like on dy.id=t_like.dynamic_id and dy.user_id=t_like.user_id left join t_user u on dy.user_id=u.user_id  where dy.user_id=? order by dy.id desc limit ?,?";
+
+		String sql=null;
+		if(filterBlock) {
+			 sql = "select dy.*,coalesce(t_like.relationship, '0') as like_state,u.nick_name,u.avatar,u.sex,u.type,u.birthday from "
+					+ TABLE_USER_DYNAMIC
+					+ " dy left join t_like_dynamic t_like on dy.id=t_like.dynamic_id and dy.user_id=t_like.user_id left join t_user u on dy.user_id=u.user_id  where dy.user_id=? and dy.state<>"+DynamicState.T_ILLEGAL.ordinal()+" order by dy.id desc limit ?,?";
+		}else {
+			 sql = "select dy.*,coalesce(t_like.relationship, '0') as like_state,u.nick_name,u.avatar,u.sex,u.type,u.birthday from "
+					+ TABLE_USER_DYNAMIC
+					+ " dy left join t_like_dynamic t_like on dy.id=t_like.dynamic_id and dy.user_id=t_like.user_id left join t_user u on dy.user_id=u.user_id  where dy.user_id=? order by dy.id desc limit ?,?";
+		}
+		
 		return jdbcTemplate.query(sql, new Object[] { user_id, (page - 1) * count, count }, new DynamicMapper());
 	}
 

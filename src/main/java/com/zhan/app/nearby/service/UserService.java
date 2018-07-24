@@ -266,7 +266,7 @@ public class UserService {
 
 		user.setAge(DateTimeUtil.getAge(user.getBirthday()));
 
-		List<UserDynamic> dys = userDynamicService.getUserDynamic(user_id_for, 1, 5);
+		List<UserDynamic> dys = userDynamicService.getUserDynamic(user_id_for, 1, 5,true);
 		user.setImages(dys);
 		// //
 		// Map<String, Object> userJson = new HashMap<>();
@@ -284,11 +284,11 @@ public class UserService {
 		user.setIs_vip(vipDao.isVip(user_id_for));
 		user.setAvatars(getUserAvatars(user_id_for));
 
-		if (uid != user_id_for) {
-			if (!userDao.hadGetContact(uid == null ? 0 : uid, user_id_for == null ? 0 : user_id_for)) {
-				user.setContact("花费金币查看");
-			}
-		}
+//		if (uid != user_id_for) {
+//			if (!userDao.hadGetContact(uid == null ? 0 : uid, user_id_for == null ? 0 : user_id_for)) {
+//				user.setContact("花费金币查看");
+//			}
+//		}
 
 		r.addAttribute("user", user);
 
@@ -735,6 +735,7 @@ public class UserService {
 			ModelMap result = ResultUtil.getResultOKMap();
 			BaseUser user = userDao.getUserDetailInfo(user_id);
 			user.setToken(token);
+			ImagePathUtil.completeAvatarPath(user, true); // 补全图片链接地址
 			result.put("user", user);
 			result.put("all_coins", loadUserCoins(aid, user.getUser_id()));
 			result.put("vip", loadUserVipInfo(aid, user.getUser_id()));

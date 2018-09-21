@@ -33,6 +33,8 @@ public class DynamicMessage {
 
 	private MsgAttention attention;
 
+	
+	private int status;
 	public long getId() {
 		return id;
 	}
@@ -119,6 +121,14 @@ public class DynamicMessage {
 
 	public void setIsReadNum(int isReadNum) {
 		this.isReadNum = isReadNum;
+	}
+
+	public int getStatus() {
+		return status;
+	}
+
+	public void setStatus(int status) {
+		this.status = status;
 	}
 
 	 

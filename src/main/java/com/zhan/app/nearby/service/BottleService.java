@@ -19,6 +19,7 @@ import com.zhan.app.nearby.bean.BottleExpress;
 import com.zhan.app.nearby.bean.VipUser;
 import com.zhan.app.nearby.bean.type.BottleType;
 import com.zhan.app.nearby.bean.user.BaseUser;
+import com.zhan.app.nearby.bean.user.MeetListUser;
 import com.zhan.app.nearby.cache.UserCacheService;
 import com.zhan.app.nearby.comm.AccountStateType;
 import com.zhan.app.nearby.comm.BottleState;
@@ -54,6 +55,8 @@ public class BottleService {
 
 	@Resource
 	private UserService userService;
+	@Resource
+	private MainService mainService;
 
 	@Resource
 	private UserCacheService userCacheService;
@@ -106,10 +109,9 @@ public class BottleService {
 		}
 
 		List<Bottle> bolltes = null;
-		
+
 		int realType = type == null ? -1 : type;
-		
-		
+
 		if (look_sex == null) {
 			bolltes = bottleDao.getBottles(user_id, page_size, realType, state);
 		} else {
@@ -159,19 +161,19 @@ public class BottleService {
 		}
 		List<Bottle> bottles = null;
 		int realType = type == null ? -1 : type;
-		
-		int timeType=0;
-		bottles = bottleDao.getLatestDMBottles(user_id, page_size, realType, state,timeType);
-		
-		if(bottles==null||bottles.size()==0) {
-			timeType=1;
-			bottles = bottleDao.getLatestDMBottles(user_id, page_size, realType, state,timeType);
+
+		int timeType = 0;
+		bottles = bottleDao.getLatestDMBottles(user_id, page_size, realType, state, timeType);
+
+		if (bottles == null || bottles.size() == 0) {
+			timeType = 1;
+			bottles = bottleDao.getLatestDMBottles(user_id, page_size, realType, state, timeType);
 		}
-		
-		for(Bottle b:bottles) {
-			bottleDao.markDMBottleHadGet(user_id,b.getId());
+
+		for (Bottle b : bottles) {
+			bottleDao.markDMBottleHadGet(user_id, b.getId());
 		}
-		
+
 		result.addAttribute("bottles", bottles);
 		return result;
 	}
@@ -239,7 +241,7 @@ public class BottleService {
 		}
 		ModelMap result = ResultUtil.getResultOKMap();
 		result.put("bottles", bottles);
-		result.put("hasMore", bottles.size()==page_size);
+		result.put("hasMore", bottles.size() == page_size);
 		return result;
 	}
 
@@ -322,9 +324,9 @@ public class BottleService {
 		List<Long> user_ids = new ArrayList<Long>();
 		if (!TextUtils.isEmpty(with_user_id)) {
 			@SuppressWarnings("rawtypes")
-			List<Map> idList=JSONUtil.jsonToList(with_user_id, new TypeReference<List<Map>>() {
+			List<Map> idList = JSONUtil.jsonToList(with_user_id, new TypeReference<List<Map>>() {
 			});
-			for (Map<?, ?> u_b:idList) {
+			for (Map<?, ?> u_b : idList) {
 				long withUserID = Long.parseLong(u_b.get("uid").toString());
 				long bottleID = Long.parseLong(u_b.get("bottle_id").toString());
 				// 判断瓶子是否存在，不存在的话要新建
@@ -344,6 +346,7 @@ public class BottleService {
 				}
 				userDao.updateRelationship(user_id, withUserID, Relationship.LIKE);
 				dynamicMsgService.insertActionMsg(DynamicMsgType.TYPE_MEET, user_id, bottleID, withUserID, "");
+
 				// BaseUser u = userDao.getBaseUser(user_id);
 				// BaseUser withUser = userDao.getBaseUser(withUserID);
 				// makeChatSession(u, withUser, bottleID);
@@ -369,13 +372,13 @@ public class BottleService {
 	}
 
 	/**
-	 * 清理掉过期的语音瓶子
+	 * 清理掉过期的语音瓶子 ,根据分钟数
 	 * 
 	 * @param maxValidate
 	 * @return
 	 */
-	public int clearExpireAudioBottle(int maxValidate) {
-		return bottleDao.clearExpireAudioBottle(maxValidate);
+	public int clearExpireBottle(int maxValidate) {
+		return bottleDao.clearExpireBottle(maxValidate);
 	}
 
 	public int sendAutoBottle(String id, String content) {
@@ -396,8 +399,8 @@ public class BottleService {
 		return 0;
 	}
 
-	public List<Bottle> getBottlesByState(int state, int pageSize, int pageIndex,long bottle_id) {
-		return bottleDao.getBottlesByState(state, pageSize, pageIndex,bottle_id);
+	public List<Bottle> getBottlesByState(int state, int pageSize, int pageIndex, long bottle_id) {
+		return bottleDao.getBottlesByState(state, pageSize, pageIndex, bottle_id);
 	}
 
 	public int getBottleCountWithState(int state) {
@@ -408,7 +411,39 @@ public class BottleService {
 		bottleDao.changeBottleState(id, to_state);
 	}
 
-	public void clearExpireBottle() {
-		bottleDao.clearExpireBottle();
+	public void clearExpireAudioBottle() {
+		bottleDao.clearExpireAudioBottle();
+	}
+
+	public ModelMap meetList(long user_id, Integer page, Integer count) {
+
+		if (page == null || page < 1) {
+			page = 1;
+		}
+
+		if (count == null || count <= 0) {
+			count = 10;
+		}
+
+		ModelMap r = ResultUtil.getResultOKMap();
+		List<MeetListUser> meetList = bottleDao.getMeetList(user_id, page, count);
+		r.addAttribute("users", meetList);
+		ImagePathUtil.completeAvatarsPath(meetList, true);
+
+		if (!meetList.isEmpty()) {
+			r.addAttribute("last_one", meetList.get(0));
+		}
+		r.addAttribute("has_more", meetList.size() >= count);
+		return r;
+	}
+
+	public ModelMap replay_meet(long user_id, long target) {
+		dynamicMsgService.updateMeetState(user_id, target);
+
+		BaseUser u1 = userDao.getBaseUser(user_id);
+		BaseUser u2 = userDao.getBaseUser(target);
+		mainService.makeChatSession(u1, u2);
+		u2.setToken(null);
+		return ResultUtil.getResultOKMap().addAttribute("user", u2);
 	}
 }

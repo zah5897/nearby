@@ -23,6 +23,7 @@ import org.springframework.web.multipart.support.DefaultMultipartHttpServletRequ
 import com.zhan.app.nearby.bean.City;
 import com.zhan.app.nearby.bean.Tag;
 import com.zhan.app.nearby.bean.UserDynamic;
+import com.zhan.app.nearby.bean.VipUser;
 import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.bean.user.DetailUser;
 import com.zhan.app.nearby.bean.user.LocationUser;
@@ -258,10 +259,13 @@ public class UserController {
 				if (user.getBirth_city_id() > 0) {
 					user.setBirth_city(cityService.getSimpleCity(user.getBirth_city_id()));
 				}
-
+				VipUser vip = userService.loadUserVipInfo(aid, user.getUser_id());
+				if (vip != null && vip.getDayDiff() >= 0) {
+					user.setVip(true);
+				}
 				result.put("user", user);
 				result.put("all_coins", userService.loadUserCoins(aid, user.getUser_id()));
-				result.put("vip", userService.loadUserVipInfo(aid, user.getUser_id()));
+				result.put("vip", vip);
 				return result;
 			} else {
 				return ResultUtil.getResultMap(ERROR.ERR_PASSWORD);
@@ -767,7 +771,14 @@ public class UserController {
 	}
 
 	@RequestMapping("online_list")
-	public ModelMap online_list(int page, int count) {
+	public ModelMap online_list(Integer page, Integer count) {
+		if (page==null||page < 0) {
+			page = 1;
+		}
+
+		if (count==null||count <= 0) {
+			count = 10;
+		}
 		return ResultUtil.getResultOKMap().addAttribute("users", userService.getOnlineUsers(page, count));
 	}
 

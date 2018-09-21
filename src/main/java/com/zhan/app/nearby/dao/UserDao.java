@@ -507,7 +507,7 @@ public class UserDao extends BaseDao {
 	 * @return
 	 */
 	public List<BaseUser> getLikeList(long user_id, Integer page_index, Integer count) {
-		String sql = "select u.user_id,u.nick_name,u.avatar,u.sex from t_user_relationship tur left join t_user u on tur.user_id= u.user_id where tur.with_user_id=? and  tur.relationship=? order by tur.create_time limit ?,?";
+		String sql = "select u.user_id,u.nick_name,u.avatar,u.sex from t_user_relationship tur left join t_user u on tur.user_id= u.user_id where tur.with_user_id=? and  tur.relationship=? order by tur.create_time desc limit ?,?";
 		return jdbcTemplate.query(sql,
 				new Object[] { user_id, Relationship.LIKE.ordinal(), (page_index - 1) * count, count },
 				new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
@@ -692,9 +692,9 @@ public class UserDao extends BaseDao {
 		return jdbcTemplate.queryForList(sql, Long.class);
 	}
 	
-	public void  removeTimeoutOnlineUsers(int timeoutMintes){
-		String sql="delete from t_user_online where check_time >= DATE_SUB(NOW(),INTERVAL ? MINUTE)";
-		 jdbcTemplate.update(sql,new Object[] {timeoutMintes});
+	public void  removeTimeoutOnlineUsers(int timeoutDay){
+		String sql="delete from t_user_online where check_time < DATE_SUB(NOW(),INTERVAL ? DAY)";
+		 jdbcTemplate.update(sql,new Object[] {timeoutDay});
 	}
 	
 }

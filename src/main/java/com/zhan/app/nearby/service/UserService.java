@@ -66,6 +66,8 @@ public class UserService {
 	private GiftService giftService;
 	@Resource
 	private VipDao vipDao;
+	@Resource
+	private DynamicMsgService dynamicMsgService;
 
 	public BaseUser getBasicUser(long id) {
 		return userDao.getBaseUser(id);
@@ -266,7 +268,7 @@ public class UserService {
 
 		user.setAge(DateTimeUtil.getAge(user.getBirthday()));
 
-		List<UserDynamic> dys = userDynamicService.getUserDynamic(user_id_for, 1, 5,true);
+		List<UserDynamic> dys = userDynamicService.getUserDynamic(user_id_for, 1, 5, true);
 		user.setImages(dys);
 		// //
 		// Map<String, Object> userJson = new HashMap<>();
@@ -284,11 +286,11 @@ public class UserService {
 		user.setIs_vip(vipDao.isVip(user_id_for));
 		user.setAvatars(getUserAvatars(user_id_for));
 
-//		if (uid != user_id_for) {
-//			if (!userDao.hadGetContact(uid == null ? 0 : uid, user_id_for == null ? 0 : user_id_for)) {
-//				user.setContact("花费金币查看");
-//			}
-//		}
+		if (!TextUtils.isEmpty(user.getContact()) && uid != user_id_for) {
+			if (!userDao.hadGetContact(uid == null ? 0 : uid, user_id_for == null ? 0 : user_id_for)) {
+				user.setContact("花费金币查看");
+			}
+		}
 
 		r.addAttribute("user", user);
 
@@ -572,9 +574,8 @@ public class UserService {
 		r.addAttribute("users", likeMeList);
 		ImagePathUtil.completeAvatarsPath(likeMeList, true);
 		if (page_index == 1) {
-			List<BaseUser> likeMeLast = userDao.getLaskLikeMe(user_id);
-			if (likeMeLast != null && likeMeLast.size() > 0) {
-				r.addAttribute("last_one", ImagePathUtil.completeAvatarPath(likeMeLast.get(0), true));
+			if (!likeMeList.isEmpty()) {
+				r.addAttribute("last_one", likeMeList.get(0));
 			} else {
 				r.addAttribute("last_one", null);
 			}
@@ -700,11 +701,11 @@ public class UserService {
 
 		String weixin = userDao.getContact(by_user_id);
 		if (TextUtils.isEmpty(weixin)) {
-			return ResultUtil.getResultOKMap().addAttribute("contract", weixin);
+			return ResultUtil.getResultOKMap().addAttribute("contact", weixin);
 		}
 
 		if (userDao.hadGetContact(user_id, by_user_id)) {
-			return ResultUtil.getResultOKMap().addAttribute("contract", weixin);
+			return ResultUtil.getResultOKMap().addAttribute("contact", weixin);
 		}
 		// 金币减1
 		Map<String, Object> extraData = modifyExtra(user_id, aid, 1, -1);
@@ -727,7 +728,7 @@ public class UserService {
 	public ModelMap autoLogin(long user_id, String md5_pwd, String aid) {
 		boolean exist = userDao.checkExistByIdAndPwd(user_id, md5_pwd);
 		if (exist) {
-			String token=UUID.randomUUID().toString();
+			String token = UUID.randomUUID().toString();
 			userDao.updateToken(user_id, token, new Date());
 
 			saveUserOnline(user_id);
@@ -765,7 +766,7 @@ public class UserService {
 
 	public void removeTimeoutOnlineUsers(int timeoutMaxMinute) {
 		userDao.removeTimeoutOnlineUsers(timeoutMaxMinute);
-		
+
 	}
 
 }

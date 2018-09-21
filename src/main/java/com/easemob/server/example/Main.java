@@ -14,6 +14,7 @@ import com.easemob.server.example.comm.wrapper.BodyWrapper;
 import com.easemob.server.example.comm.wrapper.ResponseWrapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.zhan.app.nearby.comm.PushMsgType;
 import com.zhan.app.nearby.util.JSONUtil;
 
 public class Main {
@@ -107,6 +108,18 @@ public class Main {
 
 		// boolean r = disconnectUser("41");
 		// System.out.println(r);
+		
+		
+		
+		
+		Map<String, String> ext = new HashMap<String, String>();
+		ext.put("nickname", "27");
+		ext.put("avatar", "测试");
+		ext.put("origin_avatar", "http://www.abc");
+		ext.put("bottle_id", "20");
+		Object obj=sendTxtMessage(String.valueOf(27), new String[] { String.valueOf(41) }, "测试", ext,
+				PushMsgType.TYPE_NEW_CONVERSATION);
+		System.out.println(obj.toString());
 
 	}
 

@@ -53,8 +53,9 @@ td {
 				<tr>
 					<th width="5%">ID</th>
 					<th width="10%">发送者</th>
+					<th width="10%">avatar</th>
 					<th width="5%">瓶子类型</th>
-					<th width="30%">瓶子内容</th>
+					<th width="20%">瓶子内容</th>
 					<th width="10%">发送时间</th>
 					<th width="5%">状态</th>
 					<th width="35%">操作</th>
@@ -192,6 +193,7 @@ td {
 			 var nick_name=pageData.sender.nick_name;
 			 nick_name=nick_name==undefined?"":nick_name;
 			 toAdd+="<td>"+nick_name+"</td>";
+			 toAdd+="<td><img  src='"+pageData.sender.avatar+"' alt='"+pageData.sender.origin_avatar+"'  height='50'/></td>";
 			 //类型
 			 var type=pageData["type"];
 			 var typeStr=type;
@@ -212,7 +214,12 @@ td {
 			 }
 			 
 			 toAdd+="<td>"+typeStr+"</td>";
-			 toAdd+="<td>"+pageData["content"]+"</td>";
+			 if(type==3){
+				 toAdd+="<td><img  src='"+pageData["content"]+"' alt='"+pageData["content"]+"'  height='50'/></td>";
+			 }else{
+				 toAdd+="<td>"+pageData["content"]+"</td>";
+			 }
+			
 			 toAdd+="<td>"+pageData['create_time']+"</td>";
 			 
 			 var state=pageData["state"];

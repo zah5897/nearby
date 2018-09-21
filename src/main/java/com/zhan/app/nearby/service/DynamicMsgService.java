@@ -15,12 +15,14 @@ import org.springframework.ui.ModelMap;
 import com.easemob.server.example.Main;
 import com.zhan.app.nearby.bean.DynamicComment;
 import com.zhan.app.nearby.bean.DynamicMessage;
+import com.zhan.app.nearby.bean.type.DynamicMsgStatus;
 import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.comm.DynamicMsgType;
 import com.zhan.app.nearby.comm.PushMsgType;
 import com.zhan.app.nearby.comm.Relationship;
 import com.zhan.app.nearby.dao.DynamicMsgDao;
 import com.zhan.app.nearby.dao.UserDao;
+import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.PushUtils;
 import com.zhan.app.nearby.util.ResultUtil;
@@ -49,6 +51,12 @@ public class DynamicMsgService {
 	 * @return
 	 */
 	public long insertActionMsg(DynamicMsgType type, long by_user_id, long dynamic_id, long user_id, String content) {
+		
+		
+		if (hasExistDyMsg(DynamicMsgType.TYPE_MEET, user_id, dynamic_id, user_id)) {
+			return 0;
+		}
+		
 		DynamicMessage msg = new DynamicMessage();
 		msg.setUser_id(user_id);
 		msg.setBy_user_id(by_user_id);
@@ -56,6 +64,7 @@ public class DynamicMsgService {
 		msg.setType(type.ordinal());
 		msg.setContent(content);
 		msg.setCreate_time(new Date());
+		msg.setStatus(DynamicMsgStatus.DEFAULE.ordinal());
 		long id = dynamicMsgDao.insert(msg);
 		PushUtils.pushActionMsg(redisTemplate, id, type, user_id, dynamic_id);
 		return id;
@@ -79,8 +88,18 @@ public class DynamicMsgService {
 		return dynamicMsgDao.updateState(id);
 	}
 
+	
+	public int updateMeetState(long user_id,long target) {
+		return dynamicMsgDao.updateMeetState(user_id,target);
+	}
+	
 	public ModelMap replay(long user_id, long msg_id) {
 		DynamicMessage msg = dynamicMsgDao.loadMsg(msg_id);
+		 
+		if(msg==null) {
+			return ResultUtil.getResultMap(ERROR.ERR_FAILED,"消息不存在").addAttribute("id", msg_id);
+		}
+		
 		dynamicMsgDao.updateState(msg_id);
 		// 邂逅或者表白信的回复
 		
@@ -158,5 +177,22 @@ public class DynamicMsgService {
 	
 	public int delMeetMsg(long user_id,long id) {
 		return dynamicMsgDao.delMeetMsg(user_id, id, DynamicMsgType.TYPE_MEET.ordinal());
+	}
+
+	public BaseUser getLikeLastOne(long user_id) {
+		long id= dynamicMsgDao.getLikeLastOneID(user_id);
+		BaseUser user=	userDao.getBaseUser(id);
+		ImagePathUtil.completeAvatarPath(user, true);
+		return user;
+	}
+	
+	public boolean hasExistDyMsg(DynamicMsgType type, long by_user_id, long dynamic_id, long user_id) {
+	  int count= dynamicMsgDao.getDymanicMsgCount(DynamicMsgType.TYPE_MEET, by_user_id, dynamic_id, user_id);
+	  return count>0;
+	}
+
+	public void replayDynamicMsg(Long user_id, long msg_id) {
+		// TODO Auto-generated method stub
+		  dynamicMsgDao.updateMsgStatus(msg_id,DynamicMsgStatus.HAD_Operation);
 	}
 }

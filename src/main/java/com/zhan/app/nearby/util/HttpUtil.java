@@ -11,6 +11,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 
 public class HttpUtil {
 	/**
@@ -63,6 +69,26 @@ public class HttpUtil {
 				}
 			} catch (Exception e2) {
 				e2.printStackTrace();
+			}
+		}
+		return "";
+	}
+
+	public static String getGet(String url) {
+
+		CloseableHttpClient httpCilent = HttpClients.createDefault();// Creates CloseableHttpClient instance with
+																		// default configuration.
+		HttpGet httpGet = new HttpGet(url);
+		try {
+			HttpResponse httpResponse=	httpCilent.execute(httpGet);
+			 return  EntityUtils.toString(httpResponse.getEntity());//获得返回的结果
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				httpCilent.close();// 释放资源
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
 		}
 		return "";
@@ -166,11 +192,11 @@ public class HttpUtil {
 		List<Integer> ids = new ArrayList<>();
 		int repateCount = 0;
 		for (int i = 0, len = 10; i < len; i++) {
-			Map<String, Object> result = JSONUtil.jsonToMap(
-					HttpUtil.sendGet("http://127.0.0.1:9527/nearby/bottle/list?user_id=41&_ua=111111111111111&count=10"));
+			Map<String, Object> result = JSONUtil.jsonToMap(HttpUtil
+					.sendGet("http://127.0.0.1:9527/nearby/bottle/list?user_id=41&_ua=111111111111111&count=10"));
 			List<Object> bottles = (List<Object>) result.get("bottles");
 			for (Object obj : bottles) {
-				int bottle_id=(int) ((LinkedHashMap<String, Object>)obj).get("id");
+				int bottle_id = (int) ((LinkedHashMap<String, Object>) obj).get("id");
 				if (ids.contains(bottle_id)) {
 					repateCount++;
 				} else {
@@ -178,7 +204,7 @@ public class HttpUtil {
 				}
 			}
 		}
-		System.out.println("重复次数："+repateCount);
+		System.out.println("重复次数：" + repateCount);
 	}
 
 }

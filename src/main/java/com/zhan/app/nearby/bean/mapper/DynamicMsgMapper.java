@@ -19,6 +19,8 @@ public class DynamicMsgMapper implements RowMapper<DynamicMessage> {
 		dynamicMsg.setContent(rs.getString("content"));
 		dynamicMsg.setCreate_time(rs.getTimestamp("create_time"));
 
+		dynamicMsg.setStatus(rs.getInt("status"));
+		
 		dynamicMsg.setType(rs.getInt("type"));
         int isRead=rs.getInt("isReadNum");
         dynamicMsg.setIsReadNum(isRead);

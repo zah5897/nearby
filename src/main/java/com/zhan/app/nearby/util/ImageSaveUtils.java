@@ -217,8 +217,12 @@ public class ImageSaveUtils {
 	 */
 	public static void removeAcatar(String oldFileName) {
 		// 删除大图
-
+         
 		if(TextUtils.isEmpty(oldFileName)) {
+			return;
+		}
+		
+		if(oldFileName.contains("illegal")) {
 			return;
 		}
 		String filePath = getOriginAvatarPath();

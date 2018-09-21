@@ -19,7 +19,10 @@ import com.zhan.app.nearby.bean.type.BottleType;
 import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.bean.user.BaseVipUser;
 import com.zhan.app.nearby.bean.user.LocationUser;
+import com.zhan.app.nearby.bean.user.MeetListUser;
 import com.zhan.app.nearby.comm.BottleState;
+import com.zhan.app.nearby.comm.DynamicMsgType;
+import com.zhan.app.nearby.comm.MsgState;
 import com.zhan.app.nearby.comm.Relationship;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.TextUtils;
@@ -95,13 +98,13 @@ public class BottleDao extends BaseDao {
 			if(type==-1) {
 				String sql = "select b.*,u.nick_name,u.avatar,u.birthday,u.birth_city_id," + getAgeSql()
 				+ ", u.sex ,c.name as city_name from t_bottle_pool p left join  t_bottle b  on p.bottle_id=b.id left join t_user u on b.user_id=u.user_id left join t_sys_city c on u.birth_city_id=c.id"
-				+ " where b.user_id<>? and b.state<>? and b.type<>? and b.type<>? "	+ fiflterBlock(user_id) + "  order by  u.last_login_time desc  limit ?";
+				+ " where b.user_id<>? and b.state<>? and b.type<>? and b.type<>? "	+ fiflterBlock(user_id) + "  order by  rand()  limit ?";
 		        return jdbcTemplate.query(sql, new Object[] { user_id, BottleState.BLACK.ordinal(),BottleType.DM_TXT.ordinal(),BottleType.DM_VOICE.ordinal(),limit}, getBottleMapper());
 			}else {
 				String sql = "select b.*,u.nick_name,u.avatar,u.birthday,u.birth_city_id," + getAgeSql()
 				+ ", u.sex ,c.name as city_name from t_bottle_pool p left join  t_bottle b  on p.bottle_id=b.id left join t_user u on b.user_id=u.user_id left join t_sys_city c on u.birth_city_id=c.id "
 				+ " where b.user_id<>? and b.state<>? and b.type=?  "
-				+ fiflterBlock(user_id)  + " order by u.last_login_time desc   limit ?";
+				+ fiflterBlock(user_id)  + " order by  rand()   limit ?";
 		       return jdbcTemplate.query(sql, new Object[] { user_id,BottleState.BLACK.ordinal(), type, limit }, getBottleMapper());
 			}
 		}else {
@@ -109,13 +112,13 @@ public class BottleDao extends BaseDao {
 				String sql = "select b.*,u.nick_name,u.avatar,u.birthday,u.birth_city_id," + getAgeSql()
 				+ ", u.sex ,c.name as city_name from t_bottle_pool p left join  t_bottle b  on p.bottle_id=b.id left join t_user u on b.user_id=u.user_id left join t_sys_city c on u.birth_city_id=c.id"
 				+ "  where b.user_id<>? and b.state=?  and b.type<>? and b.type<>? "
-				+ fiflterBlock(user_id) + "  order by u.last_login_time desc   limit ?";
+				+ fiflterBlock(user_id) + "  order by  rand()   limit ?";
 		        return jdbcTemplate.query(sql,new Object[] { user_id, state.ordinal(),BottleType.DM_TXT.ordinal(),BottleType.DM_VOICE.ordinal(),limit },getBottleMapper());
 			}else {
 				String sql = "select b.*,u.nick_name,u.avatar,u.birthday,u.birth_city_id," + getAgeSql()
 				+ ", u.sex ,c.name as city_name from t_bottle_pool p left join  t_bottle b  on p.bottle_id=b.id left join t_user u on b.user_id=u.user_id left join t_sys_city c on u.birth_city_id=c.id "
 				+ " where b.user_id<>? and b.state=? and b.type=?  "
-				+ fiflterBlock(user_id)  + " order by u.last_login_time desc   limit ?";
+				+ fiflterBlock(user_id)  + " order by  rand()  limit ?";
 	        	return jdbcTemplate.query(sql,new Object[] { user_id,state.ordinal(), type,limit },	getBottleMapper());
 			}
 		}
@@ -312,7 +315,7 @@ public class BottleDao extends BaseDao {
 		return saveObjSimple(jdbcTemplate, "t_user_express", express);
 	}
 
-	public int clearExpireAudioBottle(int maxValidate) {
+	public int clearExpireBottle(int maxValidate) {
 		String sql = "delete from t_bottle_pool where  type=? and round((UNIX_TIMESTAMP(now())-UNIX_TIMESTAMP(create_time))/60)>=?";
 		return jdbcTemplate.update(sql, new Object[] { BottleType.VOICE.ordinal(), maxValidate });
 	}
@@ -342,15 +345,15 @@ public class BottleDao extends BaseDao {
 		Object[] param;
 		String sql;
 		if(bottle_id>0) {
-			sql = "select b.*,u.nick_name from t_bottle_pool p left join  t_bottle b on p.bottle_id=b.id left join t_user u on b.user_id=u.user_id where b.id=? and  b.state=? order by p.create_time  desc limit ?,?";	
+			sql = "select b.*,u.nick_name,u.avatar from t_bottle_pool p left join  t_bottle b on p.bottle_id=b.id left join t_user u on b.user_id=u.user_id where b.id=? and  b.state=? order by p.create_time  desc limit ?,?";	
 			if(state == -1) {
-				sql = "select b.*,u.nick_name from t_bottle_pool p left join  t_bottle b on p.bottle_id=b.id left join t_user u on b.user_id=u.user_id where b.id=? and  b.state<>? order by p.create_time desc limit ?,?";
+				sql = "select b.*,u.nick_name,u.avatar from t_bottle_pool p left join  t_bottle b on p.bottle_id=b.id left join t_user u on b.user_id=u.user_id where b.id=? and  b.state<>? order by p.create_time desc limit ?,?";
 			}
 			param=new Object[] {bottle_id, state, (pageIndex - 1) * pageSize, pageSize };
 		}else {
-			sql = "select b.*,u.nick_name from t_bottle_pool p left join  t_bottle b on p.bottle_id=b.id left join t_user u on b.user_id=u.user_id where   b.state=? order by p.create_time  desc limit ?,?";	
+			sql = "select b.*,u.nick_name,u.avatar from t_bottle_pool p left join  t_bottle b on p.bottle_id=b.id left join t_user u on b.user_id=u.user_id where   b.state=? order by p.create_time  desc limit ?,?";	
 			if(state == -1) {
-				sql = "select b.*,u.nick_name from t_bottle_pool p left join  t_bottle b on p.bottle_id=b.id left join t_user u on b.user_id=u.user_id where     b.state<>? order by p.create_time desc limit ?,?";
+				sql = "select b.*,u.nick_name,u.avatar from t_bottle_pool p left join  t_bottle b on p.bottle_id=b.id left join t_user u on b.user_id=u.user_id where     b.state<>? order by p.create_time desc limit ?,?";
 			}
 			param=new Object[] { state, (pageIndex - 1) * pageSize, pageSize };
 		}
@@ -364,6 +367,8 @@ public class BottleDao extends BaseDao {
 						BaseUser u = new BaseUser();
 						u.setUser_id(rs.getLong("user_id"));
 						u.setNick_name(rs.getString("nick_name"));
+						u.setAvatar(rs.getString("avatar"));
+						ImagePathUtil.completeAvatarPath(u, true);
 						b.setSender(u);
 						return b;
 					}
@@ -419,9 +424,14 @@ public class BottleDao extends BaseDao {
 		return 0;
 	}
      //清理7天以前的数据
-	public void clearExpireBottle() {
+	public void clearExpireAudioBottle() {
 		String sql="delete from    t_bottle_pool where DATEDIFF(create_time,now()) <-7";
 		jdbcTemplate.update(sql);
+	}
+
+	public List<MeetListUser> getMeetList(long user_id, int page, int count) {
+		String sql="select msg.create_time, u.user_id,u.nick_name,u.avatar,u.sex ,u.type from t_dynamic_msg msg left join t_user u on msg.by_user_id=u.user_id where msg.user_id=? and msg.type=? and msg.isReadNum=? order by msg.create_time desc limit ?,?";
+		return jdbcTemplate.query(sql,new Object[] {user_id,DynamicMsgType.TYPE_MEET.ordinal(),MsgState.NUREAD.ordinal(),(page-1)*count,count},new BeanPropertyRowMapper<MeetListUser>(MeetListUser.class));
 	}
 	
 }

@@ -23,6 +23,7 @@ import com.zhan.app.nearby.bean.ManagerUser;
 import com.zhan.app.nearby.bean.Report;
 import com.zhan.app.nearby.bean.Topic;
 import com.zhan.app.nearby.bean.UserDynamic;
+import com.zhan.app.nearby.bean.type.BottleType;
 import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.comm.DynamicState;
 import com.zhan.app.nearby.comm.FoundUserRelationship;
@@ -777,6 +778,14 @@ public class ManagerController {
 	public @ResponseBody ModelMap list_bottle(int type, int pageSize, int pageIndex,Long bottle_id) {
 		ModelMap r = ResultUtil.getResultOKMap();
 		List<Bottle> exchanges = managerService.listBottleByState(type, pageSize, pageIndex,bottle_id);
+		
+		
+		for(Bottle b:exchanges) {
+			if(b.getType()==BottleType.MEET.ordinal()) {
+				b.setContent(managerService.getMeetUserAvatar(b.getContent()));
+			}
+		}
+		
 		if (pageIndex == 1) {
 			int totalSize = managerService.getBottleCountWithState(type,bottle_id);
 			int pageCount = totalSize / pageSize;

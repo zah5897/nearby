@@ -197,4 +197,11 @@ public class DynamicController {
 	}
 	
 
+	
+	@RequestMapping("replay_dynamic_msg")
+	public ModelMap replay_dynamic_msg(Long user_id,long msg_id) {
+		  dynamicMsgService.replayDynamicMsg(user_id, msg_id);
+		  return ResultUtil.getResultOKMap().addAttribute("msg_id", msg_id);
+	}
+	
 }

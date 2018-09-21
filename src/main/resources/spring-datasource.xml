@@ -16,7 +16,7 @@
 
 	<!-- 加载资源文件 其中包含变量信息，必须在Spring配置文件的最前面加载，即第一个加载 -->
 	
-	<context:property-placeholder location="classpath:mysql2.properties" />
+	<context:property-placeholder location="classpath:mysql.properties" />
 
 	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
 		destroy-method="close">

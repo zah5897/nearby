@@ -23,7 +23,7 @@ public class BottleController {
 	private MainService mainService;
 
 	@RequestMapping("send")
-	public ModelMap send(Bottle bottle,String aid) {
+	public ModelMap send(Bottle bottle, String aid) {
 
 		if (bottle.getUser_id() <= 0) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
@@ -35,7 +35,7 @@ public class BottleController {
 		if (bottleService.isBlockUser(bottle.getUser_id())) {
 			return ResultUtil.getResultMap(ERROR.ERR_FAILED, "该帐号状态异常");
 		}
-		bottleService.send(bottle,aid);
+		bottleService.send(bottle, aid);
 		return ResultUtil.getResultOKMap().addAttribute("bottle", bottle);
 	}
 
@@ -44,10 +44,10 @@ public class BottleController {
 		return bottleService.getBottles(user_id == null ? 0 : user_id, count == null ? 5 : count, look_sex, type,
 				state);
 	}
+
 	@RequestMapping("list_dm")
 	public ModelMap list_dm(Long user_id, Integer count, Integer look_sex, Integer type, Integer state) {
-		return bottleService.getDMBottles(user_id == null ? 0 : user_id, count == null ? 5 : count,type,
-				state);
+		return bottleService.getDMBottles(user_id == null ? 0 : user_id, count == null ? 5 : count, type, state);
 	}
 
 	@RequestMapping("load")
@@ -60,7 +60,7 @@ public class BottleController {
 
 	@RequestMapping("mine")
 	public ModelMap mine(long user_id, Integer page, Integer page_size) {
-		return bottleService.getMineBottles(user_id, page == null ?1 : page, page_size == null ? 10 : page_size);
+		return bottleService.getMineBottles(user_id, page == null ? 1 : page, page_size == null ? 10 : page_size);
 	}
 
 	@RequestMapping("scan")
@@ -89,8 +89,19 @@ public class BottleController {
 		return bottleService.replay(user_id, target, msg, bottle_id);
 	}
 
+	
+	@RequestMapping("replay_meet")
+	public ModelMap replay(long user_id, long target) {
+		return bottleService.replay_meet(user_id, target);
+	}
+	
 	@RequestMapping("express/{to_user_id}")
 	public ModelMap like(@PathVariable long to_user_id, long user_id, String content) {
 		return bottleService.express(user_id, to_user_id, content);
+	}
+
+	@RequestMapping("meet_list/{user_id}")
+	public ModelMap like(@PathVariable long user_id, Integer page, Integer count) {
+		return bottleService.meetList(user_id, page, count);
 	}
 }

@@ -7,6 +7,7 @@ import java.util.Map;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -85,7 +86,21 @@ public class GiftController {
 	@RequestMapping("notice")
 	public ModelMap notice(String aid,long user_id, Integer page, Integer count) {
 		List<GiftOwn> owns = giftService.notice(aid,user_id, page, count);
-		return ResultUtil.getResultOKMap().addAttribute("notice", owns);
+		ModelMap r=ResultUtil.getResultOKMap().addAttribute("notice", owns);
+		if(owns.isEmpty()) {
+			r.addAttribute("hasMore", false);
+		}else if(count==null)  {
+			if(owns.size()==10) {
+				r.addAttribute("hasMore", true);
+			}else {
+				r.addAttribute("hasMore", false);
+			}
+		}else if(owns.size()==count) {
+			r.addAttribute("hasMore", true);
+		}else {
+			r.addAttribute("hasMore", false);
+		}
+		return r;
 	}
 
 }

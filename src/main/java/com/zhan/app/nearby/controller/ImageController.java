@@ -20,6 +20,7 @@ import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.service.UserDynamicService;
 import com.zhan.app.nearby.service.UserService;
 import com.zhan.app.nearby.util.AddressUtil;
+import com.zhan.app.nearby.util.BottleKeyWordUtil;
 import com.zhan.app.nearby.util.IPUtil;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.ImageSaveUtils;
@@ -79,6 +80,10 @@ public class ImageController {
 					try {
 						String imagePath = ImageSaveUtils.saveUserImages(file);
 						dynamic.setUser_id(user_id);
+						String content=BottleKeyWordUtil.filterContent(dynamic.getDescription());
+						dynamic.setDescription(content);
+						
+						
 						dynamic.setState(DynamicState.T_CREATE.ordinal());
 						dynamic.setLocal_image_name(imagePath);
 						dynamic.setCreate_time(new Date());

@@ -196,7 +196,7 @@ public class MainService {
 		return ResultUtil.getResultOKMap();
 	}
 
-	private void makeChatSession(BaseUser user, BaseUser with_user) {
+	public void makeChatSession(BaseUser user, BaseUser with_user) {
 		ImagePathUtil.completeAvatarPath(with_user, true);
 		ImagePathUtil.completeAvatarPath(user, true);
 

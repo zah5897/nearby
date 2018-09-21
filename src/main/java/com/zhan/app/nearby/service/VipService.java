@@ -17,6 +17,7 @@ import com.zhan.app.nearby.bean.VipUser;
 import com.zhan.app.nearby.dao.VipDao;
 import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.util.DateTimeUtil;
+import com.zhan.app.nearby.util.HttpUtil;
 import com.zhan.app.nearby.util.HttpsUtil;
 import com.zhan.app.nearby.util.JSONUtil;
 import com.zhan.app.nearby.util.PropertiesUtil;
@@ -59,7 +60,7 @@ public class VipService {
 		}
 		Vip vip = vipDao.load(vipUser.getVip_id());
 		if (vip == null) {
-			return ResultUtil.getResultMap(ERROR.ERR_NOT_EXIST, "该礼物不存在");
+			return ResultUtil.getResultMap(ERROR.ERR_NOT_EXIST, "该VIP不存在");
 		}
 		if (TextUtils.isEmpty(vipUser.getAid())) {
 			return ResultUtil.getResultMap(ERROR.ERR_NOT_EXIST, "app not exist");
@@ -70,13 +71,25 @@ public class VipService {
 			MODULE_ORDER_URL = value;
 		}
 		String result = null;
+//		try {
+//			result = HttpsUtil.sendHttpsPost(MODULE_ORDER_URL + "?user_id=" + vipUser.getUser_id() + "&aid="
+//					+ vipUser.getAid() + "&rule_id=" + vipUser.getVip_id() + "&subject=" + vip.getName() + "&amount="
+//					+ vip.getAmount() + "&type=1");
+//		} catch (Exception e) {
+//			log.error("购买失败" + e.getMessage());
+//		}
+		
+		
+		
 		try {
-			result = HttpsUtil.sendHttpsPost(MODULE_ORDER_URL + "?user_id=" + vipUser.getUser_id() + "&aid="
-					+ vipUser.getAid() + "&rule_id=" + vipUser.getVip_id() + "&subject=" + vip.getName() + "&amount="
+			String name=vip.getName();
+			result = HttpUtil.getGet(MODULE_ORDER_URL + "?user_id=" + vipUser.getUser_id() + "&aid="
+					+ vipUser.getAid() + "&rule_id=" + vipUser.getVip_id() + "&subject=" + name + "&amount="
 					+ vip.getAmount() + "&type=1");
 		} catch (Exception e) {
 			log.error("购买失败" + e.getMessage());
 		}
+		
 		if (!TextUtils.isEmpty(result)) {
 			return JSONUtil.jsonToMap(result);
 		}

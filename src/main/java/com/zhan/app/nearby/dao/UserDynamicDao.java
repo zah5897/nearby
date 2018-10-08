@@ -44,31 +44,53 @@ public class UserDynamicDao extends BaseDao {
 
 	public List<UserDynamic> getHomeFoundSelected(long user_id, long last_id, int page_size, City city) {
 		String sql;
+		Object[] param;
 		if (user_id > 0) {
-			sql = "select dynamic.*,"
-					+ "coalesce((select relationship from t_like_dynamic t_like where t_like.dynamic_id=dynamic.id and t_like.user_id=?), '0') as like_state ,"
-					+ "user.user_id  ," + "user.nick_name ," + "user.avatar," + "user.sex ," + "user.birthday ,"
-					+ "user.type " + "from " + TABLE_USER_DYNAMIC + " dynamic left join " + TABLE_HOME_FOUND_SELECTED
-					+ " selected on dynamic.id=selected.dynamic_id left join t_user user on  dynamic.user_id=user.user_id  "
-					+ "where selected.selected_state=? and dynamic.id<? and " + cityIn(city) + fiflterBlock()
-					+ "  order by dynamic.id desc limit ?";
+			if(city!=null) {
+				sql = "select dynamic.*,"
+						+ "coalesce((select relationship from t_like_dynamic t_like where t_like.dynamic_id=dynamic.id and t_like.user_id=?), '0') as like_state ,"
+						+ "user.user_id  ," + "user.nick_name ," + "user.avatar," + "user.sex ," + "user.birthday ,"
+						+ "user.type " + "from " + TABLE_USER_DYNAMIC + " dynamic left join " + TABLE_HOME_FOUND_SELECTED
+						+ " selected on dynamic.id=selected.dynamic_id left join t_user user on  dynamic.user_id=user.user_id  "
+						+ "where selected.selected_state=? and dynamic.id<? and " + cityIn(city) + fiflterBlock()
+						+ "  order by dynamic.id desc limit ?";
 
-			Object[] param;
+				
 
-			param = new Object[] { user_id, ImageStatus.SELECTED.ordinal(), last_id <= 0 ? Long.MAX_VALUE : last_id,
-					city.getId(), user_id, Relationship.BLACK.ordinal(), page_size };
+				param = new Object[] { user_id, ImageStatus.SELECTED.ordinal(), last_id <= 0 ? Long.MAX_VALUE : last_id,
+						city.getId(), user_id, Relationship.BLACK.ordinal(), page_size };
+			}else {
+				sql = "select dynamic.*,"
+						+ "coalesce((select relationship from t_like_dynamic t_like where t_like.dynamic_id=dynamic.id and t_like.user_id=?), '0') as like_state ,"
+						+ "user.user_id  ," + "user.nick_name ," + "user.avatar," + "user.sex ," + "user.birthday ,"
+						+ "user.type " + "from " + TABLE_USER_DYNAMIC + " dynamic left join " + TABLE_HOME_FOUND_SELECTED
+						+ " selected on dynamic.id=selected.dynamic_id left join t_user user on  dynamic.user_id=user.user_id  "
+						+ "where selected.selected_state=? and dynamic.id<? "+ fiflterBlock()
+						+ "  order by dynamic.id desc limit ?";
+				param = new Object[] { user_id, ImageStatus.SELECTED.ordinal(), last_id <= 0 ? Long.MAX_VALUE : last_id, user_id, Relationship.BLACK.ordinal(), page_size };
+			}
 			return jdbcTemplate.query(sql, param, new DynamicMapper());
 		} else {
+			if(city!=null) {
+				sql = "select dynamic.* ,"
+						+ "user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday,user.type from "
+						+ TABLE_USER_DYNAMIC + " dynamic left join " + TABLE_HOME_FOUND_SELECTED
+						+ " selected on dynamic.id=selected.dynamic_id left join t_user user on  dynamic.user_id=user.user_id "
+						+ "where selected.selected_state=? and dynamic.id<? and " + cityIn(city)
+						+ " order by dynamic.id desc limit ?";
 
-			sql = "select dynamic.* ,"
-					+ "user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday,user.type from "
-					+ TABLE_USER_DYNAMIC + " dynamic left join " + TABLE_HOME_FOUND_SELECTED
-					+ " selected on dynamic.id=selected.dynamic_id left join t_user user on  dynamic.user_id=user.user_id "
-					+ "where selected.selected_state=? and dynamic.id<? and " + cityIn(city)
-					+ " order by dynamic.id desc limit ?";
+			  param = new Object[] { ImageStatus.SELECTED.ordinal(), last_id <= 0 ? Long.MAX_VALUE : last_id,
+						city.getId(), page_size };
+			}else {
+				sql = "select dynamic.* ,"
+						+ "user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday,user.type from "
+						+ TABLE_USER_DYNAMIC + " dynamic left join " + TABLE_HOME_FOUND_SELECTED
+						+ " selected on dynamic.id=selected.dynamic_id left join t_user user on  dynamic.user_id=user.user_id "
+						+ "where selected.selected_state=? and dynamic.id<?  order by dynamic.id desc limit ?";
 
-			Object[] param = new Object[] { ImageStatus.SELECTED.ordinal(), last_id <= 0 ? Long.MAX_VALUE : last_id,
-					city.getId(), page_size };
+				  param = new Object[] { ImageStatus.SELECTED.ordinal(), last_id <= 0 ? Long.MAX_VALUE : last_id, page_size };
+			}
+			
 			return jdbcTemplate.query(sql, param, new DynamicMapper());
 		}
 	}

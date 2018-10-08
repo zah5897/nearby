@@ -126,6 +126,18 @@ function showAuth(img){
 
 
 
+
+function toast(msg){
+    setTimeout(function(){
+        document.getElementsByClassName('toast-wrap')[0].getElementsByClassName('toast-msg')[0].innerHTML=msg;
+        var toastTag = document.getElementsByClassName('toast-wrap')[0];
+        toastTag.className = toastTag.className.replace('toastAnimate','');
+        setTimeout(function(){
+            toastTag.className = toastTag.className + ' toastAnimate';
+        }, 100);
+    },500);
+  }
+
 </script>
 <ul class="bread">
   <li><a href="<%=path %>/manager/forword?path=welcome" target="right"  class="icon-home"> 首页</a></li>
@@ -133,6 +145,11 @@ function showAuth(img){
 </ul>
 <div class="admin">
   <iframe scrolling="auto" rameborder="0" src="<%=path %>/manager/forword?path=welcome" name="right" width="100%" height="100%"></iframe>
+  
+  <div class="toast-wrap">
+            <span class="toast-msg"></span>
+  </div>
+  
 </div>
 </body>
 </html>

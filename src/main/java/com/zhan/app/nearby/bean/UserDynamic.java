@@ -32,7 +32,7 @@ public class UserDynamic implements Serializable {
 	private String region;
 
 	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-	@JsonFormat(pattern = "yyyy-MM-dd", locale = "zh", timezone = "GMT+8")
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", locale = "zh", timezone = "GMT+8")
 	private Date create_time;
 
 	@JsonIgnore

@@ -221,8 +221,11 @@
 		function add_to_found_black_list(user_id){
 			$.post("<%=path%>/manager/edit_user_found_state",{'user_id':user_id,'fun':1,'state':1},function(result){
 				 var json=JSON.parse(result);
-			        if(json.code==0){
-			        	 alert("操作成功！");
+				 if(json.code==0){
+			        	parent.toast("操作成功！");
+			        	$("#black_"+user_id).hide();
+			        }else{
+			        	parent.toast("操作失败！");
 			        }
 		    });
 		}
@@ -242,8 +245,11 @@
 		function add_to_found_user(user_id){
 			$.post("<%=path%>/manager/edit_user_found_state",{'user_id':user_id,'fun':1,'state':0},function(result){
 				 var json=JSON.parse(result);
-			        if(json.code==0){
-			        	 alert("操作成功！");
+				 if(json.code==0){
+			        	parent.toast("操作成功！");
+			        	$("#found_"+user_id).hide();
+			        }else{
+			        	parent.toast("操作失败！");
 			        }
 		    });
 		}
@@ -251,7 +257,10 @@
 			$.post("<%=path%>/manager/edit_user_meet_bottle_recomend",{'user_id':user_id,'fun':1},function(result){
 				 var json=JSON.parse(result);
 			        if(json.code==0){
-			        	 alert("操作成功！");
+			        	parent.toast("操作成功！");
+			        	$("#meet_"+user_id).hide();
+			        }else{
+			        	parent.toast("操作失败！");
 			        }
 		    });
 		}
@@ -291,16 +300,16 @@
 			 //操作单元格
 			  toAdd+="<td><div class='button-group'>";
 			  
-			  toAdd+="<a class='button border-main' href='javascript:void(0)'	onclick='return edit_fun("+user_id+")'><span class='icon-edit'></span>编辑限制</a>";
-			  toAdd+="<a class='button border-main' href='javascript:void(0)'	onclick='return add_to_meet_bottle("+user_id+")'><span class='icon-edit'></span>加入邂逅瓶待选区</a>";
-			  toAdd+="<a class='button border-main' href='javascript:void(0)'	onclick='return add_to_found_user("+user_id+")'><span class='icon-edit'></span>添加到发现用户</a>";
+			  toAdd+="<a class='button border-main' href='javascript:void(0)' id='"+user_id+"'	onclick='return edit_fun("+user_id+")'><span class='icon-edit'></span>编辑限制</a>";
+			  toAdd+="<a class='button border-main' id='meet_"+user_id+"' href='javascript:void(0)'	onclick='return add_to_meet_bottle("+user_id+")'><span class='icon-edit'></span>加入邂逅瓶待选区</a>";
+			  toAdd+="<a class='button border-main' href='javascript:void(0)' id='found_"+user_id+"'	onclick='return add_to_found_user("+user_id+")'><span class='icon-edit'></span>添加到发现用户</a>";
 			  
 			  
 			  if(pageData.avatar&&pageData.avatar.indexOf('illegal.jpg')==-1){
 				  toAdd+="<a id="+user_id+" class='button border-yellow' href='javascript:void(0)'	onclick='return edit_avatar_state("+user_id+")'><span class='icon-edit'></span>头像违法</a>";
 			  }
 		
-			  toAdd+="<a class='button border-yellow' href='javascript:void(0)'	onclick='return add_to_found_black_list("+user_id+")'><span class='icon-edit'></span>加入黑名单</a>";
+			  toAdd+="<a class='button border-yellow' id='bleac_"+user_id+"' href='javascript:void(0)'	onclick='return add_to_found_black_list("+user_id+")'><span class='icon-edit'></span>加入黑名单</a>";
 			  
 			  toAdd+="</div></td></tr>";
 			 tr.after(toAdd);

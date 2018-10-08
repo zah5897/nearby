@@ -101,14 +101,10 @@ public class MainService {
 			user_id = 0l;
 		}
 		if (city_id == null || city_id < 0) {
-			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "city_id err");
+			city_id=0;
 		}
 		City city = cityService.getFullCity(city_id);
-		if (city == null) {
-			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "city not found");
-		}
 		List<UserDynamic> dynamics = userDynamicDao.getHomeFoundSelected(user_id, last_id, realCount, city);
-
 		ModelMap result = ResultUtil.getResultOKMap();
 		if (dynamics == null || dynamics.size() < realCount) {
 			result.put("hasMore", false);

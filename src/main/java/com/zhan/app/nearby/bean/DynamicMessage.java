@@ -23,7 +23,9 @@ public class DynamicMessage {
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm", locale = "zh", timezone = "GMT+8")
 	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
 	private Date create_time;
-
+	
+	@ColumnType
+	private long create_time_v2;
 	
 	private int isReadNum;
 	@ColumnType
@@ -97,6 +99,7 @@ public class DynamicMessage {
 
 	public void setCreate_time(Date create_time) {
 		this.create_time = create_time;
+		this.create_time_v2=create_time.getTime()/1000;
 	}
 
 	public long getBy_user_id() {
@@ -131,6 +134,8 @@ public class DynamicMessage {
 		this.status = status;
 	}
 
-	 
+	 public long getCreate_time_v2() {
+		return create_time_v2;
+	}
 
 }

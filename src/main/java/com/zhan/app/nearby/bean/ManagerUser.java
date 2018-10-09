@@ -3,6 +3,7 @@ package com.zhan.app.nearby.bean;
 import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.zhan.app.nearby.annotation.ColumnType;
 import com.zhan.app.nearby.comm.UserType;
 
 public class ManagerUser {
@@ -17,6 +18,8 @@ public class ManagerUser {
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", locale = "zh", timezone = "GMT+8")
 	private Date create_time;
 
+	@ColumnType
+	private long create_time_v2;
 	// 区分游客和正式用户
 	private short type = (short) UserType.OFFIEC.ordinal(); // 默认为正式用户
 
@@ -96,9 +99,14 @@ public class ManagerUser {
 
 	public void setCreate_time(Date create_time) {
 		this.create_time = create_time;
+		this.create_time_v2=create_time.getTime()/1000;
 	}
 
 	public Date getCreate_time() {
 		return create_time;
+	}
+
+	public long getCreate_time_v2() {
+		return create_time_v2;
 	}
 }

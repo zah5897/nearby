@@ -23,6 +23,8 @@ public class DynamicComment {
 	@JsonFormat(pattern = "yyyy-MM-dd", locale = "zh", timezone = "GMT+8")
 	private Date comment_time;
 	@ColumnType
+	private long comment_time_v2;
+	@ColumnType
 	private BaseVipUser user;
 	@JsonIgnore
 	private long at_user_id;
@@ -71,6 +73,7 @@ public class DynamicComment {
 
 	public void setComment_time(Date comment_time) {
 		this.comment_time = comment_time;
+		this.comment_time_v2=comment_time.getTime()/1000;
 	}
 
 	public long getAt_user_id() {
@@ -112,5 +115,7 @@ public class DynamicComment {
 	public void setAt_user(BaseVipUser at_user) {
 		this.at_user = at_user;
 	}
-
+public long getComment_time_v2() {
+	return comment_time_v2;
+}
 }

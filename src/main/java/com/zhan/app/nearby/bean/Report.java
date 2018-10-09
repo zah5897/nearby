@@ -16,8 +16,16 @@ public class Report {
 	private int type;
 	@JsonFormat(pattern = "yyyy-MM-ddyyyy-MM-dd HH:mm:ss", locale = "zh", timezone = "GMT+8")
 	private Date create_time;
+	@ColumnType
+	private long create_time_v2;
+	
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", locale = "zh", timezone = "GMT+8")
 	private Date approval_time;
+	
+	@ColumnType
+	private long approval_time_v2;
+	
+	
 	private int approval_result;
 	@ColumnType
 	private BaseUser user;
@@ -68,6 +76,7 @@ public class Report {
 
 	public void setCreate_time(Date create_time) {
 		this.create_time = create_time;
+		this.create_time_v2=create_time.getTime()/1000;
 	}
 
 	public BaseUser getUser() {
@@ -84,6 +93,7 @@ public class Report {
 
 	public void setApproval_time(Date approval_time) {
 		this.approval_time = approval_time;
+		this.approval_time_v2=approval_time.getTime()/1000;
 	}
 
 	public int getApproval_result() {
@@ -100,5 +110,13 @@ public class Report {
 
 	public void setId(int id) {
 		this.id = id;
+	}
+	
+	public long getCreate_time_v2() {
+		return create_time_v2;
+	}
+	
+	public long getApproval_time_v2() {
+		return approval_time_v2;
 	}
 }

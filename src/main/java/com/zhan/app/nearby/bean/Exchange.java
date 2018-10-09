@@ -4,6 +4,7 @@ import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.zhan.app.nearby.annotation.ColumnType;
 
 public class Exchange {
 	@JsonIgnore
@@ -14,8 +15,15 @@ public class Exchange {
 	private int rmb_fen;
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm", locale = "zh", timezone = "GMT+8")
 	private Date create_time;
+	
+	@ColumnType
+	private long create_time_v2;
+	
+	
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm", locale = "zh", timezone = "GMT+8")
 	private Date finish_time;
+	@ColumnType
+	private long finish_time_v2;
 	private int state;
 
 	public long getUser_id() {
@@ -56,6 +64,7 @@ public class Exchange {
 
 	public void setCreate_time(Date create_time) {
 		this.create_time = create_time;
+		this.create_time_v2=create_time.getTime()/1000;
 	}
 
 	public Date getFinish_time() {
@@ -64,6 +73,7 @@ public class Exchange {
 
 	public void setFinish_time(Date finish_time) {
 		this.finish_time = finish_time;
+		this.finish_time_v2=finish_time.getTime()/1000;
 	}
 
 	public int getState() {
@@ -74,4 +84,10 @@ public class Exchange {
 		this.state = state;
 	}
 
+	public long getCreate_time_v2() {
+		return create_time_v2;
+	}
+	public long getFinish_time_v2() {
+		return finish_time_v2;
+	}
 }

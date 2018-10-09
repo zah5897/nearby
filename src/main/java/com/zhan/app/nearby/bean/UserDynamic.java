@@ -32,9 +32,12 @@ public class UserDynamic implements Serializable {
 	private String region;
 
 	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", locale = "zh", timezone = "GMT+8")
+	@JsonFormat(pattern = "yyyy-MM-dd", locale = "zh", timezone = "GMT+8")
 	private Date create_time;
 
+	@ColumnType
+	private long create_time_v2;
+	
 	@JsonIgnore
 	private String local_image_name;
 
@@ -121,6 +124,7 @@ public class UserDynamic implements Serializable {
 
 	public void setCreate_time(Date create_time) {
 		this.create_time = create_time;
+		this.create_time_v2=create_time.getTime()/1000;
 	}
 
 	public String getThumb() {
@@ -259,4 +263,11 @@ public class UserDynamic implements Serializable {
 		this.state = state;
 	}
 
+	public long getCreate_time_v2() {
+		return create_time_v2;
+	}
+
+	 
+
+	
 }

@@ -11,8 +11,16 @@ public class VipUser {
 	private String aid;
 	@JsonFormat(pattern = "yyyy-MM-dd", locale = "zh", timezone = "GMT+8")
 	private Date start_time;
+	@ColumnType
+	private long start_time_v2;
+	
+	
+	
+	
 	@JsonFormat(pattern = "yyyy-MM-dd", locale = "zh", timezone = "GMT+8")
 	private Date end_time;
+	@ColumnType
+	private Date end_time_v2;
 	private String last_order_no;
 
 	@ColumnType
@@ -47,6 +55,7 @@ public class VipUser {
 
 	public void setStart_time(Date start_time) {
 		this.start_time = start_time;
+		this.start_time_v2=start_time.getTime()/1000;
 	}
 
 	public Date getEnd_time() {
@@ -55,6 +64,7 @@ public class VipUser {
 
 	public void setEnd_time(Date end_time) {
 		this.end_time = end_time;
+		this.end_time_v2=end_time;
 	}
 
 	public String getLast_order_no() {
@@ -73,5 +83,10 @@ public class VipUser {
 		this.dayDiff = dayDiff;
 	}
 
-	 
+	 public long getStart_time_v2() {
+		return start_time_v2;
+	}
+	 public Date getEnd_time_v2() {
+		return end_time_v2;
+	}
 }

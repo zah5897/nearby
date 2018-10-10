@@ -282,7 +282,11 @@
 			 toAdd+="<td><img src='"+pageData.thumb+"' alt='"+pageData.origin+"'   height='50' onclick='show(this)'/></td>";
 			 toAdd+="<td style='word-wrap:break-word'>"+pageData["description"]+"</td>";
 			 toAdd+="<td>"+pageData["city"]+"</td>";
-			 toAdd+="<td>"+pageData["create_time"]+"</td>";
+			 
+			 
+			 var time=parent.dateFtt("yyyy-MM-dd hh:mm:ss",new Date(pageData["create_time_v2"]*1000));
+			 
+			 toAdd+="<td>"+time+"</td>";
 			 toAdd+="<td>"+pageData["praise_count"]+"</td>";
 			 toAdd+="<td><div class='button-group'><a class='button border-main' href='javascript:void(0)'	onclick='return ignore("+pageData["id"]+")'><span class='icon-edit'></span>忽略</a><a class='button border-green' href='javascript:void(0)'	onclick='return add("+pageData["id"]+")'><span class='icon-plus-square-o'></span>添加到首页</a><a class='button border-red' href='javascript:void(0)'	onclick='return del("+pageData["id"]+")'><span class='icon-trash-o'></span>删除</a><a class='button border-yellow' href='javascript:void(0)'	onclick='return illegal("+pageData["id"]+")'><span class='icon-trash-o'></span>违规</a></div></td>";
 			 toAdd+="</tr>";

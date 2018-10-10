@@ -120,7 +120,11 @@ function add_topic(){
 			 toAdd+="<td><img src='"+pageData.big_icon+"' alt='' width='120' height='50' /></td>";
 			 toAdd+="<td>"+pageData.name+"</td>";
 			 toAdd+= "<td>"+pageData.description+"</td>";
-			 toAdd+= "<td>"+pageData.create_time+"</td>";
+			 
+			 
+			 var time=parent.dateFtt("yyyy-MM-dd hh:mm:ss",new Date(pageData["create_time"]));
+			 toAdd+="<td>"+time+"</td>";
+		 
 			 toAdd+=' <td>1</td>';
 			 toAdd+='<td><div class="button-group">';
 		     toAdd+= '<a class="button border-main" href="#add"><span class="icon-edit"></span>编辑</a>';

@@ -381,16 +381,6 @@ public class UserDao extends BaseDao {
 	}
 
 	/**
-	 * 获取用户的动态消息（例如表白信等）
-	 * 
-	 * @param user_id
-	 * @return
-	 */
-	public List<DynamicMessage> getUserDynamicMsgs(long user_id) {
-		return null;
-	}
-
-	/**
 	 * 获取用户总数
 	 * 
 	 * @return
@@ -578,12 +568,12 @@ public class UserDao extends BaseDao {
 
 	public int getUserState(long user_id) {
 		try {
-			return jdbcTemplate.queryForObject("select account_state from  t_user where user_id=?",
+			return jdbcTemplate.queryForObject("select state from  t_found_user_relationship where uid=?",
 					new Object[] { user_id }, Integer.class);
 		} catch (Exception e) {
 			// TODO: handle exception
 		}
-		return AccountStateType.NORMAL.ordinal();
+		return FoundUserRelationship.VISIBLE.ordinal();
 	}
 
 	public int todayCheckInCount(long user_id) {

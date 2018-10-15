@@ -44,6 +44,24 @@ public class BottleKeyWordUtil {
 		}
 		return content;
 	}
+	
+	
+	public static boolean isContainsIllegalKey(String content) {
+		if (TextUtils.isEmpty(content)) {
+			return false;
+		}
+		List<String> bottleKeyWords = loadKeyWolds();
+		if (bottleKeyWords != null && bottleKeyWords.size() > 0) {
+			for (String key : bottleKeyWords) {
+				if(content.contains(key)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	
 
 	public static void saveKeyWord(String keywords) {
 		if (keywords == null) {

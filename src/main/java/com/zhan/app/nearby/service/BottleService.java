@@ -24,6 +24,7 @@ import com.zhan.app.nearby.cache.UserCacheService;
 import com.zhan.app.nearby.comm.AccountStateType;
 import com.zhan.app.nearby.comm.BottleState;
 import com.zhan.app.nearby.comm.DynamicMsgType;
+import com.zhan.app.nearby.comm.FoundUserRelationship;
 import com.zhan.app.nearby.comm.PushMsgType;
 import com.zhan.app.nearby.comm.Relationship;
 import com.zhan.app.nearby.dao.BottleDao;
@@ -83,6 +84,10 @@ public class BottleService {
 		return state == AccountStateType.LOCK.ordinal();
 	}
 
+	public boolean isBlackUser(long user_id) {
+		int state = userDao.getUserState(user_id);
+		return state == FoundUserRelationship.GONE.ordinal();
+	}
 	/**
 	 * 获取非弹幕瓶子
 	 * 
@@ -188,6 +193,10 @@ public class BottleService {
 
 	public void send(Bottle bottle, String aid) {
 
+		
+		
+		
+		
 		if (bottle.getType() == BottleType.DM_TXT.ordinal() || bottle.getType() == BottleType.DM_VOICE.ordinal()) {
 			Map<String, Object> extraData = userService.modifyExtra(bottle.getUser_id(), aid, 1, -1);
 			if (extraData != null && extraData.containsKey("all_coins")) {
@@ -203,14 +212,25 @@ public class BottleService {
 			String newContent = BottleKeyWordUtil.filterContent(bottle.getContent());
 			bottle.setContent(newContent);
 		}
-
+		//从池中清理掉重复的瓶子
+		checkExistAndClear(bottle);
+		
 		bottle.setCreate_time(new Date());
 		bottleDao.insert(bottle);
 		if (bottle.getId() > 0) {
 			bottleDao.insertToPool(bottle);
 		}
 	}
-
+	
+	private void checkExistAndClear(Bottle bottle) {
+        if(bottle.getType() == BottleType.TXT.ordinal()) {
+        	List<Long> existIds=bottleDao.getExistTxtBottle(bottle.getUser_id(),bottle.getContent());
+        	for(Long id:existIds) {
+        		bottleDao.deleteFromPool(id);	
+        	}
+		}
+	}
+	
 	public Bottle getBottleDetial(long bottle_id) {
 		return bottleDao.getBottleById(bottle_id);
 	}

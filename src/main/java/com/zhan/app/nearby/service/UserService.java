@@ -478,10 +478,6 @@ public class UserService {
 		return null;
 	}
 
-	public ModelMap getUserDynamicMsgs(long user_id, String aid) {
-		List<DynamicMessage> msgs = userDao.getUserDynamicMsgs(user_id);
-		return ResultUtil.getResultOKMap().addAttribute("msgs", msgs);
-	}
 
 	public int loadUserCoins(String aid, long user_id) {
 		Map<?, ?> map = HttpService.queryUserCoins(user_id, aid);

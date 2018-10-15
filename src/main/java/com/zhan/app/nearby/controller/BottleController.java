@@ -32,7 +32,7 @@ public class BottleController {
 			return ResultUtil.getResultMap(ERROR.ERR_FREUENT);
 		}
 
-		if (bottleService.isBlockUser(bottle.getUser_id())) {
+		if (bottleService.isBlackUser(bottle.getUser_id())) {
 			return ResultUtil.getResultMap(ERROR.ERR_FAILED, "该帐号状态异常");
 		}
 		bottleService.send(bottle, aid);
@@ -40,7 +40,11 @@ public class BottleController {
 	}
 
 	@RequestMapping("list")
-	public ModelMap list(Long user_id, Integer count, Integer look_sex, Integer type, Integer state) {
+	public ModelMap list(Long user_id, Integer count, Integer look_sex, Integer lock_sex, Integer type, Integer state) {
+		
+		if(lock_sex!=null&&look_sex==null) {
+			look_sex=lock_sex;
+		}	
 		return bottleService.getBottles(user_id == null ? 0 : user_id, count == null ? 5 : count, look_sex, type,
 				state);
 	}

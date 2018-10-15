@@ -433,5 +433,14 @@ public class BottleDao extends BaseDao {
 		String sql="select msg.create_time, u.user_id,u.nick_name,u.avatar,u.sex ,u.type from t_dynamic_msg msg left join t_user u on msg.by_user_id=u.user_id where msg.user_id=? and msg.type=? and msg.isReadNum=? order by msg.create_time desc limit ?,?";
 		return jdbcTemplate.query(sql,new Object[] {user_id,DynamicMsgType.TYPE_MEET.ordinal(),MsgState.NUREAD.ordinal(),(page-1)*count,count},new BeanPropertyRowMapper<MeetListUser>(MeetListUser.class));
 	}
+
+	public List<Long> getExistTxtBottle(long user_id, String content) {
+		String sql="select id from t_bottle where user_id=? and type=? and content=?";
+		return jdbcTemplate.queryForList(sql, new Object[] {user_id,BottleType.TXT.ordinal(),content},Long.class);
+	}
 	
+	
+	public int deleteFromPool(long id) {
+		return jdbcTemplate.update("delete from t_bottle_pool where bottle_id="+id);
+	}
 }

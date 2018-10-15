@@ -36,6 +36,7 @@ import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.service.CityService;
 import com.zhan.app.nearby.service.UserDynamicService;
 import com.zhan.app.nearby.service.UserService;
+import com.zhan.app.nearby.util.BottleKeyWordUtil;
 import com.zhan.app.nearby.util.DateTimeUtil;
 import com.zhan.app.nearby.util.IPUtil;
 import com.zhan.app.nearby.util.ImagePathUtil;
@@ -150,6 +151,10 @@ public class UserController {
 			}
 		}
 
+		
+		user.setNick_name(BottleKeyWordUtil.filterContent(user.getNick_name()));
+		
+		
 		DefaultMultipartHttpServletRequest multipartRequest = null;
 
 		if (request instanceof MultipartHttpServletRequest) {
@@ -526,6 +531,10 @@ public class UserController {
 		if (user == null) {
 			return ResultUtil.getResultMap(ERROR.ERR_USER_NOT_EXIST, "该用户不存在！");
 		}
+		
+		
+		nick_name=BottleKeyWordUtil.filterContent(nick_name);
+		
 		boolean isNick_modify = false;
 		if (user.getNick_name() != null) {
 			if (!user.getNick_name().equals(nick_name)) {

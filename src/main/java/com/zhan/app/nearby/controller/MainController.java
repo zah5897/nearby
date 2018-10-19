@@ -72,6 +72,13 @@ public class MainController {
 		return mainService.found_users(user_id, count, gender);
 	}
 
+	
+	
+	@RequestMapping("new_regist_users")
+	public ModelMap new_regist_users(Integer page,Integer count) {
+		return mainService.newRegistUsers(page, count);
+	}
+	
 	@RequestMapping("report")
 	public ModelMap report(Long user_id, String token, Long dynamic_id) {
 		return ResultUtil.getResultOKMap();

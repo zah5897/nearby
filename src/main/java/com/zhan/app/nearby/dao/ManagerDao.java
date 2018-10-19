@@ -156,12 +156,11 @@ public class ManagerDao extends BaseDao {
 		}
 		int count = jdbcTemplate.queryForObject("select count(*) from t_found_user_relationship where uid=?",
 				new Object[] { uid }, int.class);
-		Object[] colVals = { uid, FoundUserRelationship.GONE.ordinal() };
 		if (count == 0) {
-			String[] columns = { "uid", "state" };
-			return saveObj(jdbcTemplate, tableName, columns, colVals);
+			String[] columns = { "uid", "state" ,"action_time"};
+			return saveObj(jdbcTemplate, tableName, columns, new Object[]  { uid, FoundUserRelationship.GONE.ordinal() ,new Date()}) ;
 		} else {
-			return jdbcTemplate.update("update " + tableName + " set state=? where uid=?", colVals);
+			return jdbcTemplate.update("update " + tableName + " set state=?,action_time where uid=?", new Object[] { FoundUserRelationship.GONE.ordinal(),new Date(),uid});
 		}
 	}
 
@@ -209,11 +208,11 @@ public class ManagerDao extends BaseDao {
 	 * @return
 	 */
 	public int editUserFoundState(long user_id, FoundUserRelationship ship) {
-		int count = jdbcTemplate.update("update t_found_user_relationship set state=? where uid=?",
-				new Object[] { ship.ordinal(), user_id });
+		int count = jdbcTemplate.update("update t_found_user_relationship set state=?,action_time=? where uid=?",
+				new Object[] { ship.ordinal(),new Date(), user_id });
 		if (count !=1) {
-			String sql = "insert into t_found_user_relationship values (?, ?)";
-			return jdbcTemplate.update(sql, new Object[] { user_id, ship.ordinal() });
+			String sql = "insert into t_found_user_relationship values (?, ?,?)";
+			return jdbcTemplate.update(sql, new Object[] { user_id, ship.ordinal() ,new Date()});
 		}
 		return count;
 	}

@@ -85,6 +85,19 @@ public class MainService {
 		return result;
 	}
 
+	public ModelMap newRegistUsers(Integer page, Integer count) {
+		if (page == null || page < 0) {
+			page = 1;
+		}
+		if (count == null || count < 1) {
+			count = 10;
+		}
+		ModelMap result = ResultUtil.getResultOKMap();
+		List<MeiLi> users = userDao.getNewRegistUsers(page, count);
+		result.put("users", users);
+		return result;
+	}
+
 	public ModelMap getHomeFoundSelected(Long user_id, Long last_id, Integer page_size, Integer city_id) {
 
 		if (last_id == null || last_id < 0) {
@@ -101,7 +114,7 @@ public class MainService {
 			user_id = 0l;
 		}
 		if (city_id == null || city_id < 0) {
-			city_id=0;
+			city_id = 0;
 		}
 		City city = cityService.getFullCity(city_id);
 		List<UserDynamic> dynamics = userDynamicDao.getHomeFoundSelected(user_id, last_id, realCount, city);
@@ -270,10 +283,17 @@ public class MainService {
 		if (count == null) {
 			count = 20;
 		}
-		List<MeiLi> meili = giftService.loadMeiLi(type, pageIndex, count);
+		
+		if(type!=3) {
+			List<MeiLi> meili = giftService.loadMeiLi(type, pageIndex, count);
+			return ResultUtil.getResultOKMap().addAttribute("users", meili);
+		}else {
+			return newRegistUsers(1,100);
+		}
+		
 		// 这个地方的rank_list字段用 users
 
-		return ResultUtil.getResultOKMap().addAttribute("users", meili);
+		
 		// return ResultUtil.getResultOKMap().addAttribute("rank_list", meili);
 	}
 
@@ -534,7 +554,7 @@ public class MainService {
 	public void handleReport(int id, boolean isIgnore) {
 		Report report = systemDao.getReport(id);
 		if (report != null) {
-			if(!isIgnore) {
+			if (!isIgnore) {
 				if (report.getType() == 0) {
 					Main.disconnectUser(String.valueOf(report.getTarget_id()));
 					userDao.updateAccountState(report.getTarget_id(), AccountStateType.LOCK.ordinal());
@@ -545,7 +565,5 @@ public class MainService {
 			systemDao.updateReportState(id, isIgnore ? -1 : 1);
 		}
 	}
-
-	
 
 }

@@ -33,7 +33,7 @@ public class BottleController {
 		}
 
 		if (bottleService.isBlackUser(bottle.getUser_id())) {
-			return ResultUtil.getResultMap(ERROR.ERR_FAILED, "该帐号状态异常");
+			return ResultUtil.getResultMap(ERROR.ERR_ACCOUNT_BLACKLIST);
 		}
 		bottleService.send(bottle, aid);
 		return ResultUtil.getResultOKMap().addAttribute("bottle", bottle);

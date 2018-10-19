@@ -14,7 +14,7 @@ public class Report {
 	private String tag_id;
 	private String content;
 	private int type;
-	@JsonFormat(pattern = "yyyy-MM-ddyyyy-MM-dd HH:mm:ss", locale = "zh", timezone = "GMT+8")
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", locale = "zh", timezone = "GMT+8")
 	private Date create_time;
 	@ColumnType
 	private long create_time_v2;
@@ -93,7 +93,9 @@ public class Report {
 
 	public void setApproval_time(Date approval_time) {
 		this.approval_time = approval_time;
-		this.approval_time_v2=approval_time.getTime()/1000;
+		if(approval_time!=null) {
+			this.approval_time_v2=approval_time.getTime()/1000;
+		}
 	}
 
 	public int getApproval_result() {

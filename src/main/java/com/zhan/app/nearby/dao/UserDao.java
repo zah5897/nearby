@@ -11,10 +11,12 @@ import javax.annotation.Resource;
 
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import com.zhan.app.nearby.bean.Avatar;
 import com.zhan.app.nearby.bean.DynamicMessage;
+import com.zhan.app.nearby.bean.MeiLi;
 import com.zhan.app.nearby.bean.mapper.SimpkleUserMapper;
 import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.bean.user.BaseVipUser;
@@ -26,6 +28,7 @@ import com.zhan.app.nearby.comm.FoundUserRelationship;
 import com.zhan.app.nearby.comm.Relationship;
 import com.zhan.app.nearby.comm.UserType;
 import com.zhan.app.nearby.util.DateTimeUtil;
+import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.SQLUtil;
 import com.zhan.app.nearby.util.TextUtils;
 
@@ -320,7 +323,34 @@ public class UserDao extends BaseDao {
 				new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
 		return users;
 	}
+	
+	public List<MeiLi> getNewRegistUsers(int page,int count) {
+		String sql = "select u.*, v.* from t_user u left join (select TIMESTAMPDIFF(DAY,now(),end_time) as dayDiff,user_id from t_user_vip ) v on u.user_id=v.user_id   where v.dayDiff >=0 and  u.type=? order by v.dayDiff,u.user_id desc limit ?,?";
+		List<MeiLi> users = jdbcTemplate.query(sql,
+				new Object[] { UserType.OFFIEC.ordinal(), (page-1)*count, count},
+				new RowMapper<MeiLi>() {
+					@Override
+					public MeiLi mapRow(ResultSet rs, int rowNum) throws SQLException {
+						MeiLi m = new MeiLi();
+						//m.setValue(rs.getInt("week_meili"));
+						//m.setShanbei(rs.getInt("amount"));
+						//m.setBe_like_count(rs.getInt("like_count"));
 
+						BaseUser user = new BaseUser();
+						user.setUser_id(rs.getLong("user_id"));
+						user.setNick_name(rs.getString("nick_name"));
+						user.setAvatar(rs.getString("avatar"));
+						ImagePathUtil.completeAvatarPath(user, true);
+						m.setUser(user);
+						int dayDiff=rs.getInt("dayDiff");
+						m.setIs_vip(dayDiff>=0);
+						return m;
+					}
+
+				});
+		return users;
+	}
+	
 	public List<BaseUser> getRandomMeetBottleUser(int realCount) {
 		String sql = "select u.* from t_user_meet_bottle_recommend mb  left join t_user u on mb.uid=u.user_id order by  RAND() limit ?";
 		List<BaseUser> users = jdbcTemplate.query(sql, new Object[] { realCount },
@@ -430,7 +460,7 @@ public class UserDao extends BaseDao {
 	 * @return
 	 */
 	public List<BaseUser> getFoundUsersByState(int pageSize, int pageIndex, FoundUserRelationship ship) {
-		String sql = "select u.* from t_found_user_relationship bu left join t_user u on bu.uid=u.user_id  where bu.state=? order by bu.uid desc limit ?,?";
+		String sql = "select u.* from t_found_user_relationship bu left join t_user u on bu.uid=u.user_id  where bu.state=? order by bu.action_time desc limit ?,?";
 		return jdbcTemplate.query(sql, new Object[] { ship.ordinal(), (pageIndex - 1) * pageSize, pageSize },
 				new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
 	}

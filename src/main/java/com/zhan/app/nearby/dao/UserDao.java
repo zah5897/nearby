@@ -15,6 +15,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import com.zhan.app.nearby.bean.Avatar;
+import com.zhan.app.nearby.bean.City;
 import com.zhan.app.nearby.bean.DynamicMessage;
 import com.zhan.app.nearby.bean.MeiLi;
 import com.zhan.app.nearby.bean.mapper.SimpkleUserMapper;
@@ -325,7 +326,8 @@ public class UserDao extends BaseDao {
 	}
 	
 	public List<MeiLi> getNewRegistUsers(int page,int count) {
-		String sql = "select u.*, v.* from t_user u left join (select TIMESTAMPDIFF(DAY,now(),end_time) as dayDiff,user_id from t_user_vip ) v on u.user_id=v.user_id   where v.dayDiff >=0 and  u.type=? order by v.dayDiff,u.user_id desc limit ?,?";
+//		String sql = "select u.*, v.* from t_user u left join (select TIMESTAMPDIFF(DAY,now(),end_time) as dayDiff,start_time,user_id from t_user_vip ) v on u.user_id=v.user_id   where v.dayDiff >=0 and  u.type=? order by v.start_time desc limit ?,?";
+		String sql = "select u.*, v.*,c.name as city_name from t_user u left join (select TIMESTAMPDIFF(DAY,now(),end_time) as dayDiff,start_time,user_id from t_user_vip ) v on u.user_id=v.user_id left join t_sys_city c on u.city_id=c.id   where v.dayDiff >=0 and  u.type=? order by v.start_time desc limit ?,?";
 		List<MeiLi> users = jdbcTemplate.query(sql,
 				new Object[] { UserType.OFFIEC.ordinal(), (page-1)*count, count},
 				new RowMapper<MeiLi>() {
@@ -336,7 +338,7 @@ public class UserDao extends BaseDao {
 						//m.setShanbei(rs.getInt("amount"));
 						//m.setBe_like_count(rs.getInt("like_count"));
 
-						BaseUser user = new BaseUser();
+						LocationUser user = new LocationUser();
 						user.setUser_id(rs.getLong("user_id"));
 						user.setNick_name(rs.getString("nick_name"));
 						user.setAvatar(rs.getString("avatar"));
@@ -344,6 +346,17 @@ public class UserDao extends BaseDao {
 						m.setUser(user);
 						int dayDiff=rs.getInt("dayDiff");
 						m.setIs_vip(dayDiff>=0);
+						user.setVip(m.isIs_vip());
+						
+						int cid=rs.getInt("city_id");
+						
+						
+						if(cid>0) {
+							City c=new City();
+							c.setId(cid);
+							c.setName(rs.getString("city_name"));
+							user.setCity(c);
+						}
 						return m;
 					}
 

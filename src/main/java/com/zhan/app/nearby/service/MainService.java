@@ -288,7 +288,7 @@ public class MainService {
 			List<MeiLi> meili = giftService.loadMeiLi(type, pageIndex, count);
 			return ResultUtil.getResultOKMap().addAttribute("users", meili);
 		}else {
-			return newRegistUsers(1,100);
+			return newRegistUsers(pageIndex,count);
 		}
 		
 		// 这个地方的rank_list字段用 users

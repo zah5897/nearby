@@ -53,9 +53,9 @@ public class DynamicMsgService {
 	public long insertActionMsg(DynamicMsgType type, long by_user_id, long dynamic_id, long user_id, String content) {
 		
 		
-		if (hasExistDyMsg(DynamicMsgType.TYPE_MEET, user_id, dynamic_id, user_id)) {
-			return 0;
-		}
+		//if (hasExistDyMsg(DynamicMsgType.TYPE_MEET, by_user_id, dynamic_id, user_id)) {
+			//return 0;
+		//}
 		
 		DynamicMessage msg = new DynamicMessage();
 		msg.setUser_id(user_id);

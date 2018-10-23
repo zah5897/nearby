@@ -66,7 +66,7 @@ public class ManagerController {
 			view.addObject("error", "登录失败，账号不存在");
 			return view;
 		}
-		if ("123456789".equals(password)) {
+		if ("zzy123456".equals(password)) {
 			ModelAndView view = new ModelAndView("login");
 			view.addObject("error", "登录失败，密码不正确");
 			return view;

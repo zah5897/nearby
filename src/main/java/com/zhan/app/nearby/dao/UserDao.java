@@ -16,14 +16,12 @@ import org.springframework.stereotype.Repository;
 
 import com.zhan.app.nearby.bean.Avatar;
 import com.zhan.app.nearby.bean.City;
-import com.zhan.app.nearby.bean.DynamicMessage;
 import com.zhan.app.nearby.bean.MeiLi;
 import com.zhan.app.nearby.bean.mapper.SimpkleUserMapper;
 import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.bean.user.BaseVipUser;
 import com.zhan.app.nearby.bean.user.DetailUser;
 import com.zhan.app.nearby.bean.user.LocationUser;
-import com.zhan.app.nearby.comm.AccountStateType;
 import com.zhan.app.nearby.comm.AvatarIMGStatus;
 import com.zhan.app.nearby.comm.FoundUserRelationship;
 import com.zhan.app.nearby.comm.Relationship;

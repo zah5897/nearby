@@ -17,7 +17,6 @@ import org.springframework.ui.ModelMap;
 import com.easemob.server.example.Main;
 import com.easemob.server.example.comm.wrapper.ResponseWrapper;
 import com.zhan.app.nearby.bean.Avatar;
-import com.zhan.app.nearby.bean.DynamicMessage;
 import com.zhan.app.nearby.bean.Tag;
 import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.bean.VipUser;
@@ -651,7 +650,9 @@ public class UserService {
 					+ count + "_&type=" + type);
 			if (!TextUtils.isEmpty(result)) {
 				Map<String, Object> resultData = JSONUtil.jsonToMap(result);
-				resultData.put("coins_checkin", count);
+				if(resultData!=null) {
+					resultData.put("coins_checkin", count);
+				}
 				return resultData;
 			} else {
 				return ResultUtil.getResultMap(ERROR.ERR_FAILED);
@@ -730,12 +731,19 @@ public class UserService {
 			saveUserOnline(user_id);
 
 			ModelMap result = ResultUtil.getResultOKMap();
-			BaseUser user = userDao.getUserDetailInfo(user_id);
+			DetailUser user = userDao.getUserDetailInfo(user_id);
 			user.setToken(token);
 			ImagePathUtil.completeAvatarPath(user, true); // 补全图片链接地址
+			
+			VipUser vip=loadUserVipInfo(aid, user.getUser_id());
+			
+			if(vip!=null&&vip.getDayDiff()>=0) {
+				user.setVip(true);
+			}
+			
 			result.put("user", user);
 			result.put("all_coins", loadUserCoins(aid, user.getUser_id()));
-			result.put("vip", loadUserVipInfo(aid, user.getUser_id()));
+			result.put("vip", vip);
 			return result;
 		} else {
 			return ResultUtil.getResultMap(ERROR.ERR_FAILED, "登录失败");

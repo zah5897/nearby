@@ -12,7 +12,6 @@ import com.easemob.server.example.comm.body.IMUserBody;
 import com.easemob.server.example.comm.body.TextMessageBody;
 import com.easemob.server.example.comm.wrapper.BodyWrapper;
 import com.easemob.server.example.comm.wrapper.ResponseWrapper;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.zhan.app.nearby.comm.PushMsgType;
 import com.zhan.app.nearby.util.JSONUtil;

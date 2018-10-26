@@ -18,7 +18,6 @@ import com.zhan.app.nearby.dao.VipDao;
 import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.util.DateTimeUtil;
 import com.zhan.app.nearby.util.HttpUtil;
-import com.zhan.app.nearby.util.HttpsUtil;
 import com.zhan.app.nearby.util.JSONUtil;
 import com.zhan.app.nearby.util.PropertiesUtil;
 import com.zhan.app.nearby.util.ResultUtil;

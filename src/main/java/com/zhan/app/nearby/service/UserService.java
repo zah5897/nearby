@@ -17,6 +17,7 @@ import org.springframework.ui.ModelMap;
 import com.easemob.server.example.Main;
 import com.easemob.server.example.comm.wrapper.ResponseWrapper;
 import com.zhan.app.nearby.bean.Avatar;
+import com.zhan.app.nearby.bean.City;
 import com.zhan.app.nearby.bean.Tag;
 import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.bean.VipUser;
@@ -281,6 +282,9 @@ public class UserService {
 		ImagePathUtil.completeAvatarPath(user, true);
 		setTagByIds(user);
 
+		
+		City c=cityService.getSimpleCity(user.getBirth_city_id());
+		user.setCity(c);
 		ModelMap r = ResultUtil.getResultOKMap();
 		user.setIs_vip(vipDao.isVip(user_id_for));
 		user.setAvatars(getUserAvatars(user_id_for));

@@ -155,6 +155,11 @@ public class UserController {
 		user.setNick_name(BottleKeyWordUtil.filterContent(user.getNick_name()));
 		
 		
+		if(user.getBirth_city_id()==0&&city_id!=null) {
+			user.setBirth_city_id(city_id);
+		}
+		
+		
 		DefaultMultipartHttpServletRequest multipartRequest = null;
 
 		if (request instanceof MultipartHttpServletRequest) {

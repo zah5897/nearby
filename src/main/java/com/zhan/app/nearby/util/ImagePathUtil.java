@@ -36,13 +36,14 @@ public class ImagePathUtil {
 		return user;
 	}
 
-	public static void completeAvatarsPath(List<? extends BaseUser> users, boolean thumbAndOrigin) {
+	public static List<? extends BaseUser> completeAvatarsPath(List<? extends BaseUser> users, boolean thumbAndOrigin) {
 		if (users == null || users.size() == 0) {
-			return;
+			return users;
 		}
 		for (BaseUser user : users) {
 			completeAvatarPath(user, true);
 		}
+		return users;
 	}
 	
 	
@@ -130,6 +131,11 @@ public class ImagePathUtil {
 			}
 		}
 	}
+	
+	public static String getFilterWordsPath() {
+			return HOST_PROFIX + ImageSaveUtils.FILE_ROOT_FILES + ImageSaveUtils.FILTER_WORDS_FILE_NAME;
+	}
+
 
 	public static void completeTopicImagePath(List<Topic> topics, boolean thumbAndOrigin) {
 

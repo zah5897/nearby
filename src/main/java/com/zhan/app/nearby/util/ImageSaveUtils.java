@@ -1,14 +1,22 @@
 package com.zhan.app.nearby.util;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 import java.util.UUID;
 
+import javax.management.RuntimeErrorException;
 
 import org.springframework.web.multipart.MultipartFile;
 
@@ -30,14 +38,18 @@ public class ImageSaveUtils {
 	// 用户头像图片路径
 	public static final String FILE_ROOT_TOPIC_ORIGIN = "/topic_img/origin/";
 	public static final String FILE_ROOT_TOPIC_THUMB = "/topic_img/thumb/";
-	
-	
+
 	public static final String FILE_ROOT_GIFT_ORIGIN = "/gift_img/origin/";
 	public static final String FILE_ROOT_GIFT_THUMB = "/gift_img/thumb/";
-	
-	
+
 	public static final String FILE_ROOT_BOTTLE_ORIGIN = "/bottle_img/origin/";
 	public static final String FILE_ROOT_BOTTLE_THUMB = "/bottle_img/thumb/";
+
+	public static final String FILE_ROOT_FILES = "/files/";
+	
+	
+	
+	public static final String FILTER_WORDS_FILE_NAME="filter_words.txt";
 
 	private static String getRootPath() {
 
@@ -81,16 +93,16 @@ public class ImageSaveUtils {
 	public static String getTopicThumbImagesPath() {
 		return getRootPath() + FILE_ROOT_TOPIC_THUMB;
 	}
-	
+
 	public static String getGiftOriginImagesPath() {
 		return getRootPath() + FILE_ROOT_GIFT_ORIGIN;
 	}
+
 	public static String getGiftThumbImagesPath() {
 		return getRootPath() + FILE_ROOT_GIFT_THUMB;
 	}
 
-	public static String saveAvatar(MultipartFile file)
-			throws IllegalStateException, IOException {
+	public static String saveAvatar(MultipartFile file) throws IllegalStateException, IOException {
 		String filePath = getOriginAvatarPath();
 		String shortName = file.getOriginalFilename();
 		if (!TextUtils.isEmpty(shortName)) {
@@ -111,8 +123,7 @@ public class ImageSaveUtils {
 		return null;
 	}
 
-	public static String saveUserImages(MultipartFile file)
-			throws IllegalStateException, IOException {
+	public static String saveUserImages(MultipartFile file) throws IllegalStateException, IOException {
 		String filePath = getOriginImagesPath();
 		String shortName = file.getOriginalFilename();
 		if (!TextUtils.isEmpty(shortName)) {
@@ -142,8 +153,26 @@ public class ImageSaveUtils {
 		return null;
 	}
 
-	public static String saveTopicImages(MultipartFile file)
-			throws IllegalStateException, IOException {
+	public static String saveFile(MultipartFile file) throws IllegalStateException, IOException {
+		String filePath = getRootPath() + FILE_ROOT_FILES;
+		String fileShortName = "filter_words.txt";
+		File uploadFile = new File(filePath + fileShortName);
+		uploadFile.mkdirs();
+		file.transferTo(uploadFile);// 保存到一个目标文件中。
+		BottleKeyWordUtil.loadFilterWords();
+		return uploadFile.getAbsolutePath();
+	}
+
+	public static String getFilterWordsFilePath() {
+		String filePath = getRootPath() + FILE_ROOT_FILES + FILTER_WORDS_FILE_NAME;
+		if (new File(filePath).exists()) {
+			return filePath;
+		} else {
+			return null;
+		}
+	}
+
+	public static String saveTopicImages(MultipartFile file) throws IllegalStateException, IOException {
 		String filePath = getTopicOriginImagesPath();
 		String shortName = file.getOriginalFilename();
 		if (!TextUtils.isEmpty(shortName)) {
@@ -163,10 +192,8 @@ public class ImageSaveUtils {
 		}
 		return null;
 	}
-	
-	
-	public static String saveBottleImages(MultipartFile file)
-			throws IllegalStateException, IOException {
+
+	public static String saveBottleImages(MultipartFile file) throws IllegalStateException, IOException {
 		String filePath = getTopicOriginImagesPath();
 		String shortName = file.getOriginalFilename();
 		if (!TextUtils.isEmpty(shortName)) {
@@ -186,8 +213,8 @@ public class ImageSaveUtils {
 		}
 		return null;
 	}
-	public static String saveGiftImages(MultipartFile file)
-			throws IllegalStateException, IOException {
+
+	public static String saveGiftImages(MultipartFile file) throws IllegalStateException, IOException {
 		String filePath = getGiftOriginImagesPath();
 		String shortName = file.getOriginalFilename();
 		if (!TextUtils.isEmpty(shortName)) {
@@ -200,7 +227,7 @@ public class ImageSaveUtils {
 			File uploadFile = new File(filePath + fileShortName);
 			uploadFile.mkdirs();
 			file.transferTo(uploadFile);// 保存到一个目标文件中。
-			
+
 			String thumbFile = getGiftThumbImagesPath() + fileShortName;
 			pressImageByWidth(uploadFile.getAbsolutePath(), PRESS_IMAGE_WIDTH, thumbFile);
 			return fileShortName;
@@ -217,12 +244,12 @@ public class ImageSaveUtils {
 	 */
 	public static void removeAcatar(String oldFileName) {
 		// 删除大图
-         
-		if(TextUtils.isEmpty(oldFileName)) {
+
+		if (TextUtils.isEmpty(oldFileName)) {
 			return;
 		}
-		
-		if(oldFileName.contains("illegal")) {
+
+		if (oldFileName.contains("illegal")) {
 			return;
 		}
 		String filePath = getOriginAvatarPath();
@@ -301,4 +328,5 @@ public class ImageSaveUtils {
 			e.printStackTrace();
 		}
 	}
+
 }

@@ -98,7 +98,7 @@ public class MsgController {
 		if(!userService.checkLogin(user_id, token)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
-		int count= dynamicMsgService.clearMeetMsg(user_id);
+		  dynamicMsgService.clearMeetMsg(user_id);
 		return ResultUtil.getResultOKMap();
 	}
 	
@@ -109,7 +109,7 @@ public class MsgController {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
 		
-		int count= dynamicMsgService.delMeetMsg(user_id, msg_id);
+		 dynamicMsgService.delMeetMsg(user_id, msg_id);
 		return ResultUtil.getResultOKMap();
 	}
 	

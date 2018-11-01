@@ -39,6 +39,12 @@ public class ParamInterceptor implements HandlerInterceptor {
 		if (url.contains("nearby/gift_img/")) {
 			return true;
 		}
+		
+		
+		if (url.contains("nearby/files/")) {
+			return true;
+		}
+		
 		if (url.endsWith(".html")) {
 			return true;
 		}

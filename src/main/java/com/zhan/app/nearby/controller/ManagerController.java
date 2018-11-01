@@ -29,7 +29,6 @@ import com.zhan.app.nearby.comm.DynamicState;
 import com.zhan.app.nearby.comm.FoundUserRelationship;
 import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.service.ManagerService;
-import com.zhan.app.nearby.util.BottleKeyWordUtil;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.ImageSaveUtils;
 import com.zhan.app.nearby.util.JSONUtil;
@@ -182,10 +181,10 @@ public class ManagerController {
 		if (TextUtils.isEmpty(ids)) {
 			return ResultUtil.getResultMap(ERROR.ERR_FAILED);
 		}
-		List<Long> idlist = JSONUtil.jsonToList(ids,new TypeReference<List<Long>>() {
+		List<Long> idlist = JSONUtil.jsonToList(ids, new TypeReference<List<Long>>() {
 		});
 
-		for (long id:idlist) {
+		for (long id : idlist) {
 			managerService.removeFromSelected(id);
 		}
 		ModelMap r = ResultUtil.getResultOKMap();
@@ -259,10 +258,10 @@ public class ManagerController {
 			return ResultUtil.getResultMap(ERROR.ERR_FAILED);
 		}
 
-		List<Long> idList=JSONUtil.jsonToList(ids, new TypeReference<List<Long>>() {
+		List<Long> idList = JSONUtil.jsonToList(ids, new TypeReference<List<Long>>() {
 		});
 		int len = idList.size();
-		for (long id:idList) {
+		for (long id : idList) {
 			managerService.addToSelected(id);
 		}
 		ModelMap r = ResultUtil.getResultOKMap();
@@ -500,11 +499,11 @@ public class ManagerController {
 		if (TextUtils.isEmpty(ids)) {
 			return ResultUtil.getResultMap(ERROR.ERR_FAILED);
 		}
-		List<Long> idList=JSONUtil.jsonToList(ids, new TypeReference<List<Long>>() {
+		List<Long> idList = JSONUtil.jsonToList(ids, new TypeReference<List<Long>>() {
 		});
 
 		int len = idList.size();
-		for (long id:idList) {
+		for (long id : idList) {
 			managerService.updateDynamicState(id, DynamicState.T_FORMAL);
 		}
 		ModelMap r = ResultUtil.getResultOKMap();
@@ -552,11 +551,11 @@ public class ManagerController {
 		if (TextUtils.isEmpty(ids)) {
 			return ResultUtil.getResultMap(ERROR.ERR_FAILED);
 		}
-		List<Long> idList=JSONUtil.jsonToList(ids, new TypeReference<List<Long>>() {
+		List<Long> idList = JSONUtil.jsonToList(ids, new TypeReference<List<Long>>() {
 		});
 
 		int len = idList.size();
-		for (long id:idList) {
+		for (long id : idList) {
 			managerService.removeDyanmicByState(id, DynamicState.T_ILLEGAL);
 		}
 		ModelMap r = ResultUtil.getResultOKMap();
@@ -775,19 +774,18 @@ public class ManagerController {
 
 	// 获取提现申请记录
 	@RequestMapping(value = "/list_bottle")
-	public @ResponseBody ModelMap list_bottle(int type, int pageSize, int pageIndex,Long bottle_id) {
+	public @ResponseBody ModelMap list_bottle(int type, int pageSize, int pageIndex, Long bottle_id) {
 		ModelMap r = ResultUtil.getResultOKMap();
-		List<Bottle> exchanges = managerService.listBottleByState(type, pageSize, pageIndex,bottle_id);
-		
-		
-		for(Bottle b:exchanges) {
-			if(b.getType()==BottleType.MEET.ordinal()) {
+		List<Bottle> exchanges = managerService.listBottleByState(type, pageSize, pageIndex, bottle_id);
+
+		for (Bottle b : exchanges) {
+			if (b.getType() == BottleType.MEET.ordinal()) {
 				b.setContent(managerService.getMeetUserAvatar(b.getContent()));
 			}
 		}
-		
+
 		if (pageIndex == 1) {
-			int totalSize = managerService.getBottleCountWithState(type,bottle_id);
+			int totalSize = managerService.getBottleCountWithState(type, bottle_id);
 			int pageCount = totalSize / pageSize;
 			if (totalSize % pageSize > 0) {
 				pageCount += 1;
@@ -804,20 +802,45 @@ public class ManagerController {
 
 	// 获取提现申请记录
 	@RequestMapping(value = "/changeBottleState")
-	public @ResponseBody ModelMap changeBottleState(int id, int type, int pageSize, int pageIndex, int to_state,Long bottle_id) {
+	public @ResponseBody ModelMap changeBottleState(int id, int type, int pageSize, int pageIndex, int to_state,
+			Long bottle_id) {
 		managerService.changeBottleState(id, to_state);
-		return list_bottle(type, pageSize, pageIndex,bottle_id);
+		return list_bottle(type, pageSize, pageIndex, bottle_id);
 	}
 
 	// 获取提现申请记录
-	@RequestMapping(value = "/bottle_txt_key_word")
-	public @ResponseBody ModelMap bottle_txt_key_word(int type, String keyWord) {
+	@RequestMapping(value = "/filter_key_word")
+	public @ResponseBody ModelMap bottle_txt_key_word(int type, HttpServletRequest request) {
+
 		if (type == 0) {
-			return ResultUtil.getResultOKMap().addAttribute("key_word", BottleKeyWordUtil.loadKeyWold());
+			if(ImageSaveUtils.getFilterWordsFilePath()!=null) {
+				return ResultUtil.getResultOKMap().addAttribute("download_path",ImagePathUtil.getFilterWordsPath());
+			}else {
+				return ResultUtil.getResultOKMap();
+			}
 		} else {
-			BottleKeyWordUtil.saveKeyWord(keyWord.trim());
-			return ResultUtil.getResultOKMap().addAttribute("key_word", keyWord);
+			DefaultMultipartHttpServletRequest multipartRequest = (DefaultMultipartHttpServletRequest) request;
+			ModelMap result = ResultUtil.getResultMap(ERROR.ERR_FAILED);
+			if (multipartRequest != null) {
+				Iterator<String> iterator = multipartRequest.getFileNames();
+				while (iterator.hasNext()) {
+					MultipartFile file = multipartRequest.getFile((String) iterator.next());
+					if (!file.isEmpty()) {
+						try {
+							String imagePath = ImageSaveUtils.saveFile(file);
+							result = ResultUtil.getResultOKMap();
+							result.put("download_path", imagePath);
+							return result;
+						} catch (Exception e) {
+							e.printStackTrace();
+							break;
+						}
+					}
+				}
+			}
+			return result;
 		}
+
 	}
 
 	// 获取提现申请记录
@@ -832,16 +855,16 @@ public class ManagerController {
 		if (count == 1) {
 			return managerService.getSpecialUsers(1, 1000);
 		} else {
-			
+
 			String err_msg;
-			if(count==-1) {
-				err_msg="该用户已存在推广列表中";
-			}else if(count==-2){
-				err_msg="该用户ID不存在";
-			}else {
-				err_msg="操作失败";
+			if (count == -1) {
+				err_msg = "该用户已存在推广列表中";
+			} else if (count == -2) {
+				err_msg = "该用户ID不存在";
+			} else {
+				err_msg = "操作失败";
 			}
-			return ResultUtil.getResultMap(ERROR.ERR_FAILED,err_msg);
+			return ResultUtil.getResultMap(ERROR.ERR_FAILED, err_msg);
 		}
 	}
 
@@ -854,12 +877,32 @@ public class ManagerController {
 			return ResultUtil.getResultOKMap().addAttribute("count", count);
 		}
 	}
-	@RequestMapping(value = "/edit_avatar_state")
-	public @ResponseBody ModelMap edit_avatar_state(long user_id) {
-		 managerService.editAvatarState(user_id);
-		 return ResultUtil.getResultOKMap();
-	}
 
+	@RequestMapping(value = "/edit_avatar_state")
+	public @ResponseBody ModelMap edit_avatar_state(int id) {
+		managerService.editAvatarState(id);
+		return ResultUtil.getResultOKMap();
+	}
+	
+	//获取需要審核的用戶头像
+	@RequestMapping(value = "/list_confirm_avatars")
+	public @ResponseBody ModelMap list_confirm_avatars(int pageSize, int pageIndex) {
+		ModelMap r=ResultUtil.getResultOKMap();
+		r.addAttribute("users", managerService.listConfirmAvatars(pageSize,pageIndex));
+		if (pageIndex == 1) {
+			int totalSize = managerService.getCountOfConfirmAvatars();
+			int pageCount = totalSize / pageSize;
+			if (totalSize % pageSize > 0) {
+				pageCount += 1;
+			}
+			if (pageCount == 0) {
+				pageCount = 1;
+			}
+			r.put("pageCount", pageCount);
+		}
+		r.put("currentPageIndex", pageIndex);
+		return r;
+	}
 	
 	
 }

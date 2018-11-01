@@ -51,7 +51,7 @@
 		location="D:/web/nearby_image/images/origin/" />
 	<mvc:resources mapping="/img/thumb/**"
 		location="D:/web/nearby_image/images/thumb/" />
-
+		
 
 	<mvc:resources mapping="/avatar/origin/**" location="/nearby_image/avatar/origin/" />
 	<mvc:resources mapping="/avatar/thumb/**" location="/nearby_image/avatar/thumb/" />

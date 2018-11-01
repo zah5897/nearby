@@ -21,6 +21,8 @@ import com.zhan.app.nearby.comm.ExchangeState;
 import com.zhan.app.nearby.comm.FoundUserRelationship;
 import com.zhan.app.nearby.dao.ManagerDao;
 import com.zhan.app.nearby.dao.UserDao;
+import com.zhan.app.nearby.util.BottleKeyWordUtil;
+import com.zhan.app.nearby.util.ImagePathUtil;
 
 @Service
 @Transactional("transactionManager")
@@ -340,11 +342,26 @@ public class ManagerService {
 		return mainService.addSpreadUser(uid);
 	}
 
-	public void editAvatarState(long user_id) {
-		userService.editAvatarState(user_id);
+	public void editAvatarState(int id) {
+		userService.editAvatarState(id);
 	}
 
 	public String getMeetUserAvatar(String content) {
 		return userService.getUserAvatar(Long.parseLong(content)).get("thumb").toString();
+	}
+
+	public boolean checkWordsExist(String word) {
+		BottleKeyWordUtil.checkWordsExist(word);
+		return false;
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<BaseUser> listConfirmAvatars(int pageSize, int pageIndex) {
+		return (List<BaseUser>) ImagePathUtil.completeAvatarsPath(userService.listConfirmAvatars(0,pageSize,pageIndex), false); //state=0为变动，1为
+	}
+	
+	
+	public int getCountOfConfirmAvatars() {
+		return userService.getCountOfConfirmAvatars();
 	}
 }

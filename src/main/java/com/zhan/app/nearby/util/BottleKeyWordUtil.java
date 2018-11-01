@@ -1,102 +1,129 @@
 package com.zhan.app.nearby.util;
 
-import java.util.Arrays;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
-import com.zhan.app.nearby.cache.UserCacheService;
-import com.zhan.app.nearby.dao.SystemDao;
+import javax.management.RuntimeErrorException;
 
 public class BottleKeyWordUtil {
 
-
-	public static String loadKeyWold() {
-		String keywords = null;
-		keywords = loadKeyWoldFromCache();
-		if (TextUtils.isNotBlank(keywords)) {
-			return keywords;
-		}
-		SystemDao dao=SpringContextUtil.getBean("systemDao");
-		//获取瓶子敏感词
-		keywords = dao.loadFilterKeyword(0);
-		if(keywords==null) {
-			keywords="";
-		}
-		return keywords;
-	}
-
-	public static List<String> loadKeyWolds() {
-		String keywords = loadKeyWold();
-		if (TextUtils.isEmpty(keywords)) {
-			return null;
-		}
-		return Arrays.asList(keywords.split(","));
-	}
+	private static TextFilter textFilter;
 
 	public static String filterContent(String content) {
 		if (TextUtils.isEmpty(content)) {
 			return content;
 		}
-		List<String> bottleKeyWords = loadKeyWolds();
-		if (bottleKeyWords != null && bottleKeyWords.size() > 0) {
-			for (String key : bottleKeyWords) {
-				content = content.replace(key, getStar(key.length()));
+		Set<String> bottleKeyWords;
+		try {
+			bottleKeyWords = checkFilterWord(content);
+			if (bottleKeyWords != null && bottleKeyWords.size() > 0) {
+				for (String key : bottleKeyWords) {
+					content = content.replace(key, getStar(key.length()));
+				}
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		return content;
+	}
+
+	
+	
+	public static Set<String> loadFilterWords() throws IOException {
+		
+		String filePath = ImageSaveUtils.getFilterWordsFilePath();
+		
+		if (filePath != null) {
+			InputStream in = new FileInputStream(new File(filePath));
+			
+			
+			BufferedReader br = new BufferedReader(new UnicodeReader(in,Charset.defaultCharset().name()));
+//			BufferedReader br = new BufferedReader(new InputStreamReader(in, "UTF-8"));
+
+			StringBuilder sb = new StringBuilder();
+			String temp = null;
+			while ((temp = br.readLine()) != null) {
+				//System.out.println(temp);
+				sb.append(temp);
+			}
+			br.close();
+			in.close();
+			String[] words=sb.toString().split(",");
+			List<String> listwords=new ArrayList<String>();
+			checkWordsExist(listwords,words);
+			System.out.println("总敏感词数："+listwords.size());
+			Set<String> staffsSet = new HashSet<String>(listwords);
+			return staffsSet;
+		} else {
+			throw new RuntimeErrorException(null, "敏感词文件为空");
+		}
+	}
+	private static void checkWordsExist(List<String> listWords,String[] words) {
+		for(String w:words) {
+			if(TextUtils.isEmpty(w)) {
+				continue;
+			}
+			if(w.contains("，")) {
+				String[] errSplit=w.split("，");
+				checkWordsExist(listWords,errSplit);
+				continue;
+			}
+			
+			if(!listWords.contains(w)) {
+				listWords.add(w);
+			}else {
+				//System.out.println("重复关键词："+w);
 			}
 		}
-		return content;
 	}
 	
 	
-	public static boolean isContainsIllegalKey(String content) {
+	private static void initTextFilter() throws IOException {
+		if (textFilter == null) {
+			textFilter = new TextFilter();
+			Set<String> sensitiveWords = loadFilterWords();
+			textFilter.initSensitiveWordsMap(sensitiveWords);
+		}
+	}
+
+	public static void refreshFilterWords() {
+		try {
+			if (textFilter == null) {
+				initTextFilter();
+			} else {
+				Set<String> sensitiveWords = loadFilterWords();
+				textFilter.initSensitiveWordsMap(sensitiveWords);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	private static Set<String> checkFilterWord(String txt) throws IOException {
+		initTextFilter();
+		return textFilter.getSensitiveWords(txt);
+	}
+
+	public static boolean isContainsIllegalKey(String content) throws IOException {
 		if (TextUtils.isEmpty(content)) {
 			return false;
 		}
-		List<String> bottleKeyWords = loadKeyWolds();
-		if (bottleKeyWords != null && bottleKeyWords.size() > 0) {
-			for (String key : bottleKeyWords) {
-				if(content.contains(key)) {
-					return true;
-				}
-			}
+		initTextFilter();
+		if (textFilter.checkContainsFilterWord(content).size() > 0) {
+			return true;
 		}
 		return false;
-	}
-	
-	
-
-	public static void saveKeyWord(String keywords) {
-		if (keywords == null) {
-			keywords = "";
-		}
-		keywords = keywords.trim();
-		if (TextUtils.isNotEmpty(keywords)) {
-			keywords = keywords.replace("，", ",");
-			String[] keys = keywords.split(",");
-			StringBuilder sb = new StringBuilder();
-			for (String key : keys) {
-				if (TextUtils.isNotEmpty(key.trim())) {
-					sb.append(key.trim());
-					sb.append(",");
-				}
-			}
-			keywords = sb.toString();
-			keywords = keywords.substring(0, keywords.length() - 1);
-		}
-
-		
-		SystemDao dao=SpringContextUtil.getBean("systemDao");
-		dao.updateFilterKeywords(0, keywords);
-		toCache(keywords);
-	}
-
-	public static String loadKeyWoldFromCache() {
-		UserCacheService cache = SpringContextUtil.getBean("userCacheService");
-		return cache.getBottleKeyWord();
-
-	}
-
-	public static void toCache(String keys) {
-		UserCacheService cache = SpringContextUtil.getBean("userCacheService");
-		cache.setBottleKeyWord(keys);
 	}
 
 	public static String getStar(int len) {
@@ -105,6 +132,10 @@ public class BottleKeyWordUtil {
 			stars[i] = '*';
 		}
 		return new String(stars, 0, len);
+	}
+
+	public static void checkWordsExist(String word) {
+		textFilter.checkWordsExist(word);
 	}
 
 }

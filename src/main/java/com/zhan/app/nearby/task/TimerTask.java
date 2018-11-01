@@ -88,6 +88,7 @@ public class TimerTask {
 		System.out.println("clear Expire vip count:" + clearCount);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Scheduled(cron = "0 0/10 * * * ?") // 每5分钟执行一次
 	public void injectTextBottle() {
 		BottleService bottleService = SpringContextUtil.getBean("bottleService");

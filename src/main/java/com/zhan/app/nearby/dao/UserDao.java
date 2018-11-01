@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
 
@@ -633,9 +634,15 @@ public class UserDao extends BaseDao {
 		}
 	}
 
-	public int saveAvatar(long user_id, String avatar) {
-		String sql="insert into t_user_avatars (uid,avatar,state) values(?,?,?)"; 
-		return jdbcTemplate.update(sql,new Object[] {user_id,avatar,0});
+	public int saveAvatar(long uid, String avatar) {
+		Integer c=jdbcTemplate.queryForObject("select count(*) from t_user_avatar_confirm where uid="+uid, Integer.class);
+		if(c!=null&&c>0) {
+			String sql="update t_user_avatar_confirm set old_avatar=new_avatar,new_avatar=?,update_time=?,state=? where uid=?";
+			jdbcTemplate.update(sql,new Object[] {avatar,new Date(),0,uid});
+			return 1;
+		}else {
+			return jdbcTemplate.update("insert into t_user_avatar_confirm (uid,new_avatar,state,update_time) values(?,?,?,?)",new Object[] {uid,avatar,0,new Date()});
+		}
 	}
 
 	public String deleteAvatar(long user_id,String avatar_id) {
@@ -659,24 +666,46 @@ public class UserDao extends BaseDao {
 		return jdbcTemplate.query("select *  from t_user_avatars where uid="+user_id+" order by id desc limit 6", new BeanPropertyRowMapper<Avatar>(Avatar.class));	
 	}
 
-	public void editAvatarState(long user_id, int state) {
-		String sql = "select avatar from t_user where user_id="+user_id;
-		List<String> avatars=jdbcTemplate.queryForList(sql, String.class);
-		if(!avatars.isEmpty()) {
-			String avatar=avatars.get(0);
+	public void editAvatarState(int id, int state) {
+		String sql = "select uid, avatar from t_user_avatars where id="+id;
+		Map<String, Object> r=jdbcTemplate.queryForMap(sql);
+		
+		String avatar=r.get("avatar").toString();
+		long uid=(long) r.get("uid");
+		
 			AvatarIMGStatus status=AvatarIMGStatus.values()[state];
 			String illegalName="illegal.jpg";
 			if(status==AvatarIMGStatus.ILLEGAL) {
-				sql="update t_user_avatars set avatar=?,illegal_avatar=?,state=?,checked_time=? where uid=? and avatar=?";
-				int count=jdbcTemplate.update(sql,new Object[] {illegalName,avatar,state,new Date(),user_id,avatar});
+				sql="update t_user_avatars set avatar=?,illegal_avatar=?,state=?,checked_time=? where id=?";
+				int count=jdbcTemplate.update(sql,new Object[] {illegalName,avatar,state,new Date(),id});
 				if(count==1) {
-					sql="update t_user set avatar=? where user_id=?";
-					jdbcTemplate.update(sql,new Object[] {illegalName,user_id});
+					sql="update t_user set avatar=? where user_id=? and avatar=?";
+					jdbcTemplate.update(sql,new Object[] {illegalName,uid,avatar});
 				}
 			}else {
 				//TODO 纠正之前的审核
 			}
-		}
+		
+		 
+//		String sql = "select avatar from t_user where user_id="+user_id;
+//		List<String> avatars=jdbcTemplate.queryForList(sql, String.class);
+//		if(!avatars.isEmpty()) {
+//			String avatar=avatars.get(0);
+//			AvatarIMGStatus status=AvatarIMGStatus.values()[state];
+//			String illegalName="illegal.jpg";
+//			if(status==AvatarIMGStatus.ILLEGAL) {
+//				sql="update t_user_avatars set avatar=?,illegal_avatar=?,state=?,checked_time=? where uid=? and avatar=?";
+//				int count=jdbcTemplate.update(sql,new Object[] {illegalName,avatar,state,new Date(),user_id,avatar});
+//				if(count==1) {
+//					sql="update t_user set avatar=? where user_id=?";
+//					jdbcTemplate.update(sql,new Object[] {illegalName,user_id});
+//				}
+//			}else {
+//				//TODO 纠正之前的审核
+//			}
+//		}
+		
+		
 	}
 
 	public List<String> loadIllegalAvatar() {
@@ -727,5 +756,22 @@ public class UserDao extends BaseDao {
 		String sql="delete from t_user_online where check_time < DATE_SUB(NOW(),INTERVAL ? DAY)";
 		 jdbcTemplate.update(sql,new Object[] {timeoutDay});
 	}
-	
+	//根据状态获取审核的头像列表
+	public List<BaseUser> listConfirmAvatars(int state,int pageSize, int pageIndex) {
+		String sql="select v.id, u.user_id,u.nick_name,u.avatar from t_user_avatars v left join t_user u on v.uid=u.user_id where v.state=? order by v.id desc limit ?,?";
+		return jdbcTemplate.query(sql, new Object[] {state,(pageIndex-1)*pageSize,pageSize},new BeanPropertyRowMapper<BaseUser>(BaseUser.class) {
+			@Override
+			public BaseUser mapRow(ResultSet rs, int rowNumber) throws SQLException {
+				// TODO Auto-generated method stub
+				BaseUser user= super.mapRow(rs, rowNumber);
+				user.setContact(String.valueOf(rs.getInt("id")));
+				return user;
+			}
+		});
+	}
+
+	public int getCountOfConfirmAvatars() {
+		return jdbcTemplate.queryForObject("select count(*) from t_user_avatars where state=0", Integer.class);
+	}
+	 
 }

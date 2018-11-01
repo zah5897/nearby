@@ -42,6 +42,9 @@
    <ul>
     <li><a href="<%=path %>/manager/forword?path=user_all" target="right"><span class="icon-caret-right"></span>所有用户</a></li>
     <li><a href="<%=path %>/manager/forword?path=user_new" target="right"><span class="icon-caret-right"></span>新增用户</a></li>
+    
+    <li><a href="<%=path %>/manager/forword?path=avatar_confirm" target="right"><span class="icon-caret-right"></span>变动头像审核</a></li>
+    
     <li><a href="<%=path %>/manager/forword?path=user_found_list" target="right"><span class="icon-caret-right"></span>发现用户列表</a></li>
     <li><a href="<%=path %>/manager/forword?path=user_found_black_list" target="right"><span class="icon-caret-right"></span>黑名单用户</a></li>
     <li><a href="<%=path %>/manager/forword?path=user_meet_bottle_recommend" target="right"><span class="icon-caret-right"></span>邂逅瓶推荐用户</a></li>
@@ -70,7 +73,7 @@
   <h2><span class="icon-user"></span>瓶子管理（池部分）</h2>
    <ul>
     <li><a href="<%=path %>/manager/forword?path=bottle_manager" target="right"><span class="icon-caret-right"></span>瓶子列表</a></li>
-    <li><a href="<%=path %>/manager/forword?path=bottle_txt_key_word" target="right"><span class="icon-caret-right"></span>瓶子敏感词管理</a></li>
+    <li><a href="<%=path %>/manager/forword?path=filter_txt_key_word" target="right"><span class="icon-caret-right"></span>瓶子敏感词管理</a></li>
   </ul> 
   
     <h2><span class="icon-user"></span>推广</h2>

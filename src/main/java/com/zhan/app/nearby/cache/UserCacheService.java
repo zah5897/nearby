@@ -1,7 +1,6 @@
 package com.zhan.app.nearby.cache;
 
 import java.io.Serializable;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Resource;

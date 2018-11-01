@@ -663,8 +663,8 @@ public class UserService {
 		return ResultUtil.getResultMap(ERROR.ERR_FAILED);
 	}
 
-	public void editAvatarState(long user_id) {
-		userDao.editAvatarState(user_id, AvatarIMGStatus.ILLEGAL.ordinal());
+	public void editAvatarState(int id) {
+		userDao.editAvatarState(id, AvatarIMGStatus.ILLEGAL.ordinal());
 	}
 
 	public void deleteIllegalAvatarFile() {
@@ -739,6 +739,7 @@ public class UserService {
 			
 			if(vip!=null&&vip.getDayDiff()>=0) {
 				user.setVip(true);
+				user.setIs_vip(true);
 			}
 			
 			result.put("user", user);
@@ -771,6 +772,14 @@ public class UserService {
 	public void removeTimeoutOnlineUsers(int timeoutMaxMinute) {
 		userDao.removeTimeoutOnlineUsers(timeoutMaxMinute);
 
+	}
+
+	public List<BaseUser> listConfirmAvatars(int state,int pageSize, int pageIndex) {
+		return userDao.listConfirmAvatars(state,pageSize,pageIndex);
+	}
+
+	public int getCountOfConfirmAvatars() {
+		return userDao.getCountOfConfirmAvatars();
 	}
 
 }

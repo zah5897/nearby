@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.zhan.app.nearby.bean.Report;
 import com.zhan.app.nearby.service.MainService;
 import com.zhan.app.nearby.service.UserService;
+import com.zhan.app.nearby.util.BottleKeyWordUtil;
 import com.zhan.app.nearby.util.ResultUtil;
 
 @RestController
@@ -51,6 +52,13 @@ public class SystemController {
 	@RequestMapping("prootl")
 	public String prootl() {
 		return "prootl";
+	}
+	
+	
+
+	@RequestMapping("test_keyword")
+	public ModelMap test_keyword(String word) {
+		return ResultUtil.getResultOKMap().addAttribute("过滤结果", BottleKeyWordUtil.filterContent(word));
 	}
 	
 }

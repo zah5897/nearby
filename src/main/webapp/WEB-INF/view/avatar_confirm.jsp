@@ -108,7 +108,6 @@
 		function refreshTable(json){
 			var pageData=json["users"];
 			if(pageData){
-				alert(pageData.length);
 				for(var i=0;i<pageData.length;i++){
 					var tr;
 					if(i==0){

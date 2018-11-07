@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -16,6 +17,13 @@ public class JSONUtil {
 			objectMapper = new ObjectMapper();
 		}
 		return objectMapper;
+	}
+	
+	
+	
+	
+	public static void setSerializationInclusion(JsonInclude.Include incl) {
+		getMapper().setSerializationInclusion(incl);
 	}
 
 	@SuppressWarnings("unchecked")

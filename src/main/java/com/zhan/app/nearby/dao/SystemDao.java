@@ -136,12 +136,12 @@ public class SystemDao extends BaseDao {
 	 */
 	public List<BaseVipUser> loadMaxRateMeiLiRandom(Long ignoreUserId, String gender, int page_index, int limit) {
 		if (TextUtils.isEmpty(gender)) {
-			String sql = "select u.user_id,u.nick_name,u.avatar,u.sex,u.birthday from   t_user u left join t_found_user_relationship s on u.user_id=s.uid   where s.state=0 and   u.user_id<>? and  u.avatar<>? order by rand() limit ?,?";
+			String sql = "select u.user_id,u.nick_name,u.avatar,u.sex,u.birthday,u.birth_city_id, u.city_id from   t_user u left join t_found_user_relationship s on u.user_id=s.uid   where s.state=0 and   u.user_id<>? and  u.avatar<>? order by rand() limit ?,?";
 			return jdbcTemplate.query(sql,
 					new Object[] { ignoreUserId == null ? 0 : ignoreUserId, "", (page_index - 1) * limit, limit },
 					new BeanPropertyRowMapper<BaseVipUser>(BaseVipUser.class));
 		} else {
-			String sql = "select u.user_id,u.nick_name,u.avatar,u.sex,u.birthday from   t_user u  left join t_found_user_relationship s on u.user_id=s.uid   where s.state=0 and u.user_id<>? and u.avatar<>? and u.sex=?  order by rand() limit ?,?";
+			String sql = "select u.user_id,u.nick_name,u.avatar,u.sex,u.birthday,u.birth_city_id, u.city_id from   t_user u  left join t_found_user_relationship s on u.user_id=s.uid   where s.state=0 and u.user_id<>? and u.avatar<>? and u.sex=?  order by rand() limit ?,?";
 			return jdbcTemplate
 					.query(sql,
 							new Object[] { ignoreUserId == null ? 0 : ignoreUserId, "", gender,

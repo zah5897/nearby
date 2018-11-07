@@ -388,6 +388,11 @@ public class MainService {
 			users.add(0, fix_user);
 		}
 		ImagePathUtil.completeAvatarsPath(users, true);
+		
+		for(BaseVipUser u:users) {
+			u.setBirth_city(cityService.getSimpleCity(u.getBirth_city_id()));
+			u.setCity(cityService.getSimpleCity(u.getCity_id()));
+		}
 		return ResultUtil.getResultOKMap().addAttribute("users", users).addAttribute("hasMore", users.size() == 6);
 	}
 

@@ -65,23 +65,18 @@ public class DetailUser extends LocationUser {
 	// @JsonIgnore
 	private List<Tag> favourite_music;
 	// @JsonIgnore
-	@JsonIgnore
 	private String weekday_todo_ids;
 	@ColumnType // 忽略保存
 
 	// @JsonIgnore
 	private List<Tag> weekday_todo;
 
-	// @JsonIgnore
-	@JsonIgnore
+    @JsonIgnore
 	private String footstep_ids;
 	@ColumnType // 忽略保存
 
 	// @JsonIgnore
 	private List<Tag> footsteps;
-
-	// @JsonIgnore
-	@JsonIgnore
 	private String want_to_where;
 	
 	@ColumnType

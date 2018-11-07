@@ -16,6 +16,7 @@ import org.springframework.ui.ModelMap;
 
 import com.easemob.server.example.Main;
 import com.easemob.server.example.comm.wrapper.ResponseWrapper;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.zhan.app.nearby.bean.Avatar;
 import com.zhan.app.nearby.bean.City;
 import com.zhan.app.nearby.bean.Tag;
@@ -283,8 +284,13 @@ public class UserService {
 		setTagByIds(user);
 
 		
-		City c=cityService.getSimpleCity(user.getBirth_city_id());
-		user.setCity(c);
+		City bc=cityService.getSimpleCity(user.getBirth_city_id());
+		user.setBirth_city(bc);
+		
+		City cc=cityService.getSimpleCity(user.getCity_id());
+		user.setCity(cc);
+		
+		
 		ModelMap r = ResultUtil.getResultOKMap();
 		user.setIs_vip(vipDao.isVip(user_id_for));
 		user.setAvatars(getUserAvatars(user_id_for));
@@ -294,9 +300,12 @@ public class UserService {
 				user.setContact("花费金币查看");
 			}
 		}
-
-		r.addAttribute("user", user);
-
+		//JSONUtil.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+		//Map<String, Object> map=JSONUtil.jsonToMap(user);
+		
+		r.put("user", user);
+		//Object w=map.get("want_to_where");
+		//System.out.println(w);
 		Relationship iWithHim = getRelationShip(uid == null ? 0 : uid, user_id_for);
 		Relationship heWithMe = getRelationShip(user_id_for, uid == null ? 0 : uid);
 		int relationShip = 0;

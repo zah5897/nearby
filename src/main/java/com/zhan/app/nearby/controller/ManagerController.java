@@ -884,6 +884,12 @@ public class ManagerController {
 		return ResultUtil.getResultOKMap();
 	}
 	
+	@RequestMapping(value = "/edit_avatar_state_by_user_id")
+	public @ResponseBody ModelMap edit_avatar_state_by_user_id(long user_id) {
+		managerService.editAvatarStateByUserId(user_id);
+		return ResultUtil.getResultOKMap();
+	}
+	
 	//获取需要審核的用戶头像
 	@RequestMapping(value = "/list_confirm_avatars")
 	public @ResponseBody ModelMap list_confirm_avatars(int pageSize, int pageIndex) {

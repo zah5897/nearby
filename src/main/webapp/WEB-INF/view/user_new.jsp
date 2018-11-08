@@ -225,11 +225,16 @@
 			  
 			   
 			  
+			  if(pageData.avatar&&pageData.avatar.indexOf('illegal.jpg')==-1){
+				  toAdd+="<a id="+user_id+" class='button border-yellow' href='javascript:void(0)'	onclick='return edit_avatar_state("+user_id+")'><span class='icon-edit'></span>头像违法</a>";
+			  }
+			  
+			  
 			  toAdd+="</div></td></tr>";
 			 tr.after(toAdd);
 		}
          function edit_avatar_state(user_id){
-			$.post("<%=path%>/manager/edit_avatar_state",{'user_id':user_id},function(result){
+			$.post("<%=path%>/manager/edit_avatar_state_by_user_id",{'user_id':user_id},function(result){
 				 
 				 var json=JSON.parse(result);
 			        if(json.code==0){

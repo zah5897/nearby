@@ -29,7 +29,7 @@ import com.zhan.app.nearby.bean.user.DetailUser;
 import com.zhan.app.nearby.bean.user.LocationUser;
 import com.zhan.app.nearby.bean.user.LoginUser;
 import com.zhan.app.nearby.cache.UserCacheService;
-import com.zhan.app.nearby.comm.AccountStateType;
+import com.zhan.app.nearby.comm.FoundUserRelationship;
 import com.zhan.app.nearby.comm.Relationship;
 import com.zhan.app.nearby.comm.UserType;
 import com.zhan.app.nearby.exception.ERROR;
@@ -151,15 +151,12 @@ public class UserController {
 			}
 		}
 
-		
 		user.setNick_name(BottleKeyWordUtil.filterContent(user.getNick_name()));
-		
-		
-		if(user.getBirth_city_id()==0&&city_id!=null) {
+
+		if (user.getBirth_city_id() == 0 && city_id != null) {
 			user.setBirth_city_id(city_id);
 		}
-		
-		
+
 		DefaultMultipartHttpServletRequest multipartRequest = null;
 
 		if (request instanceof MultipartHttpServletRequest) {
@@ -244,7 +241,7 @@ public class UserController {
 			return ResultUtil.getResultMap(ERROR.ERR_USER_NOT_EXIST, "该账号不存在");
 		}
 
-		if (user.getAccount_state() == AccountStateType.LOCK.ordinal()) {
+		if (userService.getUserState(user.getUser_id()) == FoundUserRelationship.GONE.ordinal()) {
 			return ResultUtil.getResultMap(ERROR.ERR_USER_NOT_EXIST, "该账号因举报而无法登录");
 		}
 
@@ -536,10 +533,9 @@ public class UserController {
 		if (user == null) {
 			return ResultUtil.getResultMap(ERROR.ERR_USER_NOT_EXIST, "该用户不存在！");
 		}
-		
-		
-		nick_name=BottleKeyWordUtil.filterContent(nick_name);
-		
+
+		nick_name = BottleKeyWordUtil.filterContent(nick_name);
+
 		boolean isNick_modify = false;
 		if (user.getNick_name() != null) {
 			if (!user.getNick_name().equals(nick_name)) {
@@ -781,16 +777,21 @@ public class UserController {
 
 	@RequestMapping("autoLogin")
 	public ModelMap autoLogin(long user_id, String md5pwd, String aid) {
+
+		if (userService.getUserState(user_id) == FoundUserRelationship.GONE.ordinal()) {
+			return ResultUtil.getResultMap(ERROR.ERR_USER_NOT_EXIST, "该账号因举报而无法登录");
+		}
+
 		return userService.autoLogin(user_id, md5pwd, aid);
 	}
 
 	@RequestMapping("online_list")
 	public ModelMap online_list(Integer page, Integer count) {
-		if (page==null||page < 0) {
+		if (page == null || page < 0) {
 			page = 1;
 		}
 
-		if (count==null||count <= 0) {
+		if (count == null || count <= 0) {
 			count = 10;
 		}
 		return ResultUtil.getResultOKMap().addAttribute("users", userService.getOnlineUsers(page, count));

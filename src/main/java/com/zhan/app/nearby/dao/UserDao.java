@@ -369,6 +369,10 @@ public class UserDao extends BaseDao {
 				new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
 		return users;
 	}
+	
+	public void removeMeetBottleUserByUserId(long uid) {
+		jdbcTemplate.update("delete from t_user_meet_bottle_recommend where uid="+uid);
+	}
 
 	public String getUserAvatar(long user_id) {
 		String sql = "select avatar from t_user where user_id=?";
@@ -658,6 +662,17 @@ public class UserDao extends BaseDao {
 		return jdbcTemplate.queryForObject("select avatar from t_user_avatars where uid="+user_id+" order by id desc  limit 1", String.class);	
 	}
 	
+	
+	public String getCurrentAvatar(long user_id) {
+		return jdbcTemplate.queryForObject("select avatar from t_user where user_id="+user_id, String.class);	
+	}
+	
+	
+	public Integer getAvatarIdByName(String avatarName) {
+		return jdbcTemplate.queryForObject("select id from t_user_avatars where avatar='"+avatarName+"'", Integer.class);	
+	}
+	
+	
 	public int getAvatarCount(long user_id) {
 		return jdbcTemplate.queryForObject("select count(*) from t_user_avatars where uid="+user_id, Integer.class);	
 	}
@@ -666,7 +681,7 @@ public class UserDao extends BaseDao {
 		return jdbcTemplate.query("select *  from t_user_avatars where uid="+user_id+" order by id desc limit 6", new BeanPropertyRowMapper<Avatar>(Avatar.class));	
 	}
 
-	public void editAvatarState(int id, int state) {
+	public long editAvatarState(int id, int state) {
 		String sql = "select uid, avatar from t_user_avatars where id="+id;
 		Map<String, Object> r=jdbcTemplate.queryForMap(sql);
 		
@@ -685,27 +700,7 @@ public class UserDao extends BaseDao {
 			}else {
 				//TODO 纠正之前的审核
 			}
-		
-		 
-//		String sql = "select avatar from t_user where user_id="+user_id;
-//		List<String> avatars=jdbcTemplate.queryForList(sql, String.class);
-//		if(!avatars.isEmpty()) {
-//			String avatar=avatars.get(0);
-//			AvatarIMGStatus status=AvatarIMGStatus.values()[state];
-//			String illegalName="illegal.jpg";
-//			if(status==AvatarIMGStatus.ILLEGAL) {
-//				sql="update t_user_avatars set avatar=?,illegal_avatar=?,state=?,checked_time=? where uid=? and avatar=?";
-//				int count=jdbcTemplate.update(sql,new Object[] {illegalName,avatar,state,new Date(),user_id,avatar});
-//				if(count==1) {
-//					sql="update t_user set avatar=? where user_id=?";
-//					jdbcTemplate.update(sql,new Object[] {illegalName,user_id});
-//				}
-//			}else {
-//				//TODO 纠正之前的审核
-//			}
-//		}
-		
-		
+		return uid;
 	}
 
 	public List<String> loadIllegalAvatar() {

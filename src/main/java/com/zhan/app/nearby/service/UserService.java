@@ -70,6 +70,9 @@ public class UserService {
 	@Resource
 	private DynamicMsgService dynamicMsgService;
 
+	@Resource
+	private BottleService bottleService;
+
 	public BaseUser getBasicUser(long id) {
 		return userDao.getBaseUser(id);
 	}
@@ -283,14 +286,12 @@ public class UserService {
 		ImagePathUtil.completeAvatarPath(user, true);
 		setTagByIds(user);
 
-		
-		City bc=cityService.getSimpleCity(user.getBirth_city_id());
+		City bc = cityService.getSimpleCity(user.getBirth_city_id());
 		user.setBirth_city(bc);
-		
-		City cc=cityService.getSimpleCity(user.getCity_id());
+
+		City cc = cityService.getSimpleCity(user.getCity_id());
 		user.setCity(cc);
-		
-		
+
 		ModelMap r = ResultUtil.getResultOKMap();
 		user.setIs_vip(vipDao.isVip(user_id_for));
 		user.setAvatars(getUserAvatars(user_id_for));
@@ -300,12 +301,12 @@ public class UserService {
 				user.setContact("花费金币查看");
 			}
 		}
-		//JSONUtil.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-		//Map<String, Object> map=JSONUtil.jsonToMap(user);
-		
+		// JSONUtil.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+		// Map<String, Object> map=JSONUtil.jsonToMap(user);
+
 		r.put("user", user);
-		//Object w=map.get("want_to_where");
-		//System.out.println(w);
+		// Object w=map.get("want_to_where");
+		// System.out.println(w);
 		Relationship iWithHim = getRelationShip(uid == null ? 0 : uid, user_id_for);
 		Relationship heWithMe = getRelationShip(user_id_for, uid == null ? 0 : uid);
 		int relationShip = 0;
@@ -490,7 +491,6 @@ public class UserService {
 		return null;
 	}
 
-
 	public int loadUserCoins(String aid, long user_id) {
 		Map<?, ?> map = HttpService.queryUserCoins(user_id, aid);
 		if (map == null) {
@@ -663,7 +663,7 @@ public class UserService {
 					+ count + "_&type=" + type);
 			if (!TextUtils.isEmpty(result)) {
 				Map<String, Object> resultData = JSONUtil.jsonToMap(result);
-				if(resultData!=null) {
+				if (resultData != null) {
 					resultData.put("coins_checkin", count);
 				}
 				return resultData;
@@ -677,7 +677,17 @@ public class UserService {
 	}
 
 	public void editAvatarState(int id) {
-		userDao.editAvatarState(id, AvatarIMGStatus.ILLEGAL.ordinal());
+		long uid = userDao.editAvatarState(id, AvatarIMGStatus.ILLEGAL.ordinal());
+		bottleService.clearIllegalMeetBottle(uid);
+	}
+
+	public void editAvatarStateByUserId(long uid) {
+		String avatarName = userDao.getCurrentAvatar(uid);
+		Integer id = userDao.getAvatarIdByName(avatarName);
+		if (id != null) {
+			userDao.editAvatarState(id, AvatarIMGStatus.ILLEGAL.ordinal());
+			bottleService.clearIllegalMeetBottle(uid);
+		}
 	}
 
 	public void deleteIllegalAvatarFile() {
@@ -747,14 +757,14 @@ public class UserService {
 			DetailUser user = userDao.getUserDetailInfo(user_id);
 			user.setToken(token);
 			ImagePathUtil.completeAvatarPath(user, true); // 补全图片链接地址
-			
-			VipUser vip=loadUserVipInfo(aid, user.getUser_id());
-			
-			if(vip!=null&&vip.getDayDiff()>=0) {
+
+			VipUser vip = loadUserVipInfo(aid, user.getUser_id());
+
+			if (vip != null && vip.getDayDiff() >= 0) {
 				user.setVip(true);
 				user.setIs_vip(true);
 			}
-			
+
 			result.put("user", user);
 			result.put("all_coins", loadUserCoins(aid, user.getUser_id()));
 			result.put("vip", vip);
@@ -787,12 +797,18 @@ public class UserService {
 
 	}
 
-	public List<BaseUser> listConfirmAvatars(int state,int pageSize, int pageIndex) {
-		return userDao.listConfirmAvatars(state,pageSize,pageIndex);
+	public List<BaseUser> listConfirmAvatars(int state, int pageSize, int pageIndex) {
+		return userDao.listConfirmAvatars(state, pageSize, pageIndex);
 	}
 
 	public int getCountOfConfirmAvatars() {
 		return userDao.getCountOfConfirmAvatars();
 	}
 
+	
+	public int getUserState(long uid) {
+		return userDao.getUserState(uid);
+	}
+	
+	
 }

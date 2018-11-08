@@ -465,4 +465,9 @@ public class BottleService {
 		u2.setToken(null);
 		return ResultUtil.getResultOKMap().addAttribute("user", u2);
 	}
+
+	public void clearIllegalMeetBottle(long uid) {
+		bottleDao.clearIllegalMeetBottle(uid);
+		userDao.removeMeetBottleUserByUserId(uid);
+	}
 }

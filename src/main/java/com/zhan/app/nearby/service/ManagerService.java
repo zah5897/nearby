@@ -345,6 +345,10 @@ public class ManagerService {
 	public void editAvatarState(int id) {
 		userService.editAvatarState(id);
 	}
+	
+	public void editAvatarStateByUserId(long uid) {
+		userService.editAvatarStateByUserId(uid);
+	}
 
 	public String getMeetUserAvatar(String content) {
 		return userService.getUserAvatar(Long.parseLong(content)).get("thumb").toString();

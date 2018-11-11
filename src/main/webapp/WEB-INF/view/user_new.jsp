@@ -238,9 +238,11 @@
 				 
 				 var json=JSON.parse(result);
 			        if(json.code==0){
-			        	 alert("操作成功！");
 			        	 $("#"+user_id).hide();
 			        	 $("#img_"+user_id).hide();
+			        	 parent.toast("操作成功！");
+			        }else{
+			        	parent.toast("操作失败！");
 			        }
 		    });
 		}

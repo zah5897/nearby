@@ -133,7 +133,7 @@ public class BottleService {
 				ImagePathUtil.completeAvatarPath(bottle.getSender(), true);
 			}
 		}
-
+		 
 		result.addAttribute("bottles", bolltes);
 		return result;
 	}

@@ -683,11 +683,15 @@ public class UserService {
 
 	public void editAvatarStateByUserId(long uid) {
 		String avatarName = userDao.getCurrentAvatar(uid);
-		Integer id = userDao.getAvatarIdByName(avatarName);
-		if (id != null) {
-			userDao.editAvatarState(id, AvatarIMGStatus.ILLEGAL.ordinal());
-			bottleService.clearIllegalMeetBottle(uid);
+		try {
+			Integer id = userDao.getAvatarIdByName(avatarName);
+			if (id != null) {
+				userDao.editAvatarState(id, AvatarIMGStatus.ILLEGAL.ordinal());
+			}
+		} catch (Exception e) {
+			userDao.editAvatarStateByUserId(uid, AvatarIMGStatus.ILLEGAL.ordinal());
 		}
+		bottleService.clearIllegalMeetBottle(uid);
 	}
 
 	public void deleteIllegalAvatarFile() {
@@ -805,10 +809,8 @@ public class UserService {
 		return userDao.getCountOfConfirmAvatars();
 	}
 
-	
 	public int getUserState(long uid) {
 		return userDao.getUserState(uid);
 	}
-	
-	
+
 }

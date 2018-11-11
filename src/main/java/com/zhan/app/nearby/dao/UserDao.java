@@ -115,9 +115,9 @@ public class UserDao extends BaseDao {
 	}
 
 	public int isUidExist(long user_id) {
-		return jdbcTemplate.queryForObject("select count(*) from t_user where user_id="+user_id, Integer.class);
+		return jdbcTemplate.queryForObject("select count(*) from t_user where user_id=" + user_id, Integer.class);
 	}
-	
+
 	public LocationUser findLocationUserByMobile(String mobile) {
 		List<LocationUser> list = jdbcTemplate.query(
 				"select user.* ,city.name as city_name from t_user user left join t_sys_city city on user.city_id=city.id where user.mobile=?",
@@ -128,6 +128,7 @@ public class UserDao extends BaseDao {
 			return null;
 		}
 	}
+
 	public LocationUser findLocationUserById(long user_id) {
 		List<LocationUser> list = jdbcTemplate.query(
 				"select user.* ,city.name as city_name from t_user user left join t_sys_city city on user.city_id=city.id where user.user_id=?",
@@ -175,9 +176,9 @@ public class UserDao extends BaseDao {
 		return count;
 	}
 
-	public int updateToken(long userId, String token,  Date last_login_time) {
+	public int updateToken(long userId, String token, Date last_login_time) {
 		return jdbcTemplate.update("update t_user set token=?,last_login_time=? where user_id=?",
-				new Object[] { token,  last_login_time, userId });
+				new Object[] { token, last_login_time, userId });
 	}
 
 	public int updatePassword(String mobile, String password) {
@@ -209,7 +210,7 @@ public class UserDao extends BaseDao {
 
 	public int modify_info(long user_id, String nick_name, String birthday, String job, String height, String weight,
 			String signature, String my_tags, String interests, String animals, String musics, String weekday_todo,
-			String footsteps, String want_to_where, Integer birth_city_id,String contact) {
+			String footsteps, String want_to_where, Integer birth_city_id, String contact) {
 
 		String sql = "update t_user set ";
 		StringBuilder names = new StringBuilder();
@@ -245,16 +246,15 @@ public class UserDao extends BaseDao {
 			SQLUtil.appendSql(names, String.valueOf(birth_city_id), "birth_city_id", values);
 		}
 
-		
-		if (contact!=null) {
-				if (values.size() > 0) {
-					names.append(",contact=?");
-				} else {
-					names.append("contact=?");
-				}
-				values.add(contact);
+		if (contact != null) {
+			if (values.size() > 0) {
+				names.append(",contact=?");
+			} else {
+				names.append("contact=?");
+			}
+			values.add(contact);
 		}
-		
+
 		if (values.size() == 0) {
 			return 0;
 		}
@@ -276,6 +276,7 @@ public class UserDao extends BaseDao {
 		String sql = "update t_user set device_token=?,zh_cn=? where user_id=?";
 		return jdbcTemplate.update(sql, new Object[] { token, zh_cn, user_id });
 	}
+
 	public int uploadLastLoginTime(long user_id) {
 		String sql = "update t_user set last_login_time=? where user_id=?";
 		return jdbcTemplate.update(sql, new Object[] { new Date(), user_id });
@@ -323,19 +324,21 @@ public class UserDao extends BaseDao {
 				new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
 		return users;
 	}
-	
-	public List<MeiLi> getNewRegistUsers(int page,int count) {
-//		String sql = "select u.*, v.* from t_user u left join (select TIMESTAMPDIFF(DAY,now(),end_time) as dayDiff,start_time,user_id from t_user_vip ) v on u.user_id=v.user_id   where v.dayDiff >=0 and  u.type=? order by v.start_time desc limit ?,?";
+
+	public List<MeiLi> getNewRegistUsers(int page, int count) {
+		// String sql = "select u.*, v.* from t_user u left join (select
+		// TIMESTAMPDIFF(DAY,now(),end_time) as dayDiff,start_time,user_id from
+		// t_user_vip ) v on u.user_id=v.user_id where v.dayDiff >=0 and u.type=? order
+		// by v.start_time desc limit ?,?";
 		String sql = "select u.*, v.*,c.name as city_name from t_user u left join (select TIMESTAMPDIFF(DAY,now(),end_time) as dayDiff,start_time,user_id from t_user_vip ) v on u.user_id=v.user_id left join t_sys_city c on u.city_id=c.id   where v.dayDiff >=0 and  u.type=? order by v.start_time desc limit ?,?";
 		List<MeiLi> users = jdbcTemplate.query(sql,
-				new Object[] { UserType.OFFIEC.ordinal(), (page-1)*count, count},
-				new RowMapper<MeiLi>() {
+				new Object[] { UserType.OFFIEC.ordinal(), (page - 1) * count, count }, new RowMapper<MeiLi>() {
 					@Override
 					public MeiLi mapRow(ResultSet rs, int rowNum) throws SQLException {
 						MeiLi m = new MeiLi();
-						//m.setValue(rs.getInt("week_meili"));
-						//m.setShanbei(rs.getInt("amount"));
-						//m.setBe_like_count(rs.getInt("like_count"));
+						// m.setValue(rs.getInt("week_meili"));
+						// m.setShanbei(rs.getInt("amount"));
+						// m.setBe_like_count(rs.getInt("like_count"));
 
 						LocationUser user = new LocationUser();
 						user.setUser_id(rs.getLong("user_id"));
@@ -343,15 +346,14 @@ public class UserDao extends BaseDao {
 						user.setAvatar(rs.getString("avatar"));
 						ImagePathUtil.completeAvatarPath(user, true);
 						m.setUser(user);
-						int dayDiff=rs.getInt("dayDiff");
-						m.setIs_vip(dayDiff>=0);
+						int dayDiff = rs.getInt("dayDiff");
+						m.setIs_vip(dayDiff >= 0);
 						user.setVip(m.isIs_vip());
-						
-						int cid=rs.getInt("city_id");
-						
-						
-						if(cid>0) {
-							City c=new City();
+
+						int cid = rs.getInt("city_id");
+
+						if (cid > 0) {
+							City c = new City();
 							c.setId(cid);
 							c.setName(rs.getString("city_name"));
 							user.setCity(c);
@@ -362,16 +364,16 @@ public class UserDao extends BaseDao {
 				});
 		return users;
 	}
-	
+
 	public List<BaseUser> getRandomMeetBottleUser(int realCount) {
 		String sql = "select u.* from t_user_meet_bottle_recommend mb  left join t_user u on mb.uid=u.user_id order by  RAND() limit ?";
 		List<BaseUser> users = jdbcTemplate.query(sql, new Object[] { realCount },
 				new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
 		return users;
 	}
-	
+
 	public void removeMeetBottleUserByUserId(long uid) {
-		jdbcTemplate.update("delete from t_user_meet_bottle_recommend where uid="+uid);
+		jdbcTemplate.update("delete from t_user_meet_bottle_recommend where uid=" + uid);
 	}
 
 	public String getUserAvatar(long user_id) {
@@ -583,26 +585,31 @@ public class UserDao extends BaseDao {
 	}
 
 	public int addSpecialUser(long uid) {
-		
-		int countObj=isUidExist(uid);
-		if(countObj==0) {
+
+		int countObj = isUidExist(uid);
+		if (countObj == 0) {
 			return -2;
 		}
-		countObj = jdbcTemplate.queryForObject("select count(*)  from t_special_user where uid="+uid,Integer.class);
+		countObj = jdbcTemplate.queryForObject("select count(*)  from t_special_user where uid=" + uid, Integer.class);
 		if (countObj > 0) {
 			return -1;
 		}
-		return jdbcTemplate.update("insert into t_special_user (uid,create_time) values(?,?)", new Object[] { String.valueOf(uid),new Date() });
+		return jdbcTemplate.update("insert into t_special_user (uid,create_time) values(?,?)",
+				new Object[] { String.valueOf(uid), new Date() });
 	}
+
 	public int delSpecialUser(long uid) {
-		return jdbcTemplate.update("delete from t_special_user where uid=?", new Object[] { String.valueOf(uid)});
+		return jdbcTemplate.update("delete from t_special_user where uid=?", new Object[] { String.valueOf(uid) });
 	}
-	public List<BaseUser> loadSpecialUsers(int pageIndex,int limit) {
+
+	public List<BaseUser> loadSpecialUsers(int pageIndex, int limit) {
 		String sql = "select u.user_id,u.nick_name,u.avatar,u.sex,u.type,u.birthday from t_special_user us left join t_user u on us.uid=u.user_id order by us.create_time desc limit ?,?";
-		List<BaseUser> users = jdbcTemplate.query(sql,new Object[] {(pageIndex-1)*limit,limit}, new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+		List<BaseUser> users = jdbcTemplate.query(sql, new Object[] { (pageIndex - 1) * limit, limit },
+				new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
 		return users;
 	}
-	public int getSpecialUsersCount(){
+
+	public int getSpecialUsersCount() {
 		String sql = "select count(*) from t_special_user";
 		return jdbcTemplate.queryForObject(sql, Integer.class);
 	}
@@ -627,146 +634,164 @@ public class UserDao extends BaseDao {
 				+ " and to_days(check_in_date) = to_days(now())";
 		return jdbcTemplate.queryForObject(sql, Integer.class);
 	}
-	
+
 	public int todayCheckIn(long user_id) {
 		String sql = "select count(*) from t_check_in_record  where uid=" + user_id;
-		int hasExist= jdbcTemplate.queryForObject(sql, Integer.class);
-		if(hasExist>0) {
-			return jdbcTemplate.update("update t_check_in_record set check_in_date=? where uid=?",new Object[] {new Date(),user_id});
-		}else {
-			return jdbcTemplate.update("insert into t_check_in_record (uid,check_in_date) values(?,?)",new Object[] {user_id,new Date()});
+		int hasExist = jdbcTemplate.queryForObject(sql, Integer.class);
+		if (hasExist > 0) {
+			return jdbcTemplate.update("update t_check_in_record set check_in_date=? where uid=?",
+					new Object[] { new Date(), user_id });
+		} else {
+			return jdbcTemplate.update("insert into t_check_in_record (uid,check_in_date) values(?,?)",
+					new Object[] { user_id, new Date() });
 		}
 	}
 
 	public int saveAvatar(long uid, String avatar) {
-		Integer c=jdbcTemplate.queryForObject("select count(*) from t_user_avatar_confirm where uid="+uid, Integer.class);
-		if(c!=null&&c>0) {
-			String sql="update t_user_avatar_confirm set old_avatar=new_avatar,new_avatar=?,update_time=?,state=? where uid=?";
-			jdbcTemplate.update(sql,new Object[] {avatar,new Date(),0,uid});
-			return 1;
-		}else {
-			return jdbcTemplate.update("insert into t_user_avatar_confirm (uid,new_avatar,state,update_time) values(?,?,?,?)",new Object[] {uid,avatar,0,new Date()});
-		}
+		String sql = "insert into t_user_avatars (uid,avatar,state) values(?,?,?)";
+		return jdbcTemplate.update(sql, new Object[] { uid, avatar, 0 });
 	}
 
-	public String deleteAvatar(long user_id,String avatar_id) {
-		List<String> avatars=jdbcTemplate.queryForList("select avatar from t_user_avatars where uid="+user_id+" and id="+avatar_id, String.class);
-		jdbcTemplate.update("delete from t_user_avatars  where uid="+user_id+" and  id="+avatar_id);
-		if(avatars.size()>0) {
+	public String deleteAvatar(long user_id, String avatar_id) {
+		List<String> avatars = jdbcTemplate.queryForList(
+				"select avatar from t_user_avatars where uid=" + user_id + " and id=" + avatar_id, String.class);
+		jdbcTemplate.update("delete from t_user_avatars  where uid=" + user_id + " and  id=" + avatar_id);
+		if (avatars.size() > 0) {
 			return avatars.get(0);
 		}
 		return null;
 	}
-	
+
 	public String getLastAvatar(long user_id) {
-		return jdbcTemplate.queryForObject("select avatar from t_user_avatars where uid="+user_id+" order by id desc  limit 1", String.class);	
+		return jdbcTemplate.queryForObject(
+				"select avatar from t_user_avatars where uid=" + user_id + " order by id desc  limit 1", String.class);
 	}
-	
-	
+
 	public String getCurrentAvatar(long user_id) {
-		return jdbcTemplate.queryForObject("select avatar from t_user where user_id="+user_id, String.class);	
+		return jdbcTemplate.queryForObject("select avatar from t_user where user_id=" + user_id, String.class);
 	}
-	
-	
+
 	public Integer getAvatarIdByName(String avatarName) {
-		return jdbcTemplate.queryForObject("select id from t_user_avatars where avatar='"+avatarName+"'", Integer.class);	
+		return jdbcTemplate.queryForObject("select id from t_user_avatars where avatar='" + avatarName + "'",
+				Integer.class);
 	}
-	
-	
+
 	public int getAvatarCount(long user_id) {
-		return jdbcTemplate.queryForObject("select count(*) from t_user_avatars where uid="+user_id, Integer.class);	
+		return jdbcTemplate.queryForObject("select count(*) from t_user_avatars where uid=" + user_id, Integer.class);
 	}
-	
-	public List<Avatar> getUserAvatars(long user_id){
-		return jdbcTemplate.query("select *  from t_user_avatars where uid="+user_id+" order by id desc limit 6", new BeanPropertyRowMapper<Avatar>(Avatar.class));	
+
+	public List<Avatar> getUserAvatars(long user_id) {
+		return jdbcTemplate.query("select *  from t_user_avatars where uid=" + user_id + " order by id desc limit 6",
+				new BeanPropertyRowMapper<Avatar>(Avatar.class));
 	}
 
 	public long editAvatarState(int id, int state) {
-		String sql = "select uid, avatar from t_user_avatars where id="+id;
-		Map<String, Object> r=jdbcTemplate.queryForMap(sql);
-		
-		String avatar=r.get("avatar").toString();
-		long uid=(long) r.get("uid");
-		
-			AvatarIMGStatus status=AvatarIMGStatus.values()[state];
-			String illegalName="illegal.jpg";
-			if(status==AvatarIMGStatus.ILLEGAL) {
-				sql="update t_user_avatars set avatar=?,illegal_avatar=?,state=?,checked_time=? where id=?";
-				int count=jdbcTemplate.update(sql,new Object[] {illegalName,avatar,state,new Date(),id});
-				if(count==1) {
-					sql="update t_user set avatar=? where user_id=? and avatar=?";
-					jdbcTemplate.update(sql,new Object[] {illegalName,uid,avatar});
-				}
-			}else {
-				//TODO 纠正之前的审核
+		String sql = "select uid, avatar from t_user_avatars where id=" + id;
+		Map<String, Object> r = jdbcTemplate.queryForMap(sql);
+
+		String avatar = r.get("avatar").toString();
+		long uid = (long) r.get("uid");
+
+		AvatarIMGStatus status = AvatarIMGStatus.values()[state];
+		String illegalName = "illegal.jpg";
+		if (status == AvatarIMGStatus.ILLEGAL) {
+			sql = "update t_user_avatars set avatar=?,illegal_avatar=?,state=?,checked_time=? where id=?";
+			int count = jdbcTemplate.update(sql, new Object[] { illegalName, avatar, state, new Date(), id });
+			if (count == 1) {
+				sql = "update t_user set avatar=? where user_id=? and avatar=?";
+				jdbcTemplate.update(sql, new Object[] { illegalName, uid, avatar });
 			}
+		} else {
+			// TODO 纠正之前的审核
+		}
+		return uid;
+	}
+
+	public long editAvatarStateByUserId(long uid, int state) {
+		AvatarIMGStatus status = AvatarIMGStatus.values()[state];
+		String illegalName = "illegal.jpg";
+		if (status == AvatarIMGStatus.ILLEGAL) {
+			String sql = "update t_user set avatar=? where user_id=?";
+			jdbcTemplate.update(sql, new Object[] { illegalName, uid });
+		}
 		return uid;
 	}
 
 	public List<String> loadIllegalAvatar() {
-		return jdbcTemplate.queryForList("select illegal_avatar from t_user_avatars  where  state=? and checked_time < date_sub(NOW(), INTERVAL 2 DAY)", new Object[] {AvatarIMGStatus.ILLEGAL.ordinal()},String.class);
+		return jdbcTemplate.queryForList(
+				"select illegal_avatar from t_user_avatars  where  state=? and checked_time < date_sub(NOW(), INTERVAL 2 DAY)",
+				new Object[] { AvatarIMGStatus.ILLEGAL.ordinal() }, String.class);
 	}
-	
-	
+
 	public String getContact(long user_id) {
-		String contact = jdbcTemplate.queryForObject("select contact from t_user where user_id="+user_id, String.class);
+		String contact = jdbcTemplate.queryForObject("select contact from t_user where user_id=" + user_id,
+				String.class);
 		return contact;
 	}
-	
-	public int markContactRel(long user_id,long target_uid) {
-		return jdbcTemplate.update("insert into t_contact_get_rel (uid,target_uid) values(?,?)",new Object[] {user_id,target_uid});
+
+	public int markContactRel(long user_id, long target_uid) {
+		return jdbcTemplate.update("insert into t_contact_get_rel (uid,target_uid) values(?,?)",
+				new Object[] { user_id, target_uid });
 	}
-	
-	public boolean hadGetContact(long user_id,long target_uid) {
-		int count= jdbcTemplate.queryForObject("select count(*) from t_contact_get_rel where uid=? and target_uid=?",new Object[] {user_id,target_uid},Integer.class);
-		return count>0;
+
+	public boolean hadGetContact(long user_id, long target_uid) {
+		int count = jdbcTemplate.queryForObject("select count(*) from t_contact_get_rel where uid=? and target_uid=?",
+				new Object[] { user_id, target_uid }, Integer.class);
+		return count > 0;
 	}
 
 	public boolean checkExistByIdAndPwd(long user_id, String md5_pwd) {
-		int count= jdbcTemplate.queryForObject("select count(*) from t_user where user_id=? and password=?",new Object[] {user_id,md5_pwd},Integer.class);
-		return count>0;
+		int count = jdbcTemplate.queryForObject("select count(*) from t_user where user_id=? and password=?",
+				new Object[] { user_id, md5_pwd }, Integer.class);
+		return count > 0;
 	}
-	
+
 	public void saveUserOnline(long uid) {
-		jdbcTemplate.update("insert into t_user_online (uid,check_time) values(?,?)",new Object[] {uid,new Date()});
+		jdbcTemplate.update("insert into t_user_online (uid,check_time) values(?,?)", new Object[] { uid, new Date() });
 	}
+
 	public void updateOnlineCheckTime(long uid) {
-		jdbcTemplate.update("update t_user_online set check_time=? where uid=?",new Object[] {new Date(),uid});
+		jdbcTemplate.update("update t_user_online set check_time=? where uid=?", new Object[] { new Date(), uid });
 	}
-	
-	public List<BaseUser> getOnlineUsers(int page,int count){
-		String sql="select u.user_id,u.nick_name,u.avatar from t_user_online l left join t_user u on l.uid=u.user_id order by l.check_time desc limit ?,?";
-		return jdbcTemplate.query(sql, new Object[] {(page-1)*count,count},new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+
+	public List<BaseUser> getOnlineUsers(int page, int count) {
+		String sql = "select u.user_id,u.nick_name,u.avatar from t_user_online l left join t_user u on l.uid=u.user_id order by l.check_time desc limit ?,?";
+		return jdbcTemplate.query(sql, new Object[] { (page - 1) * count, count },
+				new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
 	}
+
 	public void removeOnline(long uid) {
-		jdbcTemplate.update("delete from t_user_online where uid="+uid);
+		jdbcTemplate.update("delete from t_user_online where uid=" + uid);
 	}
-	
-	public List<Long> getLatestLoginUserIds(int limit){
-		String sql="select user_id from t_user where user_id not in(select uid from t_user_online) order by last_login_time desc limit "+limit;
+
+	public List<Long> getLatestLoginUserIds(int limit) {
+		String sql = "select user_id from t_user where user_id not in(select uid from t_user_online) order by last_login_time desc limit "
+				+ limit;
 		return jdbcTemplate.queryForList(sql, Long.class);
 	}
-	
-	public void  removeTimeoutOnlineUsers(int timeoutDay){
-		String sql="delete from t_user_online where check_time < DATE_SUB(NOW(),INTERVAL ? DAY)";
-		 jdbcTemplate.update(sql,new Object[] {timeoutDay});
+
+	public void removeTimeoutOnlineUsers(int timeoutDay) {
+		String sql = "delete from t_user_online where check_time < DATE_SUB(NOW(),INTERVAL ? DAY)";
+		jdbcTemplate.update(sql, new Object[] { timeoutDay });
 	}
-	//根据状态获取审核的头像列表
-	public List<BaseUser> listConfirmAvatars(int state,int pageSize, int pageIndex) {
-		String sql="select v.id, u.user_id,u.nick_name,u.avatar from t_user_avatars v left join t_user u on v.uid=u.user_id where v.state=? order by v.id desc limit ?,?";
-		return jdbcTemplate.query(sql, new Object[] {state,(pageIndex-1)*pageSize,pageSize},new BeanPropertyRowMapper<BaseUser>(BaseUser.class) {
-			@Override
-			public BaseUser mapRow(ResultSet rs, int rowNumber) throws SQLException {
-				// TODO Auto-generated method stub
-				BaseUser user= super.mapRow(rs, rowNumber);
-				user.setContact(String.valueOf(rs.getInt("id")));
-				return user;
-			}
-		});
+
+	// 根据状态获取审核的头像列表
+	public List<BaseUser> listConfirmAvatars(int state, int pageSize, int pageIndex) {
+		String sql = "select v.id, u.user_id,u.nick_name,u.avatar from t_user_avatars v left join t_user u on v.uid=u.user_id where v.state=? order by v.id desc limit ?,?";
+		return jdbcTemplate.query(sql, new Object[] { state, (pageIndex - 1) * pageSize, pageSize },
+				new BeanPropertyRowMapper<BaseUser>(BaseUser.class) {
+					@Override
+					public BaseUser mapRow(ResultSet rs, int rowNumber) throws SQLException {
+						// TODO Auto-generated method stub
+						BaseUser user = super.mapRow(rs, rowNumber);
+						user.setContact(String.valueOf(rs.getInt("id")));
+						return user;
+					}
+				});
 	}
 
 	public int getCountOfConfirmAvatars() {
 		return jdbcTemplate.queryForObject("select count(*) from t_user_avatars where state=0", Integer.class);
 	}
-	 
+
 }

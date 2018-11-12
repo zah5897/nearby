@@ -235,4 +235,19 @@ public class SystemDao extends BaseDao {
 						personalInfo.getAid() });
 	}
 
+	
+	public int insertIpToBlack(String ip) {
+		int count = jdbcTemplate.update(
+				"insert into t_black_ips (ip) values(?)",new Object[] { ip });
+		return count;
+	}
+	
+	public List<String> loadBlackIPs() {
+		return jdbcTemplate.queryForList("select *from t_black_ips", String.class);
+	}
+	
+	public int deleteFromBlackIps(String ip) {
+		return jdbcTemplate.update("delete from t_black_ips where ip="+ip);
+	}
+	 
 }

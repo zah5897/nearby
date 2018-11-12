@@ -58,7 +58,8 @@ public class BaseUser {
 	private int account_state;
 
 	private String contact;
-	
+	@JsonIgnore
+	private String ip;
 	
 	public Date getBirthday() {
 		return birthday;
@@ -196,6 +197,14 @@ public class BaseUser {
 
 	public void setContact(String contact) {
 		this.contact = contact;
+	}
+
+	public String getIp() {
+		return ip;
+	}
+
+	public void setIp(String ip) {
+		this.ip = ip;
 	}
 
 }

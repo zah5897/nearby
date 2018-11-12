@@ -470,4 +470,7 @@ public class BottleService {
 		bottleDao.clearIllegalMeetBottle(uid);
 		userDao.removeMeetBottleUserByUserId(uid);
 	}
+	public int clearPoolBottleByUserId(long uid) {
+		return bottleDao.clearPoolBottleByUserId(uid);	
+	}
 }

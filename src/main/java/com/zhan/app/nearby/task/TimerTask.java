@@ -44,6 +44,9 @@ public class TimerTask {
 			}
 
 		}
+		
+		//定时自动加入黑名单IP
+		autoAddBlackIP();
 	}
 
 	@Scheduled(cron = "0 59 23 * * ?") // 每天23：59分执行
@@ -115,10 +118,7 @@ public class TimerTask {
 			String title = (String) data.get("title");
 			bottleService.sendAutoBottle(id, title);
 		}
-
 	}
-
-	
 	
 	
 	@Scheduled(cron = "0 0/20 * * * ?") // 每5分钟执行一次
@@ -127,6 +127,12 @@ public class TimerTask {
 		userService.removeTimeoutOnlineUsers(4);
 	}
 	
+	
+ 
+	public void autoAddBlackIP() {
+		UserService userService = SpringContextUtil.getBean("userService");
+		userService.checkRegistIP(10);
+	}
 	
 	private void deleteIllegalAvatarFile() {
 		UserService userService = SpringContextUtil.getBean("userService");

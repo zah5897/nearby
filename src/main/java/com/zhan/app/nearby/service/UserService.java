@@ -41,6 +41,7 @@ import com.zhan.app.nearby.util.AddressUtil;
 import com.zhan.app.nearby.util.DateTimeUtil;
 import com.zhan.app.nearby.util.HttpService;
 import com.zhan.app.nearby.util.HttpsUtil;
+import com.zhan.app.nearby.util.IPUtil;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.ImageSaveUtils;
 import com.zhan.app.nearby.util.JSONUtil;
@@ -798,9 +799,16 @@ public class UserService {
 
 	public void removeTimeoutOnlineUsers(int timeoutMaxMinute) {
 		userDao.removeTimeoutOnlineUsers(timeoutMaxMinute);
-
 	}
 
+	
+	public void checkRegistIP(int limitCount) {
+		List<String> list=userDao.checkRegistIP(limitCount);
+		for(String ip:list) {
+			IPUtil.addIPBlack(ip);
+		}
+	}
+	
 	public List<BaseUser> listConfirmAvatars(int state, int pageSize, int pageIndex) {
 		return userDao.listConfirmAvatars(state, pageSize, pageIndex);
 	}

@@ -7,6 +7,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.zhan.app.nearby.exception.ERROR;
+import com.zhan.app.nearby.util.IPUtil;
 import com.zhan.app.nearby.util.TextUtils;
 import com.zhan.app.nearby.util.WriteJsonUtil;
 
@@ -16,6 +17,10 @@ public class ParamInterceptor implements HandlerInterceptor {
 			throws Exception {
 		String _ua = request.getParameter("_ua");
 		String url = request.getRequestURI();
+		
+		if(IPUtil.doBlackIPFilter(request)) {
+			return false;
+		}
 //		System.out.println(url);
 		if (url.contains("nearby/manager")) {
 			return true;

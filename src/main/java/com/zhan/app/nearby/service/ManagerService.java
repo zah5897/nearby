@@ -232,6 +232,9 @@ public class ManagerService {
 	 */
 	public void editUserFoundState(long user_id, FoundUserRelationship ship) {
 		managerDao.editUserFoundState(user_id, ship);
+		if(ship==FoundUserRelationship.GONE) {
+			bottleService.clearPoolBottleByUserId(user_id);
+		}
 	}
 
 	/**

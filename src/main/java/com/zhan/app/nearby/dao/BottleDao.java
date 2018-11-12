@@ -448,4 +448,10 @@ public class BottleDao extends BaseDao {
 		c=jdbcTemplate.update("delete from t_bottle where type=? and user_id=?",new Object[] {BottleType.MEET.ordinal(),uid});
 		return c;
 	}
+	
+	
+	public int clearPoolBottleByUserId(long uid) {
+		return jdbcTemplate.update("delete from t_bottle_pool where  user_id=?",new Object[] {uid});
+	}
+	
 }

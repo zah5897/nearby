@@ -2,12 +2,18 @@ package com.zhan.app.nearby.util;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.zhan.app.nearby.dao.SystemDao;
+
 
 public class IPUtil {
+	
+	public static List<String> ipBlackList;
+	
 	public static String getIpAddress(HttpServletRequest request) {
 		String ipAddress = null;
 		// ipAddress = this.getRequest().getRemoteAddr();
@@ -42,7 +48,49 @@ public class IPUtil {
 		}
 		return ipAddress;
 	}
+	
+	
+	public static void addIPBlack(String ip) {
+		SystemDao dao=SpringContextUtil.getBean("systemDao");
+		if(ipBlackList==null) {
+			ipBlackList=dao.loadBlackIPs();
+		}
+		if(!ipBlackList.contains(ip)) {
+			ipBlackList.add(ip);
+			dao.insertIpToBlack(ip);
+		}
+	}
 
+	
+	public static void removeBlackIP(String ip) {
+		SystemDao dao=SpringContextUtil.getBean("systemDao");
+		if(ipBlackList==null) {
+			ipBlackList=dao.loadBlackIPs();
+		}
+		ipBlackList.remove(ip);
+		dao.deleteFromBlackIps(ip);
+	}
+	
+	public static List<String> getIpBlackList() {
+		if(ipBlackList==null) {
+			SystemDao dao=SpringContextUtil.getBean("systemDao");
+			if(ipBlackList==null) {
+				ipBlackList=dao.loadBlackIPs();
+			}
+		}
+		return ipBlackList;
+	}
+	
+	public static boolean doBlackIPFilter(HttpServletRequest request) {
+		String ip=getIpAddress(request);
+		if(getIpBlackList().contains(ip)) {
+			return true;
+		}
+		return false;
+	}
+	
+	
+	
 	public static String getCityName(String ip) {
 		String city_name_url = "http://int.dpool.sina.com.cn/iplookup/iplookup.php?format=json&ip=" + ip;
 

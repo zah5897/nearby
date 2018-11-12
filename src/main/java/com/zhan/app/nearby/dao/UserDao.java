@@ -28,6 +28,7 @@ import com.zhan.app.nearby.comm.FoundUserRelationship;
 import com.zhan.app.nearby.comm.Relationship;
 import com.zhan.app.nearby.comm.UserType;
 import com.zhan.app.nearby.util.DateTimeUtil;
+import com.zhan.app.nearby.util.IPUtil;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.SQLUtil;
 import com.zhan.app.nearby.util.TextUtils;
@@ -792,6 +793,11 @@ public class UserDao extends BaseDao {
 
 	public int getCountOfConfirmAvatars() {
 		return jdbcTemplate.queryForObject("select count(*) from t_user_avatars where state=0", Integer.class);
+	}
+
+	public List<String> checkRegistIP(int limitCount) {
+		List<String> list= jdbcTemplate.queryForList("select ip from (select count(*) as count,ip from t_user group by ip) d where d.count>=? and d.ip is not null",new Object[] {String.valueOf(limitCount)},String.class);
+		 return list;
 	}
 
 }

@@ -13,6 +13,7 @@ import com.zhan.app.nearby.bean.Report;
 import com.zhan.app.nearby.service.MainService;
 import com.zhan.app.nearby.service.UserService;
 import com.zhan.app.nearby.util.BottleKeyWordUtil;
+import com.zhan.app.nearby.util.IPUtil;
 import com.zhan.app.nearby.util.ResultUtil;
 
 @RestController
@@ -60,5 +61,19 @@ public class SystemController {
 	public ModelMap test_keyword(String word) {
 		return ResultUtil.getResultOKMap().addAttribute("过滤结果", BottleKeyWordUtil.filterContent(word));
 	}
+
 	
+	
+	@RequestMapping("add_new_black_ip")
+	public ModelMap addNewBlackIP(String ip) {
+		IPUtil.addIPBlack(ip);
+		return ResultUtil.getResultOKMap().addAttribute("black_ips", IPUtil.getIpBlackList());
+	}
+	 
+	
+	@RequestMapping("remove_black_ip")
+	public ModelMap removeBlackIP(String ip) {
+		IPUtil.removeBlackIP(ip);
+		return ResultUtil.getResultOKMap().addAttribute("black_ips", IPUtil.getIpBlackList());
+	}
 }

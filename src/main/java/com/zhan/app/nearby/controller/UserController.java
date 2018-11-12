@@ -150,7 +150,7 @@ public class UserController {
 				user.setSex("0");
 			}
 		}
-
+		user.setIp(IPUtil.getIpAddress(request));
 		user.setNick_name(BottleKeyWordUtil.filterContent(user.getNick_name()));
 
 		if (user.getBirth_city_id() == 0 && city_id != null) {

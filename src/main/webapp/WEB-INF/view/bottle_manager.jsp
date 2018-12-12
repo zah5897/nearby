@@ -241,6 +241,9 @@ td {
 			  }else  {
 				  toAdd+="<a class='button border-main' href='javascript:void(0)'	onclick='return changeBottleState("+id+",0)'><span class='icon-edit'></span>编辑为正常状态</a>";
 			  } 
+			  
+			  toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return add_to_found_black_list("+pageData["sender"]["user_id"]+",1)'><span class='icon-edit'></span>该用户添加到黑名单</a>";
+			  
 			  toAdd+="</div></td></tr>";
 			 tr.after(toAdd);
 		}
@@ -248,6 +251,19 @@ td {
 	    function show(img){
 	    	parent.showOriginImg(img);
 	    }
+	    
+	    function add_to_found_black_list(user_id){
+			$.post("<%=path%>/manager/edit_user_found_state",{'user_id':user_id,'fun':1,'state':1},function(result){
+				 var json=JSON.parse(result);
+				 if(json.code==0){
+			        	parent.toast("操作成功！");
+			        	$("#found_black_"+user_id).hide();
+			        }else{
+			        	parent.toast("操作失败！");
+			        }
+		    });
+		}
+	    
  	    function changeBottleState(id,state){
 			$.post("<%=path%>/manager/changeBottleState",{'id':id,'type':type,'pageIndex':currentPageIndex,'pageSize':pageSize,'to_state':state,'bottle_id':current_bottle_id},function(result){
 				 var json=JSON.parse(result);

@@ -168,9 +168,11 @@
 			$.post("<%=path%>/manager/edit_avatar_state",{'id':id},function(result){
 				 var json=JSON.parse(result);
 			        if(json.code==0){
-			        	 alert("操作成功！");
+			        	parent.toast("操作成功！");
 			        	 $("#"+user_id).hide();
 			        	 $("#img_"+user_id).hide();
+			        }else{
+			        	parent.toast("操作失败！");
 			        }
 		    });
 		}

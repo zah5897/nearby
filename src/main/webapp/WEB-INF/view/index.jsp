@@ -100,7 +100,7 @@ $(function(){
 
 function showOriginImg(img){
 	 var alt=$(img).attr("alt");
-     var parentdiv=$('<img></img>');        //创建一个父div
+     var parentdiv=$('<img height="600"></img>');        //创建一个父div
      parentdiv.attr('src',alt);        //给父div设置id
  	 $(parentdiv).dialog({
  		title : "",

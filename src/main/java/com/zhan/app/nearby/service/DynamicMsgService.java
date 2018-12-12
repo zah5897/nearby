@@ -51,12 +51,12 @@ public class DynamicMsgService {
 	 * @return
 	 */
 	public long insertActionMsg(DynamicMsgType type, long by_user_id, long dynamic_id, long user_id, String content) {
-		
-		
-		//if (hasExistDyMsg(DynamicMsgType.TYPE_MEET, by_user_id, dynamic_id, user_id)) {
-			//return 0;
-		//}
-		
+
+		// if (hasExistDyMsg(DynamicMsgType.TYPE_MEET, by_user_id, dynamic_id, user_id))
+		// {
+		// return 0;
+		// }
+
 		DynamicMessage msg = new DynamicMessage();
 		msg.setUser_id(user_id);
 		msg.setBy_user_id(by_user_id);
@@ -88,42 +88,39 @@ public class DynamicMsgService {
 		return dynamicMsgDao.updateState(id);
 	}
 
-	
-	public int updateMeetState(long user_id,long target) {
-		return dynamicMsgDao.updateMeetState(user_id,target);
+	public int updateMeetState(long user_id, long target) {
+		return dynamicMsgDao.updateMeetState(user_id, target);
 	}
-	
+
 	public ModelMap replay(long user_id, long msg_id) {
 		DynamicMessage msg = dynamicMsgDao.loadMsg(msg_id);
-		 
-		if(msg==null) {
-			return ResultUtil.getResultMap(ERROR.ERR_FAILED,"消息不存在").addAttribute("id", msg_id);
+
+		if (msg == null) {
+			return ResultUtil.getResultMap(ERROR.ERR_FAILED, "消息不存在").addAttribute("id", msg_id);
 		}
-		
+
 		dynamicMsgDao.updateState(msg_id);
 		// 邂逅或者表白信的回复
-		
-		
-		if (msg.getType() == DynamicMsgType.TYPE_LIKE.ordinal()||msg.getType() == DynamicMsgType.TYPE_MEET.ordinal()
+
+		if (msg.getType() == DynamicMsgType.TYPE_LIKE.ordinal() || msg.getType() == DynamicMsgType.TYPE_MEET.ordinal()
 				|| msg.getType() == DynamicMsgType.TYPE_EXPRESS.ordinal()) {
 			userDao.updateRelationship(user_id, msg.getBy_user_id(), Relationship.LIKE);
-			
+
 			BaseUser me = userDao.getBaseUser(user_id);
 			BaseUser he = userDao.getBaseUser(msg.getBy_user_id());
-			String niceToMeet="很高兴遇见你";
-			if(msg.getType() == DynamicMsgType.TYPE_MEET.ordinal()) {
-				makeChatSession(me,he,msg.getDynamic_id(),niceToMeet);
-			}else if(msg.getType() == DynamicMsgType.TYPE_LIKE.ordinal()){
-				makeChatSession(me,he,0,niceToMeet);
-			}else {
-				makeChatSession(me,he.getUser_id(),"");
+			String niceToMeet = "很高兴遇见你";
+			if (msg.getType() == DynamicMsgType.TYPE_MEET.ordinal()) {
+				makeChatSession(me, he, msg.getDynamic_id(), niceToMeet);
+			} else if (msg.getType() == DynamicMsgType.TYPE_LIKE.ordinal()) {
+				makeChatSession(me, he, 0, niceToMeet);
+			} else {
+				makeChatSession(me, he.getUser_id(), "");
 			}
 		}
 		return ResultUtil.getResultOKMap().addAttribute("id", msg_id);
 	}
 
-	
-	private void makeChatSession(BaseUser user, BaseUser with_user, long bottle_id,String msg) {
+	private void makeChatSession(BaseUser user, BaseUser with_user, long bottle_id, String msg) {
 		ImagePathUtil.completeAvatarPath(with_user, true);
 		ImagePathUtil.completeAvatarPath(user, true);
 		// 发送给对方
@@ -131,68 +128,73 @@ public class DynamicMsgService {
 		ext.put("nickname", user.getNick_name());
 		ext.put("avatar", user.getAvatar());
 		ext.put("origin_avatar", user.getOrigin_avatar());
-		if(bottle_id>0) {
+		if (bottle_id > 0) {
 			ext.put("bottle_id", String.valueOf(bottle_id));
 		}
 		Main.sendTxtMessage(String.valueOf(user.getUser_id()), new String[] { String.valueOf(with_user.getUser_id()) },
-				msg,ext,PushMsgType.TYPE_NEW_CONVERSATION);
+				msg, ext, PushMsgType.TYPE_NEW_CONVERSATION);
 		// 发送给自己
 		ext = new HashMap<String, String>();
 		ext.put("nickname", with_user.getNick_name());
 		ext.put("avatar", with_user.getAvatar());
 		ext.put("origin_avatar", with_user.getOrigin_avatar());
-		if(bottle_id>0) {
+		if (bottle_id > 0) {
 			ext.put("bottle_id", String.valueOf(bottle_id));
 		}
 		Main.sendTxtMessage(String.valueOf(with_user.getUser_id()), new String[] { String.valueOf(user.getUser_id()) },
-				msg,ext,PushMsgType.TYPE_NEW_CONVERSATION);
+				msg, ext, PushMsgType.TYPE_NEW_CONVERSATION);
 	}
-	
-	
-	private void makeChatSession(BaseUser from,long target,String msg) {
+
+	private void makeChatSession(BaseUser from, long target, String msg) {
 		ImagePathUtil.completeAvatarPath(from, true);
 		// 发送给对方
 		Map<String, String> ext = new HashMap<String, String>();
 		ext.put("nickname", from.getNick_name());
 		ext.put("avatar", from.getAvatar());
 		ext.put("origin_avatar", from.getOrigin_avatar());
-		 
-		Main.sendTxtMessage(String.valueOf(from.getUser_id()), new String[] { String.valueOf(target) },
-				msg,ext,PushMsgType.TYPE_NEW_CONVERSATION);
-	 
+
+		Main.sendTxtMessage(String.valueOf(from.getUser_id()), new String[] { String.valueOf(target) }, msg, ext,
+				PushMsgType.TYPE_NEW_CONVERSATION);
+
 	}
-	
-	
-	public ModelMap getMyDynamicMsg(long user_id){
-		List<DynamicComment> comms= dynamicMsgDao.getMyDynamicCommentLatest(user_id);
-		List<DynamicMessage> msgs= dynamicMsgDao.getMyMeetLatest(user_id);
+
+	public ModelMap getMyDynamicMsg(long user_id, boolean isV2) {
+		List<DynamicComment> comms = dynamicMsgDao.getMyDynamicCommentLatest(user_id);
+		List<DynamicMessage> msgs = dynamicMsgDao.getMyMeetLatest(user_id);
 		dynamicMsgDao.updateLatestTipTime(user_id);
-		return ResultUtil.getResultOKMap().addAttribute("comments", comms).addAttribute("xiehou_msgs", msgs);
+		if (isV2) {
+			List<DynamicMessage> praise = dynamicMsgDao.getPraseMsg(user_id);
+			dynamicMsgDao.updateLatestPraiseTipTime(user_id);
+			return ResultUtil.getResultOKMap().addAttribute("comments", comms).addAttribute("xiehou_msgs", msgs)
+					.addAttribute("praise_msgs", praise);
+		} else {
+			return ResultUtil.getResultOKMap().addAttribute("comments", comms).addAttribute("xiehou_msgs", msgs);
+		}
+
 	}
-	
 
 	public int clearMeetMsg(long user_id) {
 		return dynamicMsgDao.clearMeetMsg(user_id);
 	}
-	
-	public int delMeetMsg(long user_id,long id) {
+
+	public int delMeetMsg(long user_id, long id) {
 		return dynamicMsgDao.delMeetMsg(user_id, id, DynamicMsgType.TYPE_MEET.ordinal());
 	}
 
 	public BaseUser getLikeLastOne(long user_id) {
-		long id= dynamicMsgDao.getLikeLastOneID(user_id);
-		BaseUser user=	userDao.getBaseUser(id);
+		long id = dynamicMsgDao.getLikeLastOneID(user_id);
+		BaseUser user = userDao.getBaseUser(id);
 		ImagePathUtil.completeAvatarPath(user, true);
 		return user;
 	}
-	
+
 	public boolean hasExistDyMsg(DynamicMsgType type, long by_user_id, long dynamic_id, long user_id) {
-	  int count= dynamicMsgDao.getDymanicMsgCount(DynamicMsgType.TYPE_MEET, by_user_id, dynamic_id, user_id);
-	  return count>0;
+		int count = dynamicMsgDao.getDymanicMsgCount(DynamicMsgType.TYPE_MEET, by_user_id, dynamic_id, user_id);
+		return count > 0;
 	}
 
 	public void replayDynamicMsg(Long user_id, long msg_id) {
 		// TODO Auto-generated method stub
-		  dynamicMsgDao.updateMsgStatus(msg_id,DynamicMsgStatus.HAD_Operation);
+		dynamicMsgDao.updateMsgStatus(msg_id, DynamicMsgStatus.HAD_Operation);
 	}
 }

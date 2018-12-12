@@ -144,6 +144,7 @@ public class DynamicController {
 				}
 
 			} catch (NumberFormatException e) {
+				e.printStackTrace();
 			}
 		}
 		return ResultUtil.getResultOKMap();

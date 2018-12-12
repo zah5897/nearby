@@ -47,8 +47,8 @@ public class BottleKeyWordUtil {
 			InputStream in = new FileInputStream(new File(filePath));
 			
 			
-			BufferedReader br = new BufferedReader(new UnicodeReader(in,Charset.defaultCharset().name()));
-//			BufferedReader br = new BufferedReader(new InputStreamReader(in, "UTF-8"));
+//			BufferedReader br = new BufferedReader(new UnicodeReader(in,"GBK"));
+			BufferedReader br = new BufferedReader(new InputStreamReader(in, "UTF-8"));
 
 			StringBuilder sb = new StringBuilder();
 			String temp = null;
@@ -58,7 +58,10 @@ public class BottleKeyWordUtil {
 			}
 			br.close();
 			in.close();
-			String[] words=sb.toString().split(",");
+			
+			String keyes=sb.toString();
+			System.out.println(keyes);
+			String[] words=keyes.split(",");
 			List<String> listwords=new ArrayList<String>();
 			checkWordsExist(listwords,words);
 			System.out.println("总敏感词数："+listwords.size());

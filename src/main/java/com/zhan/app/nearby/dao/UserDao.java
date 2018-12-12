@@ -686,6 +686,11 @@ public class UserDao extends BaseDao {
 				new BeanPropertyRowMapper<Avatar>(Avatar.class));
 	}
 
+	public List<String> getUserAvatarsString(long user_id) {
+		return jdbcTemplate.queryForList("select avatar  from t_user_avatars where uid=" + user_id, String.class);
+	}
+	
+	
 	public long editAvatarState(int id, int state) {
 		String sql = "select uid, avatar from t_user_avatars where id=" + id;
 		Map<String, Object> r = jdbcTemplate.queryForMap(sql);
@@ -724,6 +729,12 @@ public class UserDao extends BaseDao {
 				new Object[] { AvatarIMGStatus.ILLEGAL.ordinal() }, String.class);
 	}
 
+	public List<String> loadAvatarByUid(long uid) {
+		return jdbcTemplate.queryForList(
+				"select avatar from t_user_avatars  where  uid="+uid, String.class);
+	}
+	
+	
 	public String getContact(long user_id) {
 		String contact = jdbcTemplate.queryForObject("select contact from t_user where user_id=" + user_id,
 				String.class);
@@ -778,7 +789,7 @@ public class UserDao extends BaseDao {
 
 	// 根据状态获取审核的头像列表
 	public List<BaseUser> listConfirmAvatars(int state, int pageSize, int pageIndex) {
-		String sql = "select v.id, u.user_id,u.nick_name,u.avatar from t_user_avatars v left join t_user u on v.uid=u.user_id where v.state=? order by v.id desc limit ?,?";
+		String sql = "select v.id, u.user_id,u.nick_name,v.avatar from t_user_avatars v left join t_user u on v.uid=u.user_id where v.state=? order by v.id desc limit ?,?";
 		return jdbcTemplate.query(sql, new Object[] { state, (pageIndex - 1) * pageSize, pageSize },
 				new BeanPropertyRowMapper<BaseUser>(BaseUser.class) {
 					@Override
@@ -799,5 +810,13 @@ public class UserDao extends BaseDao {
 		List<String> list= jdbcTemplate.queryForList("select ip from (select count(*) as count,ip from t_user group by ip) d where d.count>=? and d.ip is not null",new Object[] {String.valueOf(limitCount)},String.class);
 		 return list;
 	}
-
+	
+	public List<Long> loadIllegalRegistUids(String illegalIP) {
+		List<Long> uids= jdbcTemplate.queryForList("select user_id from t_user where ip='"+illegalIP+"'",Long.class);
+		 return uids;
+	}
+	public void deleteIllegalUser(long uid) {
+		jdbcTemplate.update("delete from t_user where user_id="+uid);
+	}
+	
 }

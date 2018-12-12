@@ -283,7 +283,8 @@ public class UserDynamicDao extends BaseDao {
 		int count = jdbcTemplate.queryForObject(sql,
 				new Object[] { dynamicRelationShip.getUser_id(), dynamicRelationShip.getDynamic_id() }, Integer.class);
 		if (count == 0) {
-			return saveObj(jdbcTemplate, TABLE_LIKE_DYNAMIC_STATE, dynamicRelationShip);
+			 saveObj(jdbcTemplate, TABLE_LIKE_DYNAMIC_STATE, dynamicRelationShip);
+			 return 0;
 		} else {
 			return jdbcTemplate.update(
 					"update " + TABLE_LIKE_DYNAMIC_STATE + " set relationship=? where user_id=? and dynamic_id=?",

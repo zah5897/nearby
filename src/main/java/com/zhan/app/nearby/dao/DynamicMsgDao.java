@@ -95,8 +95,17 @@ public class DynamicMsgDao extends BaseDao {
 		 		 return jdbcTemplate.query(sql, new Object[] {user_id,DynamicMsgType.TYPE_MEET.ordinal()},new BeanPropertyRowMapper<DynamicMessage>(DynamicMessage.class));
 		 	}
 		 	
-		 	public List<DynamicComment> getMyDynamicCommentLatest(long user_id) {
-		 		 String sql="select comm.* from  t_dynamic_comment comm  left join t_user_dynamic dy on comm.dynamic_id=dy.id  left join t_latest_tip_time la on dy.user_id=la.uid  where dy.user_id=? and comm.comment_time>coalesce(la.last_time,'1900-01-01 00:00:00') order by comm.comment_time";
+	public List<DynamicMessage> getPraseMsg (long user_id) {
+		 String sql="select msg.* from  "+TABLE_DYNAMIC_MSG+" msg  left join t_user_dynamic d on msg.dynamic_id=d.id  left join t_latest_praise_tip_time la on msg.user_id=la.uid  where msg.user_id=? and msg.type=? and msg.create_time>coalesce(la.last_time,'1900-01-01 00:00:00') order by msg.create_time";
+		 return jdbcTemplate.query(sql, new Object[] {user_id,DynamicMsgType.TYPE_PRAISE.ordinal()},new BeanPropertyRowMapper<DynamicMessage>(DynamicMessage.class));
+	}
+	
+//	public List<DynamicMessage> getPraseMsg (long user_id) {
+//		 String sql="select msg.* from  "+TABLE_DYNAMIC_MSG+" msg  left join t_user_dynamic d on msg.dynamic_id=d.id     where msg.user_id=? and msg.type=?   order by msg.create_time";
+//		 return jdbcTemplate.query(sql, new Object[] {user_id,DynamicMsgType.TYPE_PRAISE.ordinal()},new BeanPropertyRowMapper<DynamicMessage>(DynamicMessage.class));
+//	}
+   public List<DynamicComment> getMyDynamicCommentLatest(long user_id) {
+		String sql = "select comm.* from  t_dynamic_comment comm  left join t_user_dynamic dy on comm.dynamic_id=dy.id  left join t_latest_tip_time la on dy.user_id=la.uid  where dy.user_id=? and comm.comment_time>coalesce(la.last_time,'1900-01-01 00:00:00') order by comm.comment_time";
 		 		 return jdbcTemplate.query(sql, new Object[] {user_id},new BeanPropertyRowMapper<DynamicComment>(DynamicComment.class));
 		 	}
 
@@ -117,6 +126,16 @@ public class DynamicMsgDao extends BaseDao {
 			jdbcTemplate.update("insert into  t_latest_tip_time (last_time,uid) values(?,?)",new Object[] {new Date(),user_id});
 		}
 	}
+	
+	
+    public void updateLatestPraiseTipTime(long user_id) {
+		
+	    int count=jdbcTemplate.update("update t_latest_praise_tip_time set last_time=? where uid=?",new Object[] {new Date(),user_id});
+		if(count==0) {
+			jdbcTemplate.update("insert into  t_latest_praise_tip_time (last_time,uid) values(?,?)",new Object[] {new Date(),user_id});
+		}
+	}
+	
 
 	public long getLikeLastOneID(long user_id) {
 		List<Long> ids=jdbcTemplate.queryForList("select  by_user_id from t_dynamic_msg where user_id=? and type=? order by create_time desc limit 1",new Object[] {user_id,DynamicMsgType.TYPE_MEET.ordinal()},Long.class);

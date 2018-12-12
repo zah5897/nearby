@@ -424,7 +424,7 @@ public class BottleDao extends BaseDao {
 	}
      //清理7天以前的数据
 	public void clearExpireAudioBottle() {
-		String sql="delete from    t_bottle_pool where DATEDIFF(create_time,now()) <-7";
+		String sql="delete from    t_bottle_pool where DATEDIFF(create_time,now()) <-7 and type="+BottleType.VOICE.ordinal();
 		jdbcTemplate.update(sql);
 	}
 
@@ -453,5 +453,7 @@ public class BottleDao extends BaseDao {
 	public int clearPoolBottleByUserId(long uid) {
 		return jdbcTemplate.update("delete from t_bottle_pool where  user_id=?",new Object[] {uid});
 	}
-	
+	public int clearBottleByUserId(long uid) {
+		return jdbcTemplate.update("delete from t_bottle where  user_id=?",new Object[] {uid});
+	}
 }

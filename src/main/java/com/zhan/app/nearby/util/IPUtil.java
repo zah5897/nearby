@@ -50,7 +50,7 @@ public class IPUtil {
 	}
 	
 	
-	public static void addIPBlack(String ip) {
+	public static boolean addIPBlack(String ip) {
 		SystemDao dao=SpringContextUtil.getBean("systemDao");
 		if(ipBlackList==null) {
 			ipBlackList=dao.loadBlackIPs();
@@ -58,7 +58,9 @@ public class IPUtil {
 		if(!ipBlackList.contains(ip)) {
 			ipBlackList.add(ip);
 			dao.insertIpToBlack(ip);
+			return true;
 		}
+		return false;
 	}
 
 	

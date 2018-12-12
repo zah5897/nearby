@@ -473,4 +473,10 @@ public class BottleService {
 	public int clearPoolBottleByUserId(long uid) {
 		return bottleDao.clearPoolBottleByUserId(uid);	
 	}
+	
+	public void clearUserBottle(long uid) {
+		clearPoolBottleByUserId(uid);
+		bottleDao.clearBottleByUserId(uid);
+	}
+	
 }

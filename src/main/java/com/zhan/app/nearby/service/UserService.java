@@ -700,8 +700,17 @@ public class UserService {
 		for (String avatar : avatars) {
 			ImageSaveUtils.removeAcatar(avatar);
 		}
-
 	}
+	
+	public void deleteIllegalAvatarFileRightNow(long uid) {
+		List<String> avatars = userDao.loadAvatarByUid(uid);
+		for (String avatar : avatars) {
+			ImageSaveUtils.removeAcatar(avatar);
+		}
+	}
+	
+	
+	
 
 	public ModelMap openApp(long user_id, String token, String aid) {
 		if (checkLogin(user_id, token)) {
@@ -800,14 +809,30 @@ public class UserService {
 	public void removeTimeoutOnlineUsers(int timeoutMaxMinute) {
 		userDao.removeTimeoutOnlineUsers(timeoutMaxMinute);
 	}
-
 	
 	public void checkRegistIP(int limitCount) {
 		List<String> list=userDao.checkRegistIP(limitCount);
 		for(String ip:list) {
-			IPUtil.addIPBlack(ip);
+			boolean r=IPUtil.addIPBlack(ip);
+			if(r) {
+				clearIllegalUserAndCreate();
+			}
 		}
 	}
+	
+	public void clearIllegalUserAndCreate() {
+		List<String> ips=IPUtil.getIpBlackList();
+		for(String ip:ips) {
+			List<Long> uids=userDao.loadIllegalRegistUids(ip);
+			for(long uid:uids) {
+				editAvatarStateByUserId(uid);
+				bottleService.clearUserBottle(uid);
+				deleteIllegalAvatarFileRightNow(uid);
+				userDao.deleteIllegalUser(uid);
+			}
+		}
+	}
+	
 	
 	public List<BaseUser> listConfirmAvatars(int state, int pageSize, int pageIndex) {
 		return userDao.listConfirmAvatars(state, pageSize, pageIndex);

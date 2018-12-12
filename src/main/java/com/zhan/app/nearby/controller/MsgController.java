@@ -116,6 +116,11 @@ public class MsgController {
 	
 	@RequestMapping("latest_msg_tip")
 	public ModelMap latest_dynamic_msg_tip(long user_id) {
-		return dynamicMsgService.getMyDynamicMsg(user_id);
+		return dynamicMsgService.getMyDynamicMsg(user_id,false);
+	}
+	
+	@RequestMapping("latest_msg_tip_v2")
+	public ModelMap latest_msg_tip_v2(long user_id) {
+		return dynamicMsgService.getMyDynamicMsg(user_id,true);
 	}
 }

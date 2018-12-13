@@ -14,7 +14,6 @@ import org.springframework.stereotype.Repository;
 
 import com.zhan.app.nearby.bean.Bottle;
 import com.zhan.app.nearby.bean.BottleExpress;
-import com.zhan.app.nearby.bean.City;
 import com.zhan.app.nearby.bean.type.BottleType;
 import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.bean.user.BaseVipUser;
@@ -25,7 +24,6 @@ import com.zhan.app.nearby.comm.DynamicMsgType;
 import com.zhan.app.nearby.comm.MsgState;
 import com.zhan.app.nearby.comm.Relationship;
 import com.zhan.app.nearby.util.ImagePathUtil;
-import com.zhan.app.nearby.util.TextUtils;
 
 @Repository("bottleDao")
 public class BottleDao extends BaseDao {

@@ -16,7 +16,6 @@ import org.springframework.ui.ModelMap;
 
 import com.easemob.server.example.Main;
 import com.easemob.server.example.comm.wrapper.ResponseWrapper;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.zhan.app.nearby.bean.Avatar;
 import com.zhan.app.nearby.bean.City;
 import com.zhan.app.nearby.bean.Tag;

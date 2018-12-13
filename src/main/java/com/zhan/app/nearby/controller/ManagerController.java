@@ -1,5 +1,6 @@
 package com.zhan.app.nearby.controller;
 
+import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -32,6 +33,7 @@ import com.zhan.app.nearby.service.ManagerService;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.ImageSaveUtils;
 import com.zhan.app.nearby.util.JSONUtil;
+import com.zhan.app.nearby.util.MD5Util;
 import com.zhan.app.nearby.util.ResultUtil;
 import com.zhan.app.nearby.util.TextUtils;
 
@@ -52,22 +54,17 @@ public class ManagerController {
 	}
 
 	@RequestMapping(value = "/login", method = RequestMethod.POST)
-	public ModelAndView dologin(HttpServletRequest request, String name, String password) {
+	public ModelAndView dologin(HttpServletRequest request, String name, String password) throws NoSuchAlgorithmException {
 
 		HttpSession session = request.getSession();
 		Object obj = session.getAttribute("account");
 		if (obj != null) {
 			return new ModelAndView("redirect:/manager/");
 		}
-
-		if (!"admin".equals(name)) {
+		boolean mlr=managerService.mLogin(name, MD5Util.getMd5(password));
+		if(!mlr) {
 			ModelAndView view = new ModelAndView("login");
-			view.addObject("error", "登录失败，账号不存在");
-			return view;
-		}
-		if (!"zzy123456".equals(password)) {
-			ModelAndView view = new ModelAndView("login");
-			view.addObject("error", "登录失败，密码不正确");
+			view.addObject("error", "登录失败，账号或密码错误");
 			return view;
 		}
 		session.setAttribute("account", name + "&" + password);

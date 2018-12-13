@@ -310,4 +310,15 @@ public class ManagerDao extends BaseDao {
 				new Object[] { agreeWait.ordinal(),new Date(), id });
 	}
 
+	
+	public int queryM(String name,String pwd) {
+		String sql = "select  count(*) from t_m where name=? and pwd=?";
+		return jdbcTemplate.queryForObject(sql, new Object[] { name ,pwd}, Integer.class);
+	}
+	
+	
+	public int queryAllowed(String ip) {
+		String sql = "select  count(*) from t_wips where aip=?";
+		return jdbcTemplate.queryForObject(sql, new Object[] {ip}, Integer.class);
+	}
 }

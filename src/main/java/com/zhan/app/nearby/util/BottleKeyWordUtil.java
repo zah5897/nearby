@@ -6,7 +6,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -20,7 +19,7 @@ public class BottleKeyWordUtil {
 
 	public static String filterContent(String content) {
 		if (TextUtils.isEmpty(content)) {
-			return content;
+			return "";
 		}
 		Set<String> bottleKeyWords;
 		try {

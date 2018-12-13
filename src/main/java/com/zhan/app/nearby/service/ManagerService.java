@@ -45,6 +45,22 @@ public class ManagerService {
 		return managerDao.getHomeFoundSelectedCount();
 	}
 
+	public boolean mLogin(String name, String pwd) {
+		Integer i = managerDao.queryM(name, pwd);
+		if (i > 0) {
+			return true;
+		}
+		return false;
+	}
+
+	public boolean isAllowed(String ip) {
+		Integer i = managerDao.queryAllowed(ip);
+		if (i > 0) {
+			return true;
+		}
+		return false;
+	}
+
 	public int getPageCountByState(int state) {
 		return managerDao.getPageCountByState(state);
 	}
@@ -184,8 +200,8 @@ public class ManagerService {
 	 * @param currentPage
 	 * @return
 	 */
-	public List<BaseUser> getAllUser(int pageSize, int currentPage, int type, String keyword,Long user_id) {
-		return userService.getAllUser(pageSize, currentPage, type, keyword,user_id);
+	public List<BaseUser> getAllUser(int pageSize, int currentPage, int type, String keyword, Long user_id) {
+		return userService.getAllUser(pageSize, currentPage, type, keyword, user_id);
 	}
 
 	/**
@@ -193,8 +209,8 @@ public class ManagerService {
 	 * 
 	 * @return
 	 */
-	public int getUserSize(int type, String keyword,Long user_id) {
-		return userService.getUserSize(type, keyword,user_id);
+	public int getUserSize(int type, String keyword, Long user_id) {
+		return userService.getUserSize(type, keyword, user_id);
 	}
 
 	/**
@@ -232,7 +248,7 @@ public class ManagerService {
 	 */
 	public void editUserFoundState(long user_id, FoundUserRelationship ship) {
 		managerDao.editUserFoundState(user_id, ship);
-		if(ship==FoundUserRelationship.GONE) {
+		if (ship == FoundUserRelationship.GONE) {
 			bottleService.clearPoolBottleByUserId(user_id);
 		}
 	}
@@ -291,8 +307,8 @@ public class ManagerService {
 		}
 	}
 
-	public void handleReport(int id,boolean isIgnore) {
-		mainService.handleReport(id,isIgnore);
+	public void handleReport(int id, boolean isIgnore) {
+		mainService.handleReport(id, isIgnore);
 	}
 
 	/**
@@ -310,33 +326,35 @@ public class ManagerService {
 		return mainService.getReportSizeByApproval(approval_type);
 	}
 
-	public List<Bottle> listBottleByState(int state, int pageSize, int pageIndex,Long bottle_id) {
+	public List<Bottle> listBottleByState(int state, int pageSize, int pageIndex, Long bottle_id) {
 		long realId;
-		if(bottle_id==null||bottle_id<1) {
-			realId=0;
-		}else {
-			realId=bottle_id;
+		if (bottle_id == null || bottle_id < 1) {
+			realId = 0;
+		} else {
+			realId = bottle_id;
 		}
-		return bottleService.getBottlesByState(state, pageSize, pageIndex,realId);
+		return bottleService.getBottlesByState(state, pageSize, pageIndex, realId);
 	}
-	
-	public int getBottleCountWithState(int state,Long bottle_id) {
-		if(bottle_id!=null&&bottle_id>0) {
+
+	public int getBottleCountWithState(int state, Long bottle_id) {
+		if (bottle_id != null && bottle_id > 0) {
 			return 1;
 		}
 		return bottleService.getBottleCountWithState(state);
 	}
 
 	public void changeBottleState(int id, int to_state) {
-		bottleService.changeBottleState(id,to_state);
+		bottleService.changeBottleState(id, to_state);
 	}
 
-	public ModelMap getSpecialUsers(int pageIndex,int pageSize) {
-		return mainService.getSpecialUsers(pageIndex,pageSize);
+	public ModelMap getSpecialUsers(int pageIndex, int pageSize) {
+		return mainService.getSpecialUsers(pageIndex, pageSize);
 	}
+
 	public int getSpecialUsersCount() {
 		return mainService.getSpecialUsersCount();
 	}
+
 	public int delSpecialUser(long uid) {
 		return mainService.delSpecialUser(uid);
 	}
@@ -348,7 +366,7 @@ public class ManagerService {
 	public void editAvatarState(int id) {
 		userService.editAvatarState(id);
 	}
-	
+
 	public void editAvatarStateByUserId(long uid) {
 		userService.editAvatarStateByUserId(uid);
 	}
@@ -364,10 +382,10 @@ public class ManagerService {
 
 	@SuppressWarnings("unchecked")
 	public List<BaseUser> listConfirmAvatars(int pageSize, int pageIndex) {
-		return (List<BaseUser>) ImagePathUtil.completeAvatarsPath(userService.listConfirmAvatars(0,pageSize,pageIndex), false); //state=0为变动，1为
+		return (List<BaseUser>) ImagePathUtil
+				.completeAvatarsPath(userService.listConfirmAvatars(0, pageSize, pageIndex), false); // state=0为变动，1为
 	}
-	
-	
+
 	public int getCountOfConfirmAvatars() {
 		return userService.getCountOfConfirmAvatars();
 	}

@@ -60,7 +60,7 @@ function add_vip(){
     });
 }
 	function loadVipList(){
-		$.post('<%=path%>/vip/list',{'_ua':'12345567645454'},  function(data,status){
+		$.post('<%=path%>/vip/list',{'_ua':'12345567645454','i':'1111'},  function(data,status){
 		    var json=JSON.parse(data);
 		    if(json.code==0){
 	        	$("table tr[id*='tr_'").each(function(i){
@@ -109,7 +109,7 @@ function add_vip(){
 		}
 	 
 	 function del(id){
-		 $.post('<%=path%>/vip/del',{'id':id,'_ua':'1234423232323'},  function(data,status){
+		 $.post('<%=path%>/vip/del',{'id':id,'_ua':'1234423232323','i':'1111'},  function(data,status){
 			    var json=JSON.parse(data);
 			    if(json.code==0){
 			    	$("table tr[id*='tr_"+id+"'").remove();//移除当前的元素
@@ -148,6 +148,7 @@ function add_vip(){
     <form method="post" name="form" class="form-x" enctype="multipart/form-data">
       
       <input type="hidden" id="vip_id" name="id" value="0">    
+      <input type="hidden"  name="i" value="1111">    
       <div class="form-group">
         <div class="label">
           <label>名称</label>

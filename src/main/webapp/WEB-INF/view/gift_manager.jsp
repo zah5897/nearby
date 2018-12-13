@@ -60,7 +60,7 @@ function add_gift(){
     });
 }
 	function loadGift(){
-		$.post('<%=path%>/gift/list',{'_ua':'12345567645454'},  function(data,status){
+		$.post('<%=path%>/gift/list',{'_ua':'12345567645454','i':'1111'},  function(data,status){
 		    var json=JSON.parse(data);
 		    if(json.code==0){
 	        	$("table tr[id*='tr_'").each(function(i){
@@ -109,7 +109,7 @@ function add_gift(){
 		}
 	 
 	 function del(id){
-		 $.post('<%=path%>/gift/del',{'id':id,'_ua':'1234423232323'},  function(data,status){
+		 $.post('<%=path%>/gift/del',{'id':id,'_ua':'1234423232323','i':'1111'},  function(data,status){
 			    var json=JSON.parse(data);
 			    if(json.code==0){
 			    	$("table tr[id*='tr_"+id+"'").remove();//移除当前的元素

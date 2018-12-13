@@ -77,7 +77,7 @@ function add_rule(){
 	return false;
 }
 	function loadRuleList(){
-		$.post('<%=path%>/rule/list',{'_ua':'12345567645454','aid':keyword},  function(data,status){
+		$.post('<%=path%>/rule/list',{'_ua':'12345567645454','aid':keyword,'i':'1111'},  function(data,status){
 		    var json=JSON.parse(data);
 		    if(json.code==0){
 	        	$("table tr[id*='tr_'").each(function(i){
@@ -131,7 +131,7 @@ function add_rule(){
 		 if(!confirm("确定删除该购买项？")){
 			 return;
 		 }
-		 $.post('<%=path%>/rule/del',{'id':id,'_ua':'1234423232323'},  function(data,status){
+		 $.post('<%=path%>/rule/del',{'id':id,'_ua':'1234423232323','i':'1111'},  function(data,status){
 			    var json=JSON.parse(data);
 			    if(json.code==0){
 			    	$("table tr[id*='tr_"+id+"'").remove();//移除当前的元素

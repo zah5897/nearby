@@ -1,5 +1,6 @@
 package com.zhan.app.nearby.filter;
 
+import java.net.URLDecoder;
 import java.security.NoSuchAlgorithmException;
 
 import javax.annotation.Resource;
@@ -22,8 +23,7 @@ public class ParamInterceptor implements HandlerInterceptor {
 	@Resource
 	private ManagerService managerService;
 
-	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
-			throws Exception {
+	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws NoSuchAlgorithmException {
 
 		String url = request.getRequestURI();
 
@@ -67,41 +67,49 @@ public class ParamInterceptor implements HandlerInterceptor {
 		if ("1111".equals(i)) {
 			return true;
 		}
-
 		String _ua = request.getParameter("_ua");
-		String[] _uas = _ua.split("\\|");
 		String version = request.getParameter("version");
+		String timestamp = request.getParameter("timestamp");
+		String aid = request.getParameter("aid");
+		return checkSecret(request,_ua, aid, version, timestamp);
+	}
 
+	@SuppressWarnings("deprecation")
+	private boolean checkSecret(HttpServletRequest request,String _ua, String aid, String version, String timestamp) throws NoSuchAlgorithmException {
+		
+		String[] _uas = _ua.split("\\|");
+		if (_uas.length < 10) {
+			String deUA= URLDecoder.decode(_ua);
+			_uas = deUA.split("\\|");
+		}
+		
 		if (IOS.equals(_uas[0])) {
-			if (version.compareTo("1.8.1") < 0) {
+			if (version.compareTo("1.8.1") <= 0) {
 				return true;
 			}
 		}
-
-		String timestamp = request.getParameter("timestamp");
-		String aid = request.getParameter("aid");
-		byte[] md5=MD5Util.getMd5Byte((aid + version + timestamp));
+		byte[] md5 = MD5Util.getMd5Byte((aid + version + timestamp));
 		byte[] base64byte = Base64.encodeBase64Chunked(md5);
 		String cd = new String(base64byte);
 		String paramS = _uas[_uas.length - 1];
 		if (!cd.trim().equalsIgnoreCase(paramS.trim())) {
-			return false;
+			 return false;
 		}
 		return true;
 	}
-	
-	public static void main(String[] args) throws NoSuchAlgorithmException {
-		String t="1544595059984";
-		String v="1.8.2";
-		String aid="1178548652";
-		byte[] md5=MD5Util.getMd5Byte((aid + v + t));
 
-        for(byte b:md5) {
-        	System.out.print(b);
-        	System.out.print(",");
-        }
-        System.out.println();
-		byte[] base64byte= Base64.encodeBase64Chunked(md5);
+	public static void main(String[] args) throws NoSuchAlgorithmException {
+		String t = "1544595059984";
+		String v = "1.8.2";
+		String aid = "1178548652";
+		byte[] md5 = MD5Util.getMd5Byte((aid + v + t));
+
+		for (byte b : md5) {
+			System.out.print(b);
+			System.out.print(",");
+		}
+		System.out.println();
+		byte[] base64byte = Base64.encodeBase64Chunked(md5);
 		String cd = new String(base64byte);
 		System.out.println(cd);
 	}

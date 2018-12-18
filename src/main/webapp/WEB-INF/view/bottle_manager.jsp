@@ -236,8 +236,9 @@ td {
 			  toAdd+="<td><div class='button-group'>";
 			  //操作单元格
 			  if(state==0){
-				  toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return changeBottleState("+id+",1)'><span class='icon-edit'></span>编辑为黑名单状态</a>";
+				 
 				  toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return changeBottleState("+id+",2)'><span class='icon-edit'></span>编辑为ios审核状态</a>";
+				  toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return changeBottleState("+id+",1)'><span class='icon-edit'></span>编辑为黑名单状态</a>";
 			  }else  {
 				  toAdd+="<a class='button border-main' href='javascript:void(0)'	onclick='return changeBottleState("+id+",0)'><span class='icon-edit'></span>编辑为正常状态</a>";
 			  } 

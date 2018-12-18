@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 
 import com.easemob.server.example.Main;
+import com.zhan.app.nearby.bean.BGM;
 import com.zhan.app.nearby.bean.City;
 import com.zhan.app.nearby.bean.Exchange;
 import com.zhan.app.nearby.bean.MeiLi;
@@ -282,17 +283,16 @@ public class MainService {
 		if (count == null) {
 			count = 20;
 		}
-		
-		if(type!=3) {
+
+		if (type != 3) {
 			List<MeiLi> meili = giftService.loadMeiLi(type, pageIndex, count);
 			return ResultUtil.getResultOKMap().addAttribute("users", meili);
-		}else {
-			return newRegistUsers(pageIndex,count);
+		} else {
+			return newRegistUsers(pageIndex, count);
 		}
-		
+
 		// 这个地方的rank_list字段用 users
 
-		
 		// return ResultUtil.getResultOKMap().addAttribute("rank_list", meili);
 	}
 
@@ -388,8 +388,8 @@ public class MainService {
 			users.add(0, fix_user);
 		}
 		ImagePathUtil.completeAvatarsPath(users, true);
-		
-		for(BaseVipUser u:users) {
+
+		for (BaseVipUser u : users) {
 			u.setBirth_city(cityService.getSimpleCity(u.getBirth_city_id()));
 			u.setCity(cityService.getSimpleCity(u.getCity_id()));
 		}
@@ -570,4 +570,11 @@ public class MainService {
 		}
 	}
 
+	public void saveBGM(BGM bgm) {
+		systemDao.insertBGM(bgm);
+	}
+
+	public List<BGM> loadBGM(Integer count) {
+		return systemDao.loadBGM(count == null || count <= 0 ? 1 : count);
+	}
 }

@@ -22,6 +22,7 @@ import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.bean.user.MeetListUser;
 import com.zhan.app.nearby.cache.UserCacheService;
 import com.zhan.app.nearby.comm.AccountStateType;
+import com.zhan.app.nearby.comm.BottleAnswerState;
 import com.zhan.app.nearby.comm.BottleState;
 import com.zhan.app.nearby.comm.DynamicMsgType;
 import com.zhan.app.nearby.comm.FoundUserRelationship;
@@ -205,7 +206,7 @@ public class BottleService {
 		if (bottle.getType() == BottleType.TXT.ordinal() || bottle.getType() == BottleType.DM_TXT.ordinal()) {
 			// 敏感词过滤
 			String newContent = BottleKeyWordUtil.filterContent(bottle.getContent());
-			if(!newContent.equals(bottle.getContent())) {
+			if (!newContent.equals(bottle.getContent())) {
 				bottle.setState(BottleState.BLACK.ordinal());
 			}
 			bottle.setContent(newContent);
@@ -214,7 +215,7 @@ public class BottleService {
 		checkExistAndClear(bottle);
 		bottle.setCreate_time(new Date());
 		bottleDao.insert(bottle);
-		if (bottle.getId() > 0&&bottle.getState()!=BottleState.BLACK.ordinal()) {
+		if (bottle.getId() > 0 && bottle.getState() != BottleState.BLACK.ordinal()) {
 			bottleDao.insertToPool(bottle);
 		}
 	}
@@ -238,21 +239,22 @@ public class BottleService {
 			for (Bottle bottle : bottles) {
 				List<BaseUser> users = bottleDao.getScanUserList(bottle.getId(), 8);
 				bottle.setView_nums(bottleDao.getScanUserCount(bottle.getId()));
-//				if (users == null || users.size() < 8) {
-//					String gender = userService.getUserGenderByID(user_id);
-//					int gen;
-//					if ("0".equals(gender)) {
-//						gen = 1;
-//					} else {
-//						gen = 0;
-//					}
-//					List<BaseUser> last_user = bottleDao.getRandomScanUserList(users == null ? 8 : 8 - users.size(),
-//							gen);
-//					users.addAll(last_user);
-//					bottle.setView_nums(users.size());
-//				} else {
-//					bottle.setView_nums(bottleDao.getScanUserCount(bottle.getId()));
-//				}
+				// if (users == null || users.size() < 8) {
+				// String gender = userService.getUserGenderByID(user_id);
+				// int gen;
+				// if ("0".equals(gender)) {
+				// gen = 1;
+				// } else {
+				// gen = 0;
+				// }
+				// List<BaseUser> last_user = bottleDao.getRandomScanUserList(users == null ? 8
+				// : 8 - users.size(),
+				// gen);
+				// users.addAll(last_user);
+				// bottle.setView_nums(users.size());
+				// } else {
+				// bottle.setView_nums(bottleDao.getScanUserCount(bottle.getId()));
+				// }
 				ImagePathUtil.completeAvatarsPath(users, false);
 				bottle.setScan_user_list(users);
 			}
@@ -375,8 +377,23 @@ public class BottleService {
 		return ResultUtil.getResultOKMap().addAttribute("with_user_id", user_ids);
 	}
 
-	public ModelMap replay(long user_id, long target, String msg, long bottle_id) {
+	public ModelMap replay(String aid,long user_id, long target, String msg, long bottle_id) {
 		BaseUser user = userDao.getBaseUser(user_id);
+		
+		Bottle bottle=bottleDao.getBottle(bottle_id);
+		if(bottle==null) {
+			return ResultUtil.getResultMap(ERROR.ERR_NOT_EXIST);
+		}
+		if(bottle.getType()==BottleType.DRAW_GUESS.ordinal()) {
+			 if(bottle.getAnswer_state()==BottleAnswerState.NORMAL.ordinal()) {
+				 if(!TextUtils.isEmpty(msg)&&msg.trim().equals(bottle.getAnswer())) {
+					 //更新状态，并奖励
+					 updateAnswerState(bottle_id, BottleAnswerState.ANSWERED);
+					 userService.rewardCoin(user_id,bottle.getReward(), aid);
+				 }
+			 }
+		}
+		
 		ImagePathUtil.completeAvatarPath(user, true);
 		// 发送给对方
 		Map<String, String> ext = new HashMap<String, String>();
@@ -477,6 +494,14 @@ public class BottleService {
 	public void clearUserBottle(long uid) {
 		clearPoolBottleByUserId(uid);
 		bottleDao.clearBottleByUserId(uid);
+	}
+
+	public List<String> loadAnswerToDraw(Integer count) {
+		return bottleDao.loadAnswerToDraw(count == null || count < 1 ? 4 : count);
+	}
+	
+	public void updateAnswerState(long bottle_id,BottleAnswerState state) {
+		bottleDao.updateAnswerState(bottle_id,state.ordinal());
 	}
 
 }

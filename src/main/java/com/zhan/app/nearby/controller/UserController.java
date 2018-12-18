@@ -1,5 +1,6 @@
 package com.zhan.app.nearby.controller;
 
+import java.net.URLDecoder;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -47,6 +48,8 @@ import com.zhan.app.nearby.util.RandomCodeUtil;
 import com.zhan.app.nearby.util.ResultUtil;
 import com.zhan.app.nearby.util.SMSHelper;
 import com.zhan.app.nearby.util.TextUtils;
+
+import io.netty.util.internal.StringUtil;
 
 @RestController
 @RequestMapping("/user")
@@ -122,12 +125,15 @@ public class UserController {
 
 	@RequestMapping("regist")
 	public ModelMap regist(HttpServletRequest request, LoginUser user, String code, String aid, Integer city_id,
-			String bGenderOK) {
+			String bGenderOK,String _ua) {
 
 		if (TextUtils.isEmpty(user.getMobile())) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "手机号码不能为空!");
 		}
 
+		if(TextUtils.isEmpty(user.getNick_name())) {
+			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "昵称不能为空");
+		}
 		// 验证code合法性
 		if (TextUtils.isEmpty(code) || !userCacheService.valideCode(user.getMobile(), code)) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "验证码错误");
@@ -191,8 +197,12 @@ public class UserController {
 				return ResultUtil.getResultMap(ERROR.ERR_USER_EXIST, "无法找到该游客账号");
 			}
 		} else {
+			if(_ua.contains("\\|")) {
+				user.set_ua(_ua);
+			}else {
+				user.set_ua(URLDecoder.decode(_ua));
+			}
 			id = userService.insertUser(user);
-
 		}
 		if (id == -1l) {
 			return ResultUtil.getResultMap(ERROR.ERR_USER_EXIST, "该手机号码已经注册过");
@@ -610,43 +620,43 @@ public class UserController {
 		return ResultUtil.getResultOKMap();
 	}
 
-	@RequestMapping("visitor_regist")
-	public ModelMap visitor_regist(String device_id, String aid, String device_token, String zh_cn, String lat,
-			String lng) {
-
-		if (!TextUtils.isEmpty(zh_cn)) {
-			if (zh_cn.length() > 2) {
-				return ResultUtil.getResultMap(ERROR.ERR_PARAM, "zh_cn has too long,max &lt 2");
-			}
-		}
-		if (TextUtils.isEmpty(device_id)) {
-			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "deviceId is empty");
-		}
-
-		LocationUser user = userService.findLocationUserByDeviceId(device_id);
-		if (user == null) {
-
-			user = new LocationUser();
-			user.setMobile(device_id);
-			user.setDevice_token(device_token);
-			user.setAid(aid);
-			user.setLat(lat);
-			user.setLng(lng);
-			user.setZh_cn(zh_cn);
-			user.setType((short) UserType.VISITOR.ordinal());
-			user.setCreate_time(new Date());
-			long user_id = userService.insertUser(user);
-			user.setUser_id(user_id);
-		} else {
-			userService.updateVisitor(user.getUser_id(), aid, device_token, lat, lng, zh_cn);
-			user.setDevice_token(device_token);
-		}
-		ModelMap result = ResultUtil.getResultOKMap();
-
-		user.setCity(getDefaultCityId());
-		result.put("user", user);
-		return result;
-	}
+//	@RequestMapping("visitor_regist")
+//	public ModelMap visitor_regist(String device_id, String aid, String device_token, String zh_cn, String lat,
+//			String lng) {
+//
+//		if (!TextUtils.isEmpty(zh_cn)) {
+//			if (zh_cn.length() > 2) {
+//				return ResultUtil.getResultMap(ERROR.ERR_PARAM, "zh_cn has too long,max &lt 2");
+//			}
+//		}
+//		if (TextUtils.isEmpty(device_id)) {
+//			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "deviceId is empty");
+//		}
+//
+//		LocationUser user = userService.findLocationUserByDeviceId(device_id);
+//		if (user == null) {
+//
+//			user = new LocationUser();
+//			user.setMobile(device_id);
+//			user.setDevice_token(device_token);
+//			user.setAid(aid);
+//			user.setLat(lat);
+//			user.setLng(lng);
+//			user.setZh_cn(zh_cn);
+//			user.setType((short) UserType.VISITOR.ordinal());
+//			user.setCreate_time(new Date());
+//			long user_id = userService.insertUser(user);
+//			user.setUser_id(user_id);
+//		} else {
+//			userService.updateVisitor(user.getUser_id(), aid, device_token, lat, lng, zh_cn);
+//			user.setDevice_token(device_token);
+//		}
+//		ModelMap result = ResultUtil.getResultOKMap();
+//
+//		user.setCity(getDefaultCityId());
+//		result.put("user", user);
+//		return result;
+//	}
 
 	@RequestMapping("add_app_user")
 	public ModelMap add_app_user(String device_id, String aid, String device_token, String zh_cn, String lat,

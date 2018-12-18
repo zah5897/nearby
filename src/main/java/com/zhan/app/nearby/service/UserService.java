@@ -648,7 +648,16 @@ public class UserService {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
 	}
+	
+	public Map<String, Object> checkOut(long user_id,int coin, String aid) {
+		return modifyExtra(user_id, aid,coin, -1);	 
+	}
 
+	
+	public Map<String, Object> rewardCoin(long user_id,int coin, String aid) {
+		return modifyExtra(user_id, aid,coin, 1);	 
+	}
+	
 	private String MODULE_ORDER_A_EXTRA;
 
 	public Map<String, Object> modifyExtra(long user_id, String aid, int count, int type) {

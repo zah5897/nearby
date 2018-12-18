@@ -11,6 +11,7 @@ import com.zhan.app.nearby.bean.Bottle;
 import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.service.BottleService;
 import com.zhan.app.nearby.service.MainService;
+import com.zhan.app.nearby.service.UserService;
 import com.zhan.app.nearby.util.ResultUtil;
 
 @RestController
@@ -21,11 +22,13 @@ public class BottleController {
 	private BottleService bottleService;
 	@Resource
 	private MainService mainService;
+	@Resource
+	private UserService userService;
 
 	@RequestMapping("send")
-	public ModelMap send(Bottle bottle, String aid) {
+	public ModelMap send(Bottle bottle, String aid,String token) {
 
-		if (bottle.getUser_id() <= 0) {
+		if (bottle.getUser_id() <= 0&&!userService.checkLogin(bottle.getUser_id(), token)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
 		if (!bottleService.checkTime(bottle)) {
@@ -35,6 +38,24 @@ public class BottleController {
 		if (bottleService.isBlackUser(bottle.getUser_id())) {
 			return ResultUtil.getResultMap(ERROR.ERR_ACCOUNT_BLACKLIST);
 		}
+		
+		
+		if(bottle.getReward()>0) {
+			
+			int coin=userService.loadUserCoins(aid, bottle.getUser_id());
+			if(coin<bottle.getReward()) {
+				return ResultUtil.getResultMap(ERROR.ERR_COINS_SHORT);
+			}
+			Object coins=userService.checkOut(bottle.getUser_id(),bottle.getReward(), aid).get("all_coins");
+			if(coins==null) {
+				return ResultUtil.getResultMap(ERROR.ERR_FAILED);
+			}
+			int icoin=Integer.parseInt(coins.toString());
+			if(icoin<0) {
+				return ResultUtil.getResultMap(ERROR.ERR_COINS_SHORT);
+			}
+		}
+		
 		bottleService.send(bottle, aid);
 		return ResultUtil.getResultOKMap().addAttribute("bottle", bottle);
 	}
@@ -89,8 +110,8 @@ public class BottleController {
 	}
 
 	@RequestMapping("replay")
-	public ModelMap replay(long user_id, long target, long bottle_id, String msg) {
-		return bottleService.replay(user_id, target, msg, bottle_id);
+	public ModelMap replay(String aid,long user_id, long target, long bottle_id, String msg) {
+		return bottleService.replay(aid,user_id, target, msg,bottle_id);
 	}
 
 	
@@ -108,4 +129,11 @@ public class BottleController {
 	public ModelMap like(@PathVariable long user_id, Integer page, Integer count) {
 		return bottleService.meetList(user_id, page, count);
 	}
+	
+	
+	@RequestMapping("answer_to_draw")
+	public ModelMap answer_to_draw( Integer count) {
+		return ResultUtil.getResultOKMap().addAttribute("answers", bottleService.loadAnswerToDraw(count));
+	}
+	
 }

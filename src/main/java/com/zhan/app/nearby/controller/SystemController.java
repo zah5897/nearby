@@ -76,4 +76,10 @@ public class SystemController {
 		IPUtil.removeBlackIP(ip);
 		return ResultUtil.getResultOKMap().addAttribute("black_ips", IPUtil.getIpBlackList());
 	}
+	
+	@RequestMapping("bgm")
+	public ModelMap bgm(Integer count) {
+		return ResultUtil.getResultOKMap().addAttribute("bgms", mainService.loadBGM(count));
+	}
+	
 }

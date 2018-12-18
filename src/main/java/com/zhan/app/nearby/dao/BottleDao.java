@@ -11,6 +11,7 @@ import javax.annotation.Resource;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.ui.ModelMap;
 
 import com.zhan.app.nearby.bean.Bottle;
 import com.zhan.app.nearby.bean.BottleExpress;
@@ -66,6 +67,17 @@ public class BottleDao extends BaseDao {
 			return null;
 		}
 	}
+	
+	public Bottle getBottle(long id) {
+		String sql = "select * from " + TABLE_BOTTLE+" where id="+id;
+		List<Bottle> bottles = jdbcTemplate.query(sql,new BeanPropertyRowMapper<Bottle>(Bottle.class));
+		if(bottles.isEmpty()) {
+			return null;
+		}
+		return bottles.get(0);
+	}
+
+	
 
 	public int insertToPool(Bottle bottle) {
 		String sql = "insert into " + TABLE_BOTTLE_POOL + " (bottle_id,user_id,type,create_time) values (?,?,?,?)";
@@ -453,5 +465,13 @@ public class BottleDao extends BaseDao {
 	}
 	public int clearBottleByUserId(long uid) {
 		return jdbcTemplate.update("delete from t_bottle where  user_id=?",new Object[] {uid});
+	}
+
+	public List<String> loadAnswerToDraw(Integer count) {
+		return jdbcTemplate.queryForList("select *from t_answer_to_draw order by rand() limit "+count,String.class);
+	}
+
+	public void updateAnswerState(long bottle_id, int ordinal) {
+		  jdbcTemplate.queryForList("update t_bottle set answer_state=? where id=?",new Object[] {ordinal,bottle_id});
 	}
 }

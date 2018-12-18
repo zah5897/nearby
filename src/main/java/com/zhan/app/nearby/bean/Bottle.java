@@ -32,7 +32,15 @@ public class Bottle {
 	private int view_nums;
 
 	private int state = 0;
-
+	
+	
+	//我画你猜 答案
+	private String answer;
+	//我画你猜 奖励
+	private int reward;
+	
+	
+	private int answer_state = 0;
 	public long getId() {
 		return id;
 	}
@@ -108,5 +116,30 @@ public class Bottle {
     public long getCreate_time_v2() {
 		return create_time_v2;
 	}
+
+	public String getAnswer() {
+		return answer;
+	}
+
+	public void setAnswer(String answer) {
+		this.answer = answer;
+	}
+
+	public int getReward() {
+		return reward;
+	}
+
+	public void setReward(int reward) {
+		this.reward = reward;
+	}
+
+	public int getAnswer_state() {
+		return answer_state;
+	}
+
+	public void setAnswer_state(int answer_state) {
+		this.answer_state = answer_state;
+	}
    
+    
 }

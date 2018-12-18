@@ -44,7 +44,6 @@ public class TimerTask {
 			}
 
 		}
-		
 		//定时自动加入黑名单IP
 		autoAddBlackIP();
 	}

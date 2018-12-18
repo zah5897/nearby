@@ -11,6 +11,7 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import com.zhan.app.nearby.bean.BGM;
 import com.zhan.app.nearby.bean.Exchange;
 import com.zhan.app.nearby.bean.PersonalInfo;
 import com.zhan.app.nearby.bean.Report;
@@ -249,8 +250,23 @@ public class SystemDao extends BaseDao {
 	public int deleteFromBlackIps(String ip) {
 		return jdbcTemplate.update("delete from t_black_ips where ip="+ip);
 	}
-	 
 	
 	
+	/**
+	 * 插入bgm
+	 * @param bmg
+	 */
+	public void insertBGM(BGM bmg) {
+		saveObjSimple(jdbcTemplate, "t_bgm", bmg);
+	}
+	
+	/**
+	 * 随机查询bgm
+	 * @param count
+	 * @return
+	 */
+	public List<BGM> loadBGM(int count) {
+		return jdbcTemplate.query("select *from t_bgm order by rand() limit "+count, new BeanPropertyRowMapper<BGM>(BGM.class)); 
+	}
 	
 }

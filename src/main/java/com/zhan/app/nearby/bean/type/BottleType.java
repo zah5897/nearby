@@ -6,5 +6,6 @@ public enum BottleType {
 	VOICE,
 	MEET,
 	DM_TXT, //弹幕文字瓶子
-	DM_VOICE; //弹幕语音瓶子
+	DM_VOICE,//弹幕语音瓶子
+	DRAW_GUESS; //我画你猜
 }

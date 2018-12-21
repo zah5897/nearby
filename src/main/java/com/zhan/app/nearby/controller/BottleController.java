@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.zhan.app.nearby.bean.Bottle;
+import com.zhan.app.nearby.bean.type.BottleType;
 import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.service.BottleService;
 import com.zhan.app.nearby.service.MainService;
@@ -37,6 +38,11 @@ public class BottleController {
 
 		if (bottleService.isBlackUser(bottle.getUser_id())) {
 			return ResultUtil.getResultMap(ERROR.ERR_ACCOUNT_BLACKLIST);
+		}
+		
+		if(bottle.getType()==BottleType.MEET.ordinal()) {
+			//
+			return ResultUtil.getResultMap(ERROR.ERR_FAILED);
 		}
 		
 		
@@ -134,6 +140,12 @@ public class BottleController {
 	@RequestMapping("answer_to_draw")
 	public ModelMap answer_to_draw( Integer count) {
 		return ResultUtil.getResultOKMap().addAttribute("answers", bottleService.loadAnswerToDraw(count));
+	}
+	
+	
+	@RequestMapping("reward_list")
+	public ModelMap reward_history( Integer count) {
+		return ResultUtil.getResultOKMap().addAttribute("reward_list", bottleService.rewardHistory(count));
 	}
 	
 }

@@ -11,10 +11,10 @@ import javax.annotation.Resource;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-import org.springframework.ui.ModelMap;
 
 import com.zhan.app.nearby.bean.Bottle;
 import com.zhan.app.nearby.bean.BottleExpress;
+import com.zhan.app.nearby.bean.Reward;
 import com.zhan.app.nearby.bean.type.BottleType;
 import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.bean.user.BaseVipUser;
@@ -25,6 +25,7 @@ import com.zhan.app.nearby.comm.DynamicMsgType;
 import com.zhan.app.nearby.comm.MsgState;
 import com.zhan.app.nearby.comm.Relationship;
 import com.zhan.app.nearby.util.ImagePathUtil;
+import com.zhan.app.nearby.util.PropertyMapperUtil;
 
 @Repository("bottleDao")
 public class BottleDao extends BaseDao {
@@ -40,6 +41,8 @@ public class BottleDao extends BaseDao {
 	
 	@Resource
 	private CityDao cityDao;
+	@Resource
+	private UserDao userDao;
 	// ---------------------------------------bottle-------------------------------------------------
 	public long insert(Bottle bottle) {
 		long id = saveObj(jdbcTemplate, TABLE_BOTTLE, bottle);
@@ -76,7 +79,14 @@ public class BottleDao extends BaseDao {
 		}
 		return bottles.get(0);
 	}
-
+	public Bottle  getBottleBySenderAndType(long user_id,int type) {
+		String sql = "select id from " + TABLE_BOTTLE+" where user_id=? and type=?";
+		List<Bottle> ids = jdbcTemplate.query(sql, new Object[] {user_id,type}, new BeanPropertyRowMapper<Bottle>(Bottle.class));
+		if(ids.isEmpty()) {
+			return null;
+		}
+		return ids.get(0);
+	}
 	
 
 	public int insertToPool(Bottle bottle) {
@@ -311,12 +321,28 @@ public class BottleDao extends BaseDao {
 		return " (year(now())-year(u.birthday)-1) + ( DATE_FORMAT(u.birthday, '%m%d') <= DATE_FORMAT(NOW(), '%m%d') ) as age ";
 	}
 
-	public boolean isExistMeetTypeBottle(long user_id) {
+	public boolean checkExistMeetBottleAndReUse(long user_id) {
 		int pool_count = jdbcTemplate.queryForObject("select count(*) from t_bottle_pool where user_id=? and type=?",
 				new Object[] { user_id, BottleType.MEET.ordinal() }, Integer.class);
+		
+		
 		int bottle_count = jdbcTemplate.queryForObject("select count(*) from t_bottle where user_id=? and type=?",
 				new Object[] { user_id, BottleType.MEET.ordinal() }, Integer.class);
-		return pool_count > 0 || bottle_count > 0;
+		if(pool_count>0) {
+			return false;
+		}
+		
+		if(bottle_count==0) {
+			return true;
+		}
+		if(bottle_count>0) {
+			Bottle b=getBottleBySenderAndType(user_id,BottleType.MEET.ordinal());
+			if(b!=null) {
+				 insertToPool(b);
+				 return false;
+			}
+		}
+		return true;
 	}
 
 	public List<Long> getMeetBottleIDByUser(long user_id) {
@@ -474,4 +500,31 @@ public class BottleDao extends BaseDao {
 	public void updateAnswerState(long bottle_id, int ordinal) {
 		  jdbcTemplate.queryForList("update t_bottle set answer_state=? where id=?",new Object[] {ordinal,bottle_id});
 	}
+	
+	public void insertReward(Reward reward) {
+		saveObjSimple(jdbcTemplate, "t_reward_history", reward);
+	}
+	
+	public List<Reward> rewardHistory(Integer count) {
+		String sqlReward="select r.*,b.*,ru.nick_name,ru.avatar from t_reward_history r left join t_bottle b on r.bottle_id=b.id left join t_user ru on r.uid=ru.user_id";
+		return jdbcTemplate.query(sqlReward,new BeanPropertyRowMapper<Reward>(Reward.class) {
+			@Override
+			public Reward mapRow(ResultSet rs, int rowNumber) throws SQLException {
+				Reward r=super.mapRow(rs, rowNumber);
+				Bottle b=(Bottle) PropertyMapperUtil.prase(Bottle.class, rs);
+				b.setSender(userDao.getBaseUser(b.getUser_id()));
+				ImagePathUtil.completeAvatarPath(b.getSender(), true);
+				BaseUser u=new BaseUser();
+				u.setUser_id(rs.getLong("user_id"));
+				u.setNick_name(rs.getString("nick_name"));
+				u.setAvatar(rs.getString("avatar"));
+				ImagePathUtil.completeAvatarPath(u, true);
+				r.setBottle(b);
+				r.setUser(u);
+				return r;
+			}
+		});
+	}
+
+	
 }

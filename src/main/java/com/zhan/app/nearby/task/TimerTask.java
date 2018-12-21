@@ -33,8 +33,7 @@ public class TimerTask {
 		List<BaseUser> users = userDao.getRandomMeetBottleUser(10);
 		BottleService bottleService = SpringContextUtil.getBean("bottleService");
 		for (BaseUser u : users) {
-			if (!bottleService.isExistMeetTypeBottle(u.getUser_id())) {// 说明不存在
-
+			if (bottleService.checkExistMeetBottleAndReUse(u.getUser_id())) {// 说明不存在
 				Bottle bottle = new Bottle();
 				bottle.setCreate_time(new Date());
 				bottle.setUser_id(u.getUser_id());

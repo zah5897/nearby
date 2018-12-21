@@ -11,10 +11,16 @@ import com.zhan.app.nearby.annotation.Type;
 
 public class PropertyMapperUtil {
 
-	public static <T> Object prase(Class<T> clazz, ResultSet rs) throws Exception {
+	public static <T> Object prase(Class<T> clazz, ResultSet rs) {
 		// 获得对象属性
 		Field field[] = clazz.getDeclaredFields();
-		Object bean = clazz.newInstance();
+		Object bean=null;
+		try {
+			bean = clazz.newInstance();
+		} catch (InstantiationException | IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		for (Field f : field) {
 			f.setAccessible(true);
 			ColumnType ignore = f.getAnnotation(ColumnType.class);

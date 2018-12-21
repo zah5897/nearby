@@ -267,8 +267,8 @@ public class ManagerService {
 	 * 
 	 * @param user_id
 	 */
-	public void editUserMeetBottle(long user_id, int fun) {
-		managerDao.editUserMeetBottle(user_id, fun);
+	public void editUserMeetBottle(long user_id, int fun,String ip,String by) {
+		managerDao.editUserMeetBottle(user_id, fun,ip,by);
 	}
 
 	/**

@@ -14,6 +14,7 @@ import org.springframework.web.servlet.ModelAndView;
 import com.zhan.app.nearby.service.ManagerService;
 import com.zhan.app.nearby.util.IPUtil;
 import com.zhan.app.nearby.util.MD5Util;
+import com.zhan.app.nearby.util.TextUtils;
 
 public class ParamInterceptor implements HandlerInterceptor {
 
@@ -77,6 +78,9 @@ public class ParamInterceptor implements HandlerInterceptor {
 	@SuppressWarnings("deprecation")
 	private boolean checkSecret(HttpServletRequest request,String _ua, String aid, String version, String timestamp) throws NoSuchAlgorithmException {
 		
+		if(TextUtils.isEmpty(_ua)) {
+			return false;
+		}
 		String[] _uas = _ua.split("\\|");
 		if (_uas.length < 10) {
 			String deUA= URLDecoder.decode(_ua);

@@ -30,6 +30,7 @@ import com.zhan.app.nearby.comm.DynamicState;
 import com.zhan.app.nearby.comm.FoundUserRelationship;
 import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.service.ManagerService;
+import com.zhan.app.nearby.util.IPUtil;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.ImageSaveUtils;
 import com.zhan.app.nearby.util.JSONUtil;
@@ -67,7 +68,7 @@ public class ManagerController {
 			view.addObject("error", "登录失败，账号或密码错误");
 			return view;
 		}
-		session.setAttribute("account", name + "&" + password);
+		session.setAttribute("account", name);
 		return new ModelAndView("redirect:/manager/");
 	}
 
@@ -704,9 +705,12 @@ public class ManagerController {
 
 	// 添加到邂逅瓶待选
 	@RequestMapping(value = "/edit_user_meet_bottle_recomend")
-	public @ResponseBody ModelMap addToUserMeetBottle(long user_id, int fun, Integer pageSize, Integer pageIndex,
+	public @ResponseBody ModelMap addToUserMeetBottle(HttpServletRequest request,long user_id, int fun, Integer pageSize, Integer pageIndex,
 			String keyword) {
-		managerService.editUserMeetBottle(user_id, fun);
+		HttpSession session = request.getSession();
+		Object obj = session.getAttribute("account");
+		
+		managerService.editUserMeetBottle(user_id, fun,IPUtil.getIpAddress(request),obj==null?"null":obj.toString());
 		if (fun == 0) {
 			return list_user_meet_bottle_recommend(pageSize, pageIndex, keyword);
 		}

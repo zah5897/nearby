@@ -16,6 +16,7 @@ import com.easemob.server.example.Main;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.zhan.app.nearby.bean.Bottle;
 import com.zhan.app.nearby.bean.BottleExpress;
+import com.zhan.app.nearby.bean.Reward;
 import com.zhan.app.nearby.bean.VipUser;
 import com.zhan.app.nearby.bean.type.BottleType;
 import com.zhan.app.nearby.bean.user.BaseUser;
@@ -289,8 +290,8 @@ public class BottleService {
 		return ResultUtil.getResultOKMap().addAttribute("ids", bottle_id);
 	}
 
-	public boolean isExistMeetTypeBottle(long user_id) {
-		return bottleDao.isExistMeetTypeBottle(user_id);
+	public boolean checkExistMeetBottleAndReUse(long user_id) {
+		return bottleDao.checkExistMeetBottleAndReUse(user_id);
 	}
 
 	/**
@@ -348,24 +349,24 @@ public class BottleService {
 			});
 			for (Map<?, ?> u_b : idList) {
 				long withUserID = Long.parseLong(u_b.get("uid").toString());
-				long bottleID = Long.parseLong(u_b.get("bottle_id").toString());
+//				long bottleID = Long.parseLong(u_b.get("bottle_id").toString());
 				// 判断瓶子是否存在，不存在的话要新建
-				if (bottleID < 1) {
-					List<Long> ids = bottleDao.getMeetBottleIDByUser(withUserID);
-					if (ids.size() > 0) {
-						bottleID = ids.get(0);
-					} else {
-						Bottle bottle = new Bottle();
-						bottle.setCreate_time(new Date());
-						bottle.setUser_id(withUserID);
-						bottle.setType(BottleType.MEET.ordinal());
-						bottle.setContent(String.valueOf(withUserID));
-						send(bottle, null);
-						bottleID = bottle.getId();
-					}
-				}
+//				if (bottleID < 1) {
+//					List<Long> ids = bottleDao.getMeetBottleIDByUser(withUserID);
+//					if (ids.size() > 0) {
+//						bottleID = ids.get(0);
+//					} else {
+//						Bottle bottle = new Bottle();
+//						bottle.setCreate_time(new Date());
+//						bottle.setUser_id(withUserID);
+//						bottle.setType(BottleType.MEET.ordinal());
+//						bottle.setContent(String.valueOf(withUserID));
+//						send(bottle, null);
+//						bottleID = bottle.getId();
+//					}
+//				}
 				userDao.updateRelationship(user_id, withUserID, Relationship.LIKE);
-				dynamicMsgService.insertActionMsg(DynamicMsgType.TYPE_MEET, user_id, bottleID, withUserID, "");
+				//dynamicMsgService.insertActionMsg(DynamicMsgType.TYPE_MEET, user_id, bottleID, withUserID, "");
 
 				// BaseUser u = userDao.getBaseUser(user_id);
 				// BaseUser withUser = userDao.getBaseUser(withUserID);
@@ -390,6 +391,9 @@ public class BottleService {
 					 //更新状态，并奖励
 					 updateAnswerState(bottle_id, BottleAnswerState.ANSWERED);
 					 userService.rewardCoin(user_id,bottle.getReward(), aid);
+					 
+					 saveRewardHistory(bottle,user_id);
+					 
 				 }
 			 }
 		}
@@ -503,5 +507,17 @@ public class BottleService {
 	public void updateAnswerState(long bottle_id,BottleAnswerState state) {
 		bottleDao.updateAnswerState(bottle_id,state.ordinal());
 	}
-
+	
+	public void saveRewardHistory(Bottle b,long uid) {
+		Reward reward=new Reward();
+		reward.setBottle_id(b.getId());
+		reward.setAnswer(b.getAnswer());
+		reward.setCreate_time(new Date());
+		reward.setUid(uid);
+		reward.setReward(b.getReward());
+		bottleDao.insertReward(reward);
+	}
+	public List<Reward> rewardHistory(Integer count) {
+		return bottleDao.rewardHistory(count == null || count < 1 ? 4 : count);
+	}
 }

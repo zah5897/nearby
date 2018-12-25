@@ -23,10 +23,7 @@ import com.zhan.app.nearby.util.SpringContextUtil;
 @Component
 @EnableScheduling
 public class TimerTask {
-	// 最大有效期
-	public static final int MAX_VALIDATE = (29 * 24 + 23) * 60; // 29天23小时，缓冲一小时
 	// @Scheduled(cron = "0 0 0/1 * * ?") // 每小時
-
 	@Scheduled(cron = "0 0/5 * * * ?") // 每5分钟执行一次
 	public void injectMeetBottle() {
 		UserDao userDao = SpringContextUtil.getBean("userDao");
@@ -52,34 +49,10 @@ public class TimerTask {
 		MainService mainService = SpringContextUtil.getBean("mainService");
 		int rateCount = mainService.injectRate();
 		System.out.println("inject rate count:" + rateCount);
-		
 		deleteIllegalAvatarFile();
-		
-		
-		
-		
-		BottleService bottleService = SpringContextUtil.getBean("bottleService");
-		bottleService.clearExpireBottle(MAX_VALIDATE);
 	}
 
-	// 每小时清理下漂流瓶池中的瓶子
-	@Scheduled(cron = "0 0/60 * * * ?") // 每60分钟执行一次
-	public void clearAudioBottleTask() {
-		BottleService bottleService = SpringContextUtil.getBean("bottleService");
-		bottleService.clearExpireAudioBottle();
-	}
-	// @Scheduled(cron = "0 0/5 * * * ?") // 每5分钟执行一次
-	// public void bottleSpiderTast() {
-	// System.out.println("spiderTast");
-	// // 从0开始,每次100
-	// SpiderManager.getInstance().bottleSpider();
-	// }
-
-	// @Scheduled(cron = "0/5 * * * * ? ") // 每5秒执行一次
-	// public void test() {
-	// System.out.println("timerPull");
-	// System.out.println(Thread.currentThread().getName());
-	// }
+	 
 
 	@Scheduled(cron = "0 10 0 * * ?") // 每天12点10分执行1次
 	// @Scheduled(cron = "0 0/5 * * * ?") // 每5分钟执行一次
@@ -87,6 +60,18 @@ public class TimerTask {
 		VipService vipService = SpringContextUtil.getBean("vipService");
 		int clearCount = vipService.clearExpireVip();
 		System.out.println("clear Expire vip count:" + clearCount);
+		
+		
+		//每天凌晨清理前天数据
+		
+		UserService userService = SpringContextUtil.getBean("userService");
+		userService.clearExpireMeetBottleUser();
+		
+		
+		BottleService bottleService = SpringContextUtil.getBean("bottleService");
+		bottleService.clearExpireBottle();
+		
+		
 	}
 
 	@SuppressWarnings("unchecked")

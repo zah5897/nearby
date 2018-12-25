@@ -854,4 +854,8 @@ public class UserService {
 		return userDao.getUserState(uid);
 	}
 
+	
+	public void clearExpireMeetBottleUser() {
+		userDao.clearExpireMeetBottleUser();
+	}
 }

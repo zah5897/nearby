@@ -349,13 +349,14 @@ public class BottleService {
 			});
 			for (Map<?, ?> u_b : idList) {
 				long withUserID = Long.parseLong(u_b.get("uid").toString());
-//				long bottleID = Long.parseLong(u_b.get("bottle_id").toString());
+				long bottleID = Long.parseLong(u_b.get("bottle_id").toString());
 				// 判断瓶子是否存在，不存在的话要新建
-//				if (bottleID < 1) {
-//					List<Long> ids = bottleDao.getMeetBottleIDByUser(withUserID);
-//					if (ids.size() > 0) {
-//						bottleID = ids.get(0);
-//					} else {
+				if (bottleID < 1) {
+					List<Long> ids = bottleDao.getMeetBottleIDByUser(withUserID);
+					if (ids.size() > 0) {
+						bottleID = ids.get(0);
+					} 
+//					else {
 //						Bottle bottle = new Bottle();
 //						bottle.setCreate_time(new Date());
 //						bottle.setUser_id(withUserID);
@@ -364,10 +365,12 @@ public class BottleService {
 //						send(bottle, null);
 //						bottleID = bottle.getId();
 //					}
-//				}
+				}
 				userDao.updateRelationship(user_id, withUserID, Relationship.LIKE);
-				//dynamicMsgService.insertActionMsg(DynamicMsgType.TYPE_MEET, user_id, bottleID, withUserID, "");
-
+				if(bottleID>0) {
+					dynamicMsgService.insertActionMsg(DynamicMsgType.TYPE_MEET, user_id, bottleID, withUserID, "");
+				}
+				
 				// BaseUser u = userDao.getBaseUser(user_id);
 				// BaseUser withUser = userDao.getBaseUser(withUserID);
 				// makeChatSession(u, withUser, bottleID);
@@ -411,13 +414,13 @@ public class BottleService {
 	}
 
 	/**
-	 * 清理掉过期的语音瓶子 ,根据分钟数
+	 * 清理掉过期的 瓶子 ,7天
 	 * 
 	 * @param maxValidate
 	 * @return
 	 */
-	public int clearExpireBottle(int maxValidate) {
-		return bottleDao.clearExpireBottle(maxValidate);
+	public int clearExpireBottle() {
+		return bottleDao.clearExpireBottle();
 	}
 
 	public int sendAutoBottle(String id, String content) {

@@ -372,6 +372,12 @@ public class UserDao extends BaseDao {
 		return users;
 	}
 
+	
+	public void clearExpireMeetBottleUser() {
+		String sql = "delete from  t_user_meet_bottle_recommend where DATEDIFF(create_time,now()) <-2";
+		jdbcTemplate.update(sql);
+	}
+	
 	public void removeMeetBottleUserByUserId(long uid) {
 		jdbcTemplate.update("delete from t_user_meet_bottle_recommend where uid=" + uid);
 	}

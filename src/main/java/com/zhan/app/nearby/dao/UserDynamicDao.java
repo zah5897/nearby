@@ -17,6 +17,7 @@ import com.zhan.app.nearby.bean.UserDynamicRelationShip;
 import com.zhan.app.nearby.bean.mapper.DynamicCommentMapper;
 import com.zhan.app.nearby.bean.mapper.DynamicMapper;
 import com.zhan.app.nearby.comm.DynamicState;
+import com.zhan.app.nearby.comm.FoundUserRelationship;
 import com.zhan.app.nearby.comm.ImageStatus;
 import com.zhan.app.nearby.comm.LikeDynamicState;
 import com.zhan.app.nearby.comm.Relationship;
@@ -228,10 +229,10 @@ public class UserDynamicDao extends BaseDao {
 				+ " from t_dynamic_comment cc left join t_user au on cc.user_id=au.user_id left join t_user_vip atv on au.user_id=atv.user_id ";
 		String sql = "select c.*,u.nick_name,u.avatar,u.sex,v.vip_id,at_c.* " + "from t_dynamic_comment c  "
 				+ "left join t_user u on c.user_id=u.user_id " + "left join ( " + atSql
-				+ " ) as at_c on c.at_comment_id=at_c.at_commtent_id left join t_user_vip v on c.user_id=v.user_id   where c.dynamic_id=? and c.id<? order by c.id desc limit ?";
+				+ " ) as at_c on c.at_comment_id=at_c.at_commtent_id left join t_user_vip v on c.user_id=v.user_id   where c.status<>? and  c.dynamic_id=? and c.id<? order by c.id desc limit ?";
 
 		return jdbcTemplate.query(sql,
-				new Object[] { dynamic_id, last_comment_id <= 0 ? Long.MAX_VALUE : last_comment_id, count },
+				new Object[] {FoundUserRelationship.GONE.ordinal(), dynamic_id, last_comment_id <= 0 ? Long.MAX_VALUE : last_comment_id, count },
 				new DynamicCommentMapper());
 
 	}
@@ -337,6 +338,10 @@ public class UserDynamicDao extends BaseDao {
 	public int updateCityId(long dy_id, int province_id, int city_id, int district_id) {
 		return jdbcTemplate.update("update t_user_dynamic  set province_id=?,city_id=?,district_id=? where id=?",
 				new Object[] { province_id, city_id, district_id, dy_id });
+	}
+
+	public void updateCommentStatus(long user_id,FoundUserRelationship ship) {
+		jdbcTemplate.update("update t_dynamic_comment set status=? where user_id=?",new Object[] {ship.ordinal(),user_id});
 	}
 
 }

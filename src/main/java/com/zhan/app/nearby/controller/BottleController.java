@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.zhan.app.nearby.bean.Bottle;
 import com.zhan.app.nearby.bean.type.BottleType;
+import com.zhan.app.nearby.comm.BottleState;
 import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.service.BottleService;
 import com.zhan.app.nearby.service.MainService;
@@ -45,6 +46,9 @@ public class BottleController {
 			return ResultUtil.getResultMap(ERROR.ERR_FAILED);
 		}
 		
+		if(bottle.getType()==BottleType.DRAW_GUESS.ordinal()) {
+			bottle.setState(BottleState.BLACK.ordinal());
+		}
 		
 		if(bottle.getReward()>0) {
 			
@@ -67,13 +71,13 @@ public class BottleController {
 	}
 
 	@RequestMapping("list")
-	public ModelMap list(Long user_id, Integer count, Integer look_sex, Integer lock_sex, Integer type, Integer state) {
+	public ModelMap list(Long user_id, Integer count, Integer look_sex, Integer lock_sex, Integer type, Integer state,String version,String _ua) {
 		
 		if(lock_sex!=null&&look_sex==null) {
 			look_sex=lock_sex;
 		}	
 		return bottleService.getBottles(user_id == null ? 0 : user_id, count == null ? 5 : count, look_sex, type,
-				state);
+				state,version,_ua);
 	}
 
 	@RequestMapping("list_dm")

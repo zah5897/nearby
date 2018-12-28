@@ -1,7 +1,15 @@
 package com.zhan.app.nearby.controller;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -16,6 +24,7 @@ import org.springframework.web.multipart.support.DefaultMultipartHttpServletRequ
 import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.cache.UserCacheService;
 import com.zhan.app.nearby.comm.DynamicState;
+import com.zhan.app.nearby.dao.BottleDao;
 import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.service.UserDynamicService;
 import com.zhan.app.nearby.service.UserService;
@@ -25,6 +34,7 @@ import com.zhan.app.nearby.util.IPUtil;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.ImageSaveUtils;
 import com.zhan.app.nearby.util.ResultUtil;
+import com.zhan.app.nearby.util.SpringContextUtil;
 
 @RestController
 @RequestMapping("/image")
@@ -63,15 +73,13 @@ public class ImageController {
 
 		long last_time = userCacheService.getLastUploadTime(user_id);
 		long cur_time = System.currentTimeMillis() / 1000;
-		
-		
-		if(cur_time-last_time<60){
+
+		if (cur_time - last_time < 60) {
 			return ResultUtil.getResultMap(ERROR.ERR_FREUENT);
 		}
 		userCacheService.setLastUploadTime(user_id);
-		log.error("user_id="+user_id+",upload img log.");
-		
-		
+		log.error("user_id=" + user_id + ",upload img log.");
+
 		if (multipartRequest != null) {
 			Iterator<String> iterator = multipartRequest.getFileNames();
 			while (iterator.hasNext()) {
@@ -80,10 +88,9 @@ public class ImageController {
 					try {
 						String imagePath = ImageSaveUtils.saveUserImages(file);
 						dynamic.setUser_id(user_id);
-						String content=BottleKeyWordUtil.filterContent(dynamic.getDescription());
+						String content = BottleKeyWordUtil.filterContent(dynamic.getDescription());
 						dynamic.setDescription(content);
-						
-						
+
 						dynamic.setState(DynamicState.T_CREATE.ordinal());
 						dynamic.setLocal_image_name(imagePath);
 						dynamic.setCreate_time(new Date());
@@ -124,5 +131,36 @@ public class ImageController {
 		String[] result = AddressUtil.getAddressByIp(ipResult);
 		System.out.println(result);
 		return ResultUtil.getResultOKMap();
+	}
+
+	@RequestMapping("load_word")
+	public ModelMap load_word(HttpServletRequest request, String lat, String lng) {
+		String s=getfileinfo();
+		String[] words=s.replace("，", ",").split(",");
+		Set<String> wordSet=new HashSet<String>();
+		for(String c:words) {
+			wordSet.add(c);
+		}
+		BottleDao dao=SpringContextUtil.getBean("bottleDao");
+		for(String c:wordSet) {
+			dao.insertAnswer(c);
+		}
+		return ResultUtil.getResultOKMap();
+	}
+
+	public String getfileinfo() {
+		StringBuilder rstr = new StringBuilder();
+		try {
+			InputStream in   = new FileInputStream(new File("C:\\Users\\zah\\Desktop\\word.txt"));
+			BufferedReader br = new BufferedReader(new InputStreamReader(in, "UTF-8"));
+			String str = null;
+			while ((str = br.readLine()) != null) {
+				rstr.append(str);
+			}
+			br.close();
+		} catch (IOException e) {
+			// todo loginfo
+		}
+		return rstr.toString();
 	}
 }

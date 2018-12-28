@@ -35,6 +35,10 @@ public class DynamicComment {
 	@ColumnType
 	private DynamicComment atComment;
 
+	//评论状态
+	@JsonIgnore
+	private int status;
+	
 	public long getId() {
 		return id;
 	}
@@ -115,7 +119,17 @@ public class DynamicComment {
 	public void setAt_user(BaseVipUser at_user) {
 		this.at_user = at_user;
 	}
-public long getComment_time_v2() {
-	return comment_time_v2;
-}
+    public long getComment_time_v2() {
+	    return comment_time_v2;
+    }
+
+	public int getStatus() {
+		return status;
+	}
+
+	public void setStatus(int status) {
+		this.status = status;
+	}
+    
+    
 }

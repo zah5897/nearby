@@ -15,6 +15,7 @@ import com.zhan.app.nearby.bean.DynamicComment;
 import com.zhan.app.nearby.bean.Image;
 import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.bean.UserDynamicRelationShip;
+import com.zhan.app.nearby.comm.FoundUserRelationship;
 import com.zhan.app.nearby.comm.LikeDynamicState;
 import com.zhan.app.nearby.comm.PushMsgType;
 import com.zhan.app.nearby.dao.UserDao;
@@ -172,5 +173,9 @@ public class UserDynamicService {
 			hasMore = false;
 		}
 		return ResultUtil.getResultOKMap().addAttribute("images", userImages).addAttribute("hasMore", hasMore);
+	}
+
+	public void updateCommentStatus(long user_id,FoundUserRelationship ship) {
+		userDynamicDao.updateCommentStatus(user_id,ship);
 	}
 }

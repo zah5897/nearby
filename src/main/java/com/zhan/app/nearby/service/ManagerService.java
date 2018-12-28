@@ -40,6 +40,9 @@ public class ManagerService {
 	private MainService mainService;
 	@Resource
 	private BottleService bottleService;
+	
+	@Resource
+	private UserDynamicService userDynamicService;
 
 	public int getHomeFoundSelectedCount() {
 		return managerDao.getHomeFoundSelectedCount();
@@ -250,6 +253,7 @@ public class ManagerService {
 		managerDao.editUserFoundState(user_id, ship);
 		if (ship == FoundUserRelationship.GONE) {
 			bottleService.clearPoolBottleByUserId(user_id);
+			userDynamicService.updateCommentStatus(user_id,ship);
 		}
 	}
 

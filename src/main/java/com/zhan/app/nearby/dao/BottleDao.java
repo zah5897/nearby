@@ -25,7 +25,6 @@ import com.zhan.app.nearby.comm.DynamicMsgType;
 import com.zhan.app.nearby.comm.MsgState;
 import com.zhan.app.nearby.comm.Relationship;
 import com.zhan.app.nearby.util.ImagePathUtil;
-import com.zhan.app.nearby.util.PropertiesUtil;
 import com.zhan.app.nearby.util.PropertyMapperUtil;
 
 @Repository("bottleDao")
@@ -155,6 +154,49 @@ public class BottleDao extends BaseDao {
 		}
 	}
 
+	//此版本新增 “我画你猜”瓶子
+	public List<Bottle> getBottlesV19(long user_id, int limit, int type, BottleState state) {
+		if (type != -1) {
+			if (type == BottleType.DM_TXT.ordinal() || type == BottleType.DM_VOICE.ordinal()) {
+				return new ArrayList<Bottle>();
+			}
+		}
+
+		if (state == BottleState.NORMAL) {
+			if (type == -1) {
+				String sql = "select b.*,u.nick_name,u.avatar,u.birthday,u.birth_city_id,u.city_id," + getAgeSql()
+						+ ", u.sex ,c.name as city_name from t_bottle_pool p left join  t_bottle b  on p.bottle_id=b.id left join t_user u on b.user_id=u.user_id left join t_sys_city c on u.birth_city_id=c.id"
+						+ " where b.user_id<>? and b.state<>? and b.type<>? and b.type<>? and b.type<>? " + fiflterBlock(user_id)
+						+ "  order by  rand()  limit ?";
+				return jdbcTemplate.query(sql, new Object[] { user_id, BottleState.BLACK.ordinal(),
+						BottleType.DM_TXT.ordinal(), BottleType.DM_VOICE.ordinal(),BottleType.DRAW_GUESS.ordinal(), limit }, getBottleMapper());
+			} else {
+				String sql = "select b.*,u.nick_name,u.avatar,u.birthday,u.birth_city_id,u.city_id," + getAgeSql()
+						+ ", u.sex ,c.name as city_name from t_bottle_pool p left join  t_bottle b  on p.bottle_id=b.id left join t_user u on b.user_id=u.user_id left join t_sys_city c on u.birth_city_id=c.id "
+						+ " where b.user_id<>? and b.state<>? and b.type=?  and b.type=? " + fiflterBlock(user_id)
+						+ " order by  rand()   limit ?";
+				return jdbcTemplate.query(sql, new Object[] { user_id, BottleState.BLACK.ordinal(), type,BottleType.DRAW_GUESS.ordinal(), limit },
+						getBottleMapper());
+			}
+		} else {
+			if (type == -1) {
+				String sql = "select b.*,u.nick_name,u.avatar,u.birthday,u.birth_city_id,u.city_id," + getAgeSql()
+						+ ", u.sex ,c.name as city_name from t_bottle_pool p left join  t_bottle b  on p.bottle_id=b.id left join t_user u on b.user_id=u.user_id left join t_sys_city c on u.birth_city_id=c.id"
+						+ "  where b.user_id<>? and b.state=?  and b.type<>? and b.type<>? and b.type<>? " + fiflterBlock(user_id)
+						+ "  order by  rand()   limit ?";
+				return jdbcTemplate.query(sql, new Object[] { user_id, state.ordinal(), BottleType.DM_TXT.ordinal(),
+						BottleType.DM_VOICE.ordinal(),BottleType.DRAW_GUESS.ordinal(), limit }, getBottleMapper());
+			} else {
+				String sql = "select b.*,u.nick_name,u.avatar,u.birthday,u.birth_city_id,u.city_id," + getAgeSql()
+						+ ", u.sex ,c.name as city_name from t_bottle_pool p left join  t_bottle b  on p.bottle_id=b.id left join t_user u on b.user_id=u.user_id left join t_sys_city c on u.birth_city_id=c.id "
+						+ " where b.user_id<>? and b.state=? and b.type=? and b.type=? " + fiflterBlock(user_id)
+						+ " order by  rand()  limit ?";
+				return jdbcTemplate.query(sql, new Object[] { user_id, state.ordinal(), type,BottleType.DRAW_GUESS.ordinal(), limit },
+						getBottleMapper());
+			}
+		}
+	}
+	
 	/**
 	 * 获取最近5分钟的 弹幕瓶子
 	 * 
@@ -252,6 +294,36 @@ public class BottleDao extends BaseDao {
 		}
 	}
 
+	//新增对“我画你猜”瓶子类型的过滤
+	public List<Bottle> getBottlesByGenderV19(long user_id, int limit, int gender, Integer type, BottleState state) {
+		if (type == -1) {
+			// 固定性别
+			if (gender == 0 || gender == 1) {
+				String sql = "select b.*,u.nick_name,u.avatar,u.birthday,u.birth_city_id,u.city_id, " + getAgeSql()
+						+ ",u.sex,c.name as city_name from t_bottle_pool p left join  t_bottle b on p.bottle_id=b.id  left join t_user u on b.user_id=u.user_id left join t_sys_city c on u.birth_city_id=c.id where b.user_id<>? and b.type<>? and b.state=?   and u.sex=? order by RAND() limit ?";
+				return jdbcTemplate.query(sql, new Object[] { user_id, BottleType.DRAW_GUESS.ordinal(),state.ordinal(), gender, limit },
+						getBottleMapper());
+			} else {
+				String sql = "select b.*,u.nick_name,u.avatar,u.birthday,u.birth_city_id,u.city_id, " + getAgeSql()
+						+ ",u.sex,c.name as city_name from t_bottle_pool p left join  t_bottle b on p.bottle_id=b.id  left join t_user u on b.user_id=u.user_id left join t_sys_city c on u.birth_city_id=c.id where b.user_id<>? and b.type<>? and b.state=? order by RAND() limit ?";
+				return jdbcTemplate.query(sql, new Object[] { user_id,BottleType.DRAW_GUESS.ordinal(), state.ordinal(), limit }, getBottleMapper());
+			}
+		} else {
+			// 固定性别
+			if (gender == 0 || gender == 1) {
+				String sql = "select b.*,u.nick_name,u.avatar,u.birthday,u.birth_city_id, u.city_id," + getAgeSql()
+						+ ",u.sex,c.name as city_name from t_bottle_pool p left join  t_bottle b on p.bottle_id=b.id  left join t_user u on b.user_id=u.user_id left join t_sys_city c on u.birth_city_id=c.id where b.user_id<>?  and b.type=? and b.state=? and u.sex=? order by RAND() limit ?";
+				return jdbcTemplate.query(sql, new Object[] { user_id, type, state.ordinal(), gender, limit },
+						getBottleMapper());
+			} else {
+				String sql = "select b.*,u.nick_name,u.avatar,u.birthday,u.birth_city_id,u.city_id, " + getAgeSql()
+						+ ",u.sex,c.name as city_name from t_bottle_pool p left join  t_bottle b on p.bottle_id=b.id  left join t_user u on b.user_id=u.user_id left join t_sys_city c on u.birth_city_id=c.id where b.user_id<>? and b.type=? and b.state=?   order by RAND() limit ?";
+				return jdbcTemplate.query(sql, new Object[] { user_id, type, state.ordinal(), limit },
+						getBottleMapper());
+			}
+		}
+	}
+	
 	public boolean exist(long bottle_id) {
 		String sql = "select count(*) from t_bottle where id=?";
 		int count = jdbcTemplate.queryForObject(sql, new Object[] { bottle_id }, Integer.class);
@@ -517,6 +589,10 @@ public class BottleDao extends BaseDao {
 		return jdbcTemplate.queryForList("select *from t_answer_to_draw order by rand() limit " + count, String.class);
 	}
 
+	public void  insertAnswer(String answer) {
+		  jdbcTemplate.update("insert into t_answer_to_draw  (answer) values (?) ", new Object[] {answer});
+	}
+	
 	public void updateAnswerState(long bottle_id, int ordinal) {
 		jdbcTemplate.queryForList("update t_bottle set answer_state=? where id=?", new Object[] { ordinal, bottle_id });
 	}

@@ -49,7 +49,6 @@ import com.zhan.app.nearby.util.ResultUtil;
 import com.zhan.app.nearby.util.SMSHelper;
 import com.zhan.app.nearby.util.TextUtils;
 
-import io.netty.util.internal.StringUtil;
 
 @RestController
 @RequestMapping("/user")

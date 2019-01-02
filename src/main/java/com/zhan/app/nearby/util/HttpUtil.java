@@ -16,8 +16,12 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.apache.log4j.Logger;
 
 public class HttpUtil {
+	
+	private static Logger log = Logger.getLogger(HttpUtil.class);
+	
 	/**
 	 * 向指定URL发送GET方法的请求
 	 * 
@@ -57,8 +61,7 @@ public class HttpUtil {
 			}
 			return sb.toString();
 		} catch (Exception e) {
-			// System.out.println("发送GET请求出现异常！" + e);
-			e.printStackTrace();
+			log.error(e.getMessage());
 		}
 		// 使用finally块来关闭输入流
 		finally {
@@ -82,12 +85,12 @@ public class HttpUtil {
 			HttpResponse httpResponse=	httpCilent.execute(httpGet);
 			 return  EntityUtils.toString(httpResponse.getEntity());//获得返回的结果
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.error(e.getMessage());
 		} finally {
 			try {
 				httpCilent.close();// 释放资源
 			} catch (IOException e) {
-				e.printStackTrace();
+				log.error(e.getMessage());
 			}
 		}
 		return "";
@@ -131,8 +134,7 @@ public class HttpUtil {
 				result += line;
 			}
 		} catch (Exception e) {
-			// System.out.println("发送 POST 请求出现异常！" + e);
-			// e.printStackTrace();
+			log.error(e.getMessage());
 		}
 		// 使用finally块来关闭输出流、输入流
 		finally {
@@ -171,8 +173,7 @@ public class HttpUtil {
 				result += line;
 			}
 		} catch (Exception e) {
-			// System.out.println("发送 POST 请求出现异常！" + e);
-			// e.printStackTrace();
+			log.error(e.getMessage());
 		}
 		// 使用finally块来关闭输出流、输入流
 		finally {
@@ -203,7 +204,6 @@ public class HttpUtil {
 				}
 			}
 		}
-		System.out.println("重复次数：" + repateCount);
 	}
 
 }

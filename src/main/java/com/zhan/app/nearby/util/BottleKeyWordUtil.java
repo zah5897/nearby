@@ -13,8 +13,10 @@ import java.util.Set;
 
 import javax.management.RuntimeErrorException;
 
-public class BottleKeyWordUtil {
+import org.apache.log4j.Logger;
 
+public class BottleKeyWordUtil {
+	private static Logger log = Logger.getLogger(BottleKeyWordUtil.class);
 	private static TextFilter textFilter;
 
 	public static String filterContent(String content) {
@@ -30,7 +32,7 @@ public class BottleKeyWordUtil {
 				}
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.error(e.getMessage());
 		}
 
 		return content;
@@ -52,18 +54,15 @@ public class BottleKeyWordUtil {
 			StringBuilder sb = new StringBuilder();
 			String temp = null;
 			while ((temp = br.readLine()) != null) {
-				//System.out.println(temp);
 				sb.append(temp);
 			}
 			br.close();
 			in.close();
 			
 			String keyes=sb.toString();
-			System.out.println(keyes);
 			String[] words=keyes.split(",");
 			List<String> listwords=new ArrayList<String>();
 			checkWordsExist(listwords,words);
-			System.out.println("总敏感词数："+listwords.size());
 			Set<String> staffsSet = new HashSet<String>(listwords);
 			return staffsSet;
 		} else {
@@ -83,8 +82,6 @@ public class BottleKeyWordUtil {
 			
 			if(!listWords.contains(w)) {
 				listWords.add(w);
-			}else {
-				//System.out.println("重复关键词："+w);
 			}
 		}
 	}
@@ -107,7 +104,7 @@ public class BottleKeyWordUtil {
 				textFilter.initSensitiveWordsMap(sensitiveWords);
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.error(e.getMessage());
 		}
 
 	}

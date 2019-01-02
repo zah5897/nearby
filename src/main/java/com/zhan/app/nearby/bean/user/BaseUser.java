@@ -19,7 +19,10 @@ public class BaseUser {
 
 	public BaseUser() {
 	}
-
+	
+	private int isFace=0;
+	
+	
 	@ColumnType
 	private long user_id;
 	@JsonIgnore
@@ -207,4 +210,12 @@ public class BaseUser {
 		this.ip = ip;
 	}
 
+	public int getIsFace() {
+		return isFace;
+	}
+
+	public void setIsFace(int isFace) {
+		this.isFace = isFace;
+	}
+    
 }

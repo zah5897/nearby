@@ -5,7 +5,12 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
+import org.apache.log4j.Logger;
+
 public class DateTimeUtil {
+	
+	private static Logger log = Logger.getLogger(DateTimeUtil.class);
+	
 	public static String getYearMonthDay(long time) {
 		Calendar c = Calendar.getInstance();
 		c.setTimeInMillis(time);
@@ -63,7 +68,7 @@ public class DateTimeUtil {
 		try {
 			return sdf.parse(strDate);
 		} catch (ParseException e) {
-			e.printStackTrace();
+			log.error(e.getMessage());
 		}
 		return null;
 	}
@@ -96,6 +101,5 @@ public class DateTimeUtil {
 	// SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	// Date birthday = sdf.parse("2017-03-08 00:00:00");
 	// String age = getAge(birthday);
-	// System.out.println(age);
 	// }
 }

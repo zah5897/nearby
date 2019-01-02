@@ -7,11 +7,13 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.log4j.Logger;
+
 import com.zhan.app.nearby.dao.SystemDao;
 
 
 public class IPUtil {
-	
+	private static Logger log = Logger.getLogger(IPUtil.class);
 	public static List<String> ipBlackList;
 	
 	public static String getIpAddress(HttpServletRequest request) {
@@ -32,7 +34,7 @@ public class IPUtil {
 				try {
 					inet = InetAddress.getLocalHost();
 				} catch (UnknownHostException e) {
-					e.printStackTrace();
+					log.error(e.getMessage());
 				}
 				ipAddress = inet.getHostAddress();
 			}

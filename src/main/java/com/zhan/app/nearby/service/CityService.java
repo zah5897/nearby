@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,6 +16,9 @@ import com.zhan.app.nearby.dao.CityDao;
 @Service
 @Transactional("transactionManager")
 public class CityService {
+	
+	private static Logger log = Logger.getLogger(CityService.class);
+	
 	private static final String CITY_LIST = "city_list";
 	private static final String CITY_HOT = "city_hot";
 	@Resource
@@ -33,7 +37,7 @@ public class CityService {
 		try {
 			provinces = infoCacheService.getCities(CITY_LIST);
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage());
 		}
 		if (provinces != null && provinces.size() > 0) {
 			return provinces;
@@ -64,7 +68,7 @@ public class CityService {
 		try {
 			infoCacheService.setCities(CITY_LIST, provinces);
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage());
 		}
 		return provinces;
 	}
@@ -74,7 +78,7 @@ public class CityService {
 		try {
 			provinces = infoCacheService.getCities(CITY_HOT);
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage());
 		}
 		if (provinces != null && provinces.size() > 0) {
 			return provinces;
@@ -97,7 +101,7 @@ public class CityService {
 		try {
 			infoCacheService.setCities(CITY_HOT, provinces);
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage());
 		}
 		return provinces;
 	}

@@ -239,6 +239,8 @@ public class BottleService {
 			bottleDao.insertToPool(bottle);
 		}
 	}
+	
+ 
 
 	private void checkExistAndClear(Bottle bottle) {
 		if (bottle.getType() == BottleType.TXT.ordinal()) {
@@ -374,16 +376,14 @@ public class BottleService {
 					List<Long> ids = bottleDao.getMeetBottleIDByUser(withUserID);
 					if (ids.size() > 0) {
 						bottleID = ids.get(0);
+					}else {
+						 Bottle bottle = new Bottle();
+						 bottle.setCreate_time(new Date());
+						 bottle.setUser_id(withUserID);
+						 bottle.setType(BottleType.MEET.ordinal());
+						 bottle.setContent(String.valueOf(withUserID));
+						 bottleID= bottleDao.insert(bottle);
 					}
-					// else {
-					// Bottle bottle = new Bottle();
-					// bottle.setCreate_time(new Date());
-					// bottle.setUser_id(withUserID);
-					// bottle.setType(BottleType.MEET.ordinal());
-					// bottle.setContent(String.valueOf(withUserID));
-					// send(bottle, null);
-					// bottleID = bottle.getId();
-					// }
 				}
 				userDao.updateRelationship(user_id, withUserID, Relationship.LIKE);
 				if (bottleID > 0) {

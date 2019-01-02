@@ -31,7 +31,6 @@ public class ParamInterceptor implements HandlerInterceptor {
 		if (IPUtil.doBlackIPFilter(request)) {
 			return false;
 		}
-		// System.out.println(url);
 		if (url.contains("nearby/manager")) {
 			String ip = IPUtil.getIpAddress(request);
 			return managerService.isAllowed(ip);

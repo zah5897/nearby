@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
@@ -27,6 +28,9 @@ import com.zhan.app.nearby.util.ImagePathUtil;
 @Service
 @Transactional("transactionManager")
 public class ManagerService {
+	
+	private static Logger log = Logger.getLogger(ManagerService.class);
+	
 	@Resource
 	private ManagerDao managerDao;
 	@Resource
@@ -184,7 +188,7 @@ public class ManagerService {
 					try {
 						Thread.sleep(50);
 					} catch (InterruptedException e) {
-						e.printStackTrace();
+						log.error(e.getMessage());
 					}
 				}
 			}

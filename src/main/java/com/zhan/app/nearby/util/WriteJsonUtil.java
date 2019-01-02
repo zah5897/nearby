@@ -25,7 +25,6 @@ public class WriteJsonUtil {
 			writer.write(json.toString());
 			writer.flush();
 		} catch (Exception e) {
-			e.printStackTrace();
 		}
 	}
 
@@ -38,7 +37,6 @@ public class WriteJsonUtil {
 			writer.write(json.toString());
 			writer.flush();
 		} catch (Exception e) {
-			e.printStackTrace();
 		}
 	}
 }

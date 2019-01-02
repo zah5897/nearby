@@ -1,7 +1,6 @@
 package com.zhan.app.nearby.util;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -18,8 +17,6 @@ public class PropertyMapperUtil {
 		try {
 			bean = clazz.newInstance();
 		} catch (InstantiationException | IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 		for (Field f : field) {
 			f.setAccessible(true);
@@ -27,7 +24,6 @@ public class PropertyMapperUtil {
 			if (ignore != null && ignore.value() == Type.QUERY_OBJECT) {
 			} else {
 			    invokeMethod(bean, f, rs);
-//				Object result = invokeMethod(bean, f, rs);
 			}
 		}
 		return bean;
@@ -49,15 +45,8 @@ public class PropertyMapperUtil {
 			return " can't find 'get" + methodName + "' method";
 		} catch (NoSuchMethodException e) {
 			return " can't find 'get" + methodName + "' method";
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
-			e.printStackTrace();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+		} catch ( Exception e) {
+		} 
 		return result;
 	}
 

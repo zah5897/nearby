@@ -6,6 +6,7 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
@@ -28,6 +29,9 @@ import com.zhan.app.nearby.util.ResultUtil;
 @Service
 @Transactional("transactionManager")
 public class UserDynamicService {
+	
+	private static Logger log = Logger.getLogger(UserDynamicService.class);
+	
 	@Resource
 	private UserDynamicDao userDynamicDao;
 	@Resource
@@ -150,7 +154,7 @@ public class UserDynamicService {
 					successid += "," + id;
 				}
 			} catch (NumberFormatException e) {
-				e.printStackTrace();
+				log.error(e.getMessage());
 			}
 		}
 		return successid;

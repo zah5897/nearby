@@ -5,6 +5,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Resource;
 
+import org.apache.log4j.Logger;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +19,7 @@ import com.zhan.app.nearby.util.TextUtils;
  */
 @Service
 public class UserCacheService {
-
+	private static Logger log = Logger.getLogger(UserCacheService.class);
 	public static final String PERFIX_UPLOAD_TIME = "last_upload_time";
 	public static final String PERFIX_BOTTLE_SEND_TIME = "user_bottle_send_time";
 	public static final String PERFIX_BOTTLE_KEY_WORD = "bottle_key_word";
@@ -28,21 +29,11 @@ public class UserCacheService {
 
 	private String welcome;
 
-	// public void cacheLoginToken(BaseUser user) {
-	// try {
-	// String id = String.valueOf(user.getUser_id());
-	// redisTemplate.opsForValue().set(id, user.getToken());
-	// redisTemplate.expire(id, 60, TimeUnit.DAYS);
-	// } catch (Exception e) {
-	// e.printStackTrace();
-	// }
-	// }
-
 	public void cacheValidateCode(String mobile, String code) {
 		try {
 			redisTemplate.opsForValue().set(mobile, code, 60, TimeUnit.MINUTES);
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage());
 		}
 	}
 
@@ -68,7 +59,7 @@ public class UserCacheService {
 			}
 			return codeObj.toString().equals(code);
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage());
 		}
 		return true;
 	}
@@ -77,7 +68,7 @@ public class UserCacheService {
 		try {
 			redisTemplate.delete(mobile);
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage());
 		}
 	}
 
@@ -90,7 +81,7 @@ public class UserCacheService {
 					welcome = cacheWelcome.toString();
 				}
 			} catch (Exception e) {
-				e.printStackTrace();
+				log.error(e.getMessage());
 			}
 			if (TextUtils.isEmpty(welcome)) {
 				welcome = temp;
@@ -108,7 +99,7 @@ public class UserCacheService {
 			redisTemplate.opsForValue().set("welcome", welcome);
 			return true;
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage());
 		}
 		return false;
 	}
@@ -128,7 +119,7 @@ public class UserCacheService {
 			redisTemplate.opsForValue().set(key, String.valueOf(System.currentTimeMillis() / 1000), 1,
 					TimeUnit.MINUTES);
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage());
 		}
 	}
 
@@ -147,7 +138,7 @@ public class UserCacheService {
 			redisTemplate.opsForValue().set(key, String.valueOf(System.currentTimeMillis() / 1000), 10,
 					TimeUnit.SECONDS);
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage());
 		}
 	}
 

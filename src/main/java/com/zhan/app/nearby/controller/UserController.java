@@ -93,7 +93,6 @@ public class UserController {
 		String cache = userCacheService.getCachevalideCode(mobile);
 		if (cache != null) {
 			// 已经在一分钟内发过，还没过期
-			System.out.println("已经在一分钟内发过，还没过期");
 		}
 		// if (now - lastTime <= 60) {
 		// return ResultUtil.getResultMap(ERROR.ERR_FREUENT);
@@ -177,7 +176,6 @@ public class UserController {
 						user.setAvatar(newAcatar);
 						break;
 					} catch (Exception e) {
-						e.printStackTrace();
 						log.error(e.getMessage());
 						break;
 					}
@@ -287,7 +285,7 @@ public class UserController {
 				return ResultUtil.getResultMap(ERROR.ERR_PASSWORD);
 			}
 		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
+			log.error(e.getMessage());
 			return ResultUtil.getResultMap(ERROR.ERR_PASSWORD);
 		}
 
@@ -328,7 +326,6 @@ public class UserController {
 		String cache = userCacheService.getCachevalideCode(mobile);
 		if (cache != null) {
 			// 已经在一分钟内发过，还没过期
-			System.out.println("已经在一分钟内发过，还没过期");
 		}
 		// if (now - lastTime <= 60) {
 		// return ResultUtil.getResultMap(ERROR.ERR_FREUENT);
@@ -380,7 +377,7 @@ public class UserController {
 			userCacheService.clearCode(mobile); // 清理缓存
 			return loginByMobile(mobile, password, _ua, aid);
 		} catch (NoSuchAlgorithmException e) {
-			e.printStackTrace();
+			log.error(e.getMessage());
 			return ResultUtil.getResultMap(ERROR.ERR_SYS, "新密码设置异常");
 		}
 
@@ -446,7 +443,6 @@ public class UserController {
 						userService.saveAvatar(user_id, newAcatar);
 						break;
 					} catch (Exception e) {
-						e.printStackTrace();
 						log.error(e.getMessage());
 						return ResultUtil.getResultMap(ERROR.ERR_FAILED);
 					}

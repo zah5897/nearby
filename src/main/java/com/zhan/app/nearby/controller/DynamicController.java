@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.apache.log4j.Logger;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -26,6 +27,7 @@ import com.zhan.app.nearby.util.TextUtils;
 @RestController
 @RequestMapping("/dynamic")
 public class DynamicController {
+	private static Logger log = Logger.getLogger(DynamicController.class);
 	@Resource
 	private UserDynamicService userDynamicService;
 
@@ -144,7 +146,7 @@ public class DynamicController {
 				}
 
 			} catch (NumberFormatException e) {
-				e.printStackTrace();
+				log.error(e.getMessage());
 			}
 		}
 		return ResultUtil.getResultOKMap();

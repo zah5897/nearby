@@ -113,7 +113,6 @@ public class ImageController {
 						result.put("detail", dy);
 						return result;
 					} catch (Exception e) {
-						e.printStackTrace();
 						log.error(e.getMessage());
 						break;
 					}
@@ -127,9 +126,7 @@ public class ImageController {
 	@RequestMapping("test")
 	public ModelMap test(HttpServletRequest request, String lat, String lng) {
 		String ipResult = IPUtil.getIpAddress(request);
-		System.out.println(ipResult);
 		String[] result = AddressUtil.getAddressByIp(ipResult);
-		System.out.println(result);
 		return ResultUtil.getResultOKMap();
 	}
 

@@ -12,11 +12,9 @@ public class PropertiesUtil {
 		try {
 			props.load(in);
 		} catch (IOException e) {
-			e.printStackTrace();
 			try {
 				in.close();
 			} catch (IOException e1) {
-				e1.printStackTrace();
 			}
 		}
 		return props;

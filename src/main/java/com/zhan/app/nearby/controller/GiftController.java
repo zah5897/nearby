@@ -7,6 +7,7 @@ import java.util.Map;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.log4j.Logger;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,6 +23,8 @@ import com.zhan.app.nearby.util.ResultUtil;
 @RestController
 @RequestMapping("/gift")
 public class GiftController {
+	
+	private static Logger log = Logger.getLogger(GiftController.class);
 	// -------------管理后台使用----------------------
 	@Resource
 	private GiftService giftService;
@@ -48,7 +51,7 @@ public class GiftController {
 						String imageName = ImageSaveUtils.saveGiftImages(file);
 						gift.setImage_url(imageName);
 					} catch (Exception e) {
-						e.printStackTrace();
+						log.error(e.getMessage());
 					}
 				}
 			}

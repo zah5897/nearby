@@ -27,7 +27,6 @@ public class HttpService {
 			result = HttpUtil.sendHttpsPost(MODULE_RULE_URL + "/del?id=" + rule_id);
 		} catch (Exception e) {
 			log.error("删除失败" + e.getMessage());
-			System.out.println("删除失败");
 		}
 		if (!TextUtils.isEmpty(result)) {
 			Map<?, ?> map = JSONUtil.jsonToMap(result);
@@ -51,7 +50,6 @@ public class HttpService {
 			result = HttpUtil.sendHttpsPost(url);
 		} catch (Exception e) {
 			log.error("获取列表失败" + e.getMessage());
-			System.out.println("获取列表失败");
 		}
 		if (!TextUtils.isEmpty(result)) {
 			Map<?, ?> map = JSONUtil.jsonToMap(result);
@@ -74,7 +72,6 @@ public class HttpService {
 			return JSONUtil.jsonToMap(result);
 		} catch (Exception e) {
 			log.error("添加失败" + e.getMessage());
-			System.out.println("添加失败");
 		}
 		return ResultUtil.getResultMap(ERROR.ERR_FAILED);
 	}

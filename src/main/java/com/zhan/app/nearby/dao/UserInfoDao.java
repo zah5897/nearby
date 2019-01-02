@@ -46,7 +46,7 @@ public class UserInfoDao extends BaseDao {
 			}, keyHolder);
 			return keyHolder.getKey().longValue();
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage());
 			return -1;
 		}
 

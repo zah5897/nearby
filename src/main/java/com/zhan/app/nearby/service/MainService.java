@@ -227,15 +227,6 @@ public class MainService {
 		Main.sendTxtMessage(String.valueOf(with_user.getUser_id()), new String[] { String.valueOf(user.getUser_id()) },
 				chatSessionTxt, ext, PushMsgType.TYPE_NEW_CONVERSATION);
 
-		// // 系统推"附近有人喜欢了你"给对方
-		// String msg = "附近有人喜欢了你！";
-		// ext.put("msg", msg);
-		//
-		// result = Main.sendTxtMessage(Main.SYS, new String[] {
-		// String.valueOf(with_user.getUser_id()) }, msg, ext);
-		// if (result != null) {
-		// System.out.println(result);
-		// }
 	}
 
 	public ModelMap reset_city() {
@@ -484,7 +475,6 @@ public class MainService {
 		String cache = userCacheService.getCachevalideCode(mobile);
 		if (cache != null) {
 			// 已经在一分钟内发过，还没过期
-			System.out.println("已经在一分钟内发过，还没过期");
 		}
 		ModelMap data = ResultUtil.getResultOKMap();
 		HashMap<String, Object> result = SMSHelper.smsExchangeCode(mobile, code);

@@ -9,10 +9,11 @@ import java.io.InputStream;
 import java.util.Properties;
 import java.util.UUID;
 
+import org.apache.log4j.Logger;
 import org.springframework.web.multipart.MultipartFile;
 
 public class ImageSaveUtils {
-
+	private static Logger log = Logger.getLogger(ImageSaveUtils.class);
 	// 头像压缩 按此宽度
 	public static final int PRESS_AVATAR_WIDTH = 240;
 	// 用户上传按此宽度
@@ -50,7 +51,7 @@ public class ImageSaveUtils {
 			try {
 				props.load(in);
 			} catch (IOException e) {
-				e.printStackTrace();
+				log.error(e.getMessage());
 			}
 			IMAGE_ROOT_PATH = props.getProperty("IMAGE_SAVE_PATH");
 			if (!TextUtils.isEmpty(IMAGE_ROOT_PATH)) {
@@ -314,9 +315,9 @@ public class ImageSaveUtils {
 			fosfrom.close();
 			fosto.close();
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+			log.error(e.getMessage());
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.error(e.getMessage());
 		}
 	}
 

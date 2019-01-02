@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -14,11 +15,13 @@ import com.zhan.app.nearby.bean.City;
 import com.zhan.app.nearby.service.CityService;
 
 public class ImportCityUtil {
+	
+	private static Logger log = Logger.getLogger(ImportCityUtil.class);
+	
 	public static void importCity(CityService cityService) {
 		try {
 			Document doc = Jsoup.parse(new File("C:/Users/zah/Desktop/arrays.xml"), "utf-8");
 			Elements eles = doc.select("string-array[name='province']").first().children();
-			System.out.println(eles.size());
 			List<City> province = new ArrayList<City>();
 			int id = 1;
 			for (Element e : eles) {
@@ -52,7 +55,7 @@ public class ImportCityUtil {
 				index++;
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.error(e.getMessage());
 		}
 	}
 }

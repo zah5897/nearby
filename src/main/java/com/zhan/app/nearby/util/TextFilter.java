@@ -31,7 +31,6 @@ public class TextFilter {
 		TextFilter textFilter = new TextFilter();
 		textFilter.initSensitiveWordsMap(sensitiveWords);
 		String text = "你你你你是s傻d逼啊你，说你呢，你个大笨蛋。";
-		System.out.println(textFilter.getSensitiveWords(text, MatchType.MIN_MATCH));
 	}
 
 	public boolean isContainSensitiveWord(String text) {

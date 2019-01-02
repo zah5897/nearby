@@ -10,6 +10,7 @@ import java.util.UUID;
 
 import javax.annotation.Resource;
 
+import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
@@ -52,6 +53,9 @@ import com.zhan.app.nearby.util.TextUtils;
 @Service
 @Transactional("transactionManager")
 public class UserService {
+	
+	private static Logger log = Logger.getLogger(UserService.class);
+	
 	@Resource
 	private UserDao userDao;
 	@Resource
@@ -301,12 +305,7 @@ public class UserService {
 				user.setContact("花费金币查看");
 			}
 		}
-		// JSONUtil.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-		// Map<String, Object> map=JSONUtil.jsonToMap(user);
-
 		r.put("user", user);
-		// Object w=map.get("want_to_where");
-		// System.out.println(w);
 		Relationship iWithHim = getRelationShip(uid == null ? 0 : uid, user_id_for);
 		Relationship heWithMe = getRelationShip(user_id_for, uid == null ? 0 : uid);
 		int relationShip = 0;
@@ -680,7 +679,7 @@ public class UserService {
 				return ResultUtil.getResultMap(ERROR.ERR_FAILED);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage());
 		}
 		return ResultUtil.getResultMap(ERROR.ERR_FAILED);
 	}

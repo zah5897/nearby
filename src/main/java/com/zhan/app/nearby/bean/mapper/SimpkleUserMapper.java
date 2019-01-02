@@ -3,6 +3,7 @@ package com.zhan.app.nearby.bean.mapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import org.apache.log4j.Logger;
 import org.springframework.jdbc.core.RowMapper;
 
 import com.zhan.app.nearby.bean.City;
@@ -11,7 +12,7 @@ import com.zhan.app.nearby.bean.user.DetailUser;
 import com.zhan.app.nearby.util.TextUtils;
 
 public class SimpkleUserMapper implements RowMapper<BaseUser> {
-
+	private static Logger log = Logger.getLogger(SimpkleUserMapper.class);
 	public BaseUser mapRow(ResultSet rs, int rowNum) throws SQLException {
 		DetailUser user = new DetailUser();
 		user.setUser_id(rs.getLong("user_id"));
@@ -42,25 +43,10 @@ public class SimpkleUserMapper implements RowMapper<BaseUser> {
 				user.setCity(city);
 			}
 		} catch (Exception e) {
-//			e.printStackTrace();
+			log.error(e.getMessage());
 		}
 
 		return user;
 	}
-
-	// public Funny mapRow(ResultSet rs, int rowNum) throws SQLException {
-	// // Funny user = new User();
-	// // user.setId(rs.getInt("id"));
-	// // user.setUsername(rs.getString("username"));
-	// // user.setPassword(rs.getString("password"));
-	//
-	// Funny f = null;
-	// try {
-	// f = (Funny) PropertyMapperUtil.prase(Funny.class, rs);
-	// } catch (Exception e) {
-	// e.printStackTrace();
-	// }
-	// return f;
-	// }
 
 }

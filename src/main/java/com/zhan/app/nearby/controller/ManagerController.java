@@ -9,6 +9,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -41,6 +42,7 @@ import com.zhan.app.nearby.util.TextUtils;
 @Controller
 @RequestMapping("/manager")
 public class ManagerController {
+	private static Logger log = Logger.getLogger(ManagerController.class);
 	@Resource
 	private ManagerService managerService;
 
@@ -329,14 +331,14 @@ public class ManagerController {
 							String imagePath = ImageSaveUtils.saveTopicImages(file);
 							topic.setIcon(imagePath);
 						} catch (Exception e) {
-							e.printStackTrace();
+							log.error(e.getMessage());
 						}
 					} else if ("big_img".equals(name)) {
 						try {
 							String imagePath = ImageSaveUtils.saveTopicImages(file);
 							topic.setBig_icon(imagePath);
 						} catch (Exception e) {
-							e.printStackTrace();
+							log.error(e.getMessage());
 						}
 					}
 
@@ -833,7 +835,7 @@ public class ManagerController {
 							result.put("download_path", imagePath);
 							return result;
 						} catch (Exception e) {
-							e.printStackTrace();
+							log.error(e.getMessage());
 							break;
 						}
 					}

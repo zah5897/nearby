@@ -55,7 +55,6 @@ public class HttpsUtil {
 		InputStream inStream = conn.getInputStream();
 		inStream.read(bytes, 0, inStream.available());
 		String result = new String(bytes, "utf-8");
-		System.out.println(result);
 		return result;
 	}
 

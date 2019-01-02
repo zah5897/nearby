@@ -47,8 +47,7 @@ public class TimerTask {
 	@Scheduled(cron = "0 59 23 * * ?") // 每天23：59分执行
 	public void meiliRateTask() {
 		MainService mainService = SpringContextUtil.getBean("mainService");
-		int rateCount = mainService.injectRate();
-		System.out.println("inject rate count:" + rateCount);
+		mainService.injectRate();
 		deleteIllegalAvatarFile();
 	}
 
@@ -58,9 +57,7 @@ public class TimerTask {
 	// @Scheduled(cron = "0 0/5 * * * ?") // 每5分钟执行一次
 	public void clearExpireVip() {
 		VipService vipService = SpringContextUtil.getBean("vipService");
-		int clearCount = vipService.clearExpireVip();
-		System.out.println("clear Expire vip count:" + clearCount);
-		
+	    vipService.clearExpireVip();
 		
 		//每天凌晨清理前天数据
 		

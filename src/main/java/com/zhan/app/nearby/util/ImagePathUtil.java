@@ -209,6 +209,5 @@ public class ImagePathUtil {
 	// public static void main(String args[]){
 	// String url="http://139.196.111.132:8080/love/images/1234.png";
 	// String r=url.substring(url.lastIndexOf("/")+1, url.length());
-	// System.out.println(r);
 	// }
 }

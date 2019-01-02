@@ -7,6 +7,7 @@ import java.sql.Statement;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -15,7 +16,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import com.zhan.app.nearby.util.ObjectUtil;
 
 public class BaseDao {
-
+	static Logger log = Logger.getLogger(BaseDao.class);
 	protected long saveObj(JdbcTemplate jdbcTemplate, String tableName, Object obj) {
 		try {
 			String sql = " insert into " + tableName + " (";
@@ -49,7 +50,7 @@ public class BaseDao {
 			}, keyHolder);
 			return keyHolder.getKey().longValue();
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage());
 			return -1;
 		}
 	}
@@ -77,7 +78,7 @@ public class BaseDao {
 			sql += (filedStr + values);
 			return jdbcTemplate.update(sql);
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage());
 			return 0;
 		}
 	}

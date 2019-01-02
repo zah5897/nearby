@@ -11,25 +11,7 @@ import com.sun.image.codec.jpeg.*;
  * 
  */
 public class ImageCompressUtil {
-	// private Image img;
-	// private int width;
-	// private int height;
-	// @SuppressWarnings("deprecation")
-	// public static void main(String[] args) throws Exception {
-	// System.out.println("开始：" + new Date().toLocaleString());
-	// ImgCompress imgCom = new ImgCompress("C:\\temp\\pic123.jpg");
-	// imgCom.resizeFix(400, 400);
-	// System.out.println("结束：" + new Date().toLocaleString());
-	// }
-	/**
-	 * 构造函数
-	 */
-	// public ImgCompress(String fileName) throws IOException {
-	// File file = new File(fileName);// 读入文件
-	// img = ImageIO.read(file); // 构造Image对象
-	// width = img.getWidth(null); // 得到源图宽
-	// height = img.getHeight(null); // 得到源图长
-	// }
+	 
 	/**
 	 * 按照宽度还是高度进行压缩
 	 * 

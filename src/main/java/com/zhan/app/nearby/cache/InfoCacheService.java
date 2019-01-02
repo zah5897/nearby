@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.apache.log4j.Logger;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +13,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.zhan.app.nearby.bean.City;
 import com.zhan.app.nearby.bean.GiftOwn;
 import com.zhan.app.nearby.bean.Tag;
+import com.zhan.app.nearby.util.BottleKeyWordUtil;
 import com.zhan.app.nearby.util.JSONUtil;
 
 /**
@@ -22,7 +24,7 @@ import com.zhan.app.nearby.util.JSONUtil;
  */
 @Service
 public class InfoCacheService {
-
+	private static Logger log = Logger.getLogger(InfoCacheService.class);
 	public static final String GIFT_SEND_NOTICE = "gift_send_notice";
 	@Resource
 	protected RedisTemplate<String, Serializable> redisTemplate;
@@ -63,7 +65,7 @@ public class InfoCacheService {
 		try {
 			redisTemplate.delete(key);
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage());
 		}
 	}
 

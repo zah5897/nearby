@@ -4,12 +4,15 @@ import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class JSONUtil {
+	private static Logger log = Logger.getLogger(JSONUtil.class);
 	private static ObjectMapper objectMapper;
 
 	private static ObjectMapper getMapper() {
@@ -31,7 +34,7 @@ public class JSONUtil {
 		try {
 			return getMapper().readValue(jsonStr, LinkedHashMap.class);
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.error(e.getMessage());
 		}
 
 		return null;
@@ -41,7 +44,7 @@ public class JSONUtil {
 		try {
 			return jsonToMap(writeValueAsString(obj));
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage());
 		}
 
 		return null;
@@ -51,8 +54,7 @@ public class JSONUtil {
 		try {
 			return getMapper().writeValueAsString(object);
 		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error(e.getMessage());
 		}
 		return "";
 	}
@@ -61,7 +63,7 @@ public class JSONUtil {
 		try {
 			return getMapper().readValue(jsonStr, type);
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage());
 		}
 		return null;
 	}
@@ -70,7 +72,7 @@ public class JSONUtil {
 		try {
 			return getMapper().readValue(jsonStr, type);
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage());
 		}
 		return null;
 	}

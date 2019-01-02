@@ -3,13 +3,14 @@ package com.zhan.app.nearby.bean.mapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import org.apache.log4j.Logger;
 import org.springframework.jdbc.core.RowMapper;
 
 import com.zhan.app.nearby.bean.DynamicComment;
 import com.zhan.app.nearby.bean.user.BaseVipUser;
 
 public class DynamicCommentMapper implements RowMapper<DynamicComment> {
-
+	private static Logger log = Logger.getLogger(DynamicCommentMapper.class);
 	public DynamicComment mapRow(ResultSet rs, int rowNum) throws SQLException {
 		DynamicComment comment = new DynamicComment();
 		comment.setId(rs.getLong("id"));
@@ -48,7 +49,7 @@ public class DynamicCommentMapper implements RowMapper<DynamicComment> {
 				atComment.setUser(at_user);
 				comment.setAtComment(atComment);
 			} catch (Exception e) {
-				e.printStackTrace();
+				log.error(e.getMessage());
 			}
 		}
 

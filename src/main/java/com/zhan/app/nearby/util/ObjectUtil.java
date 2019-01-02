@@ -57,7 +57,6 @@ public class ObjectUtil {
 					}
 				}
 			} catch (Exception e) {
-				e.printStackTrace();
 				map.put(f.getName(), "");
 			}
 		}

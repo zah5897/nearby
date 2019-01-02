@@ -22,6 +22,8 @@ import com.zhan.app.nearby.util.TextUtils;
 
 @Repository("giftDao")
 public class GiftDao extends BaseDao {
+	
+	
 	public static final String TABLE_NAME = "t_gift";
 	@Resource
 	private JdbcTemplate jdbcTemplate;
@@ -271,7 +273,7 @@ public class GiftDao extends BaseDao {
 			Integer r = jdbcTemplate.queryForObject(sql, new Object[] { String.valueOf(user_id) }, Integer.class);
 			return r == null ? 0 : r;
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error(e.getMessage());
 		}
 		return 0;
 	}
@@ -287,7 +289,7 @@ public class GiftDao extends BaseDao {
 				Integer coins = jdbcTemplate.queryForObject(sql,Integer.class, new Object[] { String.valueOf(user_id) });
 				newCoins = gift_coins + coins;
 			} catch (Exception e) {
-               e.printStackTrace();
+				log.error(e.getMessage());
 			}
 			updateGiftCoins(user_id, newCoins);
 			return newCoins;

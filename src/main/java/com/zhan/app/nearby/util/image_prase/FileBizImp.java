@@ -27,23 +27,5 @@ public class FileBizImp {
 		ImageIO.write(bid, "jpeg", new File(newImage));
 		ImageUtils.cutPNG(new FileInputStream(oldImage), new FileOutputStream(newImage), 0, 0, nw, nw);
 	}
-
-	public static void main(String[] args) {
-		long time=System.currentTimeMillis();
-		int wh=160;
-		String bigPath="C:/Users/zah/Desktop/6c9e8024-5233-4eaa-b0c3-4e17a5dc4bc7.jpg";
-//		String smallMy="C:/Users/zah/Desktop/thumb/my_6c9e8024-5233-4eaa-b0c3-4e17a5dc4bc7.jpg";
-		String smallazh="C:/Users/zah/Desktop/thumb/azhou_6c9e8024-5233-4eaa-b0c3-4e17a5dc4bc7.jpg";
-		try {
-			cutImage(bigPath,smallazh,wh);
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		}
-//		try {
-//			ImageSaveUtils.pressImageByWidth(bigPath,wh,smallMy);
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-		System.err.println(System.currentTimeMillis()-time);
-	}
+	 
 }

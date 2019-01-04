@@ -37,7 +37,6 @@ public class LocationUser extends SimpleUser {
 
 	@Override
 	public String getToken() {
-		// TODO Auto-generated method stub
 		return super.getToken();
 	}
 	public void setLat(String lat) {

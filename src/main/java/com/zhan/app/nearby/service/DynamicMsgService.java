@@ -194,7 +194,6 @@ public class DynamicMsgService {
 	}
 
 	public void replayDynamicMsg(Long user_id, long msg_id) {
-		// TODO Auto-generated method stub
 		dynamicMsgDao.updateMsgStatus(msg_id, DynamicMsgStatus.HAD_Operation);
 	}
 }

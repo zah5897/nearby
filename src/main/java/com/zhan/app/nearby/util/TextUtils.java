@@ -9,6 +9,13 @@ public final class TextUtils {
 		return s.length() == 0;
 	}
 
+	
+	public static boolean isTrimEmpty(final String s) {
+		if (s == null) {
+			return true;
+		}
+		return s.trim().length() == 0;
+	}
 	public static boolean isNotEmpty(final CharSequence s) {
 		return !isEmpty(s);
 	}

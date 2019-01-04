@@ -3,8 +3,10 @@ package com.zhan.app.nearby.bean;
 import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.zhan.app.nearby.annotation.ColumnType;
 import com.zhan.app.nearby.comm.UserType;
+import com.zhan.app.nearby.util.TextUtils;
 
 public class ManagerUser {
 	private long user_id;
@@ -20,6 +22,10 @@ public class ManagerUser {
 
 	@ColumnType
 	private long create_time_v2;
+	@JsonIgnore
+	private String _ua;
+	@ColumnType
+	private int _from;
 	// 区分游客和正式用户
 	private short type = (short) UserType.OFFIEC.ordinal(); // 默认为正式用户
 
@@ -109,4 +115,29 @@ public class ManagerUser {
 	public long getCreate_time_v2() {
 		return create_time_v2;
 	}
+
+	public String get_ua() {
+		return _ua;
+	}
+
+	public void set_ua(String _ua) {
+		this._ua = _ua;
+		if(!TextUtils.isEmpty(_ua)) {
+			if(_ua.startsWith("a")) {
+			   this.set_from(1);
+			}else {
+				this.set_from(2);
+			}
+		}
+	}
+
+	public int get_from() {
+		return _from;
+	}
+
+	public void set_from(int _from) {
+		this._from = _from;
+	}
+	
+	
 }

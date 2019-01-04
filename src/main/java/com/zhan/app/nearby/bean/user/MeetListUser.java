@@ -11,13 +11,11 @@ public class MeetListUser extends BaseUser {
 
 	@Override
 	public Date getCreate_time() {
-		// TODO Auto-generated method stub
 		return super.getCreate_time();
 	}
 
 	@Override
 	public void setCreate_time(Date create_time) {
-		// TODO Auto-generated method stub
 		super.setCreate_time(create_time);
 	}
 }

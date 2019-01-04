@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.zhan.app.nearby.annotation.ColumnType;
 import com.zhan.app.nearby.bean.Avatar;
 import com.zhan.app.nearby.comm.UserType;
+import com.zhan.app.nearby.util.TextUtils;
 
 public class BaseUser {
 
@@ -63,6 +64,9 @@ public class BaseUser {
 	private String contact;
 	@JsonIgnore
 	private String ip;
+	
+	@ColumnType // 忽略保存
+	private int _from=0; //1 ios ，2 android
 	
 	public Date getBirthday() {
 		return birthday;
@@ -176,6 +180,14 @@ public class BaseUser {
 
 	public void set_ua(String _ua) {
 		this._ua = _ua;
+	 
+		if(!TextUtils.isEmpty(_ua)) {
+			if(_ua.startsWith("a")) {
+			   this.set_from(1);
+			}else {
+				this.set_from(2);
+			}
+		}
 	}
 
 	public int getAccount_state() {
@@ -217,5 +229,14 @@ public class BaseUser {
 	public void setIsFace(int isFace) {
 		this.isFace = isFace;
 	}
+
+	public int get_from() {
+		return _from;
+	}
+
+	public void set_from(int _from) {
+		this._from = _from;
+	}
     
+	
 }

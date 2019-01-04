@@ -39,8 +39,12 @@ public class Bottle {
 	//我画你猜 奖励
 	private int reward;
 	
-	
 	private int answer_state = 0;
+	
+	
+	//来自
+	private int _from=0;
+	
 	public long getId() {
 		return id;
 	}
@@ -140,6 +144,14 @@ public class Bottle {
 	public void setAnswer_state(int answer_state) {
 		this.answer_state = answer_state;
 	}
-   
-    
+
+	public int get_from() {
+		return _from;
+	}
+
+	public void set_from(int _from) {
+		this._from = _from;
+	}
+	
+	
 }

@@ -28,7 +28,7 @@ public class BottleController {
 	private UserService userService;
 
 	@RequestMapping("send")
-	public ModelMap send(Bottle bottle, String aid,String token) {
+	public ModelMap send(Bottle bottle, String aid,String token,String _ua) {
 
 		if (bottle.getUser_id() <= 0&&!userService.checkLogin(bottle.getUser_id(), token)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
@@ -64,6 +64,12 @@ public class BottleController {
 			if(icoin<0) {
 				return ResultUtil.getResultMap(ERROR.ERR_COINS_SHORT);
 			}
+		}
+		
+		if(_ua.startsWith("a")) {
+			bottle.set_from(1); //ios
+		}else { 
+			bottle.set_from(2);//android
 		}
 		
 		bottleService.send(bottle, aid);

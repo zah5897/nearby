@@ -186,7 +186,7 @@ public class ManagerDao extends BaseDao {
 
 	public List<ManagerUser> listNewUser(int pageIndex, int pageSize, int type) {
 
-		String sql = "select user.user_id ,user.nick_name,user.avatar,user.sex,user.type,coalesce(ship.state,0) as state,user.create_time from t_user user left join t_found_user_relationship ship on user.user_id=ship.uid where  type=? and";
+		String sql = "select user.user_id ,user._ua,user.nick_name,user.avatar,user.sex,user.type,coalesce(ship.state,0) as state,user.create_time from t_user user left join t_found_user_relationship ship on user.user_id=ship.uid where  type=? and";
 		if (type == -1) { // 今日
 			sql += "  to_days(create_time) = to_days(now())";
 		} else if (type == 0) {

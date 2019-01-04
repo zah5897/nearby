@@ -129,7 +129,7 @@ public class UserController {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "手机号码不能为空!");
 		}
 
-		if(TextUtils.isEmpty(user.getNick_name())) {
+		if(TextUtils.isTrimEmpty(user.getNick_name())) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "昵称不能为空");
 		}
 		// 验证code合法性
@@ -538,18 +538,17 @@ public class UserController {
 		if (user == null) {
 			return ResultUtil.getResultMap(ERROR.ERR_USER_NOT_EXIST, "该用户不存在！");
 		}
-
-		nick_name = BottleKeyWordUtil.filterContent(nick_name);
-
+		
 		boolean isNick_modify = false;
-		if (user.getNick_name() != null) {
-			if (!user.getNick_name().equals(nick_name)) {
-				isNick_modify = true;
+		if(!TextUtils.isTrimEmpty(nick_name)) {
+			nick_name = BottleKeyWordUtil.filterContent(nick_name);
+			nick_name=nick_name.trim();
+			if (!nick_name.equals(user.getNick_name())) {
+				if (!user.getNick_name().equals(nick_name)) {
+					isNick_modify = true;
+				}
 			}
-		} else if (!TextUtils.isEmpty(nick_name)) {
-			isNick_modify = true;
 		}
-
 		userService.modify_info(user_id, nick_name, birthday, jobs, height, weight, signature, my_tags, interest,
 				favourite_animal, favourite_music, weekday_todo, footsteps, want_to_where, isNick_modify, birth_city_id,
 				contact);

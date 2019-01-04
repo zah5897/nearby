@@ -630,7 +630,6 @@ public class UserDao extends BaseDao {
 			return jdbcTemplate.queryForObject("select state from  t_found_user_relationship where uid=?",
 					new Object[] { user_id }, Integer.class);
 		} catch (Exception e) {
-			// TODO: handle exception
 		}
 		return FoundUserRelationship.VISIBLE.ordinal();
 	}
@@ -713,7 +712,6 @@ public class UserDao extends BaseDao {
 				jdbcTemplate.update(sql, new Object[] { illegalName, uid, avatar });
 			}
 		} else {
-			// TODO 纠正之前的审核
 		}
 		return uid;
 	}
@@ -799,7 +797,6 @@ public class UserDao extends BaseDao {
 				new BeanPropertyRowMapper<BaseUser>(BaseUser.class) {
 					@Override
 					public BaseUser mapRow(ResultSet rs, int rowNumber) throws SQLException {
-						// TODO Auto-generated method stub
 						BaseUser user = super.mapRow(rs, rowNumber);
 						user.setContact(String.valueOf(rs.getInt("id")));
 						return user;

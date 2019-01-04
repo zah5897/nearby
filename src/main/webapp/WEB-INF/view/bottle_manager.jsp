@@ -52,13 +52,14 @@ td {
 			<table class="table table-hover text-center">
 				<tr>
 					<th width="5%">ID</th>
-					<th width="10%">发送者</th>
-					<th width="10%">avatar</th>
+					<th width="5%">自设备</th>
+					<th width="5%">发送者</th>
+					<th width="10%">头像</th>
 					<th width="5%">瓶子类型</th>
-					<th width="20%">瓶子内容</th>
+					<th width="10%">瓶子内容</th>
 					<th width="10%">发送时间</th>
 					<th width="5%">状态</th>
-					<th width="35%">操作</th>
+					<th width="30%">操作</th>
 				</tr>
 				<tr id="bottom">
 					<td colspan="8">
@@ -190,6 +191,22 @@ td {
 			 
 			 var toAdd="<tr id='tr_"+id+"'>";
 			 toAdd+="<td><input type='checkbox' name='id[]' value='"+id+"' />"+id+"</td>";
+			 
+			 
+			 
+			 var from=pageData['_from'];
+			 var txtFrom;
+			 if(from==1){
+				 txtFrom="IOS";
+			 }else if(from==2){
+				 txtFrom="Android";
+			 }else{
+				 txtFrom="Old";
+			 }
+			 
+			 toAdd+="<td>"+txtFrom+"</td>";
+			 
+			 
 			 var nick_name=pageData.sender.nick_name;
 			 nick_name=nick_name==undefined?"":nick_name;
 			 toAdd+="<td>"+nick_name+"</td>";

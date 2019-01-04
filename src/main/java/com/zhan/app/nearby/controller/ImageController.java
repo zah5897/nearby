@@ -30,6 +30,7 @@ import com.zhan.app.nearby.service.UserDynamicService;
 import com.zhan.app.nearby.service.UserService;
 import com.zhan.app.nearby.util.AddressUtil;
 import com.zhan.app.nearby.util.BottleKeyWordUtil;
+import com.zhan.app.nearby.util.DeviceUtil;
 import com.zhan.app.nearby.util.IPUtil;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.ImageSaveUtils;
@@ -61,7 +62,7 @@ public class ImageController {
 	 */
 	@RequestMapping("upload")
 	public ModelMap upload(DefaultMultipartHttpServletRequest multipartRequest, Long user_id, UserDynamic dynamic,
-			String ios_addr) {
+			String ios_addr,String _ua) {
 
 		if (user_id == null || user_id < 0) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "用户id异常");
@@ -91,6 +92,7 @@ public class ImageController {
 						String content = BottleKeyWordUtil.filterContent(dynamic.getDescription());
 						dynamic.setDescription(content);
 
+						dynamic.set_from(DeviceUtil.getRequestDevice(_ua));
 						dynamic.setState(DynamicState.T_CREATE.ordinal());
 						dynamic.setLocal_image_name(imagePath);
 						dynamic.setCreate_time(new Date());

@@ -278,18 +278,7 @@
 			 var toAdd="<tr id='tr_"+user_id+"'>";
 			 toAdd+="<td><input type='checkbox' name='id[]' value='"+pageData["user_id"]+"' />"+pageData["user_id"]+"</td>";
 			 
-             var from=pageData['_from'];
-			 
-			 var fromTxt;
-			 
-			 if(from==1){
-				 fromTxt="IOS"; 
-			 }else if(from==2){
-				 fromTxt="Android"; 
-			 }else{
-				 fromTxt="Old"
-			 }
-			 toAdd+="<td>"+fromTxt+"</td>";
+			 toAdd+="<td>"+parent.getDeviceTxt(pageData['_from'])+"</td>";
 			 
 			 var nick_name=pageData.nick_name;
 			 nick_name=nick_name==undefined?"":nick_name;

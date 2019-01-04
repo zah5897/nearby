@@ -68,6 +68,12 @@ public class UserDynamic implements Serializable {
 	private String ip;
 
 	private int state;
+	
+	
+	private int _from=0;
+	
+	
+	
 
 	public long getId() {
 		return id;
@@ -265,6 +271,14 @@ public class UserDynamic implements Serializable {
 
 	public long getCreate_time_v2() {
 		return create_time_v2;
+	}
+
+	public int get_from() {
+		return _from;
+	}
+
+	public void set_from(int _from) {
+		this._from = _from;
 	}
 
 	 

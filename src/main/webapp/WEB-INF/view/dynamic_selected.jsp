@@ -43,13 +43,14 @@
 			<table class="table table-hover text-center">
 				<tr>
 					<th width="5%">ID</th>
-					<th width="10%">发布者</th>
-					<th width="25%">图片</th>
-					<th width="20%">内容</th>
+					<th width="5%">自设备</th>
+					<th width="5%">发布者</th>
+					<th width="20%">图片</th>
+					<th width="15%">内容</th>
 					<th width="5%">城市</th>
 					<th width="10%">时间</th>
 					<th width="5%">点赞数量</th>
-					<th width="20%">操作</th>
+					<th width="30%">操作</th>
 				</tr>
 				 
 				<tr id="bottom">
@@ -217,6 +218,13 @@
 			 
 			 var toAdd="<tr id='tr_"+pageData["id"]+"'>";
 			 toAdd+="<td><input type='checkbox' name='id[]' value='"+pageData["id"]+"' />"+pageData["id"]+"</td>";
+			 
+			 
+			 
+			 var device=parent.getDeviceTxt(pageData['_from']);
+			 toAdd+="<td>"+device+"</td>";
+			 
+			 
 			 
 			 var nick_name=pageData.user.nick_name;
 			 nick_name=nick_name==undefined?"":nick_name;

@@ -160,6 +160,20 @@ function toast(msg){
     },500);
   }
 
+
+function getDeviceTxt(from){
+	 var fromTxt;
+	 if(from==1){
+		 fromTxt="IOS"; 
+	 }else if(from==2){
+		 fromTxt="Android"; 
+	 }else{
+		 fromTxt="Old"
+	 }
+	return fromTxt;
+}
+
+
 </script>
 <ul class="bread">
   <li><a href="<%=path %>/manager/forword?path=welcome" target="right"  class="icon-home"> 首页</a></li>

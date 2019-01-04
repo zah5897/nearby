@@ -14,6 +14,7 @@ import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.service.BottleService;
 import com.zhan.app.nearby.service.MainService;
 import com.zhan.app.nearby.service.UserService;
+import com.zhan.app.nearby.util.DeviceUtil;
 import com.zhan.app.nearby.util.ResultUtil;
 
 @RestController
@@ -66,11 +67,7 @@ public class BottleController {
 			}
 		}
 		
-		if(_ua.startsWith("a")) {
-			bottle.set_from(1); //ios
-		}else { 
-			bottle.set_from(2);//android
-		}
+		bottle.set_from(DeviceUtil.getRequestDevice(_ua)); 
 		
 		bottleService.send(bottle, aid);
 		return ResultUtil.getResultOKMap().addAttribute("bottle", bottle);

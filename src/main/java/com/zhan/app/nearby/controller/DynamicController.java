@@ -100,7 +100,9 @@ public class DynamicController {
 		if (dynamic != null) {
 			ImagePathUtil.completeDynamicPath(dynamic, true);
 			ImagePathUtil.completeAvatarPath(dynamic.getUser(), true);
-			userDynamicService.updateBrowserCount(dynamic.getId(), dynamic.getBrowser_count() + 1);
+			
+			dynamic.setBrowser_count(dynamic.getBrowser_count()+1);
+			userDynamicService.updateBrowserCount(dynamic.getId(), dynamic.getBrowser_count());
 			result = ResultUtil.getResultOKMap();
 			result.put("detail", dynamic);
 		} else {

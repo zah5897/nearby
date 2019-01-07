@@ -110,6 +110,7 @@ public class AddressUtil {
 	}
 	
 
+	@SuppressWarnings("unchecked")
 	public static String[] getAddressByLatLng(String lat, String lng) {
 		String url = "http://api.map.baidu.com/geocoder/v2/?location="+lat+","+lng+"&output=json&pois=0&ak="+BAIDU_AK;
 		String result = HttpUtil.sendGet(url, null);
@@ -137,6 +138,7 @@ public class AddressUtil {
 		return null;
 	}
 
+	@SuppressWarnings("unchecked")
 	public static String[] getAddressByIp(String ip) {
 	    String	url = "http://api.map.baidu.com/location/ip?coor=bd09ll&ak=" + BAIDU_AK + "&ip=" + ip;
 		String result = HttpUtil.sendGet(url, null);

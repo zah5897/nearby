@@ -34,8 +34,7 @@ public class ImageSaveUtils {
 	public static final String FILE_ROOT_GIFT_ORIGIN = "/gift_img/origin/";
 	public static final String FILE_ROOT_GIFT_THUMB = "/gift_img/thumb/";
 
-	public static final String FILE_ROOT_BOTTLE_ORIGIN = "/bottle_img/origin/";
-	public static final String FILE_ROOT_BOTTLE_THUMB = "/bottle_img/thumb/";
+	public static final String FILE_ROOT_BOTTLE_DRAW = "/bottle/draw/";
 
 	public static final String FILE_ROOT_FILES = "/files/";
 	
@@ -72,6 +71,11 @@ public class ImageSaveUtils {
 
 	public static String getOriginImagesPath() {
 		return getRootPath() + FILE_ROOT_IMAGES_ORIGIN;
+	}
+	
+
+	public static String getBottleDrawPath() {
+		return getRootPath() +FILE_ROOT_BOTTLE_DRAW;
 	}
 
 	public static String getThumbImagesPath() {
@@ -144,6 +148,27 @@ public class ImageSaveUtils {
 		}
 		return null;
 	}
+	
+	
+	public static String saveBottleDraw(MultipartFile file) throws IllegalStateException, IOException {
+		String filePath = getBottleDrawPath();
+		String shortName = file.getOriginalFilename();
+		if (!TextUtils.isEmpty(shortName)) {
+			String fileShortName = null;
+			if (shortName.contains(".")) {
+				String endWith = shortName.split("\\.")[1];
+				fileShortName = UUID.randomUUID() + "." + endWith;
+			} else {
+				fileShortName = UUID.randomUUID().toString() + ".jpg";
+			}
+			File uploadFile = new File(filePath + fileShortName);
+			uploadFile.mkdirs();
+			file.transferTo(uploadFile);// 保存到一个目标文件中。
+			return fileShortName;
+		}
+		return null;
+	}
+	
 
 	public static String saveFile(MultipartFile file) throws IllegalStateException, IOException {
 		String filePath = getRootPath() + FILE_ROOT_FILES;
@@ -185,26 +210,26 @@ public class ImageSaveUtils {
 		return null;
 	}
 
-	public static String saveBottleImages(MultipartFile file) throws IllegalStateException, IOException {
-		String filePath = getTopicOriginImagesPath();
-		String shortName = file.getOriginalFilename();
-		if (!TextUtils.isEmpty(shortName)) {
-			String fileShortName = null;
-			if (shortName.contains(".")) {
-				fileShortName = UUID.randomUUID() + "." + shortName.split("\\.")[1];
-			} else {
-				fileShortName = UUID.randomUUID().toString() + ".jpg";
-			}
-			File uploadFile = new File(filePath + fileShortName);
-			uploadFile.mkdirs();
-			file.transferTo(uploadFile);// 保存到一个目标文件中。
-
-			String thumbFile = getTopicThumbImagesPath() + fileShortName;
-			pressImageByWidth(uploadFile.getAbsolutePath(), PRESS_IMAGE_WIDTH, thumbFile);
-			return fileShortName;
-		}
-		return null;
-	}
+//	public static String saveBottleImages(MultipartFile file) throws IllegalStateException, IOException {
+//		String filePath = getTopicOriginImagesPath();
+//		String shortName = file.getOriginalFilename();
+//		if (!TextUtils.isEmpty(shortName)) {
+//			String fileShortName = null;
+//			if (shortName.contains(".")) {
+//				fileShortName = UUID.randomUUID() + "." + shortName.split("\\.")[1];
+//			} else {
+//				fileShortName = UUID.randomUUID().toString() + ".jpg";
+//			}
+//			File uploadFile = new File(filePath + fileShortName);
+//			uploadFile.mkdirs();
+//			file.transferTo(uploadFile);// 保存到一个目标文件中。
+//
+//			String thumbFile = getTopicThumbImagesPath() + fileShortName;
+//			pressImageByWidth(uploadFile.getAbsolutePath(), PRESS_IMAGE_WIDTH, thumbFile);
+//			return fileShortName;
+//		}
+//		return null;
+//	}
 
 	public static String saveGiftImages(MultipartFile file) throws IllegalStateException, IOException {
 		String filePath = getGiftOriginImagesPath();

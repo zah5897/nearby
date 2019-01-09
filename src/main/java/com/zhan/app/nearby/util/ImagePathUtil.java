@@ -3,6 +3,7 @@ package com.zhan.app.nearby.util;
 import java.util.List;
 
 import com.zhan.app.nearby.bean.Avatar;
+import com.zhan.app.nearby.bean.Bottle;
 import com.zhan.app.nearby.bean.DynamicComment;
 import com.zhan.app.nearby.bean.Gift;
 import com.zhan.app.nearby.bean.GiftOwn;
@@ -10,6 +11,7 @@ import com.zhan.app.nearby.bean.Image;
 import com.zhan.app.nearby.bean.ManagerUser;
 import com.zhan.app.nearby.bean.Topic;
 import com.zhan.app.nearby.bean.UserDynamic;
+import com.zhan.app.nearby.bean.type.BottleType;
 import com.zhan.app.nearby.bean.user.BaseUser;
 
 public class ImagePathUtil {
@@ -45,8 +47,7 @@ public class ImagePathUtil {
 		}
 		return users;
 	}
-	
-	
+
 	public static Avatar completeAvatarPath(Avatar avatarModel) {
 		String avatar = avatarModel.getAvatar();
 		if (TextUtils.isEmpty(avatar)) {
@@ -54,13 +55,14 @@ public class ImagePathUtil {
 		}
 		if (avatar.startsWith("http://")) {
 			avatarModel.setOrigin_avatar(HOST_PROFIX + ImageSaveUtils.FILE_ROOT_AVATAR_ORIGIN
-						+ avatar.substring(avatar.lastIndexOf("/") + 1, avatar.length()));
+					+ avatar.substring(avatar.lastIndexOf("/") + 1, avatar.length()));
 			return avatarModel;
 		}
 		avatarModel.setAvatar(HOST_PROFIX + ImageSaveUtils.FILE_ROOT_AVATAR_THUMB + avatar);
 		avatarModel.setOrigin_avatar(HOST_PROFIX + ImageSaveUtils.FILE_ROOT_AVATAR_ORIGIN + avatar);
 		return avatarModel;
 	}
+
 	public static List<Avatar> completeAvatarsPath(List<Avatar> avatars) {
 		if (avatars == null || avatars.size() == 0) {
 			return avatars;
@@ -70,14 +72,13 @@ public class ImagePathUtil {
 		}
 		return avatars;
 	}
-	
 
 	public static void completeManagerUserAvatarsPath(List<ManagerUser> users, boolean thumbAndOrigin) {
 		if (users == null || users.size() == 0) {
 			return;
 		}
 		for (ManagerUser user : users) {
-			String[] avatars=completeAvatarPath(user.getAvatar());
+			String[] avatars = completeAvatarPath(user.getAvatar());
 			user.setAvatar(avatars[0]);
 			user.setOrigin_avatar(avatars[1]);
 		}
@@ -131,11 +132,21 @@ public class ImagePathUtil {
 			}
 		}
 	}
-	
-	public static String getFilterWordsPath() {
-			return HOST_PROFIX + ImageSaveUtils.FILE_ROOT_FILES + ImageSaveUtils.FILTER_WORDS_FILE_NAME;
+
+	public static void completeBottleDrawPath(Bottle b) {
+
+		if (b.getType() != BottleType.DRAW_GUESS.ordinal()) {
+			return;
+		}
+		String shortName = b.getContent();
+		if (!TextUtils.isEmpty(shortName)) {
+			b.setContent(HOST_PROFIX + ImageSaveUtils.FILE_ROOT_BOTTLE_DRAW + shortName);
+		}
 	}
 
+	public static String getFilterWordsPath() {
+		return HOST_PROFIX + ImageSaveUtils.FILE_ROOT_FILES + ImageSaveUtils.FILTER_WORDS_FILE_NAME;
+	}
 
 	public static void completeTopicImagePath(List<Topic> topics, boolean thumbAndOrigin) {
 
@@ -182,7 +193,6 @@ public class ImagePathUtil {
 
 	}
 
-	
 	public static void completeGiftPath(Gift gift, boolean thumbAndOrigin) {
 		String shortName = gift.getImage_url();
 		if (!TextUtils.isEmpty(shortName)) {
@@ -192,6 +202,7 @@ public class ImagePathUtil {
 			}
 		}
 	}
+
 	public static void completeGiftsPath(List<Gift> gifts, boolean thumbAndOrigin) {
 		if (gifts != null && gifts.size() > 0) {
 			for (Gift gift : gifts) {
@@ -199,6 +210,7 @@ public class ImagePathUtil {
 			}
 		}
 	}
+
 	public static void completeGiftsOwnPath(List<GiftOwn> gifts, boolean thumbAndOrigin) {
 		if (gifts != null && gifts.size() > 0) {
 			for (Gift gift : gifts) {

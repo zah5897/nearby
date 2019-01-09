@@ -622,4 +622,9 @@ public class BottleDao extends BaseDao {
 		});
 	}
 
+	public void updateBottleContent(long id, String content) {
+		jdbcTemplate.queryForList("update t_bottle set content=? where id=?", new Object[] { content, id });
+		
+	}
+
 }

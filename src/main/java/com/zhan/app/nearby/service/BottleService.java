@@ -154,6 +154,7 @@ public class BottleService {
 			if (bottle.getType() == BottleType.MEET.ordinal()) {
 				ImagePathUtil.completeAvatarPath(bottle.getSender(), true);
 			}
+			ImagePathUtil.completeBottleDrawPath(bottle);
 		}
 
 		result.addAttribute("bottles", bolltes);
@@ -235,12 +236,22 @@ public class BottleService {
 		checkExistAndClear(bottle);
 		bottle.setCreate_time(new Date());
 		bottleDao.insert(bottle);
-		if (bottle.getId() > 0 && bottle.getState() != BottleState.BLACK.ordinal()) {
+		
+		if (bottle.getId() > 0 && bottle.getState() != BottleState.BLACK.ordinal()&&bottle.getType()!=BottleType.DRAW_GUESS.ordinal()) {
 			bottleDao.insertToPool(bottle);
 		}
 	}
 	
  
+	
+	
+	public void updateBottleContent(Bottle bottle) {
+		bottleDao.updateBottleContent(bottle.getId(),bottle.getContent());
+	}
+	
+	public void insertToPool(Bottle bottle) {
+		bottleDao.insertToPool(bottle);
+	}
 
 	private void checkExistAndClear(Bottle bottle) {
 		if (bottle.getType() == BottleType.TXT.ordinal()) {
@@ -261,23 +272,8 @@ public class BottleService {
 			for (Bottle bottle : bottles) {
 				List<BaseUser> users = bottleDao.getScanUserList(bottle.getId(), 8);
 				bottle.setView_nums(bottleDao.getScanUserCount(bottle.getId()));
-				// if (users == null || users.size() < 8) {
-				// String gender = userService.getUserGenderByID(user_id);
-				// int gen;
-				// if ("0".equals(gender)) {
-				// gen = 1;
-				// } else {
-				// gen = 0;
-				// }
-				// List<BaseUser> last_user = bottleDao.getRandomScanUserList(users == null ? 8
-				// : 8 - users.size(),
-				// gen);
-				// users.addAll(last_user);
-				// bottle.setView_nums(users.size());
-				// } else {
-				// bottle.setView_nums(bottleDao.getScanUserCount(bottle.getId()));
-				// }
 				ImagePathUtil.completeAvatarsPath(users, false);
+				ImagePathUtil.completeBottleDrawPath(bottle);
 				bottle.setScan_user_list(users);
 			}
 		}

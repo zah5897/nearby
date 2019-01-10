@@ -54,7 +54,7 @@ public class BottleController {
 		}
 
 		if (bottle.getType() == BottleType.DRAW_GUESS.ordinal()) {
-			bottle.setState(BottleState.BLACK.ordinal());
+			return ResultUtil.getResultMap(ERROR.ERR_FAILED,"不支持该类型瓶子");
 		}
 
 		if (bottle.getReward() > 0) {
@@ -89,17 +89,32 @@ public class BottleController {
 	 * @return
 	 */
 	@RequestMapping("upload")
-	public ModelMap upload(DefaultMultipartHttpServletRequest multipartRequest, long user_id, String token,long bottle_id,int bottle_type,String _ua) {
+	public ModelMap upload(DefaultMultipartHttpServletRequest multipartRequest, Bottle bottle,String token,String _ua,String aid) {
 
-		if(!userService.checkLogin(user_id, token)) {
+		if(!userService.checkLogin(bottle.getUser_id(), token)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
-		Bottle b=bottleService.getBottleDetial(bottle_id);
 
-		if(b==null||b.getType()!=bottle_type) {
-			return ResultUtil.getResultMap(ERROR.ERR_NOT_EXIST,"瓶子不存在或者类型不对");
+		if(bottle.getType()!=BottleType.DRAW_GUESS.ordinal()) {
+			return ResultUtil.getResultMap(ERROR.ERR_NOT_EXIST,"瓶子类型不对");
 		}
+		
+		if (bottle.getReward() > 0) {
 
+			int coin = userService.loadUserCoins(aid, bottle.getUser_id());
+			if (coin < bottle.getReward()) {
+				return ResultUtil.getResultMap(ERROR.ERR_COINS_SHORT);
+			}
+			Object coins = userService.checkOut(bottle.getUser_id(), bottle.getReward(), aid).get("all_coins");
+			if (coins == null) {
+				return ResultUtil.getResultMap(ERROR.ERR_FAILED);
+			}
+			int icoin = Integer.parseInt(coins.toString());
+			if (icoin < 0) {
+				return ResultUtil.getResultMap(ERROR.ERR_COINS_SHORT);
+			}
+		}
+		bottle.set_from(DeviceUtil.getRequestDevice(_ua));
 		if (multipartRequest != null) {
 			Iterator<String> iterator = multipartRequest.getFileNames();
 			while (iterator.hasNext()) {
@@ -108,10 +123,10 @@ public class BottleController {
 					try {
 						String imagePath = ImageSaveUtils.saveBottleDraw(file);
 						ModelMap result = ResultUtil.getResultOKMap();
-						b.setContent(imagePath);
-						ImagePathUtil.completeBottleDrawPath(b);
-						bottleService.insertToPool(b);
-						result.put("bottle", b);
+						bottle.setContent(imagePath);
+						bottleService.send(bottle, aid);
+						ImagePathUtil.completeBottleDrawPath(bottle);
+						result.put("bottle", bottle);
 						return result;
 					} catch (Exception e) {
 						return ResultUtil.getResultMap(ERROR.ERR_FAILED, "图片上传失败");

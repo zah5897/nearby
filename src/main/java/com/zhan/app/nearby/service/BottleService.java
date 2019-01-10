@@ -125,6 +125,19 @@ public class BottleService {
 				|| _ua.startsWith("g") && "1.0.2".compareTo(version)>0) {
 
 			if (look_sex == null) {
+				bolltes = bottleDao.getBottles(user_id, page_size, realType, state);
+			} else {
+				VipUser vip = vipDao.loadUserVip(user_id);
+				if (vip == null || vip.getDayDiff() < 0) {
+					bolltes = bottleDao.getBottles(user_id, page_size, realType, state);
+				} else {
+					int sex = (look_sex == null ? -1 : look_sex);
+					bolltes = bottleDao.getBottlesByGender(user_id, page_size, sex, realType, state);
+				}
+			}
+		} else {
+			
+			if (look_sex == null) {
 				bolltes = bottleDao.getBottlesV19(user_id, page_size, realType, state);
 			} else {
 				VipUser vip = vipDao.loadUserVip(user_id);
@@ -136,18 +149,8 @@ public class BottleService {
 				}
 			}
 
-		} else {
-			if (look_sex == null) {
-				bolltes = bottleDao.getBottles(user_id, page_size, realType, state);
-			} else {
-				VipUser vip = vipDao.loadUserVip(user_id);
-				if (vip == null || vip.getDayDiff() < 0) {
-					bolltes = bottleDao.getBottles(user_id, page_size, realType, state);
-				} else {
-					int sex = (look_sex == null ? -1 : look_sex);
-					bolltes = bottleDao.getBottlesByGender(user_id, page_size, sex, realType, state);
-				}
-			}
+			
+			
 		}
 
 		for (Bottle bottle : bolltes) {
@@ -237,20 +240,9 @@ public class BottleService {
 		bottle.setCreate_time(new Date());
 		bottleDao.insert(bottle);
 		
-		if (bottle.getId() > 0 && bottle.getState() != BottleState.BLACK.ordinal()&&bottle.getType()!=BottleType.DRAW_GUESS.ordinal()) {
+		if (bottle.getId() > 0 && bottle.getState() != BottleState.BLACK.ordinal()) {
 			bottleDao.insertToPool(bottle);
 		}
-	}
-	
- 
-	
-	
-	public void updateBottleContent(Bottle bottle) {
-		bottleDao.updateBottleContent(bottle.getId(),bottle.getContent());
-	}
-	
-	public void insertToPool(Bottle bottle) {
-		bottleDao.insertToPool(bottle);
 	}
 
 	private void checkExistAndClear(Bottle bottle) {

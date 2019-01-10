@@ -228,10 +228,12 @@ td {
 				 typeStr="文本弹幕瓶子";
 			 }else if(type==5){
 				 typeStr="语音弹幕瓶子";
+			 }else if(type==6){
+				 typeStr="我画你猜瓶子";
 			 }
 			 
 			 toAdd+="<td>"+typeStr+"</td>";
-			 if(type==3){
+			 if(type==3||type==6){
 				 toAdd+="<td><img  src='"+pageData["content"]+"' alt='"+pageData["content"]+"'  height='50'/></td>";
 			 }else{
 				 toAdd+="<td>"+pageData["content"]+"</td>";

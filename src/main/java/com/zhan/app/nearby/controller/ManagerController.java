@@ -784,6 +784,8 @@ public class ManagerController {
 		for (Bottle b : exchanges) {
 			if (b.getType() == BottleType.MEET.ordinal()) {
 				b.setContent(managerService.getMeetUserAvatar(b.getContent()));
+			}else if(b.getType()==BottleType.DRAW_GUESS.ordinal()) {
+				ImagePathUtil.completeBottleDrawPath(b);
 			}
 		}
 

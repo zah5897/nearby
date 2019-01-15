@@ -25,6 +25,8 @@ public class Reward {
 	private String answer;
 
 	@ColumnType
+	private int count;
+	@ColumnType
 	private BaseUser user;
 	@ColumnType
 	private Bottle bottle;
@@ -91,6 +93,14 @@ public class Reward {
 
 	public void setCreate_time_v2(long create_time_v2) {
 		this.create_time_v2 = create_time_v2;
+	}
+
+	public int getCount() {
+		return count;
+	}
+
+	public void setCount(int count) {
+		this.count = count;
 	}
 
 }

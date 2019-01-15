@@ -299,6 +299,10 @@ public class BottleService {
 				try {
 					long bid = Long.parseLong(id);
 					bottleDao.logScan(user_id, bid);
+					Long uid=bottleDao.getBottleSenderId(bid);
+					BaseUser u1 = userDao.getBaseUserNoToken(user_id);
+					BaseUser u2 = userDao.getBaseUserNoToken(uid);
+					mainService.makeChatSession(u1, u2);
 				} catch (Exception e) {
 				}
 			}
@@ -489,10 +493,9 @@ public class BottleService {
 	public ModelMap replay_meet(long user_id, long target) {
 		dynamicMsgService.updateMeetState(user_id, target);
 
-		BaseUser u1 = userDao.getBaseUser(user_id);
-		BaseUser u2 = userDao.getBaseUser(target);
+		BaseUser u1 = userDao.getBaseUserNoToken(user_id);
+		BaseUser u2 = userDao.getBaseUserNoToken(target);
 		mainService.makeChatSession(u1, u2);
-		u2.setToken(null);
 		return ResultUtil.getResultOKMap().addAttribute("user", u2);
 	}
 
@@ -528,14 +531,18 @@ public class BottleService {
 		bottleDao.insertReward(reward);
 	}
 
-	public List<Reward> rewardHistory(long user_id, Integer page, Integer count) {
-		return bottleDao.rewardHistory(user_id, page == null ? 1 : page, count == null ? 10 : count);
+	public List<Reward> rewardHistoryGroup(long user_id) {
+		return bottleDao.rewardHistoryGroup(user_id);
 	}
-
+	public List<Reward> rewardHistory(long user_id,int reward,int page,int count) {
+		return bottleDao.rewardHistory(user_id,reward,page,count);
+	}
 	//最新的瓶子pool留存算法，总量保持100
 	public void refreshBottlePool() {
+		int keepSize=150;
+		bottleDao.refreshPool(keepSize);
 		//先获取200个供赛选
-		List<Long> ids=bottleDao.loadNeedClearIds(250,100);
-		bottleDao.clearBottlePoolIds(ids);
+		//List<String> ids=bottleDao.loadNeedClearIds(250,100);
+		//bottleDao.clearBottlePoolIds(ids);
 	}
 }

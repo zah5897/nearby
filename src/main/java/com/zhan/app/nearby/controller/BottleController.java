@@ -13,7 +13,6 @@ import org.springframework.web.multipart.support.DefaultMultipartHttpServletRequ
 
 import com.zhan.app.nearby.bean.Bottle;
 import com.zhan.app.nearby.bean.type.BottleType;
-import com.zhan.app.nearby.comm.BottleState;
 import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.service.BottleService;
 import com.zhan.app.nearby.service.MainService;
@@ -54,7 +53,7 @@ public class BottleController {
 		}
 
 		if (bottle.getType() == BottleType.DRAW_GUESS.ordinal()) {
-			return ResultUtil.getResultMap(ERROR.ERR_FAILED,"不支持该类型瓶子");
+			return ResultUtil.getResultMap(ERROR.ERR_FAILED, "不支持该类型瓶子");
 		}
 
 		if (bottle.getReward() > 0) {
@@ -89,16 +88,17 @@ public class BottleController {
 	 * @return
 	 */
 	@RequestMapping("upload")
-	public ModelMap upload(DefaultMultipartHttpServletRequest multipartRequest, Bottle bottle,String token,String _ua,String aid) {
+	public ModelMap upload(DefaultMultipartHttpServletRequest multipartRequest, Bottle bottle, String token, String _ua,
+			String aid) {
 
-		if(!userService.checkLogin(bottle.getUser_id(), token)) {
+		if (!userService.checkLogin(bottle.getUser_id(), token)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
 
-		if(bottle.getType()!=BottleType.DRAW_GUESS.ordinal()) {
-			return ResultUtil.getResultMap(ERROR.ERR_NOT_EXIST,"瓶子类型不对");
+		if (bottle.getType() != BottleType.DRAW_GUESS.ordinal()) {
+			return ResultUtil.getResultMap(ERROR.ERR_NOT_EXIST, "瓶子类型不对");
 		}
-		
+
 		if (bottle.getReward() > 0) {
 
 			int coin = userService.loadUserCoins(aid, bottle.getUser_id());
@@ -213,8 +213,9 @@ public class BottleController {
 	}
 
 	@RequestMapping("reward_list")
-	public ModelMap reward_history(Integer count) {
-		return ResultUtil.getResultOKMap().addAttribute("reward_list", bottleService.rewardHistory(count));
+	public ModelMap reward_history(long user_id, Integer page, Integer count) {
+		return ResultUtil.getResultOKMap().addAttribute("reward_list",
+				bottleService.rewardHistory(user_id, page, count));
 	}
 
 }

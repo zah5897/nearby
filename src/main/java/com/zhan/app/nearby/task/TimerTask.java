@@ -1,6 +1,5 @@
 package com.zhan.app.nearby.task;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -8,8 +7,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import com.zhan.app.nearby.bean.Bottle;
-import com.zhan.app.nearby.bean.type.BottleType;
 import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.dao.UserDao;
 import com.zhan.app.nearby.service.BottleService;
@@ -31,15 +28,10 @@ public class TimerTask {
 		BottleService bottleService = SpringContextUtil.getBean("bottleService");
 		for (BaseUser u : users) {
 			if (bottleService.checkExistMeetBottleAndReUse(u.getUser_id())) {// 说明不存在
-				Bottle bottle = new Bottle();
-				bottle.setCreate_time(new Date());
-				bottle.setUser_id(u.getUser_id());
-				bottle.setType(BottleType.MEET.ordinal());
-				bottle.setContent(String.valueOf(u.getUser_id()));
-				bottleService.send(bottle,null);
+				bottleService.sendMeetBottle(u.getUser_id());
 			}
-
 		}
+		bottleService.refreshBottlePool();
 		//定时自动加入黑名单IP
 		autoAddBlackIP();
 	}
@@ -53,22 +45,13 @@ public class TimerTask {
 
 	 
 
-	@Scheduled(cron = "0 10 0 * * ?") // 每天12点10分执行1次
-	// @Scheduled(cron = "0 0/5 * * * ?") // 每5分钟执行一次
+	@Scheduled(cron = "0 10 0 * * ?")  //每天0：10分执行
 	public void clearExpireVip() {
 		VipService vipService = SpringContextUtil.getBean("vipService");
 	    vipService.clearExpireVip();
-		
 		//每天凌晨清理前天数据
-		
 		UserService userService = SpringContextUtil.getBean("userService");
 		userService.clearExpireMeetBottleUser();
-		
-		
-		BottleService bottleService = SpringContextUtil.getBean("bottleService");
-		bottleService.clearExpireBottle();
-		
-		
 	}
 
 	@SuppressWarnings("unchecked")

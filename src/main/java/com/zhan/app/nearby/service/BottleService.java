@@ -121,8 +121,8 @@ public class BottleService {
 		int realType = type == null ? -1 : type;
 
 		// 旧版本
-		if (_ua.startsWith("a") && "1.9".compareTo(version) >0
-				|| _ua.startsWith("g") && "1.0.2".compareTo(version)>0) {
+		if (_ua.startsWith("a") && "1.9".compareTo(version) > 0
+				|| _ua.startsWith("g") && "1.0.2".compareTo(version) > 0) {
 
 			if (look_sex == null) {
 				bolltes = bottleDao.getBottles(user_id, page_size, realType, state);
@@ -136,7 +136,7 @@ public class BottleService {
 				}
 			}
 		} else {
-			
+
 			if (look_sex == null) {
 				bolltes = bottleDao.getBottlesV19(user_id, page_size, realType, state);
 			} else {
@@ -149,8 +149,6 @@ public class BottleService {
 				}
 			}
 
-			
-			
 		}
 
 		for (Bottle bottle : bolltes) {
@@ -239,10 +237,19 @@ public class BottleService {
 		checkExistAndClear(bottle);
 		bottle.setCreate_time(new Date());
 		bottleDao.insert(bottle);
-		
+
 		if (bottle.getId() > 0 && bottle.getState() != BottleState.BLACK.ordinal()) {
 			bottleDao.insertToPool(bottle);
 		}
+	}
+
+	public void sendMeetBottle(long user_id) {
+		Bottle bottle = new Bottle();
+		bottle.setCreate_time(new Date());
+		bottle.setUser_id(user_id);
+		bottle.setType(BottleType.MEET.ordinal());
+		bottle.setContent(String.valueOf(user_id));
+		send(bottle, null);
 	}
 
 	private void checkExistAndClear(Bottle bottle) {
@@ -364,13 +371,13 @@ public class BottleService {
 					List<Long> ids = bottleDao.getMeetBottleIDByUser(withUserID);
 					if (ids.size() > 0) {
 						bottleID = ids.get(0);
-					}else {
-						 Bottle bottle = new Bottle();
-						 bottle.setCreate_time(new Date());
-						 bottle.setUser_id(withUserID);
-						 bottle.setType(BottleType.MEET.ordinal());
-						 bottle.setContent(String.valueOf(withUserID));
-						 bottleID= bottleDao.insert(bottle);
+					} else {
+						Bottle bottle = new Bottle();
+						bottle.setCreate_time(new Date());
+						bottle.setUser_id(withUserID);
+						bottle.setType(BottleType.MEET.ordinal());
+						bottle.setContent(String.valueOf(withUserID));
+						bottleID = bottleDao.insert(bottle);
 					}
 				}
 				userDao.updateRelationship(user_id, withUserID, Relationship.LIKE);
@@ -395,18 +402,6 @@ public class BottleService {
 		if (bottle == null) {
 			return ResultUtil.getResultMap(ERROR.ERR_NOT_EXIST);
 		}
-		if (bottle.getType() == BottleType.DRAW_GUESS.ordinal()) {
-			if (bottle.getAnswer_state() == BottleAnswerState.NORMAL.ordinal()) {
-				if (!TextUtils.isEmpty(msg) && msg.trim().equals(bottle.getAnswer())) {
-					// 更新状态，并奖励
-					updateAnswerState(bottle_id, BottleAnswerState.ANSWERED);
-					userService.rewardCoin(user_id, bottle.getReward(), aid);
-
-					saveRewardHistory(bottle, user_id);
-
-				}
-			}
-		}
 
 		ImagePathUtil.completeAvatarPath(user, true);
 		// 发送给对方
@@ -417,17 +412,25 @@ public class BottleService {
 		ext.put("bottle_id", String.valueOf(bottle_id));
 		Main.sendTxtMessage(String.valueOf(user.getUser_id()), new String[] { String.valueOf(target) }, msg, ext,
 				PushMsgType.TYPE_NEW_CONVERSATION);
-		return ResultUtil.getResultOKMap();
-	}
 
-	/**
-	 * 清理掉过期的 瓶子 ,7天
-	 * 
-	 * @param maxValidate
-	 * @return
-	 */
-	public int clearExpireBottle() {
-		return bottleDao.clearExpireBottle();
+		if (bottle.getType() == BottleType.DRAW_GUESS.ordinal()) {
+			
+				if (!TextUtils.isEmpty(msg) && msg.trim().equals(bottle.getAnswer())) {
+					// 更新状态，并奖励
+					if (bottle.getAnswer_state() == BottleAnswerState.NORMAL.ordinal()) {
+					
+					    updateAnswerState(bottle_id, BottleAnswerState.ANSWERED);
+					    userService.rewardCoin(user_id, bottle.getReward(), aid);
+					    saveRewardHistory(bottle, user_id);
+					    return ResultUtil.getResultOKMap().addAttribute("result", 1);
+				    }else {
+				    	 return ResultUtil.getResultOKMap().addAttribute("result", 2);
+				    }
+			    }else {
+			    	return ResultUtil.getResultOKMap().addAttribute("result", 0);
+			    }
+		}
+		return ResultUtil.getResultOKMap();
 	}
 
 	public int sendAutoBottle(String id, String content) {
@@ -460,9 +463,6 @@ public class BottleService {
 		bottleDao.changeBottleState(id, to_state);
 	}
 
-	public void clearExpireAudioBottle() {
-		bottleDao.clearExpireAudioBottle();
-	}
 
 	public ModelMap meetList(long user_id, Integer page, Integer count) {
 
@@ -528,7 +528,14 @@ public class BottleService {
 		bottleDao.insertReward(reward);
 	}
 
-	public List<Reward> rewardHistory(Integer count) {
-		return bottleDao.rewardHistory(count == null || count < 1 ? 4 : count);
+	public List<Reward> rewardHistory(long user_id, Integer page, Integer count) {
+		return bottleDao.rewardHistory(user_id, page == null ? 1 : page, count == null ? 10 : count);
+	}
+
+	//最新的瓶子pool留存算法，总量保持100
+	public void refreshBottlePool() {
+		//先获取200个供赛选
+		List<Long> ids=bottleDao.loadNeedClearIds(250,100);
+		bottleDao.clearBottlePoolIds(ids);
 	}
 }

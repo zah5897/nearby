@@ -2,6 +2,9 @@ package com.zhan.app.nearby.bean;
 
 import java.util.Date;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.zhan.app.nearby.annotation.ColumnType;
 import com.zhan.app.nearby.bean.user.BaseUser;
@@ -12,7 +15,13 @@ public class Reward {
 	@JsonIgnore
 	private long uid;
 	private int reward;
+	
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm", locale = "zh", timezone = "GMT+8")
+	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
 	private Date create_time;
+	@ColumnType
+	private long create_time_v2;
+	
 	private String answer;
 
 	@ColumnType
@@ -74,6 +83,14 @@ public class Reward {
 
 	public void setBottle(Bottle bottle) {
 		this.bottle = bottle;
+	}
+
+	public long getCreate_time_v2() {
+		return create_time_v2;
+	}
+
+	public void setCreate_time_v2(long create_time_v2) {
+		this.create_time_v2 = create_time_v2;
 	}
 
 }

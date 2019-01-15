@@ -372,12 +372,11 @@ public class UserDao extends BaseDao {
 		return users;
 	}
 
-	
 	public void clearExpireMeetBottleUser() {
 		String sql = "delete from  t_user_meet_bottle_recommend where DATEDIFF(create_time,now()) <-2";
 		jdbcTemplate.update(sql);
 	}
-	
+
 	public void removeMeetBottleUserByUserId(long uid) {
 		jdbcTemplate.update("delete from t_user_meet_bottle_recommend where uid=" + uid);
 	}
@@ -389,6 +388,16 @@ public class UserDao extends BaseDao {
 
 	public BaseUser getBaseUser(long user_id) {
 		String sql = "select user_id,nick_name,sex,avatar,signature,birthday,token from t_user where user_id=?";
+		List<BaseUser> users = jdbcTemplate.query(sql, new Object[] { user_id },
+				new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+		if (users.size() > 0) {
+			return users.get(0);
+		}
+		return null;
+	}
+
+	public BaseUser getBaseUserNoToken(long user_id) {
+		String sql = "select user_id,nick_name,sex,avatar,signature,birthday from t_user where user_id=?";
 		List<BaseUser> users = jdbcTemplate.query(sql, new Object[] { user_id },
 				new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
 		if (users.size() > 0) {
@@ -693,8 +702,7 @@ public class UserDao extends BaseDao {
 	public List<String> getUserAvatarsString(long user_id) {
 		return jdbcTemplate.queryForList("select avatar  from t_user_avatars where uid=" + user_id, String.class);
 	}
-	
-	
+
 	public long editAvatarState(int id, int state) {
 		String sql = "select uid, avatar from t_user_avatars where id=" + id;
 		Map<String, Object> r = jdbcTemplate.queryForMap(sql);
@@ -733,11 +741,9 @@ public class UserDao extends BaseDao {
 	}
 
 	public List<String> loadAvatarByUid(long uid) {
-		return jdbcTemplate.queryForList(
-				"select avatar from t_user_avatars  where  uid="+uid, String.class);
+		return jdbcTemplate.queryForList("select avatar from t_user_avatars  where  uid=" + uid, String.class);
 	}
-	
-	
+
 	public String getContact(long user_id) {
 		String contact = jdbcTemplate.queryForObject("select contact from t_user where user_id=" + user_id,
 				String.class);
@@ -809,16 +815,30 @@ public class UserDao extends BaseDao {
 	}
 
 	public List<String> checkRegistIP(int limitCount) {
-		List<String> list= jdbcTemplate.queryForList("select ip from (select count(*) as count,ip from t_user group by ip) d where d.count>=? and d.ip is not null",new Object[] {String.valueOf(limitCount)},String.class);
-		 return list;
+		List<String> list = jdbcTemplate.queryForList(
+				"select ip from (select count(*) as count,ip from t_user group by ip) d where d.count>=? and d.ip is not null",
+				new Object[] { String.valueOf(limitCount) }, String.class);
+		return list;
 	}
-	
+
 	public List<Long> loadIllegalRegistUids(String illegalIP) {
-		List<Long> uids= jdbcTemplate.queryForList("select user_id from t_user where ip='"+illegalIP+"'",Long.class);
-		 return uids;
+		List<Long> uids = jdbcTemplate.queryForList("select user_id from t_user where ip='" + illegalIP + "'",
+				Long.class);
+		return uids;
 	}
+
 	public void deleteIllegalUser(long uid) {
-		jdbcTemplate.update("delete from t_user where user_id="+uid);
+		jdbcTemplate.update("delete from t_user where user_id=" + uid);
 	}
 	
+	public int addToFound(long user_id) {
+		int count = jdbcTemplate.update("update t_found_user_relationship set state=?,action_time=? where uid=?",
+				new Object[] { FoundUserRelationship.VISIBLE.ordinal(),new Date(), user_id });
+		if (count !=1) {
+			String sql = "insert into t_found_user_relationship values (?, ?,?)";
+			return jdbcTemplate.update(sql, new Object[] { user_id, FoundUserRelationship.VISIBLE.ordinal() ,new Date()});
+		}
+		return count;
+	}
+
 }

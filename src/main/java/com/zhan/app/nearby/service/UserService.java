@@ -53,9 +53,9 @@ import com.zhan.app.nearby.util.TextUtils;
 @Service
 @Transactional("transactionManager")
 public class UserService {
-	
+
 	private static Logger log = Logger.getLogger(UserService.class);
-	
+
 	@Resource
 	private UserDao userDao;
 	@Resource
@@ -118,7 +118,11 @@ public class UserService {
 		}
 		long id = (Long) userDao.insert(user);
 		user.setUser_id(id);
+
 		if (id > 0 && user.getType() == UserType.OFFIEC.ordinal()) {
+			if (user.getIsFace() == 1) {
+				addRecommendAndMeetBottle(id);
+			}
 			saveUserOnline(user.getUser_id());
 			registHX(user);
 		}
@@ -214,6 +218,7 @@ public class UserService {
 		int count = userDao.visitorToNormal(user.getUser_id(), user.getMobile(), user.getPassword(), user.getToken(),
 				user.getNick_name(), user.getBirthday(), user.getSex(), user.getAvatar(), user.getLast_login_time());
 		if (count > 0) {
+			addRecommendAndMeetBottle(user.getUser_id());
 			registHX(user);
 		}
 		return count;
@@ -647,16 +652,15 @@ public class UserService {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
 	}
-	
-	public Map<String, Object> checkOut(long user_id,int coin, String aid) {
-		return modifyExtra(user_id, aid,coin, -1);	 
+
+	public Map<String, Object> checkOut(long user_id, int coin, String aid) {
+		return modifyExtra(user_id, aid, coin, -1);
 	}
 
-	
-	public Map<String, Object> rewardCoin(long user_id,int coin, String aid) {
-		return modifyExtra(user_id, aid,coin, 1);	 
+	public Map<String, Object> rewardCoin(long user_id, int coin, String aid) {
+		return modifyExtra(user_id, aid, coin, 1);
 	}
-	
+
 	private String MODULE_ORDER_A_EXTRA;
 
 	public Map<String, Object> modifyExtra(long user_id, String aid, int count, int type) {
@@ -708,16 +712,13 @@ public class UserService {
 			ImageSaveUtils.removeAcatar(avatar);
 		}
 	}
-	
+
 	public void deleteIllegalAvatarFileRightNow(long uid) {
 		List<String> avatars = userDao.loadAvatarByUid(uid);
 		for (String avatar : avatars) {
 			ImageSaveUtils.removeAcatar(avatar);
 		}
 	}
-	
-	
-	
 
 	public ModelMap openApp(long user_id, String token, String aid) {
 		if (checkLogin(user_id, token)) {
@@ -816,22 +817,22 @@ public class UserService {
 	public void removeTimeoutOnlineUsers(int timeoutMaxMinute) {
 		userDao.removeTimeoutOnlineUsers(timeoutMaxMinute);
 	}
-	
+
 	public void checkRegistIP(int limitCount) {
-		List<String> list=userDao.checkRegistIP(limitCount);
-		for(String ip:list) {
-			boolean r=IPUtil.addIPBlack(ip);
-			if(r) {
+		List<String> list = userDao.checkRegistIP(limitCount);
+		for (String ip : list) {
+			boolean r = IPUtil.addIPBlack(ip);
+			if (r) {
 				clearIllegalUserAndCreate();
 			}
 		}
 	}
-	
+
 	public void clearIllegalUserAndCreate() {
-		List<String> ips=IPUtil.getIpBlackList();
-		for(String ip:ips) {
-			List<Long> uids=userDao.loadIllegalRegistUids(ip);
-			for(long uid:uids) {
+		List<String> ips = IPUtil.getIpBlackList();
+		for (String ip : ips) {
+			List<Long> uids = userDao.loadIllegalRegistUids(ip);
+			for (long uid : uids) {
 				editAvatarStateByUserId(uid);
 				bottleService.clearUserBottle(uid);
 				deleteIllegalAvatarFileRightNow(uid);
@@ -839,8 +840,13 @@ public class UserService {
 			}
 		}
 	}
-	
-	
+
+	//这里是确定isFace=1的情况，需要添加到首页推荐和邂逅瓶中
+	public void addRecommendAndMeetBottle(long user_id) {
+		userDao.addToFound(user_id);
+		bottleService.sendMeetBottle(user_id);
+	}
+
 	public List<BaseUser> listConfirmAvatars(int state, int pageSize, int pageIndex) {
 		return userDao.listConfirmAvatars(state, pageSize, pageIndex);
 	}
@@ -853,7 +859,6 @@ public class UserService {
 		return userDao.getUserState(uid);
 	}
 
-	
 	public void clearExpireMeetBottleUser() {
 		userDao.clearExpireMeetBottleUser();
 	}

@@ -247,10 +247,12 @@ public class GiftService {
 		return ResultUtil.getResultOKMap("提交成功").addAttribute("value", newVal);
 	}
 
-	public ModelMap get_exchange_validate_code(long user_id, String token, String mobile, Integer code_type) {
+	public ModelMap get_exchange_validate_code(long user_id, String token, Integer code_type) {
 		if (!userService.checkLogin(user_id, token)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
+		
+		String mobile=userService.getUserMobileById(user_id);
 		
 		if(userCacheService.getExchageCodeCacheCount(mobile)>=5) {
 			return  ResultUtil.getResultMap(ERROR.ERR_SMS_CODE_LIMIT);
@@ -258,7 +260,7 @@ public class GiftService {
 
 		String code = RandomCodeUtil.randomCode(6);
 		if (code_type != null && code_type == -1000) {
-			userCacheService.cacheExchageValidateCode(mobile, code,code_type);
+			userCacheService.cacheExchageValidateCode(mobile, code,0);
 			return ResultUtil.getResultOKMap().addAttribute("validate_code", code);
 		}
 		ModelMap data = ResultUtil.getResultOKMap();

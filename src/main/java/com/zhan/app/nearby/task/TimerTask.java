@@ -35,12 +35,11 @@ public class TimerTask {
 		bottleService.refreshBottlePool();
 		//定时自动加入黑名单IP
 		autoAddBlackIP();
+		 
 	}
 
 	@Scheduled(cron = "0 59 23 * * ?") // 每天23：59分执行
 	public void meiliRateTask() {
-		
-		
 		UserCacheService userCacheService = SpringContextUtil.getBean("userCacheService");
 		userCacheService.clearCacheCount();
 		

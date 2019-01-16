@@ -88,8 +88,8 @@ public class GiftController {
 	
 	//获取验证码
 	@RequestMapping("get_exchange_validate_code")
-	public ModelMap get_exchange_validate_code(long user_id,String token,String aid,String mobile,Integer code_type) {
-		return giftService.get_exchange_validate_code(user_id,token,mobile,code_type);
+	public ModelMap get_exchange_validate_code(long user_id,String token,String aid,Integer code_type) {
+		return giftService.get_exchange_validate_code(user_id,token,code_type);
 	}
 	// 礼物扇贝值兑换钻石
 	@RequestMapping("exchange_diamond")

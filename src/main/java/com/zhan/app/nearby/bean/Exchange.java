@@ -12,7 +12,6 @@ public class Exchange {
 	@JsonIgnore
 	private String aid;
 	private int diamond_count;
-	private int rmb_fen;
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm", locale = "zh", timezone = "GMT+8")
 	private Date create_time;
 	
@@ -48,14 +47,6 @@ public class Exchange {
 
 	public void setDiamond_count(int diamond_count) {
 		this.diamond_count = diamond_count;
-	}
-
-	public int getRmb_fen() {
-		return rmb_fen;
-	}
-
-	public void setRmb_fen(int rmb_fen) {
-		this.rmb_fen = rmb_fen;
 	}
 
 	public Date getCreate_time() {

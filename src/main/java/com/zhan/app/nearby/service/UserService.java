@@ -88,7 +88,9 @@ public class UserService {
 	public LocationUser findLocationUserByMobile(String mobile) {
 		return userDao.findLocationUserByMobile(mobile);
 	}
-
+	public String getUserMobileById(long user_id) {
+		return userDao.getUserMobileById(user_id);
+	}
 	public String getUserToken(long user_id) {
 		return userDao.getUserToken(user_id);
 	}

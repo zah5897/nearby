@@ -98,12 +98,12 @@ public class BottleDao extends BaseDao {
 		return jdbcTemplate.update(sql,
 				new Object[] { bottle.getId(), bottle.getUser_id(), bottle.getType(), bottle.getCreate_time() });
 	}
-	
+
 	public Long getBottleSenderId(long bottle_id) {
 		return jdbcTemplate.queryForObject("select user_id from t_bottle where id=? limit 1",
-				new Object[] { bottle_id },Long.class);
+				new Object[] { bottle_id }, Long.class);
 	}
-	
+
 	public List<Bottle> getBottleRandomInPool(long user_id, int limit) {
 		String sql = "select b.*,u.nick_name ,u.gender,u.avatar from t_bottle as b right join (select  * from t_bottle_pool where user_id<>? order by rand() limit ?) as p on b.id=p.bottle_id left join t_user u on b.user_id=u.id";
 		return jdbcTemplate.query(sql, new Object[] { user_id, limit },
@@ -615,7 +615,6 @@ public class BottleDao extends BaseDao {
 		saveObjSimple(jdbcTemplate, "t_reward_history", reward);
 	}
 
-	
 	public List<Reward> rewardHistoryGroup(long user_id) {
 
 		String rewardSql = "select count(*) as count,reward, "
@@ -625,10 +624,10 @@ public class BottleDao extends BaseDao {
 				+ ")  r left join t_bottle b on r.bottle_id=b.id left join t_user ru on r.uid=ru.user_id order by r.create_time desc";
 		return jdbcTemplate.query(sqlReward, new Object[] { user_id }, new BeanPropertyRowMapper<Reward>(Reward.class));
 	}
-	
-	public List<Reward> rewardHistory(long user_id,int reward, int page, int count) {
-		String sqlReward = "select r.*,b.*,ru.nick_name,ru.avatar from t_reward_history r left join t_bottle b on r.bottle_id=b.id left join t_user ru on r.uid=ru.user_id where r.uid=? and r.reward=? order by r.create_time desc limit ?,?";
-		return jdbcTemplate.query(sqlReward, new Object[] { user_id,reward, (page - 1) * count, count },
+
+	public List<Reward> rewardHistory(long user_id, int page, int count) {
+		String sqlReward = "select r.*,b.*,ru.nick_name,ru.avatar from t_reward_history r left join t_bottle b on r.bottle_id=b.id left join t_user ru on r.uid=ru.user_id where r.uid=?   order by r.create_time desc limit ?,?";
+		return jdbcTemplate.query(sqlReward, new Object[] { user_id, (page - 1) * count, count },
 				new BeanPropertyRowMapper<Reward>(Reward.class) {
 					@Override
 					public Reward mapRow(ResultSet rs, int rowNumber) throws SQLException {
@@ -653,8 +652,8 @@ public class BottleDao extends BaseDao {
 		jdbcTemplate.queryForList("update t_bottle set content=? where id=?", new Object[] { content, id });
 
 	}
-	 
-	//in 查询
+
+	// in 查询
 //	public void clearBottlePoolIds(List<String> ids) {
 //		    String sql="delete from t_bottle_pool where bottle_id in (:ids)";
 //		    NamedParameterJdbcTemplate namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate.getDataSource());
@@ -665,13 +664,13 @@ public class BottleDao extends BaseDao {
 //	}
 
 	public void refreshPool(int keepSize) {
-		String sqlCount="select count(*) from t_bottle_pool";
-		int count=jdbcTemplate.queryForObject(sqlCount, Integer.class);
-		
-		if(keepSize>=count) {
+		String sqlCount = "select count(*) from t_bottle_pool";
+		int count = jdbcTemplate.queryForObject(sqlCount, Integer.class);
+
+		if (keepSize >= count) {
 			return;
 		}
-		String sql="delete from t_bottle_pool order by bottle_id  limit ?";
-		jdbcTemplate.update(sql,new Object[] {count-keepSize});
+		String sql = "delete from t_bottle_pool order by bottle_id  limit ?";
+		jdbcTemplate.update(sql, new Object[] { count - keepSize });
 	}
 }

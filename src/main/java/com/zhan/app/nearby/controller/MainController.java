@@ -121,11 +121,11 @@ public class MainController {
 		return mainService.exchange_history(user_id,aid,page,count);
 	}
 	
-	//钻石兑换RMB
-	@RequestMapping("exchange_rmb")
-	public ModelMap exchange_rmb(long user_id,String token,String aid,int diamond,String zhifubao,String mobile,String code) {
-		return mainService.exchange_rmb(user_id,token,aid,diamond,zhifubao,mobile,code);
-	}
+//	//钻石兑换RMB
+//	@RequestMapping("exchange_rmb")
+//	public ModelMap exchange_rmb(long user_id,String token,String aid,int diamond,String zhifubao,String mobile,String code) {
+//		return mainService.exchange_rmb(user_id,token,aid,diamond,zhifubao,mobile,code);
+//	}
 	
 	
 	//获取成长率最高的用户

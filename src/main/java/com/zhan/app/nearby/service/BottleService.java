@@ -37,6 +37,7 @@ import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.util.BottleKeyWordUtil;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.JSONUtil;
+import com.zhan.app.nearby.util.RandomCodeUtil;
 import com.zhan.app.nearby.util.ResultUtil;
 import com.zhan.app.nearby.util.TextUtils;
 
@@ -300,9 +301,13 @@ public class BottleService {
 					long bid = Long.parseLong(id);
 					bottleDao.logScan(user_id, bid);
 					Long uid=bottleDao.getBottleSenderId(bid);
+					
 					BaseUser u1 = userDao.getBaseUserNoToken(user_id);
 					BaseUser u2 = userDao.getBaseUserNoToken(uid);
-					mainService.makeChatSession(u1, u2);
+					//异性，且40%概率发送
+					if(u1.getSex()!=u2.getSex()&&RandomCodeUtil.randomPercentOK(3)) {
+						mainService.makeChatSession(u1, u2);
+					}
 				} catch (Exception e) {
 				}
 			}
@@ -534,8 +539,8 @@ public class BottleService {
 	public List<Reward> rewardHistoryGroup(long user_id) {
 		return bottleDao.rewardHistoryGroup(user_id);
 	}
-	public List<Reward> rewardHistory(long user_id,int reward,int page,int count) {
-		return bottleDao.rewardHistory(user_id,reward,page,count);
+	public List<Reward> rewardHistory(long user_id,    int page,int count) {
+		return bottleDao.rewardHistory(user_id, page,count);
 	}
 	//最新的瓶子pool留存算法，总量保持100
 	public void refreshBottlePool() {

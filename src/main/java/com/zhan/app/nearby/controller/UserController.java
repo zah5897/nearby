@@ -83,24 +83,28 @@ public class UserController {
 		if (count > 0) {
 			return ResultUtil.getResultMap(ERROR.ERR_USER_EXIST, "该手机号码已注册");
 		}
+		
+		if(userCacheService.getUserCodeCacheCount(mobile)>=3) {
+			return ResultUtil.getResultMap(ERROR.ERR_SMS_CODE_LIMIT);
+		}
 
 		String code = RandomCodeUtil.randomCode(6);
 		if (code_type != null && code_type == -1000) {
-			userCacheService.cacheValidateCode(mobile, code);
+			userCacheService.cacheRegistValidateCode(mobile, code,code_type);
 			return ResultUtil.getResultOKMap().addAttribute("validate_code", code);
 		}
 
-		String cache = userCacheService.getCachevalideCode(mobile);
-		if (cache != null) {
-			// 已经在一分钟内发过，还没过期
-		}
+//		String cache = userCacheService.getCachevalideCode(mobile);
+//		if (cache != null) {
+//			// 已经在一分钟内发过，还没过期
+//		}
 		// if (now - lastTime <= 60) {
 		// return ResultUtil.getResultMap(ERROR.ERR_FREUENT);
 		// }
 		ModelMap data = ResultUtil.getResultOKMap();
 		boolean smsOK = SMSHelper.smsRegist(mobile, code);
 		if (smsOK) {
-			userCacheService.cacheValidateCode(mobile, code);
+			userCacheService.cacheRegistValidateCode(mobile, code,code_type);
 			data.put("validate_code", code);
 		} else {
 			data = ResultUtil.getResultMap(ERROR.ERR_FAILED, "验证码发送失败");
@@ -133,7 +137,7 @@ public class UserController {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "昵称不能为空");
 		}
 		// 验证code合法性
-		if (TextUtils.isEmpty(code) || !userCacheService.valideCode(user.getMobile(), code)) {
+		if (TextUtils.isEmpty(code) || !userCacheService.valideRegistCode(user.getMobile(), code)) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "验证码错误");
 		}
 
@@ -323,10 +327,15 @@ public class UserController {
 			return ResultUtil.getResultMap(ERROR.ERR_USER_NOT_EXIST, "该手机号码未注册");
 		}
 
-		String cache = userCacheService.getCachevalideCode(mobile);
-		if (cache != null) {
-			// 已经在一分钟内发过，还没过期
+		if(userCacheService.getUserCodeCacheCount(mobile)>=3) {
+			return ResultUtil.getResultMap(ERROR.ERR_SMS_CODE_LIMIT);
 		}
+		
+		
+//		String cache = userCacheService.getCachevaRegistlideCode(mobile);
+//		if (cache != null) {
+//			// 已经在一分钟内发过，还没过期
+//		}
 		// if (now - lastTime <= 60) {
 		// return ResultUtil.getResultMap(ERROR.ERR_FREUENT);
 		// }
@@ -335,7 +344,7 @@ public class UserController {
 
 		boolean smsOK = SMSHelper.smsResetPwd(mobile, code);
 		if (smsOK) {
-			userCacheService.cacheValidateCode(mobile, code);
+			userCacheService.cacheRegistValidateCode(mobile, code,0);
 			data.put("validate_code", code);
 		} else {
 			data = ResultUtil.getResultMap(ERROR.ERR_FAILED, "验证码发送失败");
@@ -360,7 +369,7 @@ public class UserController {
 		if (TextUtils.isEmpty(mobile)) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "手机号码为空");
 		}
-		boolean validate = userCacheService.valideCode(mobile, code);
+		boolean validate = userCacheService.valideRegistCode(mobile, code);
 
 		if (TextUtils.isEmpty(code) || !validate) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "验证码错误");

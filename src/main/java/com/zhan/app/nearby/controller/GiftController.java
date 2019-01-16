@@ -23,7 +23,7 @@ import com.zhan.app.nearby.util.ResultUtil;
 @RestController
 @RequestMapping("/gift")
 public class GiftController {
-	
+
 	private static Logger log = Logger.getLogger(GiftController.class);
 	// -------------管理后台使用----------------------
 	@Resource
@@ -61,9 +61,9 @@ public class GiftController {
 
 	// 获取送到的礼物列表
 	@RequestMapping("own")
-	public ModelMap own(long user_id,Long target_user_id, String aid) {
-		if(target_user_id==null||target_user_id<1) {
-			target_user_id=user_id;
+	public ModelMap own(long user_id, Long target_user_id, String aid) {
+		if (target_user_id == null || target_user_id < 1) {
+			target_user_id = user_id;
 		}
 		return giftService.loadOwn(target_user_id, aid);
 	}
@@ -84,22 +84,40 @@ public class GiftController {
 		return giftService.getVal(user_id, token, aid);
 	}
 
+	
+	
+	//获取验证码
+	@RequestMapping("get_exchange_validate_code")
+	public ModelMap get_exchange_validate_code(long user_id,String token,String aid,String mobile,Integer code_type) {
+		return giftService.get_exchange_validate_code(user_id,token,mobile,code_type);
+	}
+	// 礼物扇贝值兑换钻石
+	@RequestMapping("exchange_diamond")
+	public ModelMap exchange_diamond(long user_id, String token, String aid, int diamond,String code) {
+		return giftService.exchange_diamond(user_id, token, aid, diamond,code);
+	}
+
+	// 礼物扇贝值兑换钻石
+	@RequestMapping("exchange_diamond_history")
+	public ModelMap exchange_diamond_history(long user_id, String token, Integer page,Integer count) {
+		return giftService.exchange_diamond_history(user_id, token, page==null?1:page, count==null?20:count);
+	}
 	// 送礼公告
 	@RequestMapping("notice")
-	public ModelMap notice(String aid,long user_id, Integer page, Integer count) {
-		List<GiftOwn> owns = giftService.notice(aid,user_id, page, count);
-		ModelMap r=ResultUtil.getResultOKMap().addAttribute("notice", owns);
-		if(owns.isEmpty()) {
+	public ModelMap notice(String aid, long user_id, Integer page, Integer count) {
+		List<GiftOwn> owns = giftService.notice(aid, user_id, page, count);
+		ModelMap r = ResultUtil.getResultOKMap().addAttribute("notice", owns);
+		if (owns.isEmpty()) {
 			r.addAttribute("hasMore", false);
-		}else if(count==null)  {
-			if(owns.size()==10) {
+		} else if (count == null) {
+			if (owns.size() == 10) {
 				r.addAttribute("hasMore", true);
-			}else {
+			} else {
 				r.addAttribute("hasMore", false);
 			}
-		}else if(owns.size()==count) {
+		} else if (owns.size() == count) {
 			r.addAttribute("hasMore", true);
-		}else {
+		} else {
 			r.addAttribute("hasMore", false);
 		}
 		return r;

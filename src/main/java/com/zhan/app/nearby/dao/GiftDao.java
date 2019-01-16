@@ -4,6 +4,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
 
@@ -12,6 +13,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
+import com.zhan.app.nearby.bean.Exchange;
 import com.zhan.app.nearby.bean.Gift;
 import com.zhan.app.nearby.bean.GiftOwn;
 import com.zhan.app.nearby.bean.MeiLi;
@@ -22,8 +24,7 @@ import com.zhan.app.nearby.util.TextUtils;
 
 @Repository("giftDao")
 public class GiftDao extends BaseDao {
-	
-	
+
 	public static final String TABLE_NAME = "t_gift";
 	@Resource
 	private JdbcTemplate jdbcTemplate;
@@ -231,7 +232,7 @@ public class GiftDao extends BaseDao {
 					public MeiLi mapRow(ResultSet rs, int rowNum) throws SQLException {
 						MeiLi m = new MeiLi();
 						m.setValue(rs.getInt("tuhao_val"));
-                        m.setShanbei(m.getValue());
+						m.setShanbei(m.getValue());
 						BaseUser user = new BaseUser();
 						user.setUser_id(rs.getLong("user_id"));
 						user.setNick_name(rs.getString("nick_name"));
@@ -286,7 +287,8 @@ public class GiftDao extends BaseDao {
 			String sql = "select coins from t_gift_coins where uid=?";
 			int newCoins = gift_coins;
 			try {
-				Integer coins = jdbcTemplate.queryForObject(sql,Integer.class, new Object[] { String.valueOf(user_id) });
+				Integer coins = jdbcTemplate.queryForObject(sql, Integer.class,
+						new Object[] { String.valueOf(user_id) });
 				newCoins = gift_coins + coins;
 			} catch (Exception e) {
 				log.error(e.getMessage());
@@ -309,5 +311,22 @@ public class GiftDao extends BaseDao {
 		return jdbcTemplate.query(sql, new Object[] { user_id, (page - 1) * count, count },
 				new BeanPropertyRowMapper<GiftOwn>(GiftOwn.class));
 
+	}
+
+	public void addExchangeHistory(Exchange exchange) {
+		String sql = "select diamond from t_user_diamond where uid=?";
+		Integer diamondCount = jdbcTemplate.queryForObject(sql, new Object[] { exchange.getUser_id() }, Integer.class);
+		if (diamondCount == null) {
+			jdbcTemplate.update("insert into t_user_diamond(uid,diamond) values(?,?)",
+					new Object[] { exchange.getUser_id(), exchange.getDiamond_count() });
+		} else {
+			jdbcTemplate.update("update  t_user_diamond set diamond=? where uid=?",
+					new Object[] {  (exchange.getDiamond_count()+diamondCount),exchange.getUser_id()});
+		}
+		saveObjSimple(jdbcTemplate, "t_exchange_history", exchange);
+	}
+
+	public List<Exchange> loadExchangeDiamondHistory(long user_id, int i, int j) {
+		return jdbcTemplate.query("select *from t_exchange_history where user_id=? order by create_time desc limit ?,?", new Object[] {user_id,(i-1)*j,j},new BeanPropertyRowMapper<Exchange>(Exchange.class));
 	}
 }

@@ -217,7 +217,7 @@ public class BottleController {
 		return ResultUtil.getResultOKMap().addAttribute("reward_list", bottleService.rewardHistoryGroup(user_id));
 	}
 	@RequestMapping("reward_list")
-	public ModelMap reward_list(long user_id,int reward,Integer page,Integer count) {
-		return ResultUtil.getResultOKMap().addAttribute("reward_list", bottleService.rewardHistory(user_id,reward,page==null?1:page,count==null?20:count));
+	public ModelMap reward_list(long user_id,    Integer page,Integer count) {
+		return ResultUtil.getResultOKMap().addAttribute("reward_list", bottleService.rewardHistory(user_id,  page==null?1:page,count==null?20:count));
 	}
 }

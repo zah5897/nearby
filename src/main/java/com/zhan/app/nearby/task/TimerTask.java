@@ -8,6 +8,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.zhan.app.nearby.bean.user.BaseUser;
+import com.zhan.app.nearby.cache.UserCacheService;
 import com.zhan.app.nearby.dao.UserDao;
 import com.zhan.app.nearby.service.BottleService;
 import com.zhan.app.nearby.service.MainService;
@@ -38,6 +39,11 @@ public class TimerTask {
 
 	@Scheduled(cron = "0 59 23 * * ?") // 每天23：59分执行
 	public void meiliRateTask() {
+		
+		
+		UserCacheService userCacheService = SpringContextUtil.getBean("userCacheService");
+		userCacheService.clearCacheCount();
+		
 		MainService mainService = SpringContextUtil.getBean("mainService");
 		mainService.injectRate();
 		deleteIllegalAvatarFile();

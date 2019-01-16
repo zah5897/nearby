@@ -1,6 +1,7 @@
 package com.zhan.app.nearby.service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,18 +15,25 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 
 import com.easemob.server.example.Main;
+import com.fasterxml.jackson.databind.deser.Deserializers.Base;
+import com.zhan.app.nearby.bean.Exchange;
 import com.zhan.app.nearby.bean.Gift;
 import com.zhan.app.nearby.bean.GiftOwn;
 import com.zhan.app.nearby.bean.MeiLi;
+import com.zhan.app.nearby.bean.PersonalInfo;
 import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.cache.InfoCacheService;
+import com.zhan.app.nearby.cache.UserCacheService;
+import com.zhan.app.nearby.comm.ExchangeState;
 import com.zhan.app.nearby.comm.PushMsgType;
 import com.zhan.app.nearby.dao.GiftDao;
 import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.util.HttpService;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.JSONUtil;
+import com.zhan.app.nearby.util.RandomCodeUtil;
 import com.zhan.app.nearby.util.ResultUtil;
+import com.zhan.app.nearby.util.SMSHelper;
 
 @Service
 @Transactional("transactionManager")
@@ -41,6 +49,11 @@ public class GiftService {
 
 	@Resource
 	private InfoCacheService infoCacheService;
+	@Resource
+	private UserCacheService userCacheService;
+	
+	
+	
 
 	public ModelMap save(Gift gift) {
 		if (gift.getId() > 0) {
@@ -203,5 +216,68 @@ public class GiftService {
 			infoCacheService.cacheGiftSendNotice(json);
 		}
 		return owns;
+	}
+
+	public ModelMap exchange_diamond(long user_id, String token, String aid, int diamond ,String code) {
+		if (!userService.checkLogin(user_id, token)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		String mobile=userService.getUserMobileById(user_id);
+		
+		if(mobile==null) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		if(!userCacheService.valideExchageCode(mobile, code)) {
+			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "验证码错误");
+		}
+		int val = giftDao.getVal(user_id);
+		if (diamond > val) {
+			return ResultUtil.getResultMap(ERROR.ERR_FAILED, "钻石数量不足");
+		}
+		int newVal = val - diamond;
+		giftDao.updateGiftCoins(user_id, newVal);
+
+		Exchange exchange = new Exchange();
+		exchange.setUser_id(user_id);
+		exchange.setAid(aid);
+		exchange.setCreate_time(new Date());
+		exchange.setDiamond_count(diamond);
+		exchange.setState(ExchangeState.IN_EXCHANGE.ordinal());
+		giftDao.addExchangeHistory(exchange);
+		return ResultUtil.getResultOKMap("提交成功").addAttribute("value", newVal);
+	}
+
+	public ModelMap get_exchange_validate_code(long user_id, String token, String mobile, Integer code_type) {
+		if (!userService.checkLogin(user_id, token)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		
+		if(userCacheService.getExchageCodeCacheCount(mobile)>=5) {
+			return  ResultUtil.getResultMap(ERROR.ERR_SMS_CODE_LIMIT);
+		}
+
+		String code = RandomCodeUtil.randomCode(6);
+		if (code_type != null && code_type == -1000) {
+			userCacheService.cacheExchageValidateCode(mobile, code,code_type);
+			return ResultUtil.getResultOKMap().addAttribute("validate_code", code);
+		}
+		ModelMap data = ResultUtil.getResultOKMap();
+		HashMap<String, Object> result = SMSHelper.smsExchangeCode(mobile, code);
+		boolean smsOK = SMSHelper.isSuccess(result);
+		if (smsOK) {
+			userCacheService.cacheExchageValidateCode(mobile, code,code_type);
+			data.put("validate_code", code);
+		} else {
+			data = ResultUtil.getResultMap(ERROR.ERR_FAILED, "获取验证码次数过多，明天再试。");
+		}
+		return data;
+	}
+
+	public ModelMap exchange_diamond_history(long user_id, String token, int i, int j) {
+
+		if (!userService.checkLogin(user_id, token)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		return ResultUtil.getResultOKMap().addAttribute("data", giftDao.loadExchangeDiamondHistory(user_id, i, j));
 	}
 }

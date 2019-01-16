@@ -98,10 +98,6 @@ public class SystemDao extends BaseDao {
 				new Object[] { appro }, Integer.class);
 	}
 
-	public void addExchangeHistory(Exchange exchange) {
-		saveObjSimple(jdbcTemplate, "t_exchange_history", exchange);
-	}
-
 	public List<Exchange> loadExchangeHistory(long user_id, String aid, int pageIndex, int count) {
 		return jdbcTemplate.query(
 				"select *from  t_exchange_history where user_id=? and aid=? order by id desc limit ?,?",

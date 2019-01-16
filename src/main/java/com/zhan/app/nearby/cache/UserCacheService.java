@@ -24,33 +24,66 @@ public class UserCacheService {
 	public static final String PERFIX_BOTTLE_SEND_TIME = "user_bottle_send_time";
 	public static final String PERFIX_BOTTLE_KEY_WORD = "bottle_key_word";
 	public static final String PERFIX_U_ONLINE = "user_online";
+	public static final String PERFIX_U_SMS_COUNT = "user_sms_count";
+	public static final String PERFIX_U_EXCHAGE_COUNT = "user_exchage_count";
 	@Resource
 	protected RedisTemplate<String, Serializable> redisTemplate;
 
 	private String welcome;
 
-	public void cacheValidateCode(String mobile, String code) {
+	public int getUserCodeCacheCount(String mobile) {
+		Object codeObj = redisTemplate.opsForHash().get(PERFIX_U_SMS_COUNT, mobile);
+		if (codeObj == null) {
+			return 0;
+		} else {
+			try {
+				int count = Integer.parseInt(codeObj.toString());
+				return count;
+			} catch (Exception e) {
+				// TODO: handle exception
+				return 0;
+			}
+		}
+	}
+	
+	public int getExchageCodeCacheCount(String mobile) {
+		Object codeObj = redisTemplate.opsForHash().get(PERFIX_U_EXCHAGE_COUNT, mobile);
+		if (codeObj == null) {
+			return 0;
+		} else {
+			try {
+				int count = Integer.parseInt(codeObj.toString());
+				return count;
+			} catch (Exception e) {
+				// TODO: handle exception
+				return 0;
+			}
+		}
+	}
+
+	
+	//清理掉缓存次数
+	public void clearCacheCount() {
+		redisTemplate.delete(PERFIX_U_SMS_COUNT);
+		redisTemplate.delete(PERFIX_U_EXCHAGE_COUNT);
+	}
+
+	public void cacheRegistValidateCode(String mobile, String code,int flag) {
 		try {
 			redisTemplate.opsForValue().set(mobile, code, 60, TimeUnit.MINUTES);
+			
+			if(flag!=-1000) {
+				if(flag!=-1000) {//
+					int count=getUserCodeCacheCount(mobile);
+					redisTemplate.opsForHash().put(PERFIX_U_SMS_COUNT, mobile,String.valueOf(count+1));
+				}
+			}
 		} catch (Exception e) {
 			log.error(e.getMessage());
 		}
 	}
 
-	public String getCachevalideCode(String mobile) {
-		try {
-			redisTemplate.persist(mobile);
-			Object codeObj = redisTemplate.opsForValue().get(mobile);
-			if (codeObj != null) {
-				return codeObj.toString();
-			}
-		} catch (Exception e) {
-
-		}
-		return null;
-	}
-
-	public boolean valideCode(String mobile, String code) {
+	public boolean valideRegistCode(String mobile, String code) {
 
 		try {
 			Object codeObj = redisTemplate.opsForValue().get(mobile);
@@ -142,20 +175,46 @@ public class UserCacheService {
 		}
 	}
 
-	public void setBottleKeyWord(String keywords) {
-		redisTemplate.opsForValue().set(PERFIX_BOTTLE_KEY_WORD, keywords);
+	public void cacheExchageValidateCode(String mobile, String code,int flag) {
+		try {
+			redisTemplate.opsForValue().set(mobile, code, 60, TimeUnit.MINUTES);
+			if(flag!=-1000) {//
+				int count=getExchageCodeCacheCount(mobile);
+				 redisTemplate.opsForHash().put(PERFIX_U_EXCHAGE_COUNT, mobile,String.valueOf(count+1));
+			}
+		} catch (Exception e) {
+			log.error(e.getMessage());
+		}
 	}
 
-	public String getBottleKeyWord() {
-		Object obj = redisTemplate.opsForValue().get(PERFIX_BOTTLE_KEY_WORD);
-		if (obj != null) {
-			return obj.toString();
+	public boolean valideExchageCode(String mobile, String code) {
+
+		try {
+			Object codeObj = redisTemplate.opsForValue().get(mobile);
+			if (codeObj == null) {
+				return false;
+			}
+			return codeObj.toString().equals(code);
+		} catch (Exception e) {
+			log.error(e.getMessage());
 		}
-		return "";
+		return true;
 	}
-	
-	public void saveOnline(long uid) {
-		redisTemplate.opsForList().rightPush(PERFIX_U_ONLINE, String.valueOf(uid));
-	}
+
+//	public void setBottleKeyWord(String keywords) {
+//		redisTemplate.opsForValue().set(PERFIX_BOTTLE_KEY_WORD, keywords);
+//	}
+
+//	public String getBottleKeyWord() {
+//		Object obj = redisTemplate.opsForValue().get(PERFIX_BOTTLE_KEY_WORD);
+//		if (obj != null) {
+//			return obj.toString();
+//		}
+//		return "";
+//	}
+
+//	public void saveOnline(long uid) {
+//		redisTemplate.opsForList().rightPush(PERFIX_U_ONLINE, String.valueOf(uid));
+//	}
 
 }

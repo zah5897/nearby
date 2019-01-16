@@ -140,6 +140,16 @@ public class UserDao extends BaseDao {
 		}
 	}
 
+	
+	public String getUserMobileById(long user_id) {
+		List<String> ms=jdbcTemplate.queryForList("select mobile from t_user where user_id=?",new Object[] {user_id},String.class);
+		
+		if(ms.isEmpty()) {
+			return null;
+		}
+		return ms.get(0);
+	}
+	
 	public BaseUser findUserByDeviceId(String deviceId) {
 		List<BaseUser> list = jdbcTemplate.query("select *from t_user user where user.mobile=? and type=?",
 				new Object[] { deviceId, UserType.VISITOR.ordinal() }, new SimpkleUserMapper());

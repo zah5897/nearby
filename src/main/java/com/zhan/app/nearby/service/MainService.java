@@ -308,48 +308,48 @@ public class MainService {
 				systemDao.loadExchangeHistory(user_id, aid, page_index, count));
 	}
 
-	public ModelMap exchange_rmb(long user_id, String token, String aid, int diamond, String zhifubao_access_number,
-			String mobile, String code) {
-
-		if (TextUtils.isEmpty(zhifubao_access_number)) {
-			return ResultUtil.getResultMap(ERROR.ERR_FAILED, "请输入支付宝帐号");
-		}
-
-		boolean isLogin = userService.checkLogin(user_id, token);
-		if (!isLogin) {
-			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
-		}
-		// 验证code合法性
-		if (TextUtils.isEmpty(code) || !userCacheService.valideCode(mobile, code)) {
-			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "验证码错误");
-		} else {
-			// userCacheService.clearCode(mobile);
-		}
-
-		PersonalInfo info = systemDao.loadPersonalInfo(user_id, aid);
-		if (info == null) {
-			return ResultUtil.getResultMap(ERROR.ERR_FAILED, "请先绑定个人信息");
-		} else if (!zhifubao_access_number.equals(info.getZhifubao_access_number())) {
-			return ResultUtil.getResultMap(ERROR.ERR_ZHIFUBAO_ACCOUNT_NOT_MATCH).addAttribute("personal_info", info);
-		}
-
-		int val = giftDao.getVal(user_id);
-		if (diamond > val) {
-			return ResultUtil.getResultMap(ERROR.ERR_FAILED, "钻石数量不足");
-		}
-		int newVal = val - diamond;
-		giftDao.updateGiftCoins(user_id, newVal);
-
-		Exchange exchange = new Exchange();
-		exchange.setUser_id(user_id);
-		exchange.setAid(aid);
-		exchange.setCreate_time(new Date());
-		exchange.setDiamond_count(diamond);
-		exchange.setRmb_fen(diamond * 3);
-		exchange.setState(ExchangeState.IN_EXCHANGE.ordinal());
-		systemDao.addExchangeHistory(exchange);
-		return ResultUtil.getResultOKMap("提交成功").addAttribute("value", newVal);
-	}
+//	public ModelMap exchange_rmb(long user_id, String token, String aid, int diamond, String zhifubao_access_number,
+//			String mobile, String code) {
+//
+//		if (TextUtils.isEmpty(zhifubao_access_number)) {
+//			return ResultUtil.getResultMap(ERROR.ERR_FAILED, "请输入支付宝帐号");
+//		}
+//
+//		boolean isLogin = userService.checkLogin(user_id, token);
+//		if (!isLogin) {
+//			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+//		}
+//		// 验证code合法性
+//		if (TextUtils.isEmpty(code) || !userCacheService.valideCode(mobile, code)) {
+//			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "验证码错误");
+//		} else {
+//			// userCacheService.clearCode(mobile);
+//		}
+//
+//		PersonalInfo info = systemDao.loadPersonalInfo(user_id, aid);
+//		if (info == null) {
+//			return ResultUtil.getResultMap(ERROR.ERR_FAILED, "请先绑定个人信息");
+//		} else if (!zhifubao_access_number.equals(info.getZhifubao_access_number())) {
+//			return ResultUtil.getResultMap(ERROR.ERR_ZHIFUBAO_ACCOUNT_NOT_MATCH).addAttribute("personal_info", info);
+//		}
+//
+//		int val = giftDao.getVal(user_id);
+//		if (diamond > val) {
+//			return ResultUtil.getResultMap(ERROR.ERR_FAILED, "钻石数量不足");
+//		}
+//		int newVal = val - diamond;
+//		giftDao.updateGiftCoins(user_id, newVal);
+//
+//		Exchange exchange = new Exchange();
+//		exchange.setUser_id(user_id);
+//		exchange.setAid(aid);
+//		exchange.setCreate_time(new Date());
+//		exchange.setDiamond_count(diamond);
+//		exchange.setRmb_fen(diamond * 3);
+//		exchange.setState(ExchangeState.IN_EXCHANGE.ordinal());
+//		systemDao.addExchangeHistory(exchange);
+//		return ResultUtil.getResultOKMap("提交成功").addAttribute("value", newVal);
+//	}
 
 	public ModelMap getHotUsers(String gender, Long fix_user_id, Integer page_index) {
 		int limit = 6;
@@ -414,7 +414,7 @@ public class MainService {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "支付宝帐号不能为空");
 		}
 		// 验证code合法性
-		if (TextUtils.isEmpty(code) || !userCacheService.valideCode(personal.getMobile(), code)) {
+		if (TextUtils.isEmpty(code) || !userCacheService.valideRegistCode(personal.getMobile(), code)) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "验证码错误");
 		}
 		PersonalInfo info = systemDao.loadPersonalInfo(personal.getUser_id(), personal.getAid());
@@ -438,7 +438,7 @@ public class MainService {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "支付宝帐号不能为空");
 		}
 		// 验证code合法性
-		if (TextUtils.isEmpty(code) || !userCacheService.valideCode(personal.getMobile(), code)) {
+		if (TextUtils.isEmpty(code) || !userCacheService.valideRegistCode(personal.getMobile(), code)) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "验证码错误");
 		}
 
@@ -469,18 +469,18 @@ public class MainService {
 
 		String code = RandomCodeUtil.randomCode(6);
 		if (code_type != null && code_type == -1000) {
-			userCacheService.cacheValidateCode(mobile, code);
+			userCacheService.cacheRegistValidateCode(mobile, code,code_type);
 			return ResultUtil.getResultOKMap().addAttribute("validate_code", code);
 		}
-		String cache = userCacheService.getCachevalideCode(mobile);
-		if (cache != null) {
-			// 已经在一分钟内发过，还没过期
-		}
+//		String cache = userCacheService.getCachevalideCode(mobile);
+//		if (cache != null) {
+//			// 已经在一分钟内发过，还没过期
+//		}
 		ModelMap data = ResultUtil.getResultOKMap();
 		HashMap<String, Object> result = SMSHelper.smsExchangeCode(mobile, code);
 		boolean smsOK = SMSHelper.isSuccess(result);
 		if (smsOK) {
-			userCacheService.cacheValidateCode(mobile, code);
+			userCacheService.cacheRegistValidateCode(mobile, code,code_type);
 			data.put("validate_code", code);
 		} else {
 			// String errorMsg = "错误码=" + result.get("statusCode") + " 错误信息= " +

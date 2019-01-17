@@ -468,7 +468,12 @@ public class MainService {
 		}
 
 		String code = RandomCodeUtil.randomCode(6);
-		if (code_type != null && code_type == -1000) {
+		
+		if(code_type==null) {
+			code_type=0;
+		}
+		
+		if (code_type == -1000) {
 			userCacheService.cacheRegistValidateCode(mobile, code,code_type);
 			return ResultUtil.getResultOKMap().addAttribute("validate_code", code);
 		}

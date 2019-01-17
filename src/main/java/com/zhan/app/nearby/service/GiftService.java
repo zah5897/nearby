@@ -51,9 +51,6 @@ public class GiftService {
 	private InfoCacheService infoCacheService;
 	@Resource
 	private UserCacheService userCacheService;
-	
-	
-	
 
 	public ModelMap save(Gift gift) {
 		if (gift.getId() > 0) {
@@ -218,16 +215,16 @@ public class GiftService {
 		return owns;
 	}
 
-	public ModelMap exchange_diamond(long user_id, String token, String aid, int diamond ,String code) {
+	public ModelMap exchange_diamond(long user_id, String token, String aid, int diamond, String code) {
 		if (!userService.checkLogin(user_id, token)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
-		String mobile=userService.getUserMobileById(user_id);
-		
-		if(mobile==null) {
+		String mobile = userService.getUserMobileById(user_id);
+
+		if (mobile == null) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
-		if(!userCacheService.valideExchageCode(mobile, code)) {
+		if (!userCacheService.valideExchageCode(mobile, code)) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "验证码错误");
 		}
 		int val = giftDao.getVal(user_id);
@@ -251,23 +248,29 @@ public class GiftService {
 		if (!userService.checkLogin(user_id, token)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
+
+		String mobile = userService.getUserMobileById(user_id);
+
 		
-		String mobile=userService.getUserMobileById(user_id);
-		
-		if(userCacheService.getExchageCodeCacheCount(mobile)>=5) {
-			return  ResultUtil.getResultMap(ERROR.ERR_SMS_CODE_LIMIT);
+		if (userCacheService.getExchageCodeCacheCount(mobile) >= 5) {
+			return ResultUtil.getResultMap(ERROR.ERR_SMS_CODE_LIMIT);
 		}
 
 		String code = RandomCodeUtil.randomCode(6);
-		if (code_type != null && code_type == -1000) {
-			userCacheService.cacheExchageValidateCode(mobile, code,0);
+		
+		
+		if(code_type==null) {
+			code_type=0;
+		}
+		if (code_type == -1000) {
+			userCacheService.cacheExchageValidateCode(mobile, code, code_type);
 			return ResultUtil.getResultOKMap().addAttribute("validate_code", code);
 		}
 		ModelMap data = ResultUtil.getResultOKMap();
 		HashMap<String, Object> result = SMSHelper.smsExchangeCode(mobile, code);
 		boolean smsOK = SMSHelper.isSuccess(result);
 		if (smsOK) {
-			userCacheService.cacheExchageValidateCode(mobile, code,code_type);
+			userCacheService.cacheExchageValidateCode(mobile, code, code_type);
 			data.put("validate_code", code);
 		} else {
 			data = ResultUtil.getResultMap(ERROR.ERR_FAILED, "获取验证码次数过多，明天再试。");

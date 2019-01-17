@@ -6,12 +6,12 @@ import java.util.Set;
 import com.cloopen.rest.sdk.CCPRestSmsSDK;
 
 public class SMSHelper {
-	
-	
+
 	public static void main(String[] args) {
-		smsRegist("13262510792","1234");
+		smsRegist("13262510792", "1234");
 	}
-	
+
+	 
 	public static boolean smsRegist(String mobile, String code) {
 		HashMap<String, Object> result = sms("241010", mobile, code);
 		return isSuccess(result);

@@ -14,7 +14,7 @@ public class RandomCodeUtil {
 
 	public static boolean randomPercentOK(int percent) {
 		Random ramRandom = new Random();
-		int r = ramRandom.nextInt(10);
+		int r = ramRandom.nextInt(100);
 		return r < percent;
 	}
 }

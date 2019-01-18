@@ -305,7 +305,7 @@ public class BottleService {
 					BaseUser u1 = userDao.getBaseUserNoToken(user_id);
 					BaseUser u2 = userDao.getBaseUserNoToken(uid);
 					//异性，且40%概率发送
-					if(u1.getSex()!=u2.getSex()&&RandomCodeUtil.randomPercentOK(3)) {
+					if(u1.getSex()!=u2.getSex()&&RandomCodeUtil.randomPercentOK(5)) {
 						mainService.makeChatSession(u1, u2);
 					}
 				} catch (Exception e) {

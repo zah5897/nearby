@@ -251,16 +251,14 @@ public class GiftService {
 
 		String mobile = userService.getUserMobileById(user_id);
 
-		
 		if (userCacheService.getExchageCodeCacheCount(mobile) >= 5) {
 			return ResultUtil.getResultMap(ERROR.ERR_SMS_CODE_LIMIT);
 		}
 
 		String code = RandomCodeUtil.randomCode(6);
-		
-		
-		if(code_type==null) {
-			code_type=0;
+
+		if (code_type == null) {
+			code_type = 0;
 		}
 		if (code_type == -1000) {
 			userCacheService.cacheExchageValidateCode(mobile, code, code_type);

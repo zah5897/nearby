@@ -64,7 +64,8 @@ public class Exchange {
 
 	public void setFinish_time(Date finish_time) {
 		this.finish_time = finish_time;
-		this.finish_time_v2=finish_time.getTime()/1000;
+		if(finish_time!=null)
+		 this.finish_time_v2=finish_time.getTime()/1000;
 	}
 
 	public int getState() {

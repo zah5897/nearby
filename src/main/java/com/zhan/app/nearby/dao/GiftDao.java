@@ -314,14 +314,14 @@ public class GiftDao extends BaseDao {
 	}
 
 	public void addExchangeHistory(Exchange exchange) {
-		String sql = "select diamond from t_user_diamond where uid=?";
-		Integer diamondCount = jdbcTemplate.queryForObject(sql, new Object[] { exchange.getUser_id() }, Integer.class);
-		if (diamondCount == null) {
+		String sql = "select diamond from t_user_diamond where uid=? limit 1";
+		List<Integer> diamondCounts = jdbcTemplate.queryForList(sql, new Object[] { exchange.getUser_id() }, Integer.class);
+		if (diamondCounts.isEmpty()) {
 			jdbcTemplate.update("insert into t_user_diamond(uid,diamond) values(?,?)",
 					new Object[] { exchange.getUser_id(), exchange.getDiamond_count() });
 		} else {
 			jdbcTemplate.update("update  t_user_diamond set diamond=? where uid=?",
-					new Object[] {  (exchange.getDiamond_count()+diamondCount),exchange.getUser_id()});
+					new Object[] {  (exchange.getDiamond_count()+diamondCounts.get(0)),exchange.getUser_id()});
 		}
 		saveObjSimple(jdbcTemplate, "t_exchange_history", exchange);
 	}

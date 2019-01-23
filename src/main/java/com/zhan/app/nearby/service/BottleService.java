@@ -123,7 +123,7 @@ public class BottleService {
 
 		// 旧版本
 		if (_ua.startsWith("a") && "1.9".compareTo(version) > 0
-				|| _ua.startsWith("g") && "1.0.2".compareTo(version) > 0) {
+				|| _ua.startsWith("g") && "1.1.2".compareTo(version) > 0) {
 
 			if (look_sex == null) {
 				bolltes = bottleDao.getBottles(user_id, page_size, realType, state);

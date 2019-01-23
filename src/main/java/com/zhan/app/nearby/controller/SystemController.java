@@ -23,9 +23,8 @@ public class SystemController {
 	private UserService userService;
 	@Autowired
 	private MainService mainService;
-	
-	
-    @Deprecated
+
+	@Deprecated
 	@RequestMapping("report")
 	public ModelMap report(Report report) {
 		return ResultUtil.getResultOKMap();
@@ -39,12 +38,12 @@ public class SystemController {
 
 	@RequestMapping("list_report")
 	public ModelMap list_report(int page, Integer count, int type) {
-		 count=(count==null?10:count);
-		List<Report> list=mainService.listReport(type, page, count);
-		ModelMap r=ResultUtil.getResultOKMap().addAttribute("users",list );
-		if(list.size()==count) {
+		count = (count == null ? 10 : count);
+		List<Report> list = mainService.listReport(type, page, count);
+		ModelMap r = ResultUtil.getResultOKMap().addAttribute("users", list);
+		if (list.size() == count) {
 			r.addAttribute("hasMore", true);
-		}else {
+		} else {
 			r.addAttribute("hasMore", false);
 		}
 		return r;
@@ -54,32 +53,32 @@ public class SystemController {
 	public String prootl() {
 		return "prootl";
 	}
-	
-	
 
 	@RequestMapping("test_keyword")
 	public ModelMap test_keyword(String word) {
 		return ResultUtil.getResultOKMap().addAttribute("过滤结果", BottleKeyWordUtil.filterContent(word));
 	}
 
-	
-	
 	@RequestMapping("add_new_black_ip")
 	public ModelMap addNewBlackIP(String ip) {
 		IPUtil.addIPBlack(ip);
 		return ResultUtil.getResultOKMap().addAttribute("black_ips", IPUtil.getIpBlackList());
 	}
-	 
-	
+
 	@RequestMapping("remove_black_ip")
 	public ModelMap removeBlackIP(String ip) {
 		IPUtil.removeBlackIP(ip);
 		return ResultUtil.getResultOKMap().addAttribute("black_ips", IPUtil.getIpBlackList());
 	}
-	
+
 	@RequestMapping("bgm")
 	public ModelMap bgm(Integer count) {
 		return ResultUtil.getResultOKMap().addAttribute("bgms", mainService.loadBGM(count));
 	}
-	
+
+	@RequestMapping("goods_id_list")
+	public ModelMap goods_id_list(int type) {
+		return  mainService.goods_id_list(type);
+	}
+
 }

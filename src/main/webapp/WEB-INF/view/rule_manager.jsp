@@ -51,6 +51,7 @@ $(document).ready(function(){
 }); 
 
 function add_rule(){
+	alert('add_rule');
 	var form = new FormData($("form")[0]);  
 	$.ajax({
 		async: false,
@@ -60,6 +61,7 @@ function add_rule(){
         processData:false,
         contentType:false,
         success:function(data){
+        	alert(data);
 			$("#rule_add_update_btn").html('添加');//填充内容
 			$("#rule_id").attr("value",'0');//填充内容
 			loadRuleList();
@@ -178,6 +180,7 @@ function add_rule(){
       
       <input type="hidden" id="rule_id" name="rule_id" value="0">    
        <input type="hidden" value="123456789012" name="_ua"> 
+       <input type="hidden" value="1111" name="i"> 
       <div class="form-group">
         <div class="label">
           <label>名称</label>

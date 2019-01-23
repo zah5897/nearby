@@ -45,7 +45,7 @@ public class UserCacheService {
 			}
 		}
 	}
-	
+
 	public int getExchageCodeCacheCount(String mobile) {
 		Object codeObj = redisTemplate.opsForHash().get(PERFIX_U_EXCHAGE_COUNT, mobile);
 		if (codeObj == null) {
@@ -61,28 +61,24 @@ public class UserCacheService {
 		}
 	}
 
-	
-	//清理掉缓存次数
+	// 清理掉缓存次数
 	public void clearCacheCount() {
 		redisTemplate.delete(PERFIX_U_SMS_COUNT);
 		redisTemplate.delete(PERFIX_U_EXCHAGE_COUNT);
 	}
 
-	public void cacheRegistValidateCode(String mobile, String code,int flag) {
+	public void cacheRegistValidateCode(String mobile, String code, int flag) {
 		try {
 			redisTemplate.opsForValue().set(mobile, code, 60, TimeUnit.MINUTES);
-			
-			if(flag!=-1000) {
-				if(flag!=-1000) {//
-					int count=getUserCodeCacheCount(mobile);
-					redisTemplate.opsForHash().put(PERFIX_U_SMS_COUNT, mobile,String.valueOf(count+1));
-				}
+			if (flag != -1000) {//
+				int count = getUserCodeCacheCount(mobile);
+				redisTemplate.opsForHash().put(PERFIX_U_SMS_COUNT, mobile, String.valueOf(count + 1));
 			}
 		} catch (Exception e) {
 			log.error(e.getMessage());
 		}
 	}
-
+	
 	public boolean valideRegistCode(String mobile, String code) {
 
 		try {
@@ -175,12 +171,12 @@ public class UserCacheService {
 		}
 	}
 
-	public void cacheExchageValidateCode(String mobile, String code,int flag) {
+	public void cacheExchageValidateCode(String mobile, String code, int flag) {
 		try {
 			redisTemplate.opsForValue().set(mobile, code, 60, TimeUnit.MINUTES);
-			if(flag!=-1000) {//
-				int count=getExchageCodeCacheCount(mobile);
-				 redisTemplate.opsForHash().put(PERFIX_U_EXCHAGE_COUNT, mobile,String.valueOf(count+1));
+			if (flag != -1000) {//
+				int count = getExchageCodeCacheCount(mobile);
+				redisTemplate.opsForHash().put(PERFIX_U_EXCHAGE_COUNT, mobile, String.valueOf(count + 1));
 			}
 		} catch (Exception e) {
 			log.error(e.getMessage());

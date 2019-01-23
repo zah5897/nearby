@@ -1,5 +1,6 @@
 package com.zhan.app.nearby.service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -9,6 +10,7 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 
 import com.easemob.server.example.Main;
@@ -468,13 +470,13 @@ public class MainService {
 		}
 
 		String code = RandomCodeUtil.randomCode(6);
-		
-		if(code_type==null) {
-			code_type=0;
+
+		if (code_type == null) {
+			code_type = 0;
 		}
-		
+
 		if (code_type == -1000) {
-			userCacheService.cacheRegistValidateCode(mobile, code,code_type);
+			userCacheService.cacheRegistValidateCode(mobile, code, code_type);
 			return ResultUtil.getResultOKMap().addAttribute("validate_code", code);
 		}
 //		String cache = userCacheService.getCachevalideCode(mobile);
@@ -485,7 +487,7 @@ public class MainService {
 		HashMap<String, Object> result = SMSHelper.smsExchangeCode(mobile, code);
 		boolean smsOK = SMSHelper.isSuccess(result);
 		if (smsOK) {
-			userCacheService.cacheRegistValidateCode(mobile, code,code_type);
+			userCacheService.cacheRegistValidateCode(mobile, code, code_type);
 			data.put("validate_code", code);
 		} else {
 			// String errorMsg = "错误码=" + result.get("statusCode") + " 错误信息= " +
@@ -571,5 +573,28 @@ public class MainService {
 
 	public List<BGM> loadBGM(Integer count) {
 		return systemDao.loadBGM(count == null || count <= 0 ? 1 : count);
+	}
+
+	public ModelMap goods_id_list(int type) {
+		ModelMap goodsList = ResultUtil.getResultOKMap();
+		if(type==0) {
+			List<String> vips = new ArrayList<String>();
+			vips.add("v_0");
+			vips.add("v_2");
+			vips.add("vv_3");
+			vips.add("v_4");
+			vips.add("v_5");
+			List<String> coins = new ArrayList<String>();
+			coins.add("c_1");
+			coins.add("c_60");
+			coins.add("c_310");
+			coins.add("c_520");
+			coins.add("c_1340");
+			coins.add("c_3460");
+			coins.add("c_7580");
+			goodsList.addAttribute("vip_goods_ids", vips);
+			goodsList.addAttribute("coin_goods_ids", coins);
+		}
+		return goodsList;
 	}
 }

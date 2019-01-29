@@ -4,13 +4,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 
 import com.easemob.server.example.Main;
@@ -35,6 +33,7 @@ import com.zhan.app.nearby.dao.UserDao;
 import com.zhan.app.nearby.dao.UserDynamicDao;
 import com.zhan.app.nearby.dao.VipDao;
 import com.zhan.app.nearby.exception.ERROR;
+import com.zhan.app.nearby.util.HX_SessionUtil;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.RandomCodeUtil;
 import com.zhan.app.nearby.util.ResultUtil;
@@ -197,7 +196,7 @@ public class MainService {
 								withUser.getUser_id(), "");
 						int count = userDao.isLikeMe(user_id, with_user);
 						if (count > 0) { // 对方喜欢我了，这个时候我也喜欢对方了，需要互相发消息
-							makeChatSession(user, withUser);
+							HX_SessionUtil.makeChatSession(user, withUser, "很高兴遇见你");
 						}
 					}
 				}
@@ -205,30 +204,6 @@ public class MainService {
 		} catch (NumberFormatException e) {
 		}
 		return ResultUtil.getResultOKMap();
-	}
-
-	public void makeChatSession(BaseUser user, BaseUser with_user) {
-		ImagePathUtil.completeAvatarPath(with_user, true);
-		ImagePathUtil.completeAvatarPath(user, true);
-
-		String chatSessionTxt = "很高兴遇见你";
-
-		// 发送给对方
-		Map<String, String> ext = new HashMap<String, String>();
-		ext.put("nickname", user.getNick_name());
-		ext.put("avatar", user.getAvatar());
-		ext.put("origin_avatar", user.getOrigin_avatar());
-		Main.sendTxtMessage(String.valueOf(user.getUser_id()), new String[] { String.valueOf(with_user.getUser_id()) },
-				chatSessionTxt, ext, PushMsgType.TYPE_NEW_CONVERSATION);
-
-		// 发送给自己
-		ext = new HashMap<String, String>();
-		ext.put("nickname", with_user.getNick_name());
-		ext.put("avatar", with_user.getAvatar());
-		ext.put("origin_avatar", with_user.getOrigin_avatar());
-		Main.sendTxtMessage(String.valueOf(with_user.getUser_id()), new String[] { String.valueOf(user.getUser_id()) },
-				chatSessionTxt, ext, PushMsgType.TYPE_NEW_CONVERSATION);
-
 	}
 
 	public ModelMap reset_city() {
@@ -577,7 +552,7 @@ public class MainService {
 
 	public ModelMap goods_id_list(int type) {
 		ModelMap goodsList = ResultUtil.getResultOKMap();
-		if(type==0) {
+		if (type == 0) {
 			List<String> vips = new ArrayList<String>();
 			vips.add("v_0");
 			vips.add("v_2");

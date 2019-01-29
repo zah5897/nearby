@@ -3,8 +3,11 @@ package com.zhan.app.nearby.bean;
 import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.zhan.app.nearby.annotation.ColumnType;
 
 public class BGM {
+	@ColumnType
+	private int id;
 	private String url;
 	private String name;
 	private String author;
@@ -51,6 +54,14 @@ public class BGM {
 
 	public void setCreate_time(Date create_time) {
 		this.create_time = create_time;
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
 	}
 
 }

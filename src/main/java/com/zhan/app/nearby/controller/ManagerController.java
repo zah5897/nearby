@@ -775,7 +775,6 @@ public class ManagerController {
 		return list_report_history(type, pageSize, pageIndex);
 	}
 
-	// 获取提现申请记录
 	@RequestMapping(value = "/list_bottle")
 	public @ResponseBody ModelMap list_bottle(int type, int pageSize, int pageIndex, Long bottle_id) {
 		ModelMap r = ResultUtil.getResultOKMap();

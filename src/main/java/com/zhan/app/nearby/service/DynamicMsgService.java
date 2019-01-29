@@ -23,6 +23,7 @@ import com.zhan.app.nearby.comm.Relationship;
 import com.zhan.app.nearby.dao.DynamicMsgDao;
 import com.zhan.app.nearby.dao.UserDao;
 import com.zhan.app.nearby.exception.ERROR;
+import com.zhan.app.nearby.util.HX_SessionUtil;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.PushUtils;
 import com.zhan.app.nearby.util.ResultUtil;
@@ -42,11 +43,9 @@ public class DynamicMsgService {
 	/**
 	 * 
 	 * @param type
-	 * @param by_user_id
-	 *            消息触发者
+	 * @param by_user_id 消息触发者
 	 * @param dynamic_id
-	 * @param user_id
-	 *            目标用户
+	 * @param user_id    目标用户
 	 * @param content
 	 * @return
 	 */
@@ -110,52 +109,14 @@ public class DynamicMsgService {
 			BaseUser he = userDao.getBaseUser(msg.getBy_user_id());
 			String niceToMeet = "很高兴遇见你";
 			if (msg.getType() == DynamicMsgType.TYPE_MEET.ordinal()) {
-				makeChatSession(me, he, msg.getDynamic_id(), niceToMeet);
+				HX_SessionUtil.makeChatSession(me, he, msg.getDynamic_id(), niceToMeet);
 			} else if (msg.getType() == DynamicMsgType.TYPE_LIKE.ordinal()) {
-				makeChatSession(me, he, 0, niceToMeet);
+				HX_SessionUtil.makeChatSession(me, he, 0, niceToMeet);
 			} else {
-				makeChatSession(me, he.getUser_id(), "");
+				HX_SessionUtil.makeChatSession(me, he);
 			}
 		}
 		return ResultUtil.getResultOKMap().addAttribute("id", msg_id);
-	}
-
-	private void makeChatSession(BaseUser user, BaseUser with_user, long bottle_id, String msg) {
-		ImagePathUtil.completeAvatarPath(with_user, true);
-		ImagePathUtil.completeAvatarPath(user, true);
-		// 发送给对方
-		Map<String, String> ext = new HashMap<String, String>();
-		ext.put("nickname", user.getNick_name());
-		ext.put("avatar", user.getAvatar());
-		ext.put("origin_avatar", user.getOrigin_avatar());
-		if (bottle_id > 0) {
-			ext.put("bottle_id", String.valueOf(bottle_id));
-		}
-		Main.sendTxtMessage(String.valueOf(user.getUser_id()), new String[] { String.valueOf(with_user.getUser_id()) },
-				msg, ext, PushMsgType.TYPE_NEW_CONVERSATION);
-		// 发送给自己
-		ext = new HashMap<String, String>();
-		ext.put("nickname", with_user.getNick_name());
-		ext.put("avatar", with_user.getAvatar());
-		ext.put("origin_avatar", with_user.getOrigin_avatar());
-		if (bottle_id > 0) {
-			ext.put("bottle_id", String.valueOf(bottle_id));
-		}
-		Main.sendTxtMessage(String.valueOf(with_user.getUser_id()), new String[] { String.valueOf(user.getUser_id()) },
-				msg, ext, PushMsgType.TYPE_NEW_CONVERSATION);
-	}
-
-	private void makeChatSession(BaseUser from, long target, String msg) {
-		ImagePathUtil.completeAvatarPath(from, true);
-		// 发送给对方
-		Map<String, String> ext = new HashMap<String, String>();
-		ext.put("nickname", from.getNick_name());
-		ext.put("avatar", from.getAvatar());
-		ext.put("origin_avatar", from.getOrigin_avatar());
-
-		Main.sendTxtMessage(String.valueOf(from.getUser_id()), new String[] { String.valueOf(target) }, msg, ext,
-				PushMsgType.TYPE_NEW_CONVERSATION);
-
 	}
 
 	public ModelMap getMyDynamicMsg(long user_id, boolean isV2) {

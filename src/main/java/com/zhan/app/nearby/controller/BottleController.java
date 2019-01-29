@@ -144,6 +144,16 @@ public class BottleController {
 		if (lock_sex != null && look_sex == null) {
 			look_sex = lock_sex;
 		}
+		
+		
+		if(type==null) {
+			type=-1;
+		}
+		
+		if(type==BottleType.DM_TXT.ordinal()||type==BottleType.DM_VOICE.ordinal()) {
+			return ResultUtil.getResultMap(ERROR.ERR_PARAM,"不支持弹幕瓶子");
+		}
+		
 		return bottleService.getBottles(user_id == null ? 0 : user_id, count == null ? 5 : count, look_sex, type, state,
 				version, _ua);
 	}
@@ -156,6 +166,7 @@ public class BottleController {
 	@RequestMapping("load")
 	public ModelMap load(long user_id, long bottle_id) {
 		Bottle bottle = bottleService.getBottleDetial(bottle_id);
+		ImagePathUtil.completeBottleDrawPath(bottle);
 		ModelMap result = ResultUtil.getResultOKMap();
 		result.put("bottle", bottle);
 		return result;

@@ -6,6 +6,7 @@ import javax.annotation.Resource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -76,9 +77,14 @@ public class SystemController {
 		return ResultUtil.getResultOKMap().addAttribute("bgms", mainService.loadBGM(count));
 	}
 
+	@RequestMapping("bgm_like/{id}")
+	public ModelMap bgmLike(@PathVariable int id) {
+		return ResultUtil.getResultOKMap().addAttribute("id", id);
+	}
+
 	@RequestMapping("goods_id_list")
 	public ModelMap goods_id_list(int type) {
-		return  mainService.goods_id_list(type);
+		return mainService.goods_id_list(type);
 	}
 
 }

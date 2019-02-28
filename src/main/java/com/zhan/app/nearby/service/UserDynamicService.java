@@ -68,7 +68,7 @@ public class UserDynamicService {
 	}
 
 	public List<UserDynamic> getUserDynamic(long user_id, int page, int count) {
-	 return getUserDynamic(user_id,page,count,false);
+	 return getUserDynamic(user_id,page,count,true);
 	}
 	
 	public long comment(DynamicComment comment) {

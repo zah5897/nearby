@@ -38,7 +38,6 @@ import com.zhan.app.nearby.util.BottleKeyWordUtil;
 import com.zhan.app.nearby.util.HX_SessionUtil;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.JSONUtil;
-import com.zhan.app.nearby.util.RandomCodeUtil;
 import com.zhan.app.nearby.util.ResultUtil;
 import com.zhan.app.nearby.util.TextUtils;
 
@@ -77,7 +76,7 @@ public class BottleService {
 	public boolean checkTime(Bottle bottle) {
 		long last_time = userCacheService.getLastBottleSendTime(bottle.getUser_id());
 		long now = System.currentTimeMillis() / 1000;
-		boolean r = now - last_time > 10;
+		boolean r = now - last_time > 1;
 		userCacheService.setLastBottleSendTime(bottle.getUser_id());
 		return r;
 	}
@@ -137,9 +136,22 @@ public class BottleService {
 			}
 		} else {
 
-			if (look_sex == null) {
-				bolltes = bottleDao.getBottlesV19(user_id, page_size, realType, state);
-			} else {
+			if(	state == BottleState.IOS_REVIEW) {
+				 if (look_sex == null) {
+					  bolltes = bottleDao.getBottlesIOS_REVIEW(user_id, page_size, realType );
+				  } else {
+					VipUser vip = vipDao.loadUserVip(user_id);
+					if (vip == null || vip.getDayDiff() < 0) {
+						bolltes = bottleDao.getBottlesIOS_REVIEW(user_id, page_size, realType);
+					} else {
+						int sex = (look_sex == null ? -1 : look_sex);
+						bolltes = bottleDao.getBottlesByGenderIOS_REVIEW(user_id, page_size, sex, realType);
+					}
+				  }
+			}else {
+			  if (look_sex == null) {
+				  bolltes = bottleDao.getBottlesV19(user_id, page_size, realType, state);
+			  } else {
 				VipUser vip = vipDao.loadUserVip(user_id);
 				if (vip == null || vip.getDayDiff() < 0) {
 					bolltes = bottleDao.getBottlesV19(user_id, page_size, realType, state);
@@ -147,6 +159,7 @@ public class BottleService {
 					int sex = (look_sex == null ? -1 : look_sex);
 					bolltes = bottleDao.getBottlesByGenderV19(user_id, page_size, sex, realType, state);
 				}
+			  }
 			}
 
 		}

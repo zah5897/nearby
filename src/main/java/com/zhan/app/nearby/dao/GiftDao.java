@@ -4,7 +4,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 import javax.annotation.Resource;
 
@@ -146,7 +145,10 @@ public class GiftDao extends BaseDao {
 	 * @return
 	 */
 	public List<MeiLi> loadNewRegistUserMeiLi(int pageIndex, int count) {
-		String t_total_meili = "select m.*,u.nick_name,u.avatar from t_meili_new_regist m left join t_user u on m.user_id=u.user_id  limit ?,?";
+
+		String notIn = " where u.user_id not in(41,93837,96651,90055,95470) ";
+		String t_total_meili = "select m.*,u.nick_name,u.avatar from t_meili_new_regist m left join t_user u on m.user_id=u.user_id "
+				+ notIn + " order by m.user_id desc limit ?,?";
 		List<MeiLi> meilis = jdbcTemplate.query(t_total_meili, new Object[] { (pageIndex - 1) * count, count },
 				new RowMapper<MeiLi>() {
 
@@ -182,7 +184,11 @@ public class GiftDao extends BaseDao {
 	 */
 	public List<MeiLi> loadTotalMeiLi(int pageIndex, int count) {
 		// (select @rowno:=0) t
-		String t_total_meili = "select m.*,u.nick_name,u.avatar from t_meili_total m left join t_user u on m.user_id=u.user_id limit ?,?";
+
+		String notIn = " where u.user_id not in(41,93837,96651,90055,95470) ";
+
+		String t_total_meili = "select m.*,u.nick_name,u.avatar from t_meili_total m left join t_user u on m.user_id=u.user_id "
+				+ notIn + " limit ?,?";
 		List<MeiLi> meilis = jdbcTemplate.query(t_total_meili, new Object[] { (pageIndex - 1) * count, count },
 				new RowMapper<MeiLi>() {
 
@@ -219,12 +225,15 @@ public class GiftDao extends BaseDao {
 	 */
 	public List<MeiLi> loadTuHao(int pageIndex, int count) {
 
+		String notIn = " where u.user_id not in(41,93837,96651,90055,95470) ";
+
 		String t_gift_send_amount = "select send.from_uid as user_id,send.count*g.price as amount from t_gift_own send left join t_gift g on send.gift_id=g.id";
 		String t_tuhao_total = "select sum(amount) as tuhao_val ,send.user_id from (" + t_gift_send_amount
 				+ ") as send group by send.user_id";
 
 		String leftJoinUser = "select tuhao.*,u.nick_name,u.avatar from (" + t_tuhao_total
-				+ ") tuhao left join t_user u on tuhao.user_id=u.user_id order by tuhao_val desc limit ?,?";
+				+ ") tuhao left join t_user u on tuhao.user_id=u.user_id " + notIn
+				+ " order by tuhao_val desc limit ?,?";
 		List<MeiLi> meilis = jdbcTemplate.query(leftJoinUser, new Object[] { (pageIndex - 1) * count, count },
 				new RowMapper<MeiLi>() {
 
@@ -315,18 +324,32 @@ public class GiftDao extends BaseDao {
 
 	public void addExchangeHistory(Exchange exchange) {
 		String sql = "select diamond from t_user_diamond where uid=? limit 1";
-		List<Integer> diamondCounts = jdbcTemplate.queryForList(sql, new Object[] { exchange.getUser_id() }, Integer.class);
+		List<Integer> diamondCounts = jdbcTemplate.queryForList(sql, new Object[] { exchange.getUser_id() },
+				Integer.class);
 		if (diamondCounts.isEmpty()) {
 			jdbcTemplate.update("insert into t_user_diamond(uid,diamond) values(?,?)",
 					new Object[] { exchange.getUser_id(), exchange.getDiamond_count() });
 		} else {
 			jdbcTemplate.update("update  t_user_diamond set diamond=? where uid=?",
-					new Object[] {  (exchange.getDiamond_count()+diamondCounts.get(0)),exchange.getUser_id()});
+					new Object[] { (exchange.getDiamond_count() + diamondCounts.get(0)), exchange.getUser_id() });
 		}
 		saveObjSimple(jdbcTemplate, "t_exchange_history", exchange);
 	}
 
 	public List<Exchange> loadExchangeDiamondHistory(long user_id, int i, int j) {
-		return jdbcTemplate.query("select *from t_exchange_history where user_id=? order by create_time desc limit ?,?", new Object[] {user_id,(i-1)*j,j},new BeanPropertyRowMapper<Exchange>(Exchange.class));
+		return jdbcTemplate.query("select *from t_exchange_history where user_id=? order by create_time desc limit ?,?",
+				new Object[] { user_id, (i - 1) * j, j }, new BeanPropertyRowMapper<Exchange>(Exchange.class));
 	}
+
+	public Integer getTotalExchangeDiamond(long user_id) {
+		Integer total = jdbcTemplate.queryForObject(
+				"select sum(diamond_count) from  t_exchange_history where user_id=?", new Object[] { user_id },
+				Integer.class);
+		if(total==null) {
+			return 0;
+		}else {
+			return (int) (total*0.3);
+		}
+	}
+
 }

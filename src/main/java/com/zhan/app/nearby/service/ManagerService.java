@@ -61,11 +61,12 @@ public class ManagerService {
 	}
 
 	public boolean isAllowed(String ip) {
-		Integer i = managerDao.queryAllowed(ip);
-		if (i > 0) {
-			return true;
-		}
-		return false;
+		return true;
+//		Integer i = managerDao.queryAllowed(ip);
+//		if (i > 0) {
+//			return true;
+//		}
+//		return false;
 	}
 
 	public int getPageCountByState(int state) {
@@ -258,6 +259,7 @@ public class ManagerService {
 		if (ship == FoundUserRelationship.GONE) {
 			bottleService.clearPoolBottleByUserId(user_id);
 			userDynamicService.updateCommentStatus(user_id,ship);
+			Main.disconnect(String.valueOf(user_id));
 		}
 	}
 

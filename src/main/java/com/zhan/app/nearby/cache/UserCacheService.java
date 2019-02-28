@@ -40,7 +40,6 @@ public class UserCacheService {
 				int count = Integer.parseInt(codeObj.toString());
 				return count;
 			} catch (Exception e) {
-				// TODO: handle exception
 				return 0;
 			}
 		}
@@ -55,7 +54,6 @@ public class UserCacheService {
 				int count = Integer.parseInt(codeObj.toString());
 				return count;
 			} catch (Exception e) {
-				// TODO: handle exception
 				return 0;
 			}
 		}

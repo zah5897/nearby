@@ -75,11 +75,10 @@ public class ImageController {
 		long last_time = userCacheService.getLastUploadTime(user_id);
 		long cur_time = System.currentTimeMillis() / 1000;
 
-		if (cur_time - last_time < 60) {
+		if (cur_time - last_time < 1) {
 			return ResultUtil.getResultMap(ERROR.ERR_FREUENT);
 		}
 		userCacheService.setLastUploadTime(user_id);
-		log.error("user_id=" + user_id + ",upload img log.");
 
 		if (multipartRequest != null) {
 			Iterator<String> iterator = multipartRequest.getFileNames();

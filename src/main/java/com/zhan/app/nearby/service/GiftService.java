@@ -15,12 +15,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 
 import com.easemob.server.example.Main;
-import com.fasterxml.jackson.databind.deser.Deserializers.Base;
 import com.zhan.app.nearby.bean.Exchange;
 import com.zhan.app.nearby.bean.Gift;
 import com.zhan.app.nearby.bean.GiftOwn;
 import com.zhan.app.nearby.bean.MeiLi;
-import com.zhan.app.nearby.bean.PersonalInfo;
 import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.cache.InfoCacheService;
 import com.zhan.app.nearby.cache.UserCacheService;
@@ -278,10 +276,14 @@ public class GiftService {
 	}
 
 	public ModelMap exchange_diamond_history(long user_id, String token, int i, int j) {
-
 		if (!userService.checkLogin(user_id, token)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
-		return ResultUtil.getResultOKMap().addAttribute("data", giftDao.loadExchangeDiamondHistory(user_id, i, j));
+		
+		List<Exchange>  data=giftDao.loadExchangeDiamondHistory(user_id, i, j);
+		for(Exchange e:data) {
+			e.transferToDesc();//转成描述语句
+		}
+		return ResultUtil.getResultOKMap().addAttribute("data", data).addAttribute("total_exchange_coin", giftDao.getTotalExchangeDiamond(user_id));
 	}
 }

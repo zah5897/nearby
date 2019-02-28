@@ -20,10 +20,21 @@ public class TextFilter {
 	}
 
 	public static void main(String[] args) {
+		Set<String>  sensitiveWords=new HashSet<>();
+		sensitiveWords.add("shit");
+		sensitiveWords.add("傻逼");
+		sensitiveWords.add("笨蛋");
+		String text="你是傻逼啊";
+		for(String sensitiveWord:sensitiveWords){
+			if(text.contains(sensitiveWord)){
+				System.out.println("输入的文本存在敏感词。——"+sensitiveWord);
+				break;
+			}
+		}
 	}
 
 	public boolean isContainSensitiveWord(String text) {
-		Set<String> sensitiveWords = getSensitiveWords(text, MatchType.MIN_MATCH);
+		Set<String> sensitiveWords = getSensitiveWords(text, MatchType.MAX_MATCH);
 		if (sensitiveWords != null && sensitiveWords.size() > 0) {
 			return true;
 		}
@@ -31,12 +42,12 @@ public class TextFilter {
 	}
 
 	public Set<String> getSensitiveWords(String text) {
-		return getSensitiveWords(text, MatchType.MIN_MATCH);
+		return getSensitiveWords(text, MatchType.MAX_MATCH);
 	}
 
 	
 	public Set<String> checkContainsFilterWord(String text) {
-		return getSensitiveWords(text, MatchType.MIN_MATCH);
+		return getSensitiveWords(text, MatchType.MAX_MATCH);
 	}
 
 	

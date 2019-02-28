@@ -543,6 +543,11 @@ public class MainService {
 	}
 
 	public void saveBGM(BGM bgm) {
+		bgm.setCreate_time(new Date());
+		if(systemDao.isExist(bgm)>0) {
+			systemDao.updateBGM(bgm);
+			return;
+		}
 		systemDao.insertBGM(bgm);
 	}
 
@@ -554,13 +559,11 @@ public class MainService {
 		ModelMap goodsList = ResultUtil.getResultOKMap();
 		if (type == 0) {
 			List<String> vips = new ArrayList<String>();
-			vips.add("v_0");
-			vips.add("v_2");
+			vips.add("vv_2");
 			vips.add("vv_3");
 			vips.add("v_4");
 			vips.add("v_5");
 			List<String> coins = new ArrayList<String>();
-			coins.add("c_1");
 			coins.add("c_60");
 			coins.add("c_310");
 			coins.add("c_520");

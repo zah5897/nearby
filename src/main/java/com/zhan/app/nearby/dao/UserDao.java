@@ -646,9 +646,10 @@ public class UserDao extends BaseDao {
 
 	public int getUserState(long user_id) {
 		try {
-			return jdbcTemplate.queryForObject("select state from  t_found_user_relationship where uid=?",
+			return jdbcTemplate.queryForObject("select state from  t_found_user_relationship where uid=? limit 1",
 					new Object[] { user_id }, Integer.class);
 		} catch (Exception e) {
+			e.printStackTrace();
 		}
 		return FoundUserRelationship.VISIBLE.ordinal();
 	}

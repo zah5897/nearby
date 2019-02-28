@@ -76,7 +76,8 @@ public class UserService {
 
 	@Resource
 	private BottleService bottleService;
-
+	@Resource
+	private ManagerService managerService;
 	public BaseUser getBasicUser(long id) {
 		return userDao.getBaseUser(id);
 	}
@@ -846,7 +847,7 @@ public class UserService {
 	//这里是确定isFace=1的情况，需要添加到首页推荐和邂逅瓶中
 	public void addRecommendAndMeetBottle(long user_id) {
 		userDao.addToFound(user_id);
-		bottleService.sendMeetBottle(user_id);
+		managerService.editUserMeetBottle(user_id,1,"127.0.0.1","admin");
 	}
 
 	public List<BaseUser> listConfirmAvatars(int state, int pageSize, int pageIndex) {

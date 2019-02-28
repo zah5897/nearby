@@ -24,7 +24,13 @@ public class Exchange {
 	@ColumnType
 	private long finish_time_v2;
 	private int state;
+	
+	@ColumnType
+	private String desc;
 
+	public String getDesc() {
+		return desc;
+	}
 	public long getUser_id() {
 		return user_id;
 	}
@@ -81,5 +87,10 @@ public class Exchange {
 	}
 	public long getFinish_time_v2() {
 		return finish_time_v2;
+	}
+	
+	public void transferToDesc() {
+		int r=(int) (diamond_count*0.3);
+		this.desc=diamond_count+"钻石兑换："+r+"扇贝";
 	}
 }

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.zhan.app.nearby.bean.BGM;
 import com.zhan.app.nearby.bean.Report;
 import com.zhan.app.nearby.service.MainService;
 import com.zhan.app.nearby.service.UserService;
@@ -80,6 +81,12 @@ public class SystemController {
 	@RequestMapping("bgm_like/{id}")
 	public ModelMap bgmLike(@PathVariable int id) {
 		return ResultUtil.getResultOKMap().addAttribute("id", id);
+	}
+	
+	@RequestMapping("bgm_add")
+	public ModelMap bgmAdd(BGM bgm) {
+		mainService.saveBGM(bgm);
+		return ResultUtil.getResultOKMap();
 	}
 
 	@RequestMapping("goods_id_list")

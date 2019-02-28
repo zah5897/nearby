@@ -45,11 +45,12 @@
 					<th width="5%">ID</th>
 					<th width="5%">自设备</th>
 					<th width="5%">发布者</th>
-					<th width="20%">图片</th>
+					<th width="15%">图片</th>
 					<th width="15%">内容</th>
 					<th width="5%">城市</th>
 					<th width="10%">时间</th>
 					<th width="5%">点赞数量</th>
+					<th width="5%">评论数量</th>
 					<th width="30%">操作</th>
 				</tr>
 				 
@@ -240,6 +241,7 @@
 			 toAdd+="<td>"+time+"</td>";
 			 
 			 toAdd+="<td>"+pageData["praise_count"]+"</td>";
+			 toAdd+="<td>"+pageData["commentCount"]+"</td>";
 			 toAdd+="<td><div class='button-group'><a class='button border-red' href='javascript:void(0)'	onclick='return del("+pageData["id"]+")'><span class='icon-trash-o'></span>删除</a></div></td>";
 			 toAdd+="</tr>";
 			 tr.after(toAdd);

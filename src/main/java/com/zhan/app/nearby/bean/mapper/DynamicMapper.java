@@ -27,7 +27,12 @@ public class DynamicMapper implements RowMapper<UserDynamic> {
 		dynamic.setCity(rs.getString("city"));
 		dynamic.setTopic_id(rs.getLong("topic_id"));
 		dynamic.set_from(rs.getInt("_from"));
-
+	 
+		try {
+		    dynamic.setCommentCount(rs.getInt("commentCount"));
+		}catch (Exception e) {
+			// TODO: handle exception
+		}
 		try {
 			dynamic.setLike_state(rs.getInt("like_state"));
 		} catch (Exception e) {

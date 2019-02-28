@@ -15,6 +15,7 @@ import com.easemob.server.example.comm.wrapper.ResponseWrapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.zhan.app.nearby.comm.PushMsgType;
 import com.zhan.app.nearby.util.JSONUtil;
+import com.zhan.app.nearby.util.TextUtils;
 
 public class Main {
 	private static EasemobRestAPIFactory factory;
@@ -111,15 +112,20 @@ public class Main {
 		
 		
 		
-		Map<String, String> ext = new HashMap<String, String>();
-		ext.put("nickname", "27");
-		ext.put("avatar", "测试");
-		ext.put("origin_avatar", "http://www.abc");
-		ext.put("bottle_id", "20");
-		Object obj=sendTxtMessage(String.valueOf(27), new String[] { String.valueOf(41) }, "测试", ext,
-				PushMsgType.TYPE_NEW_CONVERSATION);
-		System.out.println(obj.toString());
+//		Map<String, String> ext = new HashMap<String, String>();
+//		ext.put("nickname", "27");
+//		ext.put("avatar", "测试");
+//		ext.put("origin_avatar", "http://www.abc");
+//		ext.put("bottle_id", "20");
+//		Object obj=sendTxtMessage(String.valueOf(27), new String[] { String.valueOf(41) }, "测试", ext,
+//				PushMsgType.TYPE_NEW_CONVERSATION,"测试消息");
+//		System.out.println(obj.toString());
+		
+//		System.out.println(disconnect("112410"));
 
+		Object obj = Main.sendTxtMessage(Main.SYS, new String[] { String.valueOf(41) },
+				"xx赠送了一个礼物给你", new HashMap<>(), PushMsgType.TYPE_RECEIVER_GIFT);
+		System.out.println(obj);
 	}
 
 	public static Object registUser(String userName, String password, String nickname) {
@@ -157,8 +163,14 @@ public class Main {
 		return user.modifyIMUserNickNameWithAdminToken(userName, payload);
 	}
 
+	
 	public static Object sendTxtMessage(String from, String[] users, String msgTxt, Map<String, String> ext,
 			String TYPE) {
+		return sendTxtMessage(from, users, msgTxt, ext, TYPE,null);
+	}
+	
+	public static Object sendTxtMessage(String from, String[] users, String msgTxt, Map<String, String> ext,
+			String TYPE,String alert) {
 
 		if (ext == null) {
 			ext = new HashMap<String, String>();
@@ -167,6 +179,9 @@ public class Main {
 		Map<String, String> apns = new HashMap<String, String>();
 		apns.put("type", TYPE);
 		apns.put("msg", msgTxt);
+		if(!TextUtils.isEmpty(alert)) {
+			apns.put("em_push_content", alert);
+		}
 		try {
 			ext.put("em_apns_ext", JSONUtil.writeValueAsString(apns));
 		} catch (Exception e) {
@@ -198,5 +213,19 @@ public class Main {
 		IMUserAPI user = (IMUserAPI) factory.newInstance(EasemobRestAPIFactory.USER_CLASS);
 		return user.addFriendSingle(user_id, friend_id);
 	}
+	
+	
+	/**
+	 * 强制用户下线
+	 * @param username
+	 * @return
+	 */
+	public static Object  disconnect(String username) {
+		initFactory();
+		IMUserAPI user = (IMUserAPI) factory.newInstance(EasemobRestAPIFactory.USER_CLASS);
+		return user.disconnectIMUser(username);
+//		org_name}/{app_name}/users/{username}/disconnect
+	}
+
 
 }

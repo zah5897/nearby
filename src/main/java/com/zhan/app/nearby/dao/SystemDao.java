@@ -256,6 +256,20 @@ public class SystemDao extends BaseDao {
 		saveObjSimple(jdbcTemplate, "t_bgm", bmg);
 	}
 	
+
+	/**
+	 * 插入bgm
+	 * @param bmg
+	 */
+	public int isExist(BGM bmg) {
+		 String sql="select count(*) from  t_bgm where author=? and name=?";
+		 return jdbcTemplate.queryForObject(sql, new Object[] {bmg.getAuthor(),bmg.getName()},Integer.class);
+	}
+	
+	public void updateBGM(BGM bgm) {
+		jdbcTemplate.update("update t_bgm set url=?,create_time=? where author=? and name=? ",new Object[] {bgm.getUrl(),bgm.getCreate_time(),bgm.getAuthor(),bgm.getName()});
+	}
+	
 	/**
 	 * 随机查询bgm
 	 * @param count
@@ -264,5 +278,7 @@ public class SystemDao extends BaseDao {
 	public List<BGM> loadBGM(int count) {
 		return jdbcTemplate.query("select *from t_bgm order by rand() limit "+count, new BeanPropertyRowMapper<BGM>(BGM.class)); 
 	}
+
+
 	
 }

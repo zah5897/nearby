@@ -39,6 +39,7 @@ public class BottleController {
 		if (bottle.getUser_id() <= 0 && !userService.checkLogin(bottle.getUser_id(), token)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
+		
 		if (!bottleService.checkTime(bottle)) {
 			return ResultUtil.getResultMap(ERROR.ERR_FREUENT);
 		}

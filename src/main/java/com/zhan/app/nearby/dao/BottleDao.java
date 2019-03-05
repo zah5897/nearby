@@ -205,6 +205,15 @@ public class BottleDao extends BaseDao {
 				return jdbcTemplate.query(sql,
 						new Object[] { user_id, type,BottleAnswerState.NORMAL.ordinal(), BottleState.BLACK.ordinal(), BOTTLE_LIMIT_COUNT, limit },
 						getBottleMapper());
+			}else if(type==BottleType.VOICE.ordinal()){
+					String sql_bottle_limit = "(select *from t_bottle where user_id<>? and user_id "+notIn()+" and type=? and state<>? and DATE_SUB(CURDATE(), INTERVAL 7 DAY) <= date(create_time) "
+							+ fiflterBlockBottle(user_id) + " order by id desc limit ?) as b";
+					String sql = "select b.*,u.nick_name,u.avatar,u.birthday,u.birth_city_id,u.city_id," + getAgeSql()
+							+ ", u.sex ,c.name as city_name from " + sql_bottle_limit
+							+ " left join t_user u on b.user_id=u.user_id left join t_sys_city c on u.birth_city_id=c.id  order by  rand()  limit ?";
+					return jdbcTemplate.query(sql,
+							new Object[] { user_id, type, BottleState.BLACK.ordinal(), BOTTLE_LIMIT_COUNT, limit },
+							getBottleMapper());
 			}else {
 				String sql_bottle_limit = "(select *from t_bottle where user_id<>? and user_id "+notIn()+" and type=? and state<>? "
 						+ fiflterBlockBottle(user_id) + " order by id desc limit ?) as b";
@@ -230,6 +239,14 @@ public class BottleDao extends BaseDao {
 						+ ", u.sex ,c.name as city_name from " + sql_bottle_limit
 						+ " left join t_user u on b.user_id=u.user_id left join t_sys_city c on u.birth_city_id=c.id  order by  rand()  limit ?";
 				return jdbcTemplate.query(sql, new Object[] { user_id, type,BottleAnswerState.NORMAL.ordinal(), state, BOTTLE_LIMIT_COUNT, limit },
+						getBottleMapper());
+			}else if(type==BottleType.VOICE.ordinal()){
+				String sql_bottle_limit = "(select *from t_bottle where user_id<>? and user_id "+notIn()+" and type=? and state=? and and DATE_SUB(CURDATE(), INTERVAL 7 DAY) <= date(create_time) "
+						+ fiflterBlockBottle(user_id) + " order by id desc limit ?) as b";
+				String sql = "select b.*,u.nick_name,u.avatar,u.birthday,u.birth_city_id,u.city_id," + getAgeSql()
+						+ ", u.sex ,c.name as city_name from " + sql_bottle_limit
+						+ " left join t_user u on b.user_id=u.user_id left join t_sys_city c on u.birth_city_id=c.id  order by  rand()  limit ?";
+				return jdbcTemplate.query(sql, new Object[] { user_id, type, state, BOTTLE_LIMIT_COUNT, limit },
 						getBottleMapper());
 			}else {
 				String sql_bottle_limit = "(select *from t_bottle where user_id<>? and user_id "+notIn()+" and type=? and state=? "
@@ -398,16 +415,29 @@ public class BottleDao extends BaseDao {
 						+ ",u.sex,c.name as city_name from t_bottle_pool p left join  t_bottle b on p.bottle_id=b.id  left join t_user u on b.user_id=u.user_id left join t_sys_city c on u.birth_city_id=c.id where b.user_id<>?   and b.state=? order by RAND() limit ?";
 				return jdbcTemplate.query(sql, new Object[] { user_id, state.ordinal(), limit }, getBottleMapper());
 			}
+		}else if(type==BottleType.VOICE.ordinal()) {
+			// 固定性别
+			if (gender == 0 || gender == 1) {
+					String sql = "select b.*,u.nick_name,u.avatar,u.birthday,u.birth_city_id, u.city_id," + getAgeSql()
+									+ ",u.sex,c.name as city_name from t_bottle_pool p left join  t_bottle b on p.bottle_id=b.id  left join t_user u on b.user_id=u.user_id left join t_sys_city c on u.birth_city_id=c.id where b.user_id<>?  and b.type=? and b.state=? and u.sex=? and   DATE_SUB(CURDATE(), INTERVAL 7 DAY) <= date(create_time) order by RAND() limit ?";
+					return jdbcTemplate.query(sql, new Object[] { user_id, type, state.ordinal(), gender, limit },
+									getBottleMapper());
+			} else {
+					String sql = "select b.*,u.nick_name,u.avatar,u.birthday,u.birth_city_id,u.city_id, " + getAgeSql()
+									+ ",u.sex,c.name as city_name from t_bottle_pool p left join  t_bottle b on p.bottle_id=b.id  left join t_user u on b.user_id=u.user_id left join t_sys_city c on u.birth_city_id=c.id where b.user_id<>? and b.type=? and b.state=?  and DATE_SUB(CURDATE(), INTERVAL 7 DAY) <= date(create_time)  order by RAND() limit ?";
+					return jdbcTemplate.query(sql, new Object[] { user_id, type, state.ordinal(), limit },
+								getBottleMapper());
+			}
 		} else {
 			// 固定性别
 			if (gender == 0 || gender == 1) {
 				String sql = "select b.*,u.nick_name,u.avatar,u.birthday,u.birth_city_id, u.city_id," + getAgeSql()
-						+ ",u.sex,c.name as city_name from t_bottle_pool p left join  t_bottle b on p.bottle_id=b.id  left join t_user u on b.user_id=u.user_id left join t_sys_city c on u.birth_city_id=c.id where b.user_id<>?  and b.type=? and b.state=? and u.sex=? order by RAND() limit ?";
+						+ ",u.sex,c.name as city_name from t_bottle_pool p left join  t_bottle b on p.bottle_id=b.id  left join t_user u on b.user_id=u.user_id left join t_sys_city c on u.birth_city_id=c.id where b.user_id<>?  and b.type=? and b.state=? and u.sex=? and DATE_SUB(CURDATE(), INTERVAL 7 DAY) <= date(create_time)  order by RAND() limit ?";
 				return jdbcTemplate.query(sql, new Object[] { user_id, type, state.ordinal(), gender, limit },
 						getBottleMapper());
 			} else {
 				String sql = "select b.*,u.nick_name,u.avatar,u.birthday,u.birth_city_id,u.city_id, " + getAgeSql()
-						+ ",u.sex,c.name as city_name from t_bottle_pool p left join  t_bottle b on p.bottle_id=b.id  left join t_user u on b.user_id=u.user_id left join t_sys_city c on u.birth_city_id=c.id where b.user_id<>? and b.type=? and b.state=?   order by RAND() limit ?";
+						+ ",u.sex,c.name as city_name from t_bottle_pool p left join  t_bottle b on p.bottle_id=b.id  left join t_user u on b.user_id=u.user_id left join t_sys_city c on u.birth_city_id=c.id where b.user_id<>? and b.type=? and b.state=? and DATE_SUB(CURDATE(), INTERVAL 7 DAY) <= date(create_time)   order by RAND() limit ?";
 				return jdbcTemplate.query(sql, new Object[] { user_id, type, state.ordinal(), limit },
 						getBottleMapper());
 			}

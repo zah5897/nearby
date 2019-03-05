@@ -39,6 +39,8 @@ public class DynamicComment {
 	@JsonIgnore
 	private int status;
 	
+	
+	private int subComment;
 	public long getId() {
 		return id;
 	}

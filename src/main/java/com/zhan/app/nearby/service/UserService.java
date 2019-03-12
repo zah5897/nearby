@@ -709,13 +709,6 @@ public class UserService {
 		bottleService.clearIllegalMeetBottle(uid);
 	}
 
-	public void deleteIllegalAvatarFile() {
-		List<String> avatars = userDao.loadIllegalAvatar();
-		for (String avatar : avatars) {
-			ImageSaveUtils.removeAcatar(avatar);
-		}
-	}
-
 	public void deleteIllegalAvatarFileRightNow(long uid) {
 		List<String> avatars = userDao.loadAvatarByUid(uid);
 		for (String avatar : avatars) {
@@ -850,12 +843,12 @@ public class UserService {
 		managerService.editUserMeetBottle(user_id,1,"127.0.0.1","admin");
 	}
 
-	public List<BaseUser> listConfirmAvatars(int state, int pageSize, int pageIndex) {
-		return userDao.listConfirmAvatars(state, pageSize, pageIndex);
+	public List<BaseUser> listConfirmAvatars(int state, int pageSize, int pageIndex,Long user_id) {
+		return userDao.listConfirmAvatars(state, pageSize, pageIndex,user_id);
 	}
 
-	public int getCountOfConfirmAvatars() {
-		return userDao.getCountOfConfirmAvatars();
+	public int getCountOfConfirmAvatars(Long user_id) {
+		return userDao.getCountOfConfirmAvatars(user_id);
 	}
 
 	public int getUserState(long uid) {
@@ -864,5 +857,16 @@ public class UserService {
 
 	public void clearExpireMeetBottleUser() {
 		userDao.clearExpireMeetBottleUser();
+	}
+
+	public void follow(long user_id, long target_id,boolean cancel) {
+		if(cancel) {
+			  userDao.cancelFollow(user_id,target_id);
+		}else {
+			if(!userDao.isFollowed(user_id,target_id)) {
+				userDao.follow(user_id,target_id);
+			}
+		}
+		
 	}
 }

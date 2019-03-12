@@ -1,11 +1,12 @@
 package com.zhan.app.nearby.bean;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.zhan.app.nearby.annotation.ColumnType;
 
-public class Avatar {
+public class Avatar implements Serializable{
 	@ColumnType // 忽略保存
 	private int id;
 	@JsonIgnore

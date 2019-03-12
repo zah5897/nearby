@@ -1,12 +1,13 @@
 package com.zhan.app.nearby.bean;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.zhan.app.nearby.annotation.ColumnType;
 
-public class Topic {
+public class Topic implements Serializable{
 	@ColumnType
 	private long id;
 	private String name;

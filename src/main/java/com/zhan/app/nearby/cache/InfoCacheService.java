@@ -13,7 +13,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.zhan.app.nearby.bean.City;
 import com.zhan.app.nearby.bean.GiftOwn;
 import com.zhan.app.nearby.bean.Tag;
-import com.zhan.app.nearby.util.BottleKeyWordUtil;
 import com.zhan.app.nearby.util.JSONUtil;
 
 /**

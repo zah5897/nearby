@@ -1,8 +1,10 @@
 package com.zhan.app.nearby.bean;
 
+import java.io.Serializable;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-public class Image {
+public class Image implements Serializable{
 	public long id; // 主键
 
 	@JsonIgnore

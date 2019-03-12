@@ -10,6 +10,7 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -29,6 +30,7 @@ import com.zhan.app.nearby.comm.Relationship;
 import com.zhan.app.nearby.comm.UserType;
 import com.zhan.app.nearby.util.DateTimeUtil;
 import com.zhan.app.nearby.util.ImagePathUtil;
+import com.zhan.app.nearby.util.ImageSaveUtils;
 import com.zhan.app.nearby.util.SQLUtil;
 import com.zhan.app.nearby.util.TextUtils;
 
@@ -140,16 +142,16 @@ public class UserDao extends BaseDao {
 		}
 	}
 
-	
 	public String getUserMobileById(long user_id) {
-		List<String> ms=jdbcTemplate.queryForList("select mobile from t_user where user_id=?",new Object[] {user_id},String.class);
-		
-		if(ms.isEmpty()) {
+		List<String> ms = jdbcTemplate.queryForList("select mobile from t_user where user_id=?",
+				new Object[] { user_id }, String.class);
+
+		if (ms.isEmpty()) {
 			return null;
 		}
 		return ms.get(0);
 	}
-	
+
 	public BaseUser findUserByDeviceId(String deviceId) {
 		List<BaseUser> list = jdbcTemplate.query("select *from t_user user where user.mobile=? and type=?",
 				new Object[] { deviceId, UserType.VISITOR.ordinal() }, new SimpkleUserMapper());
@@ -335,7 +337,57 @@ public class UserDao extends BaseDao {
 		return users;
 	}
 
+	@Cacheable(value="one_day",key="#root.methodName+'_'+#page+'_'+#count")
 	public List<MeiLi> getNewRegistUsers(int page, int count) {
+		
+//		String sql="select u.user_id ,u.nick_name, u.avatar,v.dayDiff, u.city_id,c.name as city_name ,gift.val as amount  from "
+//				+ "t_user u   "
+//				+ "left join  (select TIMESTAMPDIFF(DAY,now(),end_time) as dayDiff,start_time,user_id from t_user_vip ) v  "
+//				+ "on u.user_id=v.user_id left join t_sys_city c on u.city_id=c.id "
+//				+ "where  u.type=? and  DATE_SUB(CURDATE(), INTERVAL 15 DAY) <= date(create_time) order by u.user_id desc limit ?,?";
+		
+		String sql="select u.user_id ,u.nick_name, u.avatar,v.dayDiff, u.city_id,c.name as city_name ,gift.val as amount  from "
+				+ "t_user u left join (select o.*,o.count*g.price as val from  t_gift_own o left join t_gift g on o.gift_id=g.id ) gift "
+				+ "on u.user_id=gift.user_id "
+				+ "left join  (select TIMESTAMPDIFF(DAY,now(),end_time) as dayDiff,start_time,user_id from t_user_vip ) v  "
+				+ "on u.user_id=v.user_id left join t_sys_city c on u.city_id=c.id left join t_found_user_relationship fu on u.user_id=fu.uid "
+				+ "where   u.type=? and  fu.state is null and DATE_SUB(CURDATE(), INTERVAL 15 DAY) <= date(create_time) order by gift.val desc limit ?,?";
+		
+		List<MeiLi> users = jdbcTemplate.query(sql,
+				new Object[] { UserType.OFFIEC.ordinal(), (page - 1) * count, count }, new RowMapper<MeiLi>() {
+					@Override
+					public MeiLi mapRow(ResultSet rs, int rowNum) throws SQLException {
+						MeiLi m = new MeiLi();
+						 m.setValue(rs.getInt("amount"));
+						 m.setShanbei(rs.getInt("amount"));
+						// m.setBe_like_count(rs.getInt("like_count"));
+
+						LocationUser user = new LocationUser();
+						user.setUser_id(rs.getLong("user_id"));
+						user.setNick_name(rs.getString("nick_name"));
+						user.setAvatar(rs.getString("avatar"));
+						ImagePathUtil.completeAvatarPath(user, true);
+						m.setUser(user);
+						int dayDiff = rs.getInt("dayDiff");
+						m.setIs_vip(dayDiff >= 0);
+						user.setVip(m.isIs_vip());
+
+						int cid = rs.getInt("city_id");
+
+						if (cid > 0) {
+							City c = new City();
+							c.setId(cid);
+							c.setName(rs.getString("city_name"));
+							user.setCity(c);
+						}
+						return m;
+					}
+
+				});
+		return users;
+	}
+	@Cacheable(value="one_day",key="#root.methodName+'_'+#page+'_'+#count")
+	public List<MeiLi> getVipRankUsers(int page, int count) {
 		// String sql = "select u.*, v.* from t_user u left join (select
 		// TIMESTAMPDIFF(DAY,now(),end_time) as dayDiff,start_time,user_id from
 		// t_user_vip ) v on u.user_id=v.user_id where v.dayDiff >=0 and u.type=? order
@@ -374,6 +426,7 @@ public class UserDao extends BaseDao {
 				});
 		return users;
 	}
+
 
 	public List<BaseUser> getRandomMeetBottleUser(int realCount) {
 		String sql = "select u.* from t_user_meet_bottle_recommend mb  left join t_user u on mb.uid=u.user_id order by  RAND() limit ?";
@@ -724,11 +777,12 @@ public class UserDao extends BaseDao {
 		AvatarIMGStatus status = AvatarIMGStatus.values()[state];
 		String illegalName = "illegal.jpg";
 		if (status == AvatarIMGStatus.ILLEGAL) {
-			sql = "update t_user_avatars set avatar=?,illegal_avatar=?,state=?,checked_time=? where id=?";
-			int count = jdbcTemplate.update(sql, new Object[] { illegalName, avatar, state, new Date(), id });
+			ImageSaveUtils.removeAcatar(avatar);
+			sql = "delete from  t_user_avatars where  id="+id;
+			int count = jdbcTemplate.update(sql);
 			if (count == 1) {
-				sql = "update t_user set avatar=? where user_id=? and avatar=?";
-				jdbcTemplate.update(sql, new Object[] { illegalName, uid, avatar });
+				sql = "update t_user set avatar=? where user_id=?";
+				jdbcTemplate.update(sql, new Object[] { illegalName, uid});
 			}
 		} else {
 		}
@@ -808,8 +862,11 @@ public class UserDao extends BaseDao {
 	}
 
 	// 根据状态获取审核的头像列表
-	public List<BaseUser> listConfirmAvatars(int state, int pageSize, int pageIndex) {
+	public List<BaseUser> listConfirmAvatars(int state, int pageSize, int pageIndex,Long user_id) {
 		String sql = "select v.id, u.user_id,u.nick_name,v.avatar from t_user_avatars v left join t_user u on v.uid=u.user_id where v.state=? order by v.id desc limit ?,?";
+		if(user_id!=null&&user_id>0) {
+			sql = "select v.id, u.user_id,u.nick_name,v.avatar from t_user_avatars v left join t_user u on v.uid=u.user_id where v.uid="+user_id+" and  v.state=? order by v.id desc limit ?,?";
+		}
 		return jdbcTemplate.query(sql, new Object[] { state, (pageIndex - 1) * pageSize, pageSize },
 				new BeanPropertyRowMapper<BaseUser>(BaseUser.class) {
 					@Override
@@ -821,8 +878,11 @@ public class UserDao extends BaseDao {
 				});
 	}
 
-	public int getCountOfConfirmAvatars() {
-		return jdbcTemplate.queryForObject("select count(*) from t_user_avatars where state=0", Integer.class);
+	public int getCountOfConfirmAvatars(Long user_id) {
+		if(user_id!=null&&user_id>0)
+		    return jdbcTemplate.queryForObject("select count(*) from t_user_avatars where state=0 and uid="+user_id, Integer.class);
+		else 
+			return jdbcTemplate.queryForObject("select count(*) from t_user_avatars where state=0", Integer.class);
 	}
 
 	public List<String> checkRegistIP(int limitCount) {
@@ -841,15 +901,30 @@ public class UserDao extends BaseDao {
 	public void deleteIllegalUser(long uid) {
 		jdbcTemplate.update("delete from t_user where user_id=" + uid);
 	}
-	
+
 	public int addToFound(long user_id) {
 		int count = jdbcTemplate.update("update t_found_user_relationship set state=?,action_time=? where uid=?",
-				new Object[] { FoundUserRelationship.VISIBLE.ordinal(),new Date(), user_id });
-		if (count !=1) {
+				new Object[] { FoundUserRelationship.VISIBLE.ordinal(), new Date(), user_id });
+		if (count != 1) {
 			String sql = "insert into t_found_user_relationship values (?, ?,?)";
-			return jdbcTemplate.update(sql, new Object[] { user_id, FoundUserRelationship.VISIBLE.ordinal() ,new Date()});
+			return jdbcTemplate.update(sql,
+					new Object[] { user_id, FoundUserRelationship.VISIBLE.ordinal(), new Date() });
 		}
 		return count;
 	}
 
+	public boolean isFollowed(long user_id,long target_id) {
+		return jdbcTemplate.queryForObject("select count(*) from t_user_follow where uid=? and target_id=?",new Object[] {user_id,target_id},
+				Integer.class) > 0;
+	}
+
+	public void follow(long user_id, long target_id) {
+		String sql = "insert into t_user_follow values (?, ?)";
+		jdbcTemplate.update(sql, new Object[] { user_id, target_id });
+	}
+	
+	public void cancelFollow(long user_id, long target_id) {
+		String sql = "delete from  t_user_follow where uid=? and target_id=?";
+		jdbcTemplate.update(sql, new Object[] { user_id, target_id });
+	}
 }

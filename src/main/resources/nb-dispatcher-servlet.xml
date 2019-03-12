@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:context="http://www.springframework.org/schema/context"
-	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:p="http://www.springframework.org/schema/p"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="
         http://www.springframework.org/schema/beans     
         http://www.springframework.org/schema/beans/spring-beans.xsd
@@ -12,7 +13,8 @@
         http://www.springframework.org/schema/mvc/spring-mvc.xsd
         ">
 	<mvc:annotation-driven>
-		<mvc:message-converters register-defaults="true">
+		<mvc:message-converters
+			register-defaults="true">
 			<bean id="mappingJacksonHttpMessageConverter"
 				class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
 				<property name="supportedMediaTypes">
@@ -20,41 +22,46 @@
 						<value>text/html;charset=UTF-8</value>
 					</list>
 				</property>
-				
-				 <property name="objectMapper">
+
+				<property name="objectMapper">
 					<bean class="com.fasterxml.jackson.databind.ObjectMapper">
 						<property name="serializationInclusion">
-							<value type="com.fasterxml.jackson.annotation.JsonInclude.Include">NON_NULL</value>
+							<value
+								type="com.fasterxml.jackson.annotation.JsonInclude.Include">NON_NULL</value>
 						</property>
 					</bean>
 				</property>
 
-				
+
 			</bean>
 		</mvc:message-converters>
 	</mvc:annotation-driven>
 	<mvc:default-servlet-handler />
 
-
-
-	<mvc:resources mapping="/images/**" location="/WEB-INF/view/images/" />
-	<mvc:resources mapping="/css/**" location="/WEB-INF/view/css/" />
-	<mvc:resources mapping="/js/**" location="/WEB-INF/view/js/" />
+	<mvc:resources mapping="/images/**"
+		location="/WEB-INF/view/images/" />
+	<mvc:resources mapping="/css/**"
+		location="/WEB-INF/view/css/" />
+	<mvc:resources mapping="/js/**"
+		location="/WEB-INF/view/js/" />
 
 
 
 	<!-- 启动自动扫描 该包下所有的Bean(@Controller) -->
-	<context:component-scan base-package="com.zhan.app.nearby.controller" />
+	<context:component-scan
+		base-package="com.zhan.app.nearby.controller" />
 	<!-- 上传资源访问 -->
 
 	<mvc:resources mapping="/img/origin/**"
 		location="D:/web/nearby_image/images/origin/" />
 	<mvc:resources mapping="/img/thumb/**"
 		location="D:/web/nearby_image/images/thumb/" />
-		
 
-	<mvc:resources mapping="/avatar/origin/**" location="/nearby_image/avatar/origin/" />
-	<mvc:resources mapping="/avatar/thumb/**" location="/nearby_image/avatar/thumb/" />
+
+	<mvc:resources mapping="/avatar/origin/**"
+		location="/nearby_image/avatar/origin/" />
+	<mvc:resources mapping="/avatar/thumb/**"
+		location="/nearby_image/avatar/thumb/" />
 
 	<mvc:resources mapping="/gift_img/origin/**"
 		location="C:/data/zah/http/nearby_image/gift_img/origin/" />
@@ -62,7 +69,8 @@
 		location="C:/data/zah/http/nearby_image/gift_img/thumb/" />
 
 
-	<bean id="SpringContextUtil" class="com.zhan.app.nearby.util.SpringContextUtil"></bean>
+	<bean id="SpringContextUtil"
+		class="com.zhan.app.nearby.util.SpringContextUtil"></bean>
 
 
 	<!-- 拦截器 -->
@@ -92,6 +100,7 @@
 		<property name="prefix" value="/WEB-INF/view/" />
 		<property name="suffix" value=".jsp" />
 	</bean>
+
 
 
 </beans>

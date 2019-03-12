@@ -74,8 +74,8 @@ public class SystemController {
 	}
 
 	@RequestMapping("bgm")
-	public ModelMap bgm(Integer count) {
-		return ResultUtil.getResultOKMap().addAttribute("bgms", mainService.loadBGM(count));
+	public ModelMap bgm(Integer count,Integer  test) {
+		return ResultUtil.getResultOKMap().addAttribute("bgms", mainService.loadBGM(count,test));
 	}
 
 	@RequestMapping("bgm_like/{id}")

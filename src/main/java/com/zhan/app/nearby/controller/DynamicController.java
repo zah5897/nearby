@@ -90,6 +90,9 @@ public class DynamicController {
 		return result;
 	}
 
+	
+	
+	
 	@RequestMapping("detail")
 	public ModelMap detail(Long dynamic_id, Long user_id) {
 		if (dynamic_id == null || dynamic_id < 1l) {
@@ -112,6 +115,24 @@ public class DynamicController {
 		return result;
 	}
 
+	
+	@RequestMapping("comment_sub_list")
+	public ModelMap comment_sub_list(long pid,long dynamic_id,  Long last_id,int count) {
+		 
+		List<DynamicComment> comments = userDynamicService.loadSubComm(pid, dynamic_id, count, last_id==null?0:last_id);
+		ModelMap result = ResultUtil.getResultOKMap();
+		ImagePathUtil.completeCommentImagePath(comments, true);
+		result.put("comments", comments);
+		long lastId = 0l;
+		if (comments != null && comments.size() > 0 && comments.size() == count) {
+			lastId = comments.get(comments.size() - 1).getId();
+		}
+		result.put("hasMore", lastId > 0);
+		result.put("last_id", lastId);
+		return result;
+	}
+
+	
 	@RequestMapping("msg_list")
 	public ModelMap msg_list(Long user_id, Long last_id,Integer type) {
 		if (user_id == null || user_id < 1) {
@@ -208,5 +229,24 @@ public class DynamicController {
 		  dynamicMsgService.replayDynamicMsg(user_id, msg_id);
 		  return ResultUtil.getResultOKMap().addAttribute("msg_id", msg_id);
 	}
+	
+	
+	@RequestMapping("follow")
+	public ModelMap follow(long user_id,Long last_id, Integer count) {
+		  int c=count==null?20:count;
+		  List<UserDynamic> dys=userDynamicService.loadFollow(user_id,last_id==null?Long.MAX_VALUE:last_id,c);
+		  ModelMap r=ResultUtil.getResultOKMap().addAttribute("images", dys);
+		  
+		  if(!dys.isEmpty()) {
+			  r.addAttribute("last_id",dys.get(dys.size()-1).getId());
+		  }
+		  if(c==dys.size()) {
+			  r.addAttribute("hasMore",true);
+		  }else {
+			  r.addAttribute("hasMore",false);
+		  }
+		  return r;
+	}
+	
 	
 }

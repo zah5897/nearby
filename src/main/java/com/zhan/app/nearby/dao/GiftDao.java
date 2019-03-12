@@ -7,6 +7,7 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -144,12 +145,16 @@ public class GiftDao extends BaseDao {
 	 * 
 	 * @return
 	 */
-	public List<MeiLi> loadNewRegistUserMeiLi(int pageIndex, int count) {
+	@Cacheable(value="one_minute",key="#root.methodName+'_'+#page+'_'+#count")
+	public List<MeiLi> loadNewRegistUserMeiLi(int page, int count) {
 
-		String notIn = " where u.user_id not in(41,93837,96651,90055,95470) ";
-		String t_total_meili = "select m.*,u.nick_name,u.avatar from t_meili_new_regist m left join t_user u on m.user_id=u.user_id "
+		String notIn = " where fu.state is null and u.user_id not in(41,93837,96651,90055,95470,148641) ";
+		String t_total_meili = "select m.*,u.nick_name,u.avatar from t_meili_new_regist m "
+				+ " left join t_user u on m.user_id=u.user_id "
+				+ " left join t_found_user_relationship fu on u.user_id=fu.uid"
+				
 				+ notIn + " order by m.user_id desc limit ?,?";
-		List<MeiLi> meilis = jdbcTemplate.query(t_total_meili, new Object[] { (pageIndex - 1) * count, count },
+		List<MeiLi> meilis = jdbcTemplate.query(t_total_meili, new Object[] { (page - 1) * count, count },
 				new RowMapper<MeiLi>() {
 
 					@Override
@@ -182,14 +187,16 @@ public class GiftDao extends BaseDao {
 	 * 
 	 * @return
 	 */
-	public List<MeiLi> loadTotalMeiLi(int pageIndex, int count) {
+	@Cacheable(value="one_day",key="#root.methodName+'_'+#page+'_'+#count")
+	public List<MeiLi> loadTotalMeiLi(int page, int count) {
 		// (select @rowno:=0) t
 
-		String notIn = " where u.user_id not in(41,93837,96651,90055,95470) ";
+		String notIn = " where fu.state is null and  u.user_id not in(41,93837,96651,90055,95470,148641) ";
 
-		String t_total_meili = "select m.*,u.nick_name,u.avatar from t_meili_total m left join t_user u on m.user_id=u.user_id "
-				+ notIn + " limit ?,?";
-		List<MeiLi> meilis = jdbcTemplate.query(t_total_meili, new Object[] { (pageIndex - 1) * count, count },
+		String t_total_meili = "select m.*,u.nick_name,u.avatar from t_meili_total m "
+				+ "left join t_user u on m.user_id=u.user_id "
+				+ " left join t_found_user_relationship fu on m.user_id=fu.uid " +  notIn + " limit ?,?";
+		List<MeiLi> meilis = jdbcTemplate.query(t_total_meili, new Object[] { (page - 1) * count, count },
 				new RowMapper<MeiLi>() {
 
 					@Override
@@ -223,18 +230,21 @@ public class GiftDao extends BaseDao {
 	 * 
 	 * @return
 	 */
-	public List<MeiLi> loadTuHao(int pageIndex, int count) {
+	@Cacheable(value="one_day",key="#root.methodName+'_'+#page+'_'+#count")
+	public List<MeiLi> loadTuHao(int page, int count) {
 
-		String notIn = " where u.user_id not in(41,93837,96651,90055,95470) ";
+		String notIn = " where  fu.state is null and  u.user_id not in(41,93837,96651,90055,95470,148641) ";
 
 		String t_gift_send_amount = "select send.from_uid as user_id,send.count*g.price as amount from t_gift_own send left join t_gift g on send.gift_id=g.id";
 		String t_tuhao_total = "select sum(amount) as tuhao_val ,send.user_id from (" + t_gift_send_amount
 				+ ") as send group by send.user_id";
 
 		String leftJoinUser = "select tuhao.*,u.nick_name,u.avatar from (" + t_tuhao_total
-				+ ") tuhao left join t_user u on tuhao.user_id=u.user_id " + notIn
+				+ ") tuhao "
+				+ " left join t_user u on tuhao.user_id=u.user_id  "
+				+ " left join t_found_user_relationship fu on tuhao.user_id=fu.uid" + notIn
 				+ " order by tuhao_val desc limit ?,?";
-		List<MeiLi> meilis = jdbcTemplate.query(leftJoinUser, new Object[] { (pageIndex - 1) * count, count },
+		List<MeiLi> meilis = jdbcTemplate.query(leftJoinUser, new Object[] { (page - 1) * count, count },
 				new RowMapper<MeiLi>() {
 
 					@Override

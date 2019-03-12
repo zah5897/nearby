@@ -28,6 +28,15 @@
 			<div class="panel-head">
 				<strong class="icon-reorder">&nbsp;待审核用户头像列表</strong>
 			</div>
+			<div class="padding border-bottom">
+				<ul class="search">
+                   <li>
+			         <input type="text" placeholder="请输入用户id" name="user_id_input" class="input" style="width:250px; line-height:17px;display:inline-block" />
+                     <a href="javascript:void(0)" class="button border-main icon-search" onclick="doSearchById()" > 搜索</a>
+                   </li> 
+				</ul>
+			</div>
+			
 			<table class="table table-hover text-center">
 				<tr>
 					<th width="10%">图片序列号</th>
@@ -84,13 +93,26 @@
 	    	page(pageCount);
 	    }
 	    
-	   
+	    function doSearchById(){
+	    	var key=$("[name='user_id_input']").val().replace(/^\s+|\s+$/g,"");
+	    	if(user_id==''){
+	    		if(key==''){
+		    		return;
+		    	}
+	    	}
+	    	if(user_id==key){
+	    		return;
+	    	}
+	    	user_id=key;
+	    	currentPageIndex=0;
+	    	page(1);
+	    }
 	     //获取对应页面
 		function page(index) {
 			if (currentPageIndex == index) {
 				return false;
 			}
-			$.post("<%=path%>/manager/list_confirm_avatars",{'pageIndex':index,'pageSize':pageSize,'state':0},function(result){
+			$.post("<%=path%>/manager/list_confirm_avatars",{'pageIndex':index,'pageSize':pageSize,'state':0,'user_id':user_id},function(result){
 				 var json=JSON.parse(result);
 				 
 			        if(json.code==0){

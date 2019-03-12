@@ -1,5 +1,6 @@
 package com.zhan.app.nearby.bean;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -7,7 +8,7 @@ import java.util.Date;
  * @author zah
  *
  */
-public class BottleExpress {
+public class BottleExpress implements Serializable{
    
 	private long uid;
 	private long to_uid;

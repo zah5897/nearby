@@ -11,7 +11,6 @@ import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.cache.UserCacheService;
 import com.zhan.app.nearby.dao.UserDao;
 import com.zhan.app.nearby.service.BottleService;
-import com.zhan.app.nearby.service.MainService;
 import com.zhan.app.nearby.service.UserService;
 import com.zhan.app.nearby.service.VipService;
 import com.zhan.app.nearby.util.HttpUtil;
@@ -32,20 +31,14 @@ public class TimerTask {
 				bottleService.sendMeetBottle(u.getUser_id());
 			}
 		}
-		bottleService.refreshBottlePool();
 		//定时自动加入黑名单IP
 		autoAddBlackIP();
-		 
 	}
 
 	@Scheduled(cron = "0 59 23 * * ?") // 每天23：59分执行
 	public void meiliRateTask() {
 		UserCacheService userCacheService = SpringContextUtil.getBean("userCacheService");
 		userCacheService.clearCacheCount();
-		
-		MainService mainService = SpringContextUtil.getBean("mainService");
-		mainService.injectRate();
-		deleteIllegalAvatarFile();
 	}
 
 	 
@@ -86,6 +79,9 @@ public class TimerTask {
 			String title = (String) data.get("title");
 			bottleService.sendAutoBottle(id, title);
 		}
+		
+		bottleService.refreshPool();
+		
 	}
 	
 	
@@ -100,11 +96,6 @@ public class TimerTask {
 	public void autoAddBlackIP() {
 		UserService userService = SpringContextUtil.getBean("userService");
 		userService.checkRegistIP(10);
-	}
-	
-	private void deleteIllegalAvatarFile() {
-		UserService userService = SpringContextUtil.getBean("userService");
-		userService.deleteIllegalAvatarFile();
 	}
 	
 }

@@ -119,51 +119,50 @@ public class BottleService {
 		List<Bottle> bolltes = null;
 		int realType = type;
 
-		// 旧版本
-		if (_ua.startsWith("a") && "1.9".compareTo(version) > 0
-				|| _ua.startsWith("g") && "1.1.2".compareTo(version) > 0) {
+		if (state != BottleState.IOS_REVIEW) {
 
+			// 旧版本
+			if (_ua.startsWith("a") && "1.9".compareTo(version) > 0
+					|| _ua.startsWith("g") && "1.1.2".compareTo(version) > 0) {
+
+				if (look_sex == null) {
+					bolltes = bottleDao.getBottles(user_id, look_sex, page_size, realType);
+				} else {
+					VipUser vip = vipDao.loadUserVip(user_id);
+					if (vip == null || vip.getDayDiff() < 0) {
+						bolltes = bottleDao.getBottles(user_id, null, page_size, realType);
+					} else {
+						int sex = (look_sex == null ? -1 : look_sex);
+						bolltes = bottleDao.getBottles(user_id, sex, page_size, realType);
+					}
+				}
+			} else {
+				if (look_sex == null) {
+					bolltes = bottleDao.getBottlesV19(user_id, null, page_size, realType, state);
+				} else {
+					VipUser vip = vipDao.loadUserVip(user_id);
+					if (vip == null || vip.getDayDiff() < 0) {
+						bolltes = bottleDao.getBottlesV19(user_id, null, page_size, realType, state);
+					} else {
+						int sex = (look_sex == null ? -1 : look_sex);
+						bolltes = bottleDao.getBottlesV19(user_id, sex, page_size, realType, state);
+					}
+				}
+			}
+
+		} else { //审核期间的瓶子
 			if (look_sex == null) {
-				bolltes = bottleDao.getBottles(user_id, page_size, realType, state);
+				bolltes = bottleDao.getBottlesIOS_REVIEW(user_id, null, page_size, realType);
 			} else {
 				VipUser vip = vipDao.loadUserVip(user_id);
 				if (vip == null || vip.getDayDiff() < 0) {
-					bolltes = bottleDao.getBottles(user_id, page_size, realType, state);
+					bolltes = bottleDao.getBottlesIOS_REVIEW(user_id, null, page_size, realType);
 				} else {
 					int sex = (look_sex == null ? -1 : look_sex);
-					bolltes = bottleDao.getBottlesByGender(user_id, page_size, sex, realType, state);
+					bolltes = bottleDao.getBottlesIOS_REVIEW(user_id, sex, page_size, realType);
 				}
 			}
-		} else {
-
-			if(	state == BottleState.IOS_REVIEW) {
-				 if (look_sex == null) {
-					  bolltes = bottleDao.getBottlesIOS_REVIEW(user_id, page_size, realType );
-				  } else {
-					VipUser vip = vipDao.loadUserVip(user_id);
-					if (vip == null || vip.getDayDiff() < 0) {
-						bolltes = bottleDao.getBottlesIOS_REVIEW(user_id, page_size, realType);
-					} else {
-						int sex = (look_sex == null ? -1 : look_sex);
-						bolltes = bottleDao.getBottlesByGenderIOS_REVIEW(user_id, page_size, sex, realType);
-					}
-				  }
-			}else {
-			  if (look_sex == null) {
-				  bolltes = bottleDao.getBottlesV19(user_id, page_size, realType, state);
-			  } else {
-				VipUser vip = vipDao.loadUserVip(user_id);
-				if (vip == null || vip.getDayDiff() < 0) {
-					bolltes = bottleDao.getBottlesV19(user_id, page_size, realType, state);
-				} else {
-					int sex = (look_sex == null ? -1 : look_sex);
-					bolltes = bottleDao.getBottlesByGenderV19(user_id, page_size, sex, realType, state);
-				}
-			  }
-			}
-
 		}
-
 		for (Bottle bottle : bolltes) {
 			if (bottle.getType() == BottleType.MEET.ordinal()) {
 				ImagePathUtil.completeAvatarPath(bottle.getSender(), true);
@@ -174,7 +173,7 @@ public class BottleService {
 		result.addAttribute("bottles", bolltes);
 		return result;
 	}
- 
+
 	/**
 	 * 获取弹幕瓶子
 	 * 
@@ -356,8 +355,6 @@ public class BottleService {
 		return ResultUtil.getResultOKMap();
 	}
 
-	 
-
 	public ModelMap like(long user_id, String with_user_id) {
 		List<Long> user_ids = new ArrayList<Long>();
 		if (!TextUtils.isEmpty(with_user_id)) {
@@ -535,12 +532,15 @@ public class BottleService {
 		return bottleDao.rewardHistory(user_id, page, count);
 	}
 
-	// 最新的瓶子pool留存算法，总量保持100
-	public void refreshBottlePool() {
-		int keepSize = 150;
-		bottleDao.refreshPool(keepSize);
-		// 先获取200个供赛选
-		// List<String> ids=bottleDao.loadNeedClearIds(250,100);
-		// bottleDao.clearBottlePoolIds(ids);
+	public void refreshPool() {
+		int limit = 100;
+		for (BottleType type : BottleType.values()) {
+			int size = bottleDao.getSizeByType(type.ordinal());
+			if (size < limit) {
+				continue;
+			}
+			long id = bottleDao.getLimitId(type.ordinal(), limit);
+			bottleDao.removePoolBottleKeepSize(type.ordinal(), id);
+		}
 	}
 }

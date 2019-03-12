@@ -49,7 +49,6 @@ import com.zhan.app.nearby.util.ResultUtil;
 import com.zhan.app.nearby.util.SMSHelper;
 import com.zhan.app.nearby.util.TextUtils;
 
-
 @RestController
 @RequestMapping("/user")
 public class UserController {
@@ -70,8 +69,7 @@ public class UserController {
 	 * 获取注册用的短信验证码
 	 * 
 	 * @param request
-	 * @param mobile
-	 *            手机号码
+	 * @param mobile  手机号码
 	 * @return
 	 */
 	@RequestMapping("code")
@@ -83,19 +81,19 @@ public class UserController {
 		if (count > 0) {
 			return ResultUtil.getResultMap(ERROR.ERR_USER_EXIST, "该手机号码已注册");
 		}
-		
-		if(userCacheService.getUserCodeCacheCount(mobile)>=3) {
+
+		if (userCacheService.getUserCodeCacheCount(mobile) >= 3) {
 			return ResultUtil.getResultMap(ERROR.ERR_SMS_CODE_LIMIT);
 		}
 
 		String code = RandomCodeUtil.randomCode(6);
-		
-		if(code_type==null) {
-			code_type=0;
+
+		if (code_type == null) {
+			code_type = 0;
 		}
-		
+
 		if (code_type == -1000) {
-			userCacheService.cacheRegistValidateCode(mobile, code,code_type);
+			userCacheService.cacheRegistValidateCode(mobile, code, code_type);
 			return ResultUtil.getResultOKMap().addAttribute("validate_code", code);
 		}
 
@@ -109,7 +107,7 @@ public class UserController {
 		ModelMap data = ResultUtil.getResultOKMap();
 		boolean smsOK = SMSHelper.smsRegist(mobile, code);
 		if (smsOK) {
-			userCacheService.cacheRegistValidateCode(mobile, code,code_type==null?0:code_type);
+			userCacheService.cacheRegistValidateCode(mobile, code, code_type == null ? 0 : code_type);
 			data.put("validate_code", code);
 		} else {
 			data = ResultUtil.getResultMap(ERROR.ERR_FAILED, "验证码发送过于频繁");
@@ -121,24 +119,21 @@ public class UserController {
 	/**
 	 * 注册
 	 * 
-	 * @param multipartRequest
-	 *            关于图片的request
-	 * @param user
-	 *            用户对象
-	 * @param code
-	 *            验证码
+	 * @param multipartRequest 关于图片的request
+	 * @param user             用户对象
+	 * @param code             验证码
 	 * @return
 	 */
 
 	@RequestMapping("regist")
 	public ModelMap regist(HttpServletRequest request, LoginUser user, String code, String aid, Integer city_id,
-			String bGenderOK,String _ua) {
+			String bGenderOK, String _ua) {
 
 		if (TextUtils.isEmpty(user.getMobile())) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "手机号码不能为空!");
 		}
 
-		if(TextUtils.isTrimEmpty(user.getNick_name())) {
+		if (TextUtils.isTrimEmpty(user.getNick_name())) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "昵称不能为空");
 		}
 		// 验证code合法性
@@ -203,9 +198,9 @@ public class UserController {
 				return ResultUtil.getResultMap(ERROR.ERR_USER_EXIST, "无法找到该游客账号");
 			}
 		} else {
-			if(_ua.contains("\\|")) {
+			if (_ua.contains("\\|")) {
 				user.set_ua(_ua);
-			}else {
+			} else {
 				user.set_ua(URLDecoder.decode(_ua));
 			}
 			id = userService.insertUser(user);
@@ -234,12 +229,9 @@ public class UserController {
 	/**
 	 * 登录
 	 * 
-	 * @param mobile
-	 *            手机号码
-	 * @param password
-	 *            密码
-	 * @param _ua
-	 *            系统参数
+	 * @param mobile   手机号码
+	 * @param password 密码
+	 * @param _ua      系统参数
 	 * @return
 	 */
 	@RequestMapping("login")
@@ -318,8 +310,7 @@ public class UserController {
 	/**
 	 * 获取重置密码的短信验证码
 	 * 
-	 * @param mobile
-	 *            手机号码
+	 * @param mobile 手机号码
 	 * @return
 	 */
 	@RequestMapping("reset_password_code")
@@ -332,16 +323,16 @@ public class UserController {
 			return ResultUtil.getResultMap(ERROR.ERR_USER_NOT_EXIST, "该手机号码未注册");
 		}
 
-		if(userCacheService.getUserCodeCacheCount(mobile)>=3) {
+		if (userCacheService.getUserCodeCacheCount(mobile) >= 3) {
 			return ResultUtil.getResultMap(ERROR.ERR_SMS_CODE_LIMIT);
 		}
- 
+
 		ModelMap data = ResultUtil.getResultOKMap();
 		String code = RandomCodeUtil.randomCode(6);
 
 		boolean smsOK = SMSHelper.smsResetPwd(mobile, code);
 		if (smsOK) {
-			userCacheService.cacheRegistValidateCode(mobile, code,0);
+			userCacheService.cacheRegistValidateCode(mobile, code, 0);
 			data.put("validate_code", code);
 		} else {
 			data = ResultUtil.getResultMap(ERROR.ERR_FAILED, "验证码发送失败");
@@ -352,12 +343,9 @@ public class UserController {
 	/**
 	 * 重置密码
 	 * 
-	 * @param mobile
-	 *            手机号码
-	 * @param password
-	 *            新密码
-	 * @param code
-	 *            验证码
+	 * @param mobile   手机号码
+	 * @param password 新密码
+	 * @param code     验证码
 	 * @return
 	 */
 	@RequestMapping("reset_password")
@@ -392,8 +380,7 @@ public class UserController {
 	/**
 	 * 获取对应id的用户信息
 	 * 
-	 * @param user_id
-	 *            用户id
+	 * @param user_id 用户id
 	 * @return
 	 */
 	@RequestMapping("info")
@@ -416,10 +403,8 @@ public class UserController {
 	 * 修改头像
 	 * 
 	 * @param multipartRequest
-	 * @param user_id
-	 *            要修改的用户id
-	 * @param token
-	 *            token
+	 * @param user_id          要修改的用户id
+	 * @param token            token
 	 * @return
 	 */
 	@RequestMapping("modify_avatar")
@@ -460,7 +445,8 @@ public class UserController {
 	}
 
 	@RequestMapping("upload_avatars")
-	public ModelMap upload_avatars(DefaultMultipartHttpServletRequest multipartRequest, long user_id, String aid,String token) {
+	public ModelMap upload_avatars(DefaultMultipartHttpServletRequest multipartRequest, long user_id, String aid,
+			String token) {
 		if (!userService.checkLogin(user_id, token)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
@@ -543,11 +529,11 @@ public class UserController {
 		if (user == null) {
 			return ResultUtil.getResultMap(ERROR.ERR_USER_NOT_EXIST, "该用户不存在！");
 		}
-		
+
 		boolean isNick_modify = false;
-		if(!TextUtils.isTrimEmpty(nick_name)) {
+		if (!TextUtils.isTrimEmpty(nick_name)) {
 			nick_name = BottleKeyWordUtil.filterContent(nick_name);
-			nick_name=nick_name.trim();
+			nick_name = nick_name.trim();
 			if (!nick_name.equals(user.getNick_name())) {
 				if (!user.getNick_name().equals(nick_name)) {
 					isNick_modify = true;
@@ -565,7 +551,7 @@ public class UserController {
 	 * 
 	 * @param user_id
 	 * @param user_id_for
-	 * @param countz'z
+	 * @param             countz'z
 	 * @return
 	 */
 	@RequestMapping("detial_info")
@@ -804,6 +790,25 @@ public class UserController {
 			count = 10;
 		}
 		return ResultUtil.getResultOKMap().addAttribute("users", userService.getOnlineUsers(page, count));
+	}
+
+	@RequestMapping("follow")
+	public ModelMap follow(long user_id,String token, long target_id) {
+		
+		if(!userService.checkLogin(user_id, token)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		userService.follow(user_id,target_id,false);
+		return ResultUtil.getResultOKMap().addAttribute("target_id", target_id);
+	}
+	@RequestMapping("cancel_follow")
+	public ModelMap cancelFollow(long user_id,String token, long target_id) {
+		
+		if(!userService.checkLogin(user_id, token)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		userService.follow(user_id,target_id,true);
+		return ResultUtil.getResultOKMap().addAttribute("target_id", target_id);
 	}
 
 	private City getDefaultCityId() {

@@ -391,12 +391,12 @@ public class ManagerService {
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<BaseUser> listConfirmAvatars(int pageSize, int pageIndex) {
+	public List<BaseUser> listConfirmAvatars(int pageSize, int pageIndex,Long user_id) {
 		return (List<BaseUser>) ImagePathUtil
-				.completeAvatarsPath(userService.listConfirmAvatars(0, pageSize, pageIndex), false); // state=0为变动，1为
+				.completeAvatarsPath(userService.listConfirmAvatars(0, pageSize, pageIndex,user_id), false); // state=0为变动，1为
 	}
 
-	public int getCountOfConfirmAvatars() {
-		return userService.getCountOfConfirmAvatars();
+	public int getCountOfConfirmAvatars(Long user_id) {
+		return userService.getCountOfConfirmAvatars(user_id);
 	}
 }

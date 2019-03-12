@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
 
 import javax.annotation.Resource;
 
@@ -252,11 +253,14 @@ public class MainService {
 			count = 20;
 		}
 
-		if (type != 3) {
+		if(type==0) {
+			List<MeiLi> users = userDao.getNewRegistUsers(pageIndex, count);
+			return ResultUtil.getResultOKMap().addAttribute("users", users);
+		}else if (type ==1||type==2) {
 			List<MeiLi> meili = giftService.loadMeiLi(type, pageIndex, count);
 			return ResultUtil.getResultOKMap().addAttribute("users", meili);
 		} else {
-			return newRegistUsers(pageIndex, count);
+			return ResultUtil.getResultOKMap().addAttribute("users",userDao.getVipRankUsers(pageIndex, count));
 		}
 
 		// 这个地方的rank_list字段用 users
@@ -551,8 +555,17 @@ public class MainService {
 		systemDao.insertBGM(bgm);
 	}
 
-	public List<BGM> loadBGM(Integer count) {
-		return systemDao.loadBGM(count == null || count <= 0 ? 1 : count);
+	public List<BGM> loadBGM(Integer count,Integer test) {
+		if(test!=null&&test==1) { //test=1表示客户端调试，一定返回
+			int rand=new Random().nextInt(10);
+			if(rand<2) {
+				return systemDao.loadBGM(count == null || count <= 0 ? 1 : count);
+			}else {
+				return new ArrayList<BGM>();
+			}
+		}else {
+			return new ArrayList<BGM>();
+		}
 	}
 
 	public ModelMap goods_id_list(int type) {

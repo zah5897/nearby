@@ -29,9 +29,9 @@ import com.zhan.app.nearby.util.ResultUtil;
 @Service
 @Transactional("transactionManager")
 public class UserDynamicService {
-	
+
 	private static Logger log = Logger.getLogger(UserDynamicService.class);
-	
+
 	@Resource
 	private UserDynamicDao userDynamicDao;
 	@Resource
@@ -55,22 +55,23 @@ public class UserDynamicService {
 
 				String msg = "有人赞了你的图片！";
 				ext.put("msg", msg);
-				Main.sendTxtMessage(Main.SYS, new String[] { String.valueOf(user_id) }, msg, ext,PushMsgType.TYPE_NEW_PRAISE);
+				Main.sendTxtMessage(Main.SYS, new String[] { String.valueOf(user_id) }, msg, ext,
+						PushMsgType.TYPE_NEW_PRAISE);
 			}
 		}
 		return result;
 	}
 
-	public List<UserDynamic> getUserDynamic(long user_id, int page, int count,boolean filterBlock) {
-		List<UserDynamic> dynamics = userDynamicDao.getUserDynamic(user_id,page,  count,filterBlock);
+	public List<UserDynamic> getUserDynamic(long user_id, int page, int count, boolean filterBlock) {
+		List<UserDynamic> dynamics = userDynamicDao.getUserDynamic(user_id, page, count, filterBlock);
 		ImagePathUtil.completeDynamicsPath(dynamics, true);
 		return dynamics;
 	}
 
 	public List<UserDynamic> getUserDynamic(long user_id, int page, int count) {
-	 return getUserDynamic(user_id,page,count,true);
+		return getUserDynamic(user_id, page, count, true);
 	}
-	
+
 	public long comment(DynamicComment comment) {
 		long id = userDynamicDao.comment(comment);
 		if (id > 0) {
@@ -83,7 +84,7 @@ public class UserDynamicService {
 
 			String msg = "有人评论了你的图片，快去看看！";
 			ext.put("msg", msg);
-			Main.sendTxtMessage(Main.SYS, new String[] { user_id_str }, msg, ext,PushMsgType.TYPE_NEW_COMMENT);
+			Main.sendTxtMessage(Main.SYS, new String[] { user_id_str }, msg, ext, PushMsgType.TYPE_NEW_COMMENT);
 		}
 		return id;
 	}
@@ -146,7 +147,7 @@ public class UserDynamicService {
 				UserDynamic dy = userDynamicDao.basic(dy_id);
 				if (dy != null && dy.getUser_id() == user_id) {
 					userDynamicDao.delete(user_id, dy_id);
-					ImageSaveUtils.removeUserImages( dy.getLocal_image_name());
+					ImageSaveUtils.removeUserImages(dy.getLocal_image_name());
 				}
 				if (successid == null) {
 					successid = id;
@@ -179,7 +180,20 @@ public class UserDynamicService {
 		return ResultUtil.getResultOKMap().addAttribute("images", userImages).addAttribute("hasMore", hasMore);
 	}
 
-	public void updateCommentStatus(long user_id,FoundUserRelationship ship) {
-		userDynamicDao.updateCommentStatus(user_id,ship);
+	public void updateCommentStatus(long user_id, FoundUserRelationship ship) {
+		userDynamicDao.updateCommentStatus(user_id, ship);
+	}
+
+	public List<UserDynamic> loadFollow(long user_id, long l, int i) {
+		List<UserDynamic> dy = userDynamicDao.loadFollow(user_id, l, i);
+		for (UserDynamic d : dy) {
+			ImagePathUtil.completeAvatarPath(d.getUser(), true);
+			d.getUser().setHas_followed(1);
+			ImagePathUtil.completeDynamicPath(d, true);
+		}
+		return dy;
+	}
+	public List<DynamicComment> loadSubComm(long pid, long did, int count, long last_id) {
+		return userDynamicDao.loadSubComm(pid, did, count, last_id);
 	}
 }

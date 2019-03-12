@@ -1,5 +1,6 @@
 package com.zhan.app.nearby.bean;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import org.springframework.format.annotation.DateTimeFormat;
@@ -9,7 +10,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.zhan.app.nearby.annotation.ColumnType;
 import com.zhan.app.nearby.bean.user.BaseUser;
 
-public class Reward {
+public class Reward implements Serializable{
 	@JsonIgnore
 	private long bottle_id;
 	@JsonIgnore

@@ -896,11 +896,11 @@ public class ManagerController {
 	
 	//获取需要審核的用戶头像
 	@RequestMapping(value = "/list_confirm_avatars")
-	public @ResponseBody ModelMap list_confirm_avatars(int pageSize, int pageIndex) {
+	public @ResponseBody ModelMap list_confirm_avatars(int pageSize, int pageIndex,Long user_id) {
 		ModelMap r=ResultUtil.getResultOKMap();
-		r.addAttribute("users", managerService.listConfirmAvatars(pageSize,pageIndex));
+		r.addAttribute("users", managerService.listConfirmAvatars(pageSize,pageIndex,user_id));
 		if (pageIndex == 1) {
-			int totalSize = managerService.getCountOfConfirmAvatars();
+			int totalSize = managerService.getCountOfConfirmAvatars(user_id);
 			int pageCount = totalSize / pageSize;
 			if (totalSize % pageSize > 0) {
 				pageCount += 1;

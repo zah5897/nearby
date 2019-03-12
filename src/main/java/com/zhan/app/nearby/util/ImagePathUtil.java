@@ -169,9 +169,6 @@ public class ImagePathUtil {
 
 	public static void completeCommentImagePath(DynamicComment comment, boolean thumbAndOrigin) {
 		completeAvatarPath(comment.getUser(), thumbAndOrigin);
-		if (comment.getAtComment() != null) {
-			completeAvatarPath(comment.getAtComment().getUser(), thumbAndOrigin);
-		}
 
 	}
 

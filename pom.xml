@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.zhan.app</groupId>
@@ -115,18 +116,13 @@
 		<dependency>
 			<groupId>org.springframework.data</groupId>
 			<artifactId>spring-data-redis</artifactId>
-			<version>1.4.1.RELEASE</version>
+			<version>1.7.1.RELEASE</version>
 		</dependency>
 		<dependency>
 			<groupId>redis.clients</groupId>
 			<artifactId>jedis</artifactId>
-			<version>2.6.0</version>
-
-			<!-- <exclusions> <exclusion> <groupId>org.apache.commons</groupId> <artifactId>commons-pool2</artifactId> 
-				</exclusion> </exclusions> -->
+			<version>2.9.0</version>
 		</dependency>
-
-
 
 		<!-- json工具类 -->
 

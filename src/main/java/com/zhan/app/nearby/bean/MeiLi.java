@@ -1,5 +1,7 @@
 package com.zhan.app.nearby.bean;
 
+import java.io.Serializable;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.zhan.app.nearby.bean.user.BaseUser;
@@ -10,7 +12,7 @@ import com.zhan.app.nearby.bean.user.BaseUser;
  * @author zah
  *
  */
-public class MeiLi {
+public class MeiLi implements Serializable{
 	private int value;
 	private int shanbei;
 	private int be_like_count;

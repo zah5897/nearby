@@ -1,6 +1,8 @@
 package com.zhan.app.nearby.bean;
 
+import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -9,7 +11,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.zhan.app.nearby.annotation.ColumnType;
 import com.zhan.app.nearby.bean.user.BaseVipUser;
 
-public class DynamicComment {
+public class DynamicComment implements Serializable{
 	@ColumnType
 	private long id;
 	@JsonIgnore
@@ -26,21 +28,17 @@ public class DynamicComment {
 	private long comment_time_v2;
 	@ColumnType
 	private BaseVipUser user;
-	@JsonIgnore
-	private long at_user_id;
-	@JsonIgnore
-	private long at_comment_id;
+	
+	@JsonIgnore //上层评论
+	private long pid;
+	
 	@ColumnType
-	private BaseVipUser at_user;
-	@ColumnType
-	private DynamicComment atComment;
-
+	private List<DynamicComment> sub_comm;
+	
 	//评论状态
 	@JsonIgnore
 	private int status;
-	
-	
-	private int subComment;
+ 
 	public long getId() {
 		return id;
 	}
@@ -82,30 +80,7 @@ public class DynamicComment {
 		this.comment_time_v2=comment_time.getTime()/1000;
 	}
 
-	public long getAt_user_id() {
-		return at_user_id;
-	}
-
-	public void setAt_user_id(long at_user_id) {
-		this.at_user_id = at_user_id;
-	}
-
-	public long getAt_comment_id() {
-		return at_comment_id;
-	}
-
-	public void setAt_comment_id(long at_comment_id) {
-		this.at_comment_id = at_comment_id;
-	}
-
-	public DynamicComment getAtComment() {
-		return atComment;
-	}
-
-	public void setAtComment(DynamicComment atComment) {
-		this.atComment = atComment;
-	}
-
+	 
 	public BaseVipUser getUser() {
 		return user;
 	}
@@ -114,13 +89,7 @@ public class DynamicComment {
 		this.user = user;
 	}
 
-	public BaseVipUser getAt_user() {
-		return at_user;
-	}
-
-	public void setAt_user(BaseVipUser at_user) {
-		this.at_user = at_user;
-	}
+	 
     public long getComment_time_v2() {
 	    return comment_time_v2;
     }
@@ -131,6 +100,22 @@ public class DynamicComment {
 
 	public void setStatus(int status) {
 		this.status = status;
+	}
+
+	public long getPid() {
+		return pid;
+	}
+
+	public void setPid(long pid) {
+		this.pid = pid;
+	}
+
+	public List<DynamicComment> getSub_comm() {
+		return sub_comm;
+	}
+
+	public void setSub_comm(List<DynamicComment> sub_comm) {
+		this.sub_comm = sub_comm;
 	}
     
     

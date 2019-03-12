@@ -24,6 +24,7 @@ public class WriteJsonUtil {
 			Map<String, Object> json=ResultUtil.getResultMap(err);
 			writer.write(json.toString());
 			writer.flush();
+			writer.close();
 		} catch (Exception e) {
 		}
 	}
@@ -36,6 +37,7 @@ public class WriteJsonUtil {
 			Map<String, Object> json=ResultUtil.getResultMap(error);
 			writer.write(json.toString());
 			writer.flush();
+			writer.close();
 		} catch (Exception e) {
 		}
 	}

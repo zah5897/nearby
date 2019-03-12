@@ -1,5 +1,6 @@
 package com.zhan.app.nearby.bean.user;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
@@ -12,7 +13,7 @@ import com.zhan.app.nearby.bean.Avatar;
 import com.zhan.app.nearby.comm.UserType;
 import com.zhan.app.nearby.util.TextUtils;
 
-public class BaseUser {
+public class BaseUser implements Serializable{
 
 	public BaseUser(long user_id) {
 		this.user_id = user_id;
@@ -67,6 +68,9 @@ public class BaseUser {
 	
 	@ColumnType // 忽略保存
 	private int _from=0; //1 ios ，2 android
+	
+	@ColumnType // 忽略保存
+	private int has_followed;
 	
 	public Date getBirthday() {
 		return birthday;
@@ -238,5 +242,11 @@ public class BaseUser {
 		this._from = _from;
 	}
     
+	public int getHas_followed() {
+		return has_followed;
+	}
+	public void setHas_followed(int has_followed) {
+		this.has_followed = has_followed;
+	}
 	
 }

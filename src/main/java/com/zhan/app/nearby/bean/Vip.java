@@ -1,8 +1,10 @@
 package com.zhan.app.nearby.bean;
 
+import java.io.Serializable;
+
 import com.zhan.app.nearby.annotation.ColumnType;
 
-public class Vip {
+public class Vip implements Serializable{
 	@ColumnType
 	private long id;
 	private String name;

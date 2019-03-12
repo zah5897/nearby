@@ -1,5 +1,6 @@
 package com.zhan.app.nearby.bean;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import org.springframework.format.annotation.DateTimeFormat;
@@ -10,7 +11,7 @@ import com.zhan.app.nearby.annotation.ColumnType;
 import com.zhan.app.nearby.bean.property.MsgAttention;
 import com.zhan.app.nearby.bean.user.BaseUser;
 
-public class DynamicMessage {
+public class DynamicMessage implements Serializable{
 	private long id;
 	private long dynamic_id;
 	private String content;

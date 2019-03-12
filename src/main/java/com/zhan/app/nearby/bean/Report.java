@@ -1,12 +1,13 @@
 package com.zhan.app.nearby.bean;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.zhan.app.nearby.annotation.ColumnType;
 import com.zhan.app.nearby.bean.user.BaseUser;
 
-public class Report {
+public class Report implements Serializable{
 	@ColumnType
 	private int id;
 	private long user_id;

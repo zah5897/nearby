@@ -1,12 +1,13 @@
 package com.zhan.app.nearby.bean;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.zhan.app.nearby.annotation.ColumnType;
 
-public class Exchange {
+public class Exchange implements Serializable{
 	@JsonIgnore
 	private long user_id;
 	@JsonIgnore

@@ -1,5 +1,6 @@
 package com.zhan.app.nearby.bean;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -8,7 +9,7 @@ import com.zhan.app.nearby.annotation.ColumnType;
 import com.zhan.app.nearby.comm.UserType;
 import com.zhan.app.nearby.util.TextUtils;
 
-public class ManagerUser {
+public class ManagerUser implements Serializable{
 	private long user_id;
 
 	private String nick_name;

@@ -369,7 +369,7 @@ public class UserDao extends BaseDao {
 						ImagePathUtil.completeAvatarPath(user, true);
 						m.setUser(user);
 						int dayDiff = rs.getInt("dayDiff");
-						m.setIs_vip(dayDiff >= 0);
+						m.setIs_vip(dayDiff > 0);
 						user.setVip(m.isIs_vip());
 
 						int cid = rs.getInt("city_id");
@@ -392,7 +392,10 @@ public class UserDao extends BaseDao {
 		// TIMESTAMPDIFF(DAY,now(),end_time) as dayDiff,start_time,user_id from
 		// t_user_vip ) v on u.user_id=v.user_id where v.dayDiff >=0 and u.type=? order
 		// by v.start_time desc limit ?,?";
-		String sql = "select u.*, v.*,c.name as city_name from t_user u left join (select TIMESTAMPDIFF(DAY,now(),end_time) as dayDiff,start_time,user_id from t_user_vip ) v on u.user_id=v.user_id left join t_sys_city c on u.city_id=c.id   where v.dayDiff >=0 and  u.type=? order by v.start_time desc limit ?,?";
+		String sql = "select u.*, v.dayDiff,c.name as city_name from t_user u "
+				+ "left join (select TIMESTAMPDIFF(DAY,now(),end_time) as dayDiff,start_time,user_id from t_user_vip ) v on u.user_id=v.user_id "
+				+ "left join t_sys_city c on u.city_id=c.id   "
+				+ "where v.dayDiff >=0 and  u.type=? order by v.start_time desc limit ?,?";
 		List<MeiLi> users = jdbcTemplate.query(sql,
 				new Object[] { UserType.OFFIEC.ordinal(), (page - 1) * count, count }, new RowMapper<MeiLi>() {
 					@Override
@@ -409,7 +412,7 @@ public class UserDao extends BaseDao {
 						ImagePathUtil.completeAvatarPath(user, true);
 						m.setUser(user);
 						int dayDiff = rs.getInt("dayDiff");
-						m.setIs_vip(dayDiff >= 0);
+						m.setIs_vip(dayDiff > 0);
 						user.setVip(m.isIs_vip());
 
 						int cid = rs.getInt("city_id");

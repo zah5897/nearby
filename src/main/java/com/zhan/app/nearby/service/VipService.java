@@ -24,7 +24,6 @@ import com.zhan.app.nearby.util.ResultUtil;
 import com.zhan.app.nearby.util.TextUtils;
 
 @Service
-@Transactional("transactionManager")
 public class VipService {
 
 	public static final int LIMIT_COUNT = 5;

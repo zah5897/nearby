@@ -25,7 +25,6 @@ import com.zhan.app.nearby.util.PushUtils;
 import com.zhan.app.nearby.util.ResultUtil;
 
 @Service
-@Transactional("transactionManager")
 public class DynamicMsgService {
 	@Resource
 	private DynamicMsgDao dynamicMsgDao;

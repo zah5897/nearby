@@ -26,7 +26,6 @@ import com.zhan.app.nearby.util.BottleKeyWordUtil;
 import com.zhan.app.nearby.util.ImagePathUtil;
 
 @Service
-@Transactional("transactionManager")
 public class ManagerService {
 	
 	private static Logger log = Logger.getLogger(ManagerService.class);

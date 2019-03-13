@@ -27,7 +27,6 @@ import com.zhan.app.nearby.util.ImageSaveUtils;
 import com.zhan.app.nearby.util.ResultUtil;
 
 @Service
-@Transactional("transactionManager")
 public class UserDynamicService {
 
 	private static Logger log = Logger.getLogger(UserDynamicService.class);

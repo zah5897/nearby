@@ -42,7 +42,6 @@ import com.zhan.app.nearby.util.SMSHelper;
 import com.zhan.app.nearby.util.TextUtils;
 
 @Service
-@Transactional("transactionManager")
 public class MainService {
 	@Resource
 	private UserDynamicDao userDynamicDao;

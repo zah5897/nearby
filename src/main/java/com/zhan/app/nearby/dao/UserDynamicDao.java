@@ -233,7 +233,7 @@ public class UserDynamicDao extends BaseDao {
 		String sql = "select c.*,u.nick_name,u.avatar,u.sex,v.vip_id from t_dynamic_comment c "
 				+ "left join t_user u on c.user_id=u.user_id  "
 				+ "left join t_user_vip v on c.user_id=v.user_id  "
-				+ " where c.status<>? and  c.dynamic_id=? and c.id<? c.pid=0 order by c.id desc limit ?";
+				+ " where c.status<>? and  c.dynamic_id=? and c.id<? and  c.pid=0 order by c.id desc limit ?";
 		return jdbcTemplate
 				.query(sql,
 						new Object[] { FoundUserRelationship.GONE.ordinal(), dynamic_id,

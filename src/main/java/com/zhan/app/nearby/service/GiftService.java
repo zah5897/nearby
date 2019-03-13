@@ -34,7 +34,6 @@ import com.zhan.app.nearby.util.ResultUtil;
 import com.zhan.app.nearby.util.SMSHelper;
 
 @Service
-@Transactional("transactionManager")
 public class GiftService {
 
 	public static final int LIMIT_COUNT = 5;

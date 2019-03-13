@@ -14,7 +14,6 @@ import com.zhan.app.nearby.dao.TopicDao;
 import com.zhan.app.nearby.dao.UserDynamicDao;
 
 @Service
-@Transactional("transactionManager")
 public class TopicService {
 	@Resource
 	private TopicDao topicDao;

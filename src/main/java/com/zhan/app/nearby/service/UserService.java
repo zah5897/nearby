@@ -51,7 +51,6 @@ import com.zhan.app.nearby.util.ResultUtil;
 import com.zhan.app.nearby.util.TextUtils;
 
 @Service
-@Transactional("transactionManager")
 public class UserService {
 
 	private static Logger log = Logger.getLogger(UserService.class);

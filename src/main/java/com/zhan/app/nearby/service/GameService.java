@@ -12,7 +12,6 @@ import com.zhan.app.nearby.bean.GameScore;
 import com.zhan.app.nearby.dao.GameDao;
 
 @Service
-@Transactional("transactionManager")
 public class GameService {
 
 	public static final int LIMIT_COUNT = 5;

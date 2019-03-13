@@ -14,7 +14,6 @@ import com.zhan.app.nearby.cache.InfoCacheService;
 import com.zhan.app.nearby.dao.CityDao;
 
 @Service
-@Transactional("transactionManager")
 public class CityService {
 	
 	private static Logger log = Logger.getLogger(CityService.class);

@@ -15,6 +15,7 @@
 
 	<bean id="poolConfig" class="redis.clients.jedis.JedisPoolConfig">
 		<property name="maxIdle" value="${redis.maxIdle}" />
+		<property name="maxTotal" value="${redis.maxActive}" />
 		<property name="testOnBorrow" value="${redis.testOnBorrow}" />
 	</bean>
 

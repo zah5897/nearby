@@ -10,41 +10,36 @@ import java.util.Properties;
 import java.util.UUID;
 
 import org.apache.log4j.Logger;
+import org.springframework.util.MimeType;
 import org.springframework.web.multipart.MultipartFile;
 
+import cn.ucloud.ufile.exception.UfileClientException;
+import cn.ucloud.ufile.exception.UfileServerException;
+
 public class ImageSaveUtils {
+
+	private static String FILE_ROOT_PATH;
+
 	private static Logger log = Logger.getLogger(ImageSaveUtils.class);
-	// 头像压缩 按此宽度
-	public static final int PRESS_AVATAR_WIDTH = 240;
-	// 用户上传按此宽度
-	public static final int PRESS_IMAGE_WIDTH = 320;
-
-	private static String IMAGE_ROOT_PATH;
+	// 用户头像图片路径
+	public static final String FILE_AVATAR = "nearby/avatar/origin/";
 	// 用户上传的图片路径
-	public static final String FILE_ROOT_IMAGES_ORIGIN = "/images/origin/";
-	public static final String FILE_ROOT_IMAGES_THUMB = "/images/thumb/";
+	public static final String FILE_IMAGES = "nearby/images/origin/";
+
+	public static final String FILE_BOTTLE_DRAW = "nearby/bottle/draw/";
 
 	// 用户头像图片路径
-	public static final String FILE_ROOT_AVATAR_ORIGIN = "/avatar/origin/";
-	public static final String FILE_ROOT_AVATAR_THUMB = "/avatar/thumb/";
-	// 用户头像图片路径
-	public static final String FILE_ROOT_TOPIC_ORIGIN = "/topic_img/origin/";
-	public static final String FILE_ROOT_TOPIC_THUMB = "/topic_img/thumb/";
+	public static final String FILE_TOPIC_ORIGIN = "nearby/topic_img/origin/";
 
-	public static final String FILE_ROOT_GIFT_ORIGIN = "/gift_img/origin/";
-	public static final String FILE_ROOT_GIFT_THUMB = "/gift_img/thumb/";
+	public static final String FILE_GIFT_ORIGIN = "nearby/gift_img/origin/";
 
-	public static final String FILE_ROOT_BOTTLE_DRAW = "/bottle/draw/";
 
 	public static final String FILE_ROOT_FILES = "/files/";
-	
-	
-	
-	public static final String FILTER_WORDS_FILE_NAME="filter_words.txt";
+
+	public static final String FILTER_WORDS_FILE_NAME = "filter_words.txt";
 
 	private static String getRootPath() {
-
-		if (IMAGE_ROOT_PATH == null) {
+		if (FILE_ROOT_PATH == null) {
 			InputStream in = ImageSaveUtils.class.getClassLoader().getResourceAsStream("config.properties");
 			Properties props = new Properties();
 			try {
@@ -52,54 +47,17 @@ public class ImageSaveUtils {
 			} catch (IOException e) {
 				log.error(e.getMessage());
 			}
-			IMAGE_ROOT_PATH = props.getProperty("IMAGE_SAVE_PATH");
-			if (!TextUtils.isEmpty(IMAGE_ROOT_PATH)) {
-				File file = new File(IMAGE_ROOT_PATH);
+			FILE_ROOT_PATH = props.getProperty("IMAGE_SAVE_PATH");
+			if (!TextUtils.isEmpty(FILE_ROOT_PATH)) {
+				File file = new File(FILE_ROOT_PATH);
 				file.mkdirs();
 			}
 		}
-		return IMAGE_ROOT_PATH;
+		return FILE_ROOT_PATH;
 	}
 
-	public static String getOriginAvatarPath() {
-		return getRootPath() + FILE_ROOT_AVATAR_ORIGIN;
-	}
-
-	public static String getThumbAvatarPath() {
-		return getRootPath() + FILE_ROOT_AVATAR_THUMB;
-	}
-
-	public static String getOriginImagesPath() {
-		return getRootPath() + FILE_ROOT_IMAGES_ORIGIN;
-	}
-	
-
-	public static String getBottleDrawPath() {
-		return getRootPath() +FILE_ROOT_BOTTLE_DRAW;
-	}
-
-	public static String getThumbImagesPath() {
-		return getRootPath() + FILE_ROOT_IMAGES_THUMB;
-	}
-
-	public static String getTopicOriginImagesPath() {
-		return getRootPath() + FILE_ROOT_TOPIC_ORIGIN;
-	}
-
-	public static String getTopicThumbImagesPath() {
-		return getRootPath() + FILE_ROOT_TOPIC_THUMB;
-	}
-
-	public static String getGiftOriginImagesPath() {
-		return getRootPath() + FILE_ROOT_GIFT_ORIGIN;
-	}
-
-	public static String getGiftThumbImagesPath() {
-		return getRootPath() + FILE_ROOT_GIFT_THUMB;
-	}
-
-	public static String saveAvatar(MultipartFile file) throws IllegalStateException, IOException {
-		String filePath = getOriginAvatarPath();
+	public static String saveAvatar(MultipartFile file)
+			throws IllegalStateException, IOException, UfileClientException, UfileServerException {
 		String shortName = file.getOriginalFilename();
 		if (!TextUtils.isEmpty(shortName)) {
 			String fileShortName = null;
@@ -108,50 +66,18 @@ public class ImageSaveUtils {
 			} else {
 				fileShortName = UUID.randomUUID().toString();
 			}
-			File uploadFile = new File(filePath + fileShortName);
-			uploadFile.mkdirs();
-			file.transferTo(uploadFile);// 保存到一个目标文件中。
-
-			String thumbFile = getThumbAvatarPath() + fileShortName;
-			pressImageByWidth(uploadFile.getAbsolutePath(), PRESS_AVATAR_WIDTH, thumbFile);
+//			File uploadFile = new File(filePath + fileShortName);
+//			uploadFile.mkdirs();
+//			file.transferTo(uploadFile);// 保存到一个目标文件中。
+			String mimeType = MimeTypeUtil.getType(fileShortName);
+			UFileUtil.putStream(file.getInputStream(), mimeType, FILE_AVATAR + fileShortName, UFileUtil.BUCKET_AVATAR);
 			return fileShortName;
 		}
 		return null;
 	}
 
-	public static String saveUserImages(MultipartFile file) throws IllegalStateException, IOException {
-		String filePath = getOriginImagesPath();
-		String shortName = file.getOriginalFilename();
-		if (!TextUtils.isEmpty(shortName)) {
-			String fileShortName = null;
-			boolean isGif = false;
-			if (shortName.contains(".")) {
-				String endWith = shortName.split("\\.")[1];
-				if (endWith.equalsIgnoreCase("gif")) {
-					isGif = true;
-				}
-				fileShortName = UUID.randomUUID() + "." + endWith;
-			} else {
-				fileShortName = UUID.randomUUID().toString() + ".jpg";
-			}
-			File uploadFile = new File(filePath + fileShortName);
-			uploadFile.mkdirs();
-			file.transferTo(uploadFile);// 保存到一个目标文件中。
-
-			String thumbFile = getThumbImagesPath() + fileShortName;
-			if (isGif) {
-				copyfile(uploadFile, new File(thumbFile), false);
-			} else {
-				pressImageByWidth(uploadFile.getAbsolutePath(), PRESS_IMAGE_WIDTH, thumbFile);
-			}
-			return fileShortName;
-		}
-		return null;
-	}
-	
-	
-	public static String saveBottleDraw(MultipartFile file) throws IllegalStateException, IOException {
-		String filePath = getBottleDrawPath();
+	public static String saveUserImages(MultipartFile file)
+			throws IllegalStateException, IOException, UfileClientException, UfileServerException {
 		String shortName = file.getOriginalFilename();
 		if (!TextUtils.isEmpty(shortName)) {
 			String fileShortName = null;
@@ -161,14 +87,68 @@ public class ImageSaveUtils {
 			} else {
 				fileShortName = UUID.randomUUID().toString() + ".jpg";
 			}
-			File uploadFile = new File(filePath + fileShortName);
-			uploadFile.mkdirs();
-			file.transferTo(uploadFile);// 保存到一个目标文件中。
+			String mimeType = MimeTypeUtil.getType(fileShortName);
+			UFileUtil.putStream(file.getInputStream(), mimeType, FILE_IMAGES + fileShortName, UFileUtil.BUCKET_IMAGES);
 			return fileShortName;
 		}
 		return null;
 	}
+
 	
+	public static String saveBottleDraw(MultipartFile file)
+			throws IllegalStateException, IOException, UfileClientException, UfileServerException {
+		String shortName = file.getOriginalFilename();
+		if (!TextUtils.isEmpty(shortName)) {
+			String fileShortName = null;
+			if (shortName.contains(".")) {
+				String endWith = shortName.split("\\.")[1];
+				fileShortName = UUID.randomUUID() + "." + endWith;
+			} else {
+				fileShortName = UUID.randomUUID().toString() + ".jpg";
+			}
+			String mimeType = MimeTypeUtil.getType(fileShortName);
+			UFileUtil.putStream(file.getInputStream(), mimeType, FILE_BOTTLE_DRAW + fileShortName,
+					UFileUtil.BUCKET_BOTTLE_DRAW);
+			return fileShortName;
+		}
+		return null;
+	}
+
+	public static String saveTopicImages(MultipartFile file)
+			throws IllegalStateException, IOException, UfileClientException, UfileServerException {
+		String shortName = file.getOriginalFilename();
+		if (!TextUtils.isEmpty(shortName)) {
+			String fileShortName = null;
+			if (shortName.contains(".")) {
+				fileShortName = UUID.randomUUID() + "." + shortName.split("\\.")[1];
+			} else {
+				fileShortName = UUID.randomUUID().toString() + ".jpg";
+			}
+			String mimeType = MimeTypeUtil.getType(fileShortName);
+			UFileUtil.putStream(file.getInputStream(), mimeType, FILE_TOPIC_ORIGIN + fileShortName,
+					UFileUtil.BUCKET_TOPIC_IMG);
+			return fileShortName;
+		}
+		return null;
+	}
+
+	public static String saveGiftImages(MultipartFile file)
+			throws IllegalStateException, IOException, UfileClientException, UfileServerException {
+		String shortName = file.getOriginalFilename();
+		if (!TextUtils.isEmpty(shortName)) {
+			String fileShortName = null;
+			if (shortName.contains(".")) {
+				fileShortName = UUID.randomUUID() + "." + shortName.split("\\.")[1];
+			} else {
+				fileShortName = UUID.randomUUID().toString() + ".jpg";
+			}
+			String mimeType = MimeTypeUtil.getType(fileShortName);
+			UFileUtil.putStream(file.getInputStream(), mimeType, FILE_GIFT_ORIGIN + fileShortName,
+					UFileUtil.BUCKET_GIFT_IMG);
+			return fileShortName;
+		}
+		return null;
+	}
 
 	public static String saveFile(MultipartFile file) throws IllegalStateException, IOException {
 		String filePath = getRootPath() + FILE_ROOT_FILES;
@@ -189,75 +169,11 @@ public class ImageSaveUtils {
 		}
 	}
 
-	public static String saveTopicImages(MultipartFile file) throws IllegalStateException, IOException {
-		String filePath = getTopicOriginImagesPath();
-		String shortName = file.getOriginalFilename();
-		if (!TextUtils.isEmpty(shortName)) {
-			String fileShortName = null;
-			if (shortName.contains(".")) {
-				fileShortName = UUID.randomUUID() + "." + shortName.split("\\.")[1];
-			} else {
-				fileShortName = UUID.randomUUID().toString() + ".jpg";
-			}
-			File uploadFile = new File(filePath + fileShortName);
-			uploadFile.mkdirs();
-			file.transferTo(uploadFile);// 保存到一个目标文件中。
-
-			String thumbFile = getTopicThumbImagesPath() + fileShortName;
-			pressImageByWidth(uploadFile.getAbsolutePath(), PRESS_IMAGE_WIDTH, thumbFile);
-			return fileShortName;
-		}
-		return null;
-	}
-
-//	public static String saveBottleImages(MultipartFile file) throws IllegalStateException, IOException {
-//		String filePath = getTopicOriginImagesPath();
-//		String shortName = file.getOriginalFilename();
-//		if (!TextUtils.isEmpty(shortName)) {
-//			String fileShortName = null;
-//			if (shortName.contains(".")) {
-//				fileShortName = UUID.randomUUID() + "." + shortName.split("\\.")[1];
-//			} else {
-//				fileShortName = UUID.randomUUID().toString() + ".jpg";
-//			}
-//			File uploadFile = new File(filePath + fileShortName);
-//			uploadFile.mkdirs();
-//			file.transferTo(uploadFile);// 保存到一个目标文件中。
-//
-//			String thumbFile = getTopicThumbImagesPath() + fileShortName;
-//			pressImageByWidth(uploadFile.getAbsolutePath(), PRESS_IMAGE_WIDTH, thumbFile);
-//			return fileShortName;
-//		}
-//		return null;
-//	}
-
-	public static String saveGiftImages(MultipartFile file) throws IllegalStateException, IOException {
-		String filePath = getGiftOriginImagesPath();
-		String shortName = file.getOriginalFilename();
-		if (!TextUtils.isEmpty(shortName)) {
-			String fileShortName = null;
-			if (shortName.contains(".")) {
-				fileShortName = UUID.randomUUID() + "." + shortName.split("\\.")[1];
-			} else {
-				fileShortName = UUID.randomUUID().toString() + ".jpg";
-			}
-			File uploadFile = new File(filePath + fileShortName);
-			uploadFile.mkdirs();
-			file.transferTo(uploadFile);// 保存到一个目标文件中。
-
-			String thumbFile = getGiftThumbImagesPath() + fileShortName;
-			pressImageByWidth(uploadFile.getAbsolutePath(), PRESS_IMAGE_WIDTH, thumbFile);
-			return fileShortName;
-		}
-		return null;
-	}
-
 	/**
 	 * 删除用户旧头像
 	 * 
 	 * @param servletContext
-	 * @param oldFileName
-	 *            旧头像名称
+	 * @param oldFileName    旧头像名称
 	 */
 	public static void removeAcatar(String oldFileName) {
 		// 删除大图
@@ -269,42 +185,45 @@ public class ImageSaveUtils {
 		if (oldFileName.contains("illegal")) {
 			return;
 		}
-		String filePath = getOriginAvatarPath();
+		String filePath = getRootPath()+"/avatar/origin/";
 		File uploadFile = new File(filePath + oldFileName);
 		if (uploadFile.exists()) {
 			uploadFile.delete();
 		}
 
 		// 删除小图
-		String smallPath = getThumbAvatarPath();
+		String smallPath =getRootPath()+"/avatar/thumb/";
 		File uploadSmallFile = new File(smallPath + oldFileName);
 		if (uploadSmallFile.exists()) {
 			uploadSmallFile.delete();
 		}
+
+		UFileUtil.delFileexecuteAsync(FILE_AVATAR+oldFileName, UFileUtil.BUCKET_AVATAR);
+
 	}
 
 	/**
 	 * 删除用户上传的图片
 	 * 
 	 * @param servletContext
-	 * @param oldFileName
-	 *            要删除的图片名称
+	 * @param oldFileName    要删除的图片名称
 	 */
 	public static void removeUserImages(String oldFileName) {
 		// 删除大图
 
-		String filePath = getOriginImagesPath();
+		String filePath =  getRootPath()+"/images/origin/";
 		File uploadFile = new File(filePath + oldFileName);
 		if (uploadFile.exists()) {
 			uploadFile.delete();
 		}
 
 		// 删除小图
-		String smallPath = getThumbImagesPath();
+		String smallPath = getRootPath()+"/images/thumb/";
 		File uploadSmallFile = new File(smallPath + oldFileName);
 		if (uploadSmallFile.exists()) {
 			uploadSmallFile.delete();
 		}
+		UFileUtil.delFileexecuteAsync(FILE_IMAGES+oldFileName, UFileUtil.BUCKET_IMAGES);
 	}
 
 	public static void pressImageByWidth(String origin, int minWidth, String thumb) throws IOException {

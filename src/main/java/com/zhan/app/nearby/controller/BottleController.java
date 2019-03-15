@@ -137,6 +137,50 @@ public class BottleController {
 		}
 		return ResultUtil.getResultMap(ERROR.ERR_PARAM, "无图片上传");
 	}
+	
+	/**
+	 * 发现
+	 * 
+	 * @param user_id
+	 * @param lat
+	 * @param lng
+	 * @param count
+	 * @return
+	 */
+	@RequestMapping("upload_v2")
+	public ModelMap upload_v2(Bottle bottle, String token, String _ua,
+			String aid,String image_name) {
+
+		if (!userService.checkLogin(bottle.getUser_id(), token)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+
+		if (bottle.getType() != BottleType.DRAW_GUESS.ordinal()) {
+			return ResultUtil.getResultMap(ERROR.ERR_NOT_EXIST, "瓶子类型不对");
+		}
+
+		if (bottle.getReward() > 0) {
+			int coin = userService.loadUserCoins(aid, bottle.getUser_id());
+			if (coin < bottle.getReward()) {
+				return ResultUtil.getResultMap(ERROR.ERR_COINS_SHORT);
+			}
+			Object coins = userService.checkOut(bottle.getUser_id(), bottle.getReward(), aid).get("all_coins");
+			if (coins == null) {
+				return ResultUtil.getResultMap(ERROR.ERR_FAILED);
+			}
+			int icoin = Integer.parseInt(coins.toString());
+			if (icoin < 0) {
+				return ResultUtil.getResultMap(ERROR.ERR_COINS_SHORT);
+			}
+		}
+		bottle.set_from(DeviceUtil.getRequestDevice(_ua));
+ 
+		bottle.setContent(image_name);
+		bottleService.send(bottle, aid);
+		ImagePathUtil.completeBottleDrawPath(bottle);
+		return  ResultUtil.getResultOKMap().addAttribute("bottle", bottle);
+	}
+
 
 	@RequestMapping("list")
 	public ModelMap list(Long user_id, Integer count, Integer look_sex, Integer lock_sex, Integer type, Integer state,

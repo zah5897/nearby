@@ -8,7 +8,6 @@ import javax.annotation.Resource;
 
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 
 import com.easemob.server.example.Main;
@@ -37,7 +36,9 @@ public class UserDynamicService {
 	private UserDao userDao;
 
 	public long insertDynamic(UserDynamic dynamic) {
-		return userDynamicDao.insertDynamic(dynamic);
+		long id = userDynamicDao.insertDynamic(dynamic);
+		dynamic.setId(id);
+		return id;
 	}
 
 	public void addHomeFoundSelected(long dynamic_id) {
@@ -192,6 +193,7 @@ public class UserDynamicService {
 		}
 		return dy;
 	}
+
 	public List<DynamicComment> loadSubComm(long pid, long did, int count, long last_id) {
 		return userDynamicDao.loadSubComm(pid, did, count, last_id);
 	}

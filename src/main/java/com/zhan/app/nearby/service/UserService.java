@@ -868,4 +868,8 @@ public class UserService {
 		}
 		
 	}
+
+	public BaseUser getBaseUserNoToken(long user_id) {
+		return userDao.getBaseUserNoToken(user_id);
+	}
 }

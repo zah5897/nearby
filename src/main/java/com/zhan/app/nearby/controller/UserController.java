@@ -226,6 +226,86 @@ public class UserController {
 		return result;
 	}
 
+	@RequestMapping("regist_v2")
+	public ModelMap regist_v2(HttpServletRequest request, LoginUser user, String code, String aid, Integer city_id,
+			String bGenderOK, String _ua, String image_name) {
+
+		if (TextUtils.isEmpty(user.getMobile())) {
+			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "手机号码不能为空!");
+		}
+
+		if (TextUtils.isTrimEmpty(user.getNick_name())) {
+			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "昵称不能为空");
+		}
+		// 验证code合法性
+		if (TextUtils.isEmpty(code) || !userCacheService.valideRegistCode(user.getMobile(), code)) {
+			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "验证码错误");
+		}
+
+		if (TextUtils.isEmpty(user.getPassword())) {
+			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "密码不能为空!");
+		}
+		try {
+			user.setPassword(MD5Util.getMd5(user.getPassword()));
+		} catch (NoSuchAlgorithmException e1) {
+			e1.printStackTrace();
+			return ResultUtil.getResultMap(ERROR.ERR_PASSWORD);
+		}
+
+		if (TextUtils.isEmpty(bGenderOK)) {
+			if ("0".equals(user.getSex())) {
+				user.setSex("0");
+			} else if ("2".equals(user.getSex())) {
+				user.setSex("0");
+			}
+		}
+		user.setIp(IPUtil.getIpAddress(request));
+		user.setNick_name(BottleKeyWordUtil.filterContent(user.getNick_name()));
+
+		if (user.getBirth_city_id() == 0 && city_id != null) {
+			user.setBirth_city_id(city_id);
+		}
+		user.setAvatar(image_name);
+		String token = UUID.randomUUID().toString();
+		user.setToken(token);
+		user.setType((short) UserType.OFFIEC.ordinal());
+		user.setLast_login_time(new Date());
+		user.setCreate_time(new Date());
+		long id = user.getUser_id();
+		if (id > 0) {
+			int count = userService.visitorToNormal(user);
+			if (count == 0) {
+				return ResultUtil.getResultMap(ERROR.ERR_USER_EXIST, "无法找到该游客账号");
+			}
+		} else {
+			if (_ua.contains("\\|")) {
+				user.set_ua(_ua);
+			} else {
+				user.set_ua(URLDecoder.decode(_ua));
+			}
+			id = userService.insertUser(user);
+		}
+		if (id == -1l) {
+			return ResultUtil.getResultMap(ERROR.ERR_USER_EXIST, "该手机号码已经注册过");
+		}
+		userService.saveAvatar(id, user.getAvatar());
+		ModelMap result = ResultUtil.getResultOKMap();
+		user.setUser_id(id);
+		user.setAge(DateTimeUtil.getAge(user.getBirthday()));
+		ImagePathUtil.completeAvatarPath(user, true); // 补全图片链接地址
+
+		if (city_id != null) {
+			City city = cityService.getFullCity(city_id);
+			user.setBirth_city(city);
+		}
+
+		user.setAvatars(userService.getUserAvatars(user.getUser_id()));
+		result.put("user", user);
+		// 注册完毕，则可以清理掉redis关于code缓存了
+		userCacheService.clearCode(user.getMobile());
+		return result;
+	}
+
 	/**
 	 * 登录
 	 * 
@@ -444,6 +524,37 @@ public class UserController {
 		return userService.getUserCenterData("", aid, user_id, user_id);
 	}
 
+	/**
+	 * 修改头像
+	 * 
+	 * @param multipartRequest
+	 * @param user_id          要修改的用户id
+	 * @param token            token
+	 * @return
+	 */
+	@RequestMapping("modify_avatar_v2")
+	public ModelMap modify_avatar_v2(long user_id, String aid, String token, String image_name) {
+		if (!userService.checkLogin(user_id, token)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+
+		BaseUser user = userService.getBasicUser(user_id);
+
+		if (user == null) {
+			return ResultUtil.getResultMap(ERROR.ERR_USER_NOT_EXIST, "该用户不存在！");
+		} else if (!token.equals(user.getToken())) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+
+		if (TextUtils.isEmpty(image_name)) {
+			return ResultUtil.getResultMap(ERROR.ERR_PARAM);
+		}
+		user.setAvatar(image_name);
+		userService.updateAvatar(user_id, image_name);
+		userService.saveAvatar(user_id, image_name);
+		return userService.getUserCenterData("", aid, user_id, user_id);
+	}
+
 	@RequestMapping("upload_avatars")
 	public ModelMap upload_avatars(DefaultMultipartHttpServletRequest multipartRequest, long user_id, String aid,
 			String token) {
@@ -478,6 +589,26 @@ public class UserController {
 			// userService.getUserAvatars(user_id));
 		}
 		return ResultUtil.getResultMap(ERROR.ERR_FAILED, "no files.");
+	}
+
+	@RequestMapping("upload_avatars_v2")
+	public ModelMap upload_avatars_v2(DefaultMultipartHttpServletRequest multipartRequest, long user_id, String aid,
+			String token, String image_names) {
+		if (!userService.checkLogin(user_id, token)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+
+		// 文件保存完毕
+
+		String[] avatars=image_names.split(",");
+		for (String name : avatars) {
+			userService.saveAvatar(user_id, name);
+		}
+		// 更新头像
+		if (avatars.length > 0) {
+			userService.updateAvatar(user_id, avatars[avatars.length - 1]);
+		}
+		return userService.getUserCenterData("", aid, user_id, user_id);
 	}
 
 	@RequestMapping("delete_avatar")
@@ -793,21 +924,22 @@ public class UserController {
 	}
 
 	@RequestMapping("follow")
-	public ModelMap follow(long user_id,String token, long target_id) {
-		
-		if(!userService.checkLogin(user_id, token)) {
+	public ModelMap follow(long user_id, String token, long target_id) {
+
+		if (!userService.checkLogin(user_id, token)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
-		userService.follow(user_id,target_id,false);
+		userService.follow(user_id, target_id, false);
 		return ResultUtil.getResultOKMap().addAttribute("target_id", target_id);
 	}
+
 	@RequestMapping("cancel_follow")
-	public ModelMap cancelFollow(long user_id,String token, long target_id) {
-		
-		if(!userService.checkLogin(user_id, token)) {
+	public ModelMap cancelFollow(long user_id, String token, long target_id) {
+
+		if (!userService.checkLogin(user_id, token)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
-		userService.follow(user_id,target_id,true);
+		userService.follow(user_id, target_id, true);
 		return ResultUtil.getResultOKMap().addAttribute("target_id", target_id);
 	}
 

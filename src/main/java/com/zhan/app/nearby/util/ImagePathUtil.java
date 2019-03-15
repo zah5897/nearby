@@ -16,25 +16,26 @@ import com.zhan.app.nearby.bean.user.BaseUser;
 
 public class ImagePathUtil {
 
-	public static String HOST_PROFIX = "http://app.weimobile.com/nearby";
-//	public static String HOST_PROFIX = "http://127.0.0.1:8899/nearby";
+	public static String HOST_PROFIX_FILE = "http://app.weimobile.com/";
+	public static String HOST_PROFIX_AVATAR = "http://nearby-avatar.cn-bj.ufileos.com/";
+	public static String HOST_PROFIX_IMAGES = "http://nearby-images.cn-bj.ufileos.com/";
+	public static String HOST_PROFIX_GIFT = "http://nearby-gift-img.cn-bj.ufileos.com/";
+	public static String HOST_PROFIX_TOPIC = "http://nearby-topic-img.cn-bj.ufileos.com/";
+	public static String HOST_PROFIX_BOTTLE_DRAW = "http://nearby-bottle-draw.cn-bj.ufileos.com/";
 
 	public static BaseUser completeAvatarPath(BaseUser user, boolean thumbAndOrigin) {
 		String avatar = user.getAvatar();
 		if (TextUtils.isEmpty(avatar)) {
 			return user;
 		}
-		if (avatar.startsWith("http://")) {
-			if (thumbAndOrigin) {
-				user.setOrigin_avatar(HOST_PROFIX + ImageSaveUtils.FILE_ROOT_AVATAR_ORIGIN
-						+ avatar.substring(avatar.lastIndexOf("/") + 1, avatar.length()));
-			}
+		
+		if(avatar.startsWith("http")) {
 			return user;
 		}
-		user.setAvatar(HOST_PROFIX + ImageSaveUtils.FILE_ROOT_AVATAR_THUMB + avatar);
-		if (thumbAndOrigin) {
-			user.setOrigin_avatar(HOST_PROFIX + ImageSaveUtils.FILE_ROOT_AVATAR_ORIGIN + avatar);
-		}
+		
+		String path = HOST_PROFIX_AVATAR + ImageSaveUtils.FILE_AVATAR + avatar;
+		user.setOrigin_avatar(path);
+		user.setAvatar(user.getOrigin_avatar());
 		return user;
 	}
 
@@ -53,13 +54,14 @@ public class ImagePathUtil {
 		if (TextUtils.isEmpty(avatar)) {
 			return avatarModel;
 		}
-		if (avatar.startsWith("http://")) {
-			avatarModel.setOrigin_avatar(HOST_PROFIX + ImageSaveUtils.FILE_ROOT_AVATAR_ORIGIN
-					+ avatar.substring(avatar.lastIndexOf("/") + 1, avatar.length()));
+		
+		if(avatar.startsWith("http")) {
 			return avatarModel;
 		}
-		avatarModel.setAvatar(HOST_PROFIX + ImageSaveUtils.FILE_ROOT_AVATAR_THUMB + avatar);
-		avatarModel.setOrigin_avatar(HOST_PROFIX + ImageSaveUtils.FILE_ROOT_AVATAR_ORIGIN + avatar);
+		
+		String path = HOST_PROFIX_AVATAR + ImageSaveUtils.FILE_AVATAR + avatar;
+		avatarModel.setAvatar(path);
+		avatarModel.setOrigin_avatar(path);
 		return avatarModel;
 	}
 
@@ -89,8 +91,9 @@ public class ImagePathUtil {
 		if (TextUtils.isEmpty(avatar)) {
 			return avatars;
 		}
-		avatars[0] = HOST_PROFIX + ImageSaveUtils.FILE_ROOT_AVATAR_THUMB + avatar;
-		avatars[1] = HOST_PROFIX + ImageSaveUtils.FILE_ROOT_AVATAR_ORIGIN + avatar;
+		
+		avatars[0] = HOST_PROFIX_AVATAR + ImageSaveUtils.FILE_AVATAR + avatar;
+		avatars[1] = avatars[0];
 		return avatars;
 	}
 
@@ -107,10 +110,8 @@ public class ImagePathUtil {
 
 		String shortName = dynamic.getLocal_image_name();
 		if (!TextUtils.isEmpty(shortName)) {
-			dynamic.setThumb(HOST_PROFIX + ImageSaveUtils.FILE_ROOT_IMAGES_THUMB + shortName);
-			if (thumbAndOrigin) {
-				dynamic.setOrigin(HOST_PROFIX + ImageSaveUtils.FILE_ROOT_IMAGES_ORIGIN + shortName);
-			}
+			dynamic.setThumb(HOST_PROFIX_IMAGES + ImageSaveUtils.FILE_IMAGES + shortName);
+			dynamic.setOrigin(dynamic.getThumb());
 		}
 	}
 
@@ -126,10 +127,8 @@ public class ImagePathUtil {
 
 		String shortName = image.getLocal_image_name();
 		if (!TextUtils.isEmpty(shortName)) {
-			image.setThumb(HOST_PROFIX + ImageSaveUtils.FILE_ROOT_IMAGES_THUMB + shortName);
-			if (thumbAndOrigin) {
-				image.setOrigin(HOST_PROFIX + ImageSaveUtils.FILE_ROOT_IMAGES_ORIGIN + shortName);
-			}
+			image.setThumb(HOST_PROFIX_IMAGES + ImageSaveUtils.FILE_IMAGES + shortName);
+			image.setOrigin(image.getThumb());
 		}
 	}
 
@@ -140,12 +139,12 @@ public class ImagePathUtil {
 		}
 		String shortName = b.getContent();
 		if (!TextUtils.isEmpty(shortName)) {
-			b.setContent(HOST_PROFIX + ImageSaveUtils.FILE_ROOT_BOTTLE_DRAW + shortName);
+			b.setContent(HOST_PROFIX_BOTTLE_DRAW + ImageSaveUtils.FILE_BOTTLE_DRAW + shortName);
 		}
 	}
 
 	public static String getFilterWordsPath() {
-		return HOST_PROFIX + ImageSaveUtils.FILE_ROOT_FILES + ImageSaveUtils.FILTER_WORDS_FILE_NAME;
+		return HOST_PROFIX_FILE + ImageSaveUtils.FILE_ROOT_FILES + ImageSaveUtils.FILTER_WORDS_FILE_NAME;
 	}
 
 	public static void completeTopicImagePath(List<Topic> topics, boolean thumbAndOrigin) {
@@ -176,15 +175,15 @@ public class ImagePathUtil {
 		String small = topic.getIcon();
 		String big = topic.getBig_icon();
 		if (!TextUtils.isEmpty(small)) {
-			topic.setIcon(HOST_PROFIX + ImageSaveUtils.FILE_ROOT_TOPIC_THUMB + small);
+			topic.setIcon(HOST_PROFIX_TOPIC + ImageSaveUtils.FILE_TOPIC_ORIGIN + small);
 			if (thumbAndOrigin) {
-				topic.setIcon_origin(HOST_PROFIX + ImageSaveUtils.FILE_ROOT_TOPIC_ORIGIN + small);
+				topic.setIcon_origin(topic.getIcon());
 			}
 		}
 		if (!TextUtils.isEmpty(big)) {
-			topic.setBig_icon(HOST_PROFIX + ImageSaveUtils.FILE_ROOT_TOPIC_THUMB + big);
+			topic.setBig_icon(topic.getIcon());
 			if (thumbAndOrigin) {
-				topic.setBig_icon_origin(HOST_PROFIX + ImageSaveUtils.FILE_ROOT_TOPIC_ORIGIN + big);
+				topic.setBig_icon_origin(topic.getIcon());
 			}
 		}
 
@@ -193,9 +192,9 @@ public class ImagePathUtil {
 	public static void completeGiftPath(Gift gift, boolean thumbAndOrigin) {
 		String shortName = gift.getImage_url();
 		if (!TextUtils.isEmpty(shortName)) {
-			gift.setImage_url(HOST_PROFIX + ImageSaveUtils.FILE_ROOT_GIFT_THUMB + shortName);
+			gift.setImage_url(HOST_PROFIX_GIFT + ImageSaveUtils.FILE_GIFT_ORIGIN + shortName);
 			if (thumbAndOrigin) {
-				gift.setOrigin_image_url(HOST_PROFIX + ImageSaveUtils.FILE_ROOT_GIFT_ORIGIN + shortName);
+				gift.setOrigin_image_url(gift.getImage_url());
 			}
 		}
 	}
@@ -215,8 +214,4 @@ public class ImagePathUtil {
 			}
 		}
 	}
-	// public static void main(String args[]){
-	// String url="http://139.196.111.132:8080/love/images/1234.png";
-	// String r=url.substring(url.lastIndexOf("/")+1, url.length());
-	// }
 }

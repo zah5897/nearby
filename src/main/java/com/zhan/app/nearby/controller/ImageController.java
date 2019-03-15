@@ -36,6 +36,7 @@ import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.ImageSaveUtils;
 import com.zhan.app.nearby.util.ResultUtil;
 import com.zhan.app.nearby.util.SpringContextUtil;
+import com.zhan.app.nearby.util.TextUtils;
 
 @RestController
 @RequestMapping("/image")
@@ -62,7 +63,7 @@ public class ImageController {
 	 */
 	@RequestMapping("upload")
 	public ModelMap upload(DefaultMultipartHttpServletRequest multipartRequest, Long user_id, UserDynamic dynamic,
-			String ios_addr,String _ua) {
+			String ios_addr, String _ua) {
 
 		if (user_id == null || user_id < 0) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "用户id异常");
@@ -124,23 +125,69 @@ public class ImageController {
 		return ResultUtil.getResultMap(ERROR.ERR_PARAM, "无图片上传");
 	}
 
+	/**
+	 * 发现
+	 * 
+	 * @param user_id
+	 * @param lat
+	 * @param lng
+	 * @param count
+	 * @return
+	 */
+	@RequestMapping("upload_v2")
+	public ModelMap uploadV2(HttpServletRequest request, long user_id, String token, UserDynamic dynamic,
+			String ios_addr, String _ua, String image_name) {
+
+		if (!userService.checkLogin(user_id, token)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+
+		if (TextUtils.isEmpty(image_name)) {
+			return ResultUtil.getResultMap(ERROR.ERR_PARAM);
+		}
+		long last_time = userCacheService.getLastUploadTime(user_id);
+		long cur_time = System.currentTimeMillis() / 1000;
+
+		if (cur_time - last_time < 1) {
+			return ResultUtil.getResultMap(ERROR.ERR_FREUENT);
+		}
+		userCacheService.setLastUploadTime(user_id);
+
+		dynamic.setUser_id(user_id);
+		dynamic.setUser(userService.getBaseUserNoToken(user_id));
+		String content = BottleKeyWordUtil.filterContent(dynamic.getDescription());
+		dynamic.setDescription(content);
+
+		dynamic.set_from(DeviceUtil.getRequestDevice(_ua));
+		dynamic.setState(DynamicState.T_CREATE.ordinal());
+		dynamic.setLocal_image_name(image_name);
+		dynamic.setCreate_time(new Date());
+		long id = userDynamicService.insertDynamic(dynamic);
+		dynamic.setId(id);
+		AddressUtil.praseAddress(IPUtil.getIpAddress(request), dynamic, ios_addr);
+
+		ImagePathUtil.completeDynamicPath(dynamic,true);
+		ImagePathUtil.completeAvatarPath(dynamic.getUser(), true);
+		return ResultUtil.getResultOKMap().addAttribute("detail", dynamic);
+	}
+
 	@RequestMapping("test")
 	public ModelMap test(HttpServletRequest request, String lat, String lng) {
 		String ipResult = IPUtil.getIpAddress(request);
-		String[] result = AddressUtil.getAddressByIp(ipResult);
+		 AddressUtil.getAddressByIp(ipResult);
 		return ResultUtil.getResultOKMap();
 	}
 
 	@RequestMapping("load_word")
 	public ModelMap load_word(HttpServletRequest request, String lat, String lng) {
-		String s=getfileinfo();
-		String[] words=s.replace("，", ",").split(",");
-		Set<String> wordSet=new HashSet<String>();
-		for(String c:words) {
+		String s = getfileinfo();
+		String[] words = s.replace("，", ",").split(",");
+		Set<String> wordSet = new HashSet<String>();
+		for (String c : words) {
 			wordSet.add(c);
 		}
-		BottleDao dao=SpringContextUtil.getBean("bottleDao");
-		for(String c:wordSet) {
+		BottleDao dao = SpringContextUtil.getBean("bottleDao");
+		for (String c : wordSet) {
 			dao.insertAnswer(c);
 		}
 		return ResultUtil.getResultOKMap();
@@ -149,7 +196,7 @@ public class ImageController {
 	public String getfileinfo() {
 		StringBuilder rstr = new StringBuilder();
 		try {
-			InputStream in   = new FileInputStream(new File("C:\\Users\\zah\\Desktop\\word.txt"));
+			InputStream in = new FileInputStream(new File("C:\\Users\\zah\\Desktop\\word.txt"));
 			BufferedReader br = new BufferedReader(new InputStreamReader(in, "UTF-8"));
 			String str = null;
 			while ((str = br.readLine()) != null) {
@@ -161,4 +208,5 @@ public class ImageController {
 		}
 		return rstr.toString();
 	}
+
 }

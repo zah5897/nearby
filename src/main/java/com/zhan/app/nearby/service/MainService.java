@@ -556,14 +556,14 @@ public class MainService {
 
 	public List<BGM> loadBGM(Integer count,Integer test) {
 		if(test!=null&&test==1) { //test=1表示客户端调试，一定返回
+			return systemDao.loadBGM(count == null || count <= 0 ? 1 : count);
+		}else {
 			int rand=new Random().nextInt(10);
 			if(rand<2) {
 				return systemDao.loadBGM(count == null || count <= 0 ? 1 : count);
 			}else {
 				return new ArrayList<BGM>();
 			}
-		}else {
-			return new ArrayList<BGM>();
 		}
 	}
 

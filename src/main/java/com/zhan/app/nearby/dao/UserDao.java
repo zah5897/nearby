@@ -340,8 +340,9 @@ public class UserDao extends BaseDao {
 	@Cacheable(value="one_day",key="#root.methodName+'_'+#page+'_'+#count")
 	public List<MeiLi> getNewRegistUsers(int page, int count) {
 		
-		String sql="select u.user_id ,u.nick_name, u.avatar,v.dayDiff, gift.val as sanbei ,gift.val*5+lk.like_count as mli  from "
-				+ "t_user u left join (select o.*,o.count*g.price as val from  t_gift_own o left join t_gift g on o.gift_id=g.id ) gift "
+		String sql="select u.user_id ,u.nick_name, u.avatar,v.dayDiff, gift.tval as sanbei ,gift.tval*5+lk.like_count as mli  from "
+				+ "t_user u left join "
+				+ "(select tg.user_id ,sum(tg.val) as tval from (select o.*,o.count*g.price as val from  t_gift_own o left join t_gift g on o.gift_id=g.id) as tg group by tg.user_id) gift "
 				+ "on u.user_id=gift.user_id "
 				+ "left join  (select TIMESTAMPDIFF(DAY,now(),end_time) as dayDiff,start_time,user_id from t_user_vip ) v  "
 				+ " on u.user_id=v.user_id "

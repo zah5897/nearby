@@ -720,18 +720,8 @@ public class BottleDao extends BaseDao {
 //		jdbcTemplate.update(sql, new Object[] { count - keepSize });
 //	}
 
-	// 清理7天以前的数据
-	private void clearExpireAudioBottle() {
-		String sql = "delete from    t_bottle_pool where DATEDIFF(create_time,now()) <-7 and type="
-				+ BottleType.VOICE.ordinal();
-		jdbcTemplate.update(sql);
-	}
-
 	public int getSizeByType(int type) {
 		String sql = "select count(*) from t_bottle_pool where type=" + type;
-		if (type == BottleType.VOICE.ordinal()) {
-			clearExpireAudioBottle();
-		}
 		return jdbcTemplate.queryForObject(sql, Integer.class);
 	}
 
@@ -748,5 +738,11 @@ public class BottleDao extends BaseDao {
 	public void removePoolBottleKeepSize(int type, long last_id) {
 		String sql = "delete from t_bottle_pool   where  type=? and  bottle_id<?  order by bottle_id desc";
 		jdbcTemplate.update(sql, new Object[] { type, last_id });
+	}
+
+	public void keepVoiceByDay(int i) {
+		String sql = "delete from    t_bottle_pool where  ? < DATEDIFF(create_time,now()) and type="
+				+ BottleType.VOICE.ordinal();
+		jdbcTemplate.update(sql,new Object[] {i});
 	}
 }

@@ -18,7 +18,9 @@ import com.zhan.app.nearby.bean.Gift;
 import com.zhan.app.nearby.bean.GiftOwn;
 import com.zhan.app.nearby.bean.MeiLi;
 import com.zhan.app.nearby.bean.user.BaseUser;
+import com.zhan.app.nearby.bean.user.LocationUser;
 import com.zhan.app.nearby.comm.Relationship;
+import com.zhan.app.nearby.comm.UserType;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.TextUtils;
 
@@ -137,47 +139,6 @@ public class GiftDao extends BaseDao {
 		});
 	}
 
-	/**
-	 * 已改为一周 获取今日魅力榜
-	 * 
-	 * @param count
-	 * @param pageIndex
-	 * 
-	 * @return
-	 */
-	@Cacheable(value="one_minute",key="#root.methodName+'_'+#page+'_'+#count")
-	public List<MeiLi> loadNewRegistUserMeiLi(int page, int count) {
-
-		String notIn = " where fu.state is null and u.user_id not in(41,93837,96651,90055,95470,148641) ";
-		String t_total_meili = "select m.*,u.nick_name,u.avatar from t_meili_new_regist m "
-				+ " left join t_user u on m.user_id=u.user_id "
-				+ " left join t_found_user_relationship fu on u.user_id=fu.uid"
-				
-				+ notIn + " order by m.user_id desc limit ?,?";
-		List<MeiLi> meilis = jdbcTemplate.query(t_total_meili, new Object[] { (page - 1) * count, count },
-				new RowMapper<MeiLi>() {
-
-					@Override
-					public MeiLi mapRow(ResultSet rs, int rowNum) throws SQLException {
-						MeiLi m = new MeiLi();
-						m.setValue(rs.getInt("week_meili"));
-						m.setShanbei(rs.getInt("amount"));
-						m.setBe_like_count(rs.getInt("like_count"));
-
-						BaseUser user = new BaseUser();
-						user.setUser_id(rs.getLong("user_id"));
-						user.setNick_name(rs.getString("nick_name"));
-						user.setAvatar(rs.getString("avatar"));
-						ImagePathUtil.completeAvatarPath(user, true);
-						m.setUser(user);
-
-						m.setIs_vip(vipDao.isVip(user.getUser_id()));
-						return m;
-					}
-
-				});
-		return meilis;
-	}
 
 	/**
 	 * 获取魅力总榜
@@ -189,37 +150,38 @@ public class GiftDao extends BaseDao {
 	 */
 	@Cacheable(value="one_day",key="#root.methodName+'_'+#page+'_'+#count")
 	public List<MeiLi> loadTotalMeiLi(int page, int count) {
-		// (select @rowno:=0) t
-
-		String notIn = " where fu.state is null and  u.user_id not in(41,93837,96651,90055,95470,148641) ";
-
-		String t_total_meili = "select m.*,u.nick_name,u.avatar from t_meili_total m "
-				+ "left join t_user u on m.user_id=u.user_id "
-				+ " left join t_found_user_relationship fu on m.user_id=fu.uid " +  notIn + " limit ?,?";
-		List<MeiLi> meilis = jdbcTemplate.query(t_total_meili, new Object[] { (page - 1) * count, count },
-				new RowMapper<MeiLi>() {
-
+		String sql="select u.user_id ,u.nick_name, u.avatar,v.dayDiff,gift.val as sanbei, gift.val*5+lk.like_count as mli  from "
+				+ "t_user u left join (select o.*,o.count*g.price as val from  t_gift_own o left join t_gift g on o.gift_id=g.id ) gift "
+				+ "on u.user_id=gift.user_id "
+				+ "left join  (select TIMESTAMPDIFF(DAY,now(),end_time) as dayDiff,start_time,user_id from t_user_vip ) v  "
+				+ " on u.user_id=v.user_id "
+				+ " left join  (select count(*) as like_count ,with_user_id from t_user_relationship where relationship=?  group by  with_user_id) lk  "
+				+ " on u.user_id=lk.with_user_id "
+				+ " left join t_found_user_relationship fu "
+				+ " on u.user_id=fu.uid "
+				+ "where   u.user_id not in(41,93837,96651,90055,95470,148641) and   u.type=? and  fu.state is null and DATE_SUB(CURDATE(), INTERVAL 365 DAY) <= date(create_time) order by mli desc limit ?,?";
+		
+		List<MeiLi> users = jdbcTemplate.query(sql,
+				new Object[] {Relationship.LIKE.ordinal(), UserType.OFFIEC.ordinal(), (page - 1) * count, count }, new RowMapper<MeiLi>() {
 					@Override
 					public MeiLi mapRow(ResultSet rs, int rowNum) throws SQLException {
 						MeiLi m = new MeiLi();
-						m.setValue(rs.getInt("total_meili"));
-						m.setShanbei(rs.getInt("amount"));
-						m.setBe_like_count(rs.getInt("like_count"));
-
-						BaseUser user = new BaseUser();
+						m.setValue(rs.getInt("mli"));
+						m.setShanbei(rs.getInt("sanbei"));
+						LocationUser user = new LocationUser();
 						user.setUser_id(rs.getLong("user_id"));
 						user.setNick_name(rs.getString("nick_name"));
 						user.setAvatar(rs.getString("avatar"));
 						ImagePathUtil.completeAvatarPath(user, true);
 						m.setUser(user);
-
-						m.setIs_vip(vipDao.isVip(user.getUser_id()));
-
+						int dayDiff = rs.getInt("dayDiff");
+						m.setIs_vip(dayDiff > 0);
+						user.setVip(m.isIs_vip());
 						return m;
 					}
 
 				});
-		return meilis;
+		return users;
 	}
 
 	/**
@@ -233,38 +195,38 @@ public class GiftDao extends BaseDao {
 	@Cacheable(value="one_day",key="#root.methodName+'_'+#page+'_'+#count")
 	public List<MeiLi> loadTuHao(int page, int count) {
 
-		String notIn = " where  fu.state is null and  u.user_id not in(41,93837,96651,90055,95470,148641) ";
-
-		String t_gift_send_amount = "select send.from_uid as user_id,send.count*g.price as amount from t_gift_own send left join t_gift g on send.gift_id=g.id";
-		String t_tuhao_total = "select sum(amount) as tuhao_val ,send.user_id from (" + t_gift_send_amount
-				+ ") as send group by send.user_id";
-
-		String leftJoinUser = "select tuhao.*,u.nick_name,u.avatar from (" + t_tuhao_total
-				+ ") tuhao "
-				+ " left join t_user u on tuhao.user_id=u.user_id  "
-				+ " left join t_found_user_relationship fu on tuhao.user_id=fu.uid" + notIn
-				+ " order by tuhao_val desc limit ?,?";
-		List<MeiLi> meilis = jdbcTemplate.query(leftJoinUser, new Object[] { (page - 1) * count, count },
-				new RowMapper<MeiLi>() {
-
+		
+		
+		String sql="select u.user_id ,u.nick_name, u.avatar,v.dayDiff,gift.val as sanbei from "
+				+ "t_user u left join (select o.*,o.count*g.price as val from  t_gift_own o left join t_gift g on o.gift_id=g.id ) gift "
+				+ "on u.user_id=gift.from_uid "
+				+ "left join  (select TIMESTAMPDIFF(DAY,now(),end_time) as dayDiff,start_time,user_id from t_user_vip ) v  "
+				+ " on u.user_id=v.user_id "
+				+ " left join t_found_user_relationship fu "
+				+ " on u.user_id=fu.uid "
+				+ "where u.user_id not in(41,93837,96651,90055,95470,148641) and  u.type=? and  fu.state is null  order by sanbei desc limit ?,?";
+		
+		List<MeiLi> users = jdbcTemplate.query(sql,
+				new Object[] { UserType.OFFIEC.ordinal(), (page - 1) * count, count }, new RowMapper<MeiLi>() {
 					@Override
 					public MeiLi mapRow(ResultSet rs, int rowNum) throws SQLException {
 						MeiLi m = new MeiLi();
-						m.setValue(rs.getInt("tuhao_val"));
-						m.setShanbei(m.getValue());
-						BaseUser user = new BaseUser();
+						m.setValue(rs.getInt("sanbei"));
+						m.setShanbei(rs.getInt("sanbei"));
+						LocationUser user = new LocationUser();
 						user.setUser_id(rs.getLong("user_id"));
 						user.setNick_name(rs.getString("nick_name"));
 						user.setAvatar(rs.getString("avatar"));
 						ImagePathUtil.completeAvatarPath(user, true);
 						m.setUser(user);
-
-						m.setIs_vip(vipDao.isVip(user.getUser_id()));
+						int dayDiff = rs.getInt("dayDiff");
+						m.setIs_vip(dayDiff > 0);
+						user.setVip(m.isIs_vip());
 						return m;
 					}
 
 				});
-		return meilis;
+		return users;
 	}
 
 	public int getUserMeiLiVal(long user_id) {

@@ -243,28 +243,26 @@ public class MainService {
 	}
 
 	public ModelMap meiliList(int type, Integer pageIndex, Integer count) {
-
 		if (pageIndex == null || pageIndex <= 0) {
 			pageIndex = 1;
 		}
-
 		if (count == null) {
 			count = 20;
 		}
-
 		if(type==0) {
 			List<MeiLi> users = userDao.getNewRegistUsers(pageIndex, count);
 			return ResultUtil.getResultOKMap().addAttribute("users", users);
-		}else if (type ==1||type==2) {
-			List<MeiLi> meili = giftService.loadMeiLi(type, pageIndex, count);
+		}else if (type ==1) {
+			List<MeiLi> meili = giftService.loadMeiLi(pageIndex, count);
 			return ResultUtil.getResultOKMap().addAttribute("users", meili);
-		} else {
+		} 
+		else if (type==2) {
+			List<MeiLi> meili = giftService.loadTuHao(pageIndex, count);
+			return ResultUtil.getResultOKMap().addAttribute("users", meili);
+		}else if(type==3) {
 			return ResultUtil.getResultOKMap().addAttribute("users",userDao.getVipRankUsers(pageIndex, count));
 		}
-
-		// 这个地方的rank_list字段用 users
-
-		// return ResultUtil.getResultOKMap().addAttribute("rank_list", meili);
+		return ResultUtil.getResultOKMap();
 	}
 
 	public ModelMap exchange_history(long user_id, String aid, Integer page_index, Integer count) {

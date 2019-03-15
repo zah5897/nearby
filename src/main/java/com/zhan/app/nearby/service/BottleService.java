@@ -534,6 +534,17 @@ public class BottleService {
 	public void refreshPool() {
 		int limit = 100;
 		for (BottleType type : BottleType.values()) {
+			if(type==BottleType.TXT) {
+				limit=200;
+			}else if(type==BottleType.DRAW_GUESS) {
+				limit=20;
+			}else if(type==BottleType.MEET) {
+				limit=300;
+			}else if(type==BottleType.VOICE) {
+				bottleDao.keepVoiceByDay(3);
+				continue;
+			}
+			
 			int size = bottleDao.getSizeByType(type.ordinal());
 			if (size < limit) {
 				continue;

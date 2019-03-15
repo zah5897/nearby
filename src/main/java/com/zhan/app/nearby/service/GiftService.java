@@ -138,16 +138,29 @@ public class GiftService {
 		return giftDao.loadGiftNotice(page, count);
 	}
 
-	public List<MeiLi> loadMeiLi(int type, int pageIndex, int count) {
-		if (type == 0) {
-			return giftDao.loadNewRegistUserMeiLi(pageIndex, count);
-		} else if (type == 1) {
+	/**
+	 * 魅力榜
+	 * @param type
+	 * @param pageIndex
+	 * @param count
+	 * @return
+	 */
+	public List<MeiLi> loadMeiLi(int pageIndex, int count) {
 			return giftDao.loadTotalMeiLi(pageIndex, count);
-		} else {
-			return giftDao.loadTuHao(pageIndex, count);
-		}
 	}
 
+	/**
+	 * 土豪榜
+	 * @param type
+	 * @param pageIndex
+	 * @param count
+	 * @return
+	 */
+	public List<MeiLi> loadTuHao(int pageIndex, int count) {
+	   return giftDao.loadTuHao(pageIndex, count);
+	}
+	
+	
 	// 获取用户魅力值
 	public int getUserMeiLiVal(long user_id) {
 		return giftDao.getUserMeiLiVal(user_id);

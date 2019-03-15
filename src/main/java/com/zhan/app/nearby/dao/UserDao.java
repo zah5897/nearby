@@ -340,28 +340,24 @@ public class UserDao extends BaseDao {
 	@Cacheable(value="one_day",key="#root.methodName+'_'+#page+'_'+#count")
 	public List<MeiLi> getNewRegistUsers(int page, int count) {
 		
-//		String sql="select u.user_id ,u.nick_name, u.avatar,v.dayDiff, u.city_id,c.name as city_name ,gift.val as amount  from "
-//				+ "t_user u   "
-//				+ "left join  (select TIMESTAMPDIFF(DAY,now(),end_time) as dayDiff,start_time,user_id from t_user_vip ) v  "
-//				+ "on u.user_id=v.user_id left join t_sys_city c on u.city_id=c.id "
-//				+ "where  u.type=? and  DATE_SUB(CURDATE(), INTERVAL 15 DAY) <= date(create_time) order by u.user_id desc limit ?,?";
-		
-		String sql="select u.user_id ,u.nick_name, u.avatar,v.dayDiff, u.city_id,c.name as city_name ,gift.val as amount  from "
+		String sql="select u.user_id ,u.nick_name, u.avatar,v.dayDiff, gift.val as sanbei ,gift.val*5+lk.like_count as mli  from "
 				+ "t_user u left join (select o.*,o.count*g.price as val from  t_gift_own o left join t_gift g on o.gift_id=g.id ) gift "
 				+ "on u.user_id=gift.user_id "
 				+ "left join  (select TIMESTAMPDIFF(DAY,now(),end_time) as dayDiff,start_time,user_id from t_user_vip ) v  "
-				+ "on u.user_id=v.user_id left join t_sys_city c on u.city_id=c.id left join t_found_user_relationship fu on u.user_id=fu.uid "
-				+ "where   u.type=? and  fu.state is null and DATE_SUB(CURDATE(), INTERVAL 15 DAY) <= date(create_time) order by gift.val desc limit ?,?";
+				+ " on u.user_id=v.user_id "
+				+ " left join  (select count(*) as like_count ,with_user_id from t_user_relationship where relationship=?  group by  with_user_id) lk  "
+				+ " on u.user_id=lk.with_user_id "
+				+ " left join t_found_user_relationship fu "
+				+ " on u.user_id=fu.uid "
+				+ "where   u.type=? and  fu.state is null and DATE_SUB(CURDATE(), INTERVAL 15 DAY) <= date(create_time) order by mli desc limit ?,?";
 		
 		List<MeiLi> users = jdbcTemplate.query(sql,
-				new Object[] { UserType.OFFIEC.ordinal(), (page - 1) * count, count }, new RowMapper<MeiLi>() {
+				new Object[] {Relationship.LIKE.ordinal(), UserType.OFFIEC.ordinal(), (page - 1) * count, count }, new RowMapper<MeiLi>() {
 					@Override
 					public MeiLi mapRow(ResultSet rs, int rowNum) throws SQLException {
 						MeiLi m = new MeiLi();
-						 m.setValue(rs.getInt("amount"));
-						 m.setShanbei(rs.getInt("amount"));
-						// m.setBe_like_count(rs.getInt("like_count"));
-
+						m.setValue(rs.getInt("mli"));
+						m.setShanbei(rs.getInt("sanbei"));
 						LocationUser user = new LocationUser();
 						user.setUser_id(rs.getLong("user_id"));
 						user.setNick_name(rs.getString("nick_name"));
@@ -371,31 +367,24 @@ public class UserDao extends BaseDao {
 						int dayDiff = rs.getInt("dayDiff");
 						m.setIs_vip(dayDiff > 0);
 						user.setVip(m.isIs_vip());
-
-						int cid = rs.getInt("city_id");
-
-						if (cid > 0) {
-							City c = new City();
-							c.setId(cid);
-							c.setName(rs.getString("city_name"));
-							user.setCity(c);
-						}
 						return m;
 					}
 
 				});
 		return users;
 	}
+	/**
+	 * vip榜
+	 * @param page
+	 * @param count
+	 * @return
+	 */
 	@Cacheable(value="one_day",key="#root.methodName+'_'+#page+'_'+#count")
 	public List<MeiLi> getVipRankUsers(int page, int count) {
-		// String sql = "select u.*, v.* from t_user u left join (select
-		// TIMESTAMPDIFF(DAY,now(),end_time) as dayDiff,start_time,user_id from
-		// t_user_vip ) v on u.user_id=v.user_id where v.dayDiff >=0 and u.type=? order
-		// by v.start_time desc limit ?,?";
 		String sql = "select u.*, v.dayDiff,c.name as city_name from t_user u "
 				+ "left join (select TIMESTAMPDIFF(DAY,now(),end_time) as dayDiff,start_time,user_id from t_user_vip ) v on u.user_id=v.user_id "
 				+ "left join t_sys_city c on u.city_id=c.id   "
-				+ "where v.dayDiff >=0 and  u.type=? order by v.start_time desc limit ?,?";
+				+ "where v.dayDiff >0 and  u.type=? order by v.start_time desc limit ?,?";
 		List<MeiLi> users = jdbcTemplate.query(sql,
 				new Object[] { UserType.OFFIEC.ordinal(), (page - 1) * count, count }, new RowMapper<MeiLi>() {
 					@Override

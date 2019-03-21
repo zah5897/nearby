@@ -325,18 +325,18 @@ public class UserDao extends BaseDao {
 
 		String sql = "select u.* from t_found_user_relationship f left join t_user u on f.uid=u.user_id where f.state=? and f.uid<>? and u.avatar is not null and u.sex<>? order by  RAND() limit ?";
 
-		// String sql = "select * from t_user where user_id not in (select uid from
-		// t_found_user_relationship where state=? order by uid desc) and user_id<>? and
-		// avatar<>? and sex<>? order by RAND() limit ?";
-		// String sql = "select * from t_user where user_id not in (select uid from
-		// t_found_user_relationship where state=? order by uid desc) and user_id<>? and
-		// avatar<>? and sex<>? order by RAND() limit ?";
 		List<BaseUser> users = jdbcTemplate.query(sql,
 				new Object[] { FoundUserRelationship.VISIBLE.ordinal(), user_id, gender, realCount },
 				new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
 		return users;
 	}
 
+	
+	public void removeFromFoundUserList(long user_id) {
+		String sql="delete from t_found_user_relationship where uid="+user_id;
+		jdbcTemplate.update(sql);
+	}
+	
 	@Cacheable(value="one_day",key="#root.methodName+'_'+#page+'_'+#count")
 	public List<MeiLi> getNewRegistUsers(int page, int count) {
 		
@@ -691,13 +691,14 @@ public class UserDao extends BaseDao {
 	}
 
 	public int getUserState(long user_id) {
-		try {
-			return jdbcTemplate.queryForObject("select state from  t_found_user_relationship where uid=? limit 1",
+		 List<Integer> states= jdbcTemplate.queryForList("select state from  t_found_user_relationship where uid=? limit 1",
 					new Object[] { user_id }, Integer.class);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return FoundUserRelationship.VISIBLE.ordinal();
+		 if(states.isEmpty()) {
+			 return FoundUserRelationship.VISIBLE.ordinal();
+		 }else {
+			 return states.get(0);
+		 }
+		 
 	}
 
 	public int todayCheckInCount(long user_id) {

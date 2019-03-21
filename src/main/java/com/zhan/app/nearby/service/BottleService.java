@@ -137,14 +137,14 @@ public class BottleService {
 				}
 			} else {
 				if (look_sex == null) {
-					bolltes = bottleDao.getBottlesV19(user_id, null, page_size, realType, state);
+					bolltes = bottleDao.getBottlesV19(user_id, null, page_size, realType);
 				} else {
 					VipUser vip = vipDao.loadUserVip(user_id);
 					if (vip == null || vip.getDayDiff() < 0) {
-						bolltes = bottleDao.getBottlesV19(user_id, null, page_size, realType, state);
+						bolltes = bottleDao.getBottlesV19(user_id, null, page_size, realType);
 					} else {
 						int sex = (look_sex == null ? -1 : look_sex);
-						bolltes = bottleDao.getBottlesV19(user_id, sex, page_size, realType, state);
+						bolltes = bottleDao.getBottlesV19(user_id, sex, page_size, realType);
 					}
 				}
 			}
@@ -552,5 +552,9 @@ public class BottleService {
 			long id = bottleDao.getLimitId(type.ordinal(), limit);
 			bottleDao.removePoolBottleKeepSize(type.ordinal(), id);
 		}
+	}
+
+	public void removeMeetBottle(long user_id) {
+		bottleDao.removeMeetBottle(user_id);
 	}
 }

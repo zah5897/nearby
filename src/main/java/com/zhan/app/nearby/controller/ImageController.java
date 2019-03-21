@@ -136,13 +136,13 @@ public class ImageController {
 	 */
 	@RequestMapping("upload_v2")
 	public ModelMap uploadV2(HttpServletRequest request, long user_id, String token, UserDynamic dynamic,
-			String ios_addr, String _ua, String image_name) {
+			String ios_addr, String _ua, String image_names) {
 
 		if (!userService.checkLogin(user_id, token)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
 
-		if (TextUtils.isEmpty(image_name)) {
+		if (TextUtils.isEmpty(image_names)) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM);
 		}
 		long last_time = userCacheService.getLastUploadTime(user_id);
@@ -160,7 +160,7 @@ public class ImageController {
 
 		dynamic.set_from(DeviceUtil.getRequestDevice(_ua));
 		dynamic.setState(DynamicState.T_CREATE.ordinal());
-		dynamic.setLocal_image_name(image_name);
+		dynamic.setLocal_image_name(image_names);
 		dynamic.setCreate_time(new Date());
 		long id = userDynamicService.insertDynamic(dynamic);
 		dynamic.setId(id);

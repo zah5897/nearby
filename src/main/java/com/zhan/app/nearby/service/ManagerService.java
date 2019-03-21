@@ -278,6 +278,7 @@ public class ManagerService {
 	 */
 	public void editUserMeetBottle(long user_id, int fun,String ip,String by) {
 		managerDao.editUserMeetBottle(user_id, fun,ip,by);
+		bottleService.removeMeetBottle(user_id);
 	}
 
 	/**

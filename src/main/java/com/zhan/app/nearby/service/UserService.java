@@ -705,6 +705,7 @@ public class UserService {
 		} catch (Exception e) {
 			userDao.editAvatarStateByUserId(uid, AvatarIMGStatus.ILLEGAL.ordinal());
 		}
+		userDao.removeFromFoundUserList(uid);
 		bottleService.clearIllegalMeetBottle(uid);
 	}
 

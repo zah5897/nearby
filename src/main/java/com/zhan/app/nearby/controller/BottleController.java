@@ -149,7 +149,7 @@ public class BottleController {
 	 */
 	@RequestMapping("upload_v2")
 	public ModelMap upload_v2(Bottle bottle, String token, String _ua,
-			String aid,String image_name) {
+			String aid,String image_names) {
 
 		if (!userService.checkLogin(bottle.getUser_id(), token)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
@@ -175,7 +175,7 @@ public class BottleController {
 		}
 		bottle.set_from(DeviceUtil.getRequestDevice(_ua));
  
-		bottle.setContent(image_name);
+		bottle.setContent(image_names);
 		bottleService.send(bottle, aid);
 		ImagePathUtil.completeBottleDrawPath(bottle);
 		return  ResultUtil.getResultOKMap().addAttribute("bottle", bottle);

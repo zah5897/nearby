@@ -228,7 +228,7 @@ public class UserController {
 
 	@RequestMapping("regist_v2")
 	public ModelMap regist_v2(HttpServletRequest request, LoginUser user, String code, String aid, Integer city_id,
-			String bGenderOK, String _ua, String image_name) {
+			String bGenderOK, String _ua, String image_names) {
 
 		if (TextUtils.isEmpty(user.getMobile())) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "手机号码不能为空!");
@@ -265,7 +265,7 @@ public class UserController {
 		if (user.getBirth_city_id() == 0 && city_id != null) {
 			user.setBirth_city_id(city_id);
 		}
-		user.setAvatar(image_name);
+		user.setAvatar(image_names);
 		String token = UUID.randomUUID().toString();
 		user.setToken(token);
 		user.setType((short) UserType.OFFIEC.ordinal());
@@ -533,7 +533,7 @@ public class UserController {
 	 * @return
 	 */
 	@RequestMapping("modify_avatar_v2")
-	public ModelMap modify_avatar_v2(long user_id, String aid, String token, String image_name) {
+	public ModelMap modify_avatar_v2(long user_id, String aid, String token, String image_names) {
 		if (!userService.checkLogin(user_id, token)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
@@ -546,12 +546,12 @@ public class UserController {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
 
-		if (TextUtils.isEmpty(image_name)) {
+		if (TextUtils.isEmpty(image_names)) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM);
 		}
-		user.setAvatar(image_name);
-		userService.updateAvatar(user_id, image_name);
-		userService.saveAvatar(user_id, image_name);
+		user.setAvatar(image_names);
+		userService.updateAvatar(user_id, image_names);
+		userService.saveAvatar(user_id, image_names);
 		return userService.getUserCenterData("", aid, user_id, user_id);
 	}
 

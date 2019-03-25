@@ -11,6 +11,7 @@ import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.cache.UserCacheService;
 import com.zhan.app.nearby.dao.UserDao;
 import com.zhan.app.nearby.service.BottleService;
+import com.zhan.app.nearby.service.UserDynamicService;
 import com.zhan.app.nearby.service.UserService;
 import com.zhan.app.nearby.service.VipService;
 import com.zhan.app.nearby.util.HttpUtil;
@@ -50,6 +51,9 @@ public class TimerTask {
 		//每天凌晨清理前天数据
 		UserService userService = SpringContextUtil.getBean("userService");
 		userService.clearExpireMeetBottleUser();
+		
+		UserDynamicService  userDynamicService = SpringContextUtil.getBean("userDynamicService");
+		userDynamicService.clearIllegalDynamic();
 	}
 
 	@SuppressWarnings("unchecked")

@@ -1,13 +1,17 @@
 package com.zhan.app.nearby.service;
 
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.servlet.ModelAndView;
 
 import com.easemob.server.example.Main;
 import com.zhan.app.nearby.bean.Bottle;
@@ -15,6 +19,7 @@ import com.zhan.app.nearby.bean.ManagerUser;
 import com.zhan.app.nearby.bean.Report;
 import com.zhan.app.nearby.bean.Topic;
 import com.zhan.app.nearby.bean.UserDynamic;
+import com.zhan.app.nearby.bean.VipUser;
 import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.cache.UserCacheService;
 import com.zhan.app.nearby.comm.DynamicState;
@@ -24,6 +29,7 @@ import com.zhan.app.nearby.dao.ManagerDao;
 import com.zhan.app.nearby.dao.UserDao;
 import com.zhan.app.nearby.util.BottleKeyWordUtil;
 import com.zhan.app.nearby.util.ImagePathUtil;
+import com.zhan.app.nearby.util.MD5Util;
 
 @Service
 public class ManagerService {
@@ -46,6 +52,8 @@ public class ManagerService {
 	
 	@Resource
 	private UserDynamicService userDynamicService;
+	@Resource
+	private VipService vipService;
 
 	public int getHomeFoundSelectedCount() {
 		return managerDao.getHomeFoundSelectedCount();
@@ -69,7 +77,7 @@ public class ManagerService {
 	}
 
 	public int getPageCountByState(int state) {
-		return managerDao.getPageCountByState(state);
+		return userDynamicService.getPageCountByState(state);
 	}
 
 	public List<UserDynamic> getHomeFoundSelected(int pageIndex, int pageSize) {
@@ -78,7 +86,7 @@ public class ManagerService {
 
 	// 根据状态获取动态
 	public List<UserDynamic> getDyanmicByState(int pageIndex, int pageSize, DynamicState state) {
-		return managerDao.getDyanmicByState(pageIndex, pageSize, state);
+		return userDynamicService.getDyanmicByState(pageIndex, pageSize, state);
 	}
 
 	public int getUnSelectedCount() {
@@ -398,5 +406,22 @@ public class ManagerService {
 
 	public int getCountOfConfirmAvatars(Long user_id) {
 		return userService.getCountOfConfirmAvatars(user_id);
+	}
+
+	public void charge_vip(long user_id, int month,String mark) {
+		VipUser vip=new VipUser();
+		vip.setUser_id(user_id);
+		vip.setMark(mark);
+		vip.setVip_id(vipService.getVipIdByMonth(month));
+		vip.setAid("1178548652");
+		vipService.chargeVip(vip, month);
+		
+	}
+	public Object charge_coin(long user_id, int coin,String mark) {
+	return	userService.modifyExtra(user_id, "1178548652",coin, 1);
+	}
+
+	public void change_pwd(String name,String pwd) throws NoSuchAlgorithmException {
+		 managerDao.updateMPwd(name, MD5Util.getMd5(pwd));
 	}
 }

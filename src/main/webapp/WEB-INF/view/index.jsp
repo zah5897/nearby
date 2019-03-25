@@ -80,7 +80,12 @@
    <ul>
     <li><a href="<%=path %>/manager/forword?path=user_spread_list" target="right"><span class="icon-caret-right"></span>推广用户</a></li>
   </ul> 
-   
+    <h2><span class="icon-user"></span>人工处理</h2>
+   <ul>
+    <li><a href="<%=path %>/manager/forword?path=charge_vip" target="right"><span class="icon-caret-right"></span>充值会员</a></li>
+    <li><a href="<%=path %>/manager/forword?path=charge_coin" target="right"><span class="icon-caret-right"></span>充值扇贝</a></li>
+    <li><a href="<%=path %>/manager/forword?path=change_pwd" target="right"><span class="icon-caret-right"></span>修改管理员密码</a></li>
+  </ul> 
   
   
 </div>

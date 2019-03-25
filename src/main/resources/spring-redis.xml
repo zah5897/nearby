@@ -63,6 +63,7 @@
 		<property name="expires">
 			<map>
 				<entry key="one_day" value="86400" />
+				<entry key="six_hour" value="21600" />
 				<entry key="one_hour" value="3600" />
 				<entry key="one_minute" value="60" />
 			</map>

@@ -4,6 +4,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
+import java.util.Random;
 
 import org.apache.log4j.Logger;
 
@@ -96,6 +98,17 @@ public class DateTimeUtil {
 		return c.getTime();
 	}
 
+	
+	public static String getOutTradeNo() {
+		SimpleDateFormat format = new SimpleDateFormat("MMddHHmmss", Locale.getDefault());
+		Date date = new Date();
+		String key = format.format(date);
+		Random r = new Random();
+		key = key + r.nextInt();
+		key = key.substring(0, 15);
+		return key;
+	}
+	
 	// public static void main(String[] args) throws ParseException {
 	// Calendar c = Calendar.getInstance();
 	// SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");

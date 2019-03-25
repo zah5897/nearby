@@ -26,6 +26,9 @@ public class VipUser implements Serializable{
 
 	@ColumnType
 	private int dayDiff;
+	
+	private String mark;
+	
 	public long getUser_id() {
 		return user_id;
 	}
@@ -90,4 +93,14 @@ public class VipUser implements Serializable{
 	 public Date getEnd_time_v2() {
 		return end_time_v2;
 	}
+
+	public String getMark() {
+		return mark;
+	}
+
+	public void setMark(String mark) {
+		this.mark = mark;
+	}
+	 
+	 
 }

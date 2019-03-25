@@ -89,4 +89,8 @@ public class VipDao extends BaseDao {
 		String sql = "select vip.* from " + TABLE_NAME_VIP_USER + " vip where TIMESTAMPDIFF(DAY,now(),vip.end_time) < 0";
 		return jdbcTemplate.query( sql, new BeanPropertyRowMapper<VipUser>(VipUser.class));
 	}
+
+	public List<Integer> getVipIdByMonth(int month) {
+		return jdbcTemplate.queryForList("select id from "+TABLE_NAME_VIP +" where term_mount="+month, Integer.class);
+	}
 }

@@ -15,6 +15,7 @@ import com.zhan.app.nearby.bean.DynamicComment;
 import com.zhan.app.nearby.bean.Image;
 import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.bean.UserDynamicRelationShip;
+import com.zhan.app.nearby.comm.DynamicState;
 import com.zhan.app.nearby.comm.FoundUserRelationship;
 import com.zhan.app.nearby.comm.LikeDynamicState;
 import com.zhan.app.nearby.comm.PushMsgType;
@@ -197,4 +198,23 @@ public class UserDynamicService {
 	public List<DynamicComment> loadSubComm(long pid, long did, int count, long last_id) {
 		return userDynamicDao.loadSubComm(pid, did, count, last_id);
 	}
+	
+	
+	public List<UserDynamic> getDyanmicByState(int pageIndex, int pageSize, DynamicState state){
+	    return userDynamicDao.getDyanmicByState(pageIndex, pageSize, state);
+	    		
+	}
+
+	public int getPageCountByState(int state) {
+		return userDynamicDao.getPageCountByState(state);
+	}
+
+	public void clearIllegalDynamic() {
+		List<UserDynamic> dys=userDynamicDao.getIllegalDyanmic();
+		for(UserDynamic dy:dys) {
+			ImageSaveUtils.removeUserImages(dy.getLocal_image_name());
+			userDynamicDao.updateDynamicImgToIllegal(dy.getId());
+		}
+	}
+	
 }

@@ -337,7 +337,7 @@ public class UserDao extends BaseDao {
 		jdbcTemplate.update(sql);
 	}
 	
-	@Cacheable(value="one_day",key="#root.methodName+'_'+#page+'_'+#count")
+	@Cacheable(value="six_hour",key="#root.methodName+'_'+#page+'_'+#count")
 	public List<MeiLi> getNewRegistUsers(int page, int count) {
 		
 		String sql="select u.user_id ,u.nick_name, u.avatar,v.dayDiff, gift.tval as sanbei ,gift.tval*5+lk.like_count as mli  from "
@@ -350,7 +350,7 @@ public class UserDao extends BaseDao {
 				+ " on u.user_id=lk.with_user_id "
 				+ " left join t_found_user_relationship fu "
 				+ " on u.user_id=fu.uid "
-				+ "where   u.type=? and  fu.state is null and DATE_SUB(CURDATE(), INTERVAL 15 DAY) <= date(create_time) order by mli desc limit ?,?";
+				+ "where   u.type=? and  fu.state<>1 and DATE_SUB(CURDATE(), INTERVAL 15 DAY) <= date(create_time) order by mli desc limit ?,?";
 		
 		List<MeiLi> users = jdbcTemplate.query(sql,
 				new Object[] {Relationship.LIKE.ordinal(), UserType.OFFIEC.ordinal(), (page - 1) * count, count }, new RowMapper<MeiLi>() {
@@ -380,7 +380,7 @@ public class UserDao extends BaseDao {
 	 * @param count
 	 * @return
 	 */
-	@Cacheable(value="one_day",key="#root.methodName+'_'+#page+'_'+#count")
+	@Cacheable(value="six_hour",key="#root.methodName+'_'+#page+'_'+#count")
 	public List<MeiLi> getVipRankUsers(int page, int count) {
 		String sql = "select u.*, v.dayDiff,c.name as city_name from t_user u "
 				+ "left join (select TIMESTAMPDIFF(DAY,now(),end_time) as dayDiff,start_time,user_id from t_user_vip ) v on u.user_id=v.user_id "

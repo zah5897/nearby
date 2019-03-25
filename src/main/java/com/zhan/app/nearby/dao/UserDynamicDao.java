@@ -362,6 +362,35 @@ public class UserDynamicDao extends BaseDao {
 		return jdbcTemplate.query(sql, param, new DynamicMapper());
 	}
 
+	
+	public List<UserDynamic> getDyanmicByState(int pageIndex, int pageSize, DynamicState state) {
+		String sql = "select dynamic.*,(select count(*) from t_dynamic_comment where dynamic_id=dynamic.id) as commentCount ,user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday,user.type from "
+				+ TABLE_USER_DYNAMIC
+				+ " dynamic  left join t_user user on  dynamic.user_id=user.user_id  where dynamic.state=?   order by dynamic.id desc limit ?,?";
+		return jdbcTemplate.query(sql, new Object[] { state.ordinal(), (pageIndex - 1) * pageSize, pageSize },
+				new DynamicMapper());
+
+	}
+	
+	public List<UserDynamic> getIllegalDyanmic() {
+		String sql = "select  id,local_image_name from "+ TABLE_USER_DYNAMIC+ "   where state=?  and local_image_name<>'illegal.jpg'";
+		return jdbcTemplate.query(sql, new Object[] { DynamicState.T_ILLEGAL.ordinal()},new BeanPropertyRowMapper<UserDynamic>(UserDynamic.class));
+	}
+	
+	
+	public int updateDynamicImgToIllegal(long id) {
+		String sql = "update    "+ TABLE_USER_DYNAMIC+ "  set local_image_name=?  where state=?  and id=?";
+		return jdbcTemplate.update(sql, new Object[] {"illegal.jpg",DynamicState.T_ILLEGAL.ordinal(),id});
+	}
+	
+	
+	public int getPageCountByState(int state) {
+		String sql = "select  count(*) from " + TABLE_USER_DYNAMIC + " where state=?";
+		return jdbcTemplate.queryForObject(sql, new Object[] { state }, Integer.class);
+	}
+	
+	
+	
 	public List<DynamicComment> loadSubComm(long pid, long did, int count, long last_id) {
 		String sql = "select c.*,u.nick_name,u.avatar,u.sex,v.vip_id " + "from t_dynamic_comment c  "
 				+ "left join t_user u on c.user_id=u.user_id  left join t_user_vip v on c.user_id=v.user_id   where c.status<>? and  c.dynamic_id=? and c.pid=? and c.id>? order by c.id limit ?";

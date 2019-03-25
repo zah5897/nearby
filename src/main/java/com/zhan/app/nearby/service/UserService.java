@@ -692,6 +692,7 @@ public class UserService {
 
 	public void editAvatarState(int id) {
 		long uid = userDao.editAvatarState(id, AvatarIMGStatus.ILLEGAL.ordinal());
+		userDao.removeFromFoundUserList(uid);
 		bottleService.clearIllegalMeetBottle(uid);
 	}
 

@@ -120,6 +120,33 @@ public class VipService {
 		}
 		// 还不是vip
 	}
+	
+	
+	public String chargeVip(VipUser vipUser,int month) {
+		 
+
+		// 当前vip类型
+		Date now = new Date();
+		// 获取已购买的vip数据
+		VipUser userVip = vipDao.loadUserVip(vipUser.getUser_id());
+		// 已经是vip了，计算复杂
+		if (userVip == null || userVip.getDayDiff() <= 0) {// 以天为精度的过期
+			vipDao.delUserVip(vipUser.getUser_id());
+			vipUser.setStart_time(now);
+			vipUser.setLast_order_no(DateTimeUtil.getOutTradeNo());
+			vipUser.setEnd_time(DateTimeUtil.getVipEndDate(now,month));
+			vipDao.insert(vipUser);
+			return "success";
+		} else {
+			Date newEndDate = DateTimeUtil.getVipEndDate(userVip.getEnd_time(), month);
+			userVip.setEnd_time(newEndDate);
+			userVip.setLast_order_no(DateTimeUtil.getOutTradeNo());
+			vipDao.updateUserVip(userVip);
+			return "success";
+		}
+		// 还不是vip
+	}
+	
 
 	public Map<?, ?> load(long user_id) {
 		VipUser userVip = vipDao.loadUserVip(user_id);
@@ -132,5 +159,14 @@ public class VipService {
 			vipDao.delUserVip(vip.getUser_id());
 		}
 		return vips.size();
+	}
+
+	public int getVipIdByMonth(int month) {
+		List<Integer> ids=vipDao.getVipIdByMonth(month);
+		if(ids.isEmpty()) {
+			return 2;
+		}else {
+			return ids.get(0);
+		}
 	}
 }

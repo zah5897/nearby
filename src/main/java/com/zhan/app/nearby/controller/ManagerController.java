@@ -83,7 +83,13 @@ public class ManagerController {
 	}
 
 	@RequestMapping(value = "/forword")
-	public ModelAndView forword(String path) {
+	public ModelAndView forword(HttpServletRequest request,String path) {
+		
+		HttpSession session = request.getSession();
+		Object obj = session.getAttribute("account");
+		if (obj == null) {
+			return new ModelAndView("redirect:/manager/");
+		}
 		return new ModelAndView(path);
 	}
 
@@ -913,6 +919,46 @@ public class ManagerController {
 		r.put("currentPageIndex", pageIndex);
 		return r;
 	}
+	//充值会员
+	@RequestMapping(value = "/charge_vip")
+	public @ResponseBody ModelMap charge_vip(long user_id,int month,String mark) {
+		managerService.charge_vip(user_id,month,mark);
+		return ResultUtil.getResultOKMap();
+	}
 	
-	
+	//充值会员
+		@RequestMapping(value = "/charge_coin")
+		public @ResponseBody Object charge_coin(long user_id,int coin,String mark) {
+			return managerService.charge_coin(user_id,coin,mark);
+		}
+		
+	//修改管理员密码
+	@RequestMapping(value = "/modify_pwd")
+	public @ResponseBody ModelMap modify_pwd(HttpServletRequest request,String old_pwd,String new_pwd,String confirm_pwd) throws NoSuchAlgorithmException {
+		
+		HttpSession session = request.getSession();
+		Object obj = session.getAttribute("account");
+		if(obj==null) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		
+		if(TextUtils.isEmpty(old_pwd)) {
+			return ResultUtil.getResultMap(ERROR.ERR_FAILED,"旧密码不能为空");
+		}
+		boolean r=managerService.mLogin(obj.toString(), MD5Util.getMd5(old_pwd));
+		if(!r) {
+			return ResultUtil.getResultMap(ERROR.ERR_FAILED,"旧密码不正确");
+		}
+		
+		if(old_pwd.equals(new_pwd)) {
+			return ResultUtil.getResultMap(ERROR.ERR_FAILED,"新密码不能跟旧密码一样");
+		}
+		
+		if(!new_pwd.equals(confirm_pwd)) {
+			return ResultUtil.getResultMap(ERROR.ERR_FAILED,"新密码两次不一致");
+		}
+		managerService.change_pwd(obj.toString(),new_pwd);
+		return ResultUtil.getResultOKMap();
+	}
+				
 }

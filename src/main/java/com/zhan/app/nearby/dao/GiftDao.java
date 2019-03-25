@@ -148,7 +148,7 @@ public class GiftDao extends BaseDao {
 	 * 
 	 * @return
 	 */
-	@Cacheable(value="one_day",key="#root.methodName+'_'+#page+'_'+#count")
+	@Cacheable(value="six_hour",key="#root.methodName+'_'+#page+'_'+#count")
 	public List<MeiLi> loadTotalMeiLi(int page, int count) {
 		String sql="select u.user_id ,u.nick_name, u.avatar,v.dayDiff,gift.tval as sanbei, gift.tval*5+lk.like_count as mli  from "
 				+ "t_user u left join "
@@ -160,7 +160,7 @@ public class GiftDao extends BaseDao {
 				+ " on u.user_id=lk.with_user_id "
 				+ " left join t_found_user_relationship fu "
 				+ " on u.user_id=fu.uid "
-				+ "where   u.user_id not in(41,93837,96651,90055,95470,148641) and   u.type=? and  fu.state is null and DATE_SUB(CURDATE(), INTERVAL 365 DAY) <= date(create_time) order by mli desc limit ?,?";
+				+ "where   u.user_id not in(41,93837,96651,90055,95470,148641) and   u.type=? and  fu.state<>1 and DATE_SUB(CURDATE(), INTERVAL 365 DAY) <= date(create_time) order by mli desc limit ?,?";
 		
 		List<MeiLi> users = jdbcTemplate.query(sql,
 				new Object[] {Relationship.LIKE.ordinal(), UserType.OFFIEC.ordinal(), (page - 1) * count, count }, new RowMapper<MeiLi>() {
@@ -193,7 +193,7 @@ public class GiftDao extends BaseDao {
 	 * 
 	 * @return
 	 */
-	@Cacheable(value="one_day",key="#root.methodName+'_'+#page+'_'+#count")
+	@Cacheable(value="six_hour",key="#root.methodName+'_'+#page+'_'+#count")
 	public List<MeiLi> loadTuHao(int page, int count) {
 
 		
@@ -206,7 +206,7 @@ public class GiftDao extends BaseDao {
 				+ " on u.user_id=v.user_id "
 				+ " left join t_found_user_relationship fu "
 				+ " on u.user_id=fu.uid "
-				+ "where u.user_id not in(41,93837,96651,90055,95470,148641) and  u.type=? and  fu.state is null  order by sanbei desc limit ?,?";
+				+ "where u.user_id not in(41,93837,96651,90055,95470,148641) and  u.type=? and  fu.state<>1  order by sanbei desc limit ?,?";
 		
 		List<MeiLi> users = jdbcTemplate.query(sql,
 				new Object[] { UserType.OFFIEC.ordinal(), (page - 1) * count, count }, new RowMapper<MeiLi>() {

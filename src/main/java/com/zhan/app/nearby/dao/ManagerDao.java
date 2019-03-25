@@ -49,15 +49,6 @@ public class ManagerDao extends BaseDao {
 
 	}
 
-	public List<UserDynamic> getDyanmicByState(int pageIndex, int pageSize, DynamicState state) {
-		String sql = "select dynamic.*,(select count(*) from t_dynamic_comment where dynamic_id=dynamic.id) as commentCount ,user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday,user.type from "
-				+ TABLE_USER_DYNAMIC
-				+ " dynamic  left join t_user user on  dynamic.user_id=user.user_id  where dynamic.state=?   order by dynamic.id desc limit ?,?";
-		return jdbcTemplate.query(sql, new Object[] { state.ordinal(), (pageIndex - 1) * pageSize, pageSize },
-				new DynamicMapper());
-
-	}
-
 	public List<UserDynamic> getUnSelected(int pageIndex, int pageSize) {
 		String sql = "select dynamic.* , (select count(*) from t_dynamic_comment where dynamic_id=dynamic.id) as commentCount ,user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday,user.type from "
 				+ TABLE_USER_DYNAMIC
@@ -73,11 +64,6 @@ public class ManagerDao extends BaseDao {
 		String sql = "select  count(*) from " + TABLE_USER_DYNAMIC + " dynamic left join " + TABLE_HOME_FOUND_SELECTED
 				+ " selected on dynamic.id=selected.dynamic_id    where selected.selected_state=? and dynamic.state=1 ";
 		return jdbcTemplate.queryForObject(sql, new Object[] { ImageStatus.SELECTED.ordinal() }, Integer.class);
-	}
-
-	public int getPageCountByState(int state) {
-		String sql = "select  count(*) from " + TABLE_USER_DYNAMIC + " where state=?";
-		return jdbcTemplate.queryForObject(sql, new Object[] { state }, Integer.class);
 	}
 
 	// 获取未选中的（前提为被审核通过的）
@@ -315,7 +301,10 @@ public class ManagerDao extends BaseDao {
 		String sql = "select  count(*) from t_m where name=? and pwd=?";
 		return jdbcTemplate.queryForObject(sql, new Object[] { name ,pwd}, Integer.class);
 	}
-	
+	public int updateMPwd(String name,String pwd) {
+		String sql = "update t_m set pwd=?  where name=?";
+		return jdbcTemplate.update(sql, new Object[] {pwd,name});
+	}
 	
 	public int queryAllowed(String ip) {
 		String sql = "select  count(*) from t_wips where aip=?";

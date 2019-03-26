@@ -195,6 +195,14 @@ public class UserCacheService {
 		return true;
 	}
 
+	public void test() {
+		redisTemplate.opsForValue().set("test", String.valueOf(System.currentTimeMillis()));
+	}
+
+	public Object getTest() {
+		return redisTemplate.opsForValue().get("test");
+	}
+
 //	public void setBottleKeyWord(String keywords) {
 //		redisTemplate.opsForValue().set(PERFIX_BOTTLE_KEY_WORD, keywords);
 //	}

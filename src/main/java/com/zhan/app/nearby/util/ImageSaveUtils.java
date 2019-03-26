@@ -10,7 +10,6 @@ import java.util.Properties;
 import java.util.UUID;
 
 import org.apache.log4j.Logger;
-import org.springframework.util.MimeType;
 import org.springframework.web.multipart.MultipartFile;
 
 import cn.ucloud.ufile.exception.UfileClientException;
@@ -176,27 +175,6 @@ public class ImageSaveUtils {
 	 * @param oldFileName    旧头像名称
 	 */
 	public static void removeAcatar(String oldFileName) {
-		// 删除大图
-
-		if (TextUtils.isEmpty(oldFileName)) {
-			return;
-		}
-
-		if (oldFileName.contains("illegal")) {
-			return;
-		}
-		String filePath = getRootPath()+"/avatar/origin/";
-		File uploadFile = new File(filePath + oldFileName);
-		if (uploadFile.exists()) {
-			uploadFile.delete();
-		}
-
-		// 删除小图
-		String smallPath =getRootPath()+"/avatar/thumb/";
-		File uploadSmallFile = new File(smallPath + oldFileName);
-		if (uploadSmallFile.exists()) {
-			uploadSmallFile.delete();
-		}
 
 		UFileUtil.delFileexecuteAsync(FILE_AVATAR+oldFileName, UFileUtil.BUCKET_AVATAR);
 
@@ -209,20 +187,6 @@ public class ImageSaveUtils {
 	 * @param oldFileName    要删除的图片名称
 	 */
 	public static void removeUserImages(String oldFileName) {
-		// 删除大图
-
-		String filePath =  getRootPath()+"/images/origin/";
-		File uploadFile = new File(filePath + oldFileName);
-		if (uploadFile.exists()) {
-			uploadFile.delete();
-		}
-
-		// 删除小图
-		String smallPath = getRootPath()+"/images/thumb/";
-		File uploadSmallFile = new File(smallPath + oldFileName);
-		if (uploadSmallFile.exists()) {
-			uploadSmallFile.delete();
-		}
 		UFileUtil.delFileexecuteAsync(FILE_IMAGES+oldFileName, UFileUtil.BUCKET_IMAGES);
 	}
 

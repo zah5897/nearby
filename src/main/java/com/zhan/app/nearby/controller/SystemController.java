@@ -94,4 +94,10 @@ public class SystemController {
 		return mainService.goods_id_list(type);
 	}
 
+	@RequestMapping("test_redis")
+	public ModelMap test_redis() {
+		return mainService.test_redis();
+	}
+	
+	
 }

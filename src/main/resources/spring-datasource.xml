@@ -16,7 +16,7 @@
 
 	<!-- 加载资源文件 其中包含变量信息，必须在Spring配置文件的最前面加载，即第一个加载 -->
 	<context:property-placeholder
-		location="classpath:mysql2.properties" />
+		location="classpath:mysql.properties" />
 
 	<bean id="dataSource"
 		class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
@@ -29,7 +29,7 @@
 		<!-- 配置初始化大小、最小、最大 -->
 		<property name="initialSize" value="1" />
 		<property name="minIdle" value="10" />
-		<property name="maxActive" value="5000" />
+		<property name="maxActive" value="${jdbc.maxActive}" />
 
 		<!-- 配置获取连接等待超时的时间 -->
 		<property name="maxWait" value="60000" />

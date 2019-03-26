@@ -585,4 +585,9 @@ public class MainService {
 		}
 		return goodsList;
 	}
+
+	public ModelMap test_redis() {
+		userCacheService.test();
+		return ResultUtil.getResultOKMap().addAttribute("test", userCacheService.getTest());
+	}
 }

@@ -2,6 +2,7 @@ package com.zhan.app.nearby.controller;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
 
@@ -17,6 +18,7 @@ import com.zhan.app.nearby.comm.DynamicMsgType;
 import com.zhan.app.nearby.comm.LikeDynamicState;
 import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.service.DynamicMsgService;
+import com.zhan.app.nearby.service.GiftService;
 import com.zhan.app.nearby.service.UserDynamicService;
 import com.zhan.app.nearby.service.UserService;
 import com.zhan.app.nearby.util.BottleKeyWordUtil;
@@ -36,6 +38,10 @@ public class DynamicController {
 	@Resource
 	private UserService userService;
 
+	
+	@Resource
+	private GiftService giftService;
+	
 	@RequestMapping("comment")
 	public ModelMap comment(DynamicComment comment) {
 		if (comment.getUser_id() < 1L) {
@@ -49,7 +55,6 @@ public class DynamicController {
 		comment.setContent(newContent);
 		
 		long id = userDynamicService.comment(comment);
-
 		ModelMap result;
 		if (id > 0) {
 			DynamicComment resultObj = userDynamicService.loadComment(comment.getDynamic_id(), id);
@@ -175,6 +180,30 @@ public class DynamicController {
 		return ResultUtil.getResultOKMap();
 	}
 
+	@RequestMapping("send_flower")
+	public Map<String, Object> send_flower(long user_id,String token,String aid, long dynamic_id) {
+		
+		if(!userService.checkLogin(user_id, token)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		
+		if(!userDynamicService.isDynamicExist(dynamic_id)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NOT_EXIST);
+		}
+		long userId = userDynamicService.getUserIdByDynamicId(dynamic_id);
+		
+		int gift_id=44;
+        Map<String, Object> giveResult=giftService.give(user_id, userId, gift_id, aid, 1);
+        
+        if(((int)giveResult.get("code"))!=0) {
+        	return giveResult;
+        }
+		userDynamicService.sendFlover(user_id,dynamic_id,gift_id);
+		dynamicMsgService.insertActionMsg(DynamicMsgType.TYPE_SEND_FLOVER, user_id, dynamic_id, userId, "有人为你的动态送花了");
+		return ResultUtil.getResultOKMap();
+	}
+	
+	
 	@RequestMapping("unlike")
 	public ModelMap unlike(Long user_id, String dynamic_id) {
 		if (user_id == null || user_id < 1l) {

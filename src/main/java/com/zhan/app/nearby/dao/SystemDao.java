@@ -279,6 +279,15 @@ public class SystemDao extends BaseDao {
 		return jdbcTemplate.query("select *from t_bgm order by rand() limit "+count, new BeanPropertyRowMapper<BGM>(BGM.class)); 
 	}
 
-
+	public int insertTouTiaoUser(long user_id) {
+		 return jdbcTemplate.update(
+				"insert into t_toutiao_user (uid,create_time) values(?,?)",
+				new Object[] { user_id,new Date()});
+	}
+	
+	public List<BaseUser> getTouTiaoUser(int count){
+		String sql="select u.user_id,u.nick_name,u.avatar from t_toutiao_user tt left join t_user u on tt.uid=u.user_id where u.type=1 order by tt.create_time desc limit "+count;
+		return jdbcTemplate.query(sql, new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+	}
 	
 }

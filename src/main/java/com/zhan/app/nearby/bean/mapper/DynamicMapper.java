@@ -29,9 +29,12 @@ public class DynamicMapper implements RowMapper<UserDynamic> {
 		dynamic.set_from(rs.getInt("_from"));
 	 
 		try {
-		    dynamic.setCommentCount(rs.getInt("commentCount"));
+		    dynamic.setComment_count(rs.getInt("comment_count"));
 		}catch (Exception e) {
-			// TODO: handle exception
+		}
+		try {
+		    dynamic.setComment_count(rs.getInt("flover_count"));
+		}catch (Exception e) {
 		}
 		try {
 			dynamic.setLike_state(rs.getInt("like_state"));

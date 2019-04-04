@@ -323,7 +323,7 @@ public class UserDao extends BaseDao {
 
 	public List<BaseUser> getFoundUserRandom(long user_id, int realCount, int gender) {
 
-		String sql = "select u.* from t_found_user_relationship f left join t_user u on f.uid=u.user_id where f.state=? and f.uid<>? and u.avatar is not null and u.sex<>? order by  RAND() limit ?";
+		String sql = "select u.user_id,u.nick_name,u.avatar from t_found_user_relationship f left join t_user u on f.uid=u.user_id where f.state=? and f.uid<>? and u.avatar is not null and u.sex<>? order by  RAND() limit ?";
 
 		List<BaseUser> users = jdbcTemplate.query(sql,
 				new Object[] { FoundUserRelationship.VISIBLE.ordinal(), user_id, gender, realCount },

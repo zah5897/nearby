@@ -42,6 +42,7 @@ import com.zhan.app.nearby.util.ResultUtil;
 import com.zhan.app.nearby.util.TextUtils;
 
 @Service
+
 public class BottleService {
 
 	public static final int LIMIT_COUNT = 5;
@@ -224,7 +225,7 @@ public class BottleService {
 	public List<Bottle> getBottlesFromPool(long user_id) {
 		return bottleDao.getBottleRandomInPool(user_id, LIMIT_COUNT);
 	}
-
+	@Transactional
 	public void send(Bottle bottle, String aid) {
 
 		if (bottle.getType() == BottleType.DM_TXT.ordinal() || bottle.getType() == BottleType.DM_VOICE.ordinal()) {
@@ -253,7 +254,7 @@ public class BottleService {
 			bottleDao.insertToPool(bottle);
 		}
 	}
-
+	@Transactional
 	public void sendMeetBottle(long user_id) {
 		Bottle bottle = new Bottle();
 		bottle.setCreate_time(new Date());
@@ -292,7 +293,7 @@ public class BottleService {
 		result.put("hasMore", bottles.size() == page_size);
 		return result;
 	}
-
+	@Transactional
 	public ModelMap delete(long user_id, long bottle_id) {
 		int result = bottleDao.delete(user_id, bottle_id);
 		if (result > 0) {
@@ -338,6 +339,7 @@ public class BottleService {
 	 * @param content
 	 * @return
 	 */
+	@Transactional
 	public ModelMap express(long user_id, long to_user_id, String content) {
 		BottleExpress express = new BottleExpress();
 		express.setUid(user_id);
@@ -353,7 +355,7 @@ public class BottleService {
 		HX_SessionUtil.makeChatSessionSingle(user, to_user, content);
 		return ResultUtil.getResultOKMap();
 	}
-
+	@Transactional
 	public ModelMap like(long user_id, String with_user_id) {
 		List<Long> user_ids = new ArrayList<Long>();
 		if (!TextUtils.isEmpty(with_user_id)) {
@@ -429,7 +431,7 @@ public class BottleService {
 		}
 		return ResultUtil.getResultOKMap();
 	}
-
+	@Transactional
 	public int sendAutoBottle(String id, String content) {
 		boolean hasSend = bottleDao.hasSend(id) > 0;
 		if (!hasSend) {
@@ -490,16 +492,16 @@ public class BottleService {
 		HX_SessionUtil.makeChatSession(u1, u2, meet_bottle_id, "很高兴遇见你");
 		return ResultUtil.getResultOKMap().addAttribute("user", u2);
 	}
-
+	@Transactional
 	public void clearIllegalMeetBottle(long uid) {
 		bottleDao.clearIllegalMeetBottle(uid);
 		userDao.removeMeetBottleUserByUserId(uid);
 	}
-
+	@Transactional
 	public int clearPoolBottleByUserId(long uid) {
 		return bottleDao.clearPoolBottleByUserId(uid);
 	}
-
+	@Transactional
 	public void clearUserBottle(long uid) {
 		clearPoolBottleByUserId(uid);
 		bottleDao.clearBottleByUserId(uid);
@@ -508,11 +510,11 @@ public class BottleService {
 	public List<String> loadAnswerToDraw(Integer count) {
 		return bottleDao.loadAnswerToDraw(count == null || count < 1 ? 4 : count);
 	}
-
+	@Transactional
 	public void updateAnswerState(long bottle_id, BottleAnswerState state) {
 		bottleDao.updateAnswerState(bottle_id, state.ordinal());
 	}
-
+	@Transactional
 	public void saveRewardHistory(Bottle b, long uid) {
 		Reward reward = new Reward();
 		reward.setBottle_id(b.getId());
@@ -522,7 +524,7 @@ public class BottleService {
 		reward.setReward(b.getReward());
 		bottleDao.insertReward(reward);
 	}
-
+	@Transactional
 	public List<Reward> rewardHistoryGroup(long user_id) {
 		return bottleDao.rewardHistoryGroup(user_id);
 	}
@@ -530,7 +532,7 @@ public class BottleService {
 	public List<Reward> rewardHistory(long user_id, int page, int count) {
 		return bottleDao.rewardHistory(user_id, page, count);
 	}
-
+	@Transactional
 	public void refreshPool() {
 		int limit = 100;
 		for (BottleType type : BottleType.values()) {
@@ -553,7 +555,7 @@ public class BottleService {
 			bottleDao.removePoolBottleKeepSize(type.ordinal(), id);
 		}
 	}
-
+	@Transactional
 	public void removeMeetBottle(long user_id) {
 		bottleDao.removeMeetBottle(user_id);
 	}

@@ -107,11 +107,11 @@ public class UserService {
 	// public User findUserByName(String name) {
 	// return userDao.findUserByName(name);
 	// }
-
+	@Transactional
 	public void delete(long id) {
 		userDao.delete(id);
 	}
-
+	@Transactional
 	public long insertUser(BaseUser user) {
 		user.setCreate_time(new Date());
 		int count = userDao.getUserCountByMobile(user.getMobile());
@@ -134,7 +134,7 @@ public class UserService {
 	public int getUserCountByMobile(String mobile) {
 		return userDao.getUserCountByMobile(mobile);
 	}
-
+	@Transactional
 	public int updateToken(BaseUser user) {
 		// 更新登陆时间
 		return userDao.updateToken(user.getUser_id(), user.getToken(), new Date());
@@ -156,19 +156,19 @@ public class UserService {
 			Main.sendTxtMessage(Main.SYS, new String[] { String.valueOf(user_id) }, msg, ext, PushMsgType.TYPE_WELCOME);
 		}
 	}
-
+	@Transactional
 	public int updatePassword(String mobile, String password) {
 		return userDao.updatePassword(mobile, password);
 	}
-
+	@Transactional
 	public int updateAvatar(long user_id, String newAcatar) {
 		return userDao.updateAvatar(user_id, newAcatar);
 	}
-
+	@Transactional
 	public int saveAvatar(long user_id, String avatar) {
 		return userDao.saveAvatar(user_id, avatar);
 	}
-
+	@Transactional
 	public String deleteAvatar(long user_id, String avatar_id) {
 		int count = userDao.getAvatarCount(user_id);
 		if (count > 1) {
@@ -181,13 +181,13 @@ public class UserService {
 			return null;
 		}
 	}
-
+	@Transactional
 	public int updateLocation(long user_id, String lat, String lng) {
 		int count = userDao.updateLocation(user_id, lat, lng);
 		// userCacheService.cacheValidateCode(mobile, code);
 		return count;
 	}
-
+	@Transactional
 	public int updateVisitor(long user_id, String app_id, String device_token, String lat, String lng, String zh_cn) {
 		int count = userDao.updateVisitor(user_id, app_id, device_token, lat, lng, zh_cn);
 		return count;
@@ -208,14 +208,14 @@ public class UserService {
 		}
 		return user;
 	}
-
+	@Transactional
 	public int modify_info(long user_id, String nick_name, String birthday, String job, String height, String weight,
 			String signature, String my_tags, String interests, String animals, String musics, String weekday_todo,
 			String footsteps, String want_to_where, boolean isNick_modify, Integer birth_city_id, String contact) {
 		return userDao.modify_info(user_id, nick_name, birthday, job, height, weight, signature, my_tags, interests,
 				animals, musics, weekday_todo, footsteps, want_to_where, birth_city_id, contact);
 	}
-
+	@Transactional
 	public int visitorToNormal(SimpleUser user) {
 		int count = userDao.visitorToNormal(user.getUser_id(), user.getMobile(), user.getPassword(), user.getToken(),
 				user.getNick_name(), user.getBirthday(), user.getSex(), user.getAvatar(), user.getLast_login_time());
@@ -225,7 +225,6 @@ public class UserService {
 		}
 		return count;
 	}
-
 	public void uploadLocation(final String ip, final Long user_id, String lat, String lng) {
 
 		if (TextUtils.isEmpty(lat) || TextUtils.isEmpty(lng)) {
@@ -246,7 +245,7 @@ public class UserService {
 			userDao.updateLocation(user_id, lat, lng);
 		}
 	}
-
+	@Transactional
 	public void uploadToken(long user_id, String token, String zh_cn) {
 		userDao.uploadToken(user_id, token, zh_cn);
 	}
@@ -263,7 +262,7 @@ public class UserService {
 
 		userDao.setCity(user_id, city_id);
 	}
-
+	@Transactional
 	public void updateRelationship(long user_id, long with_user_id, Relationship relation) {
 		userDao.updateRelationship(user_id, with_user_id, relation);
 	}
@@ -689,13 +688,13 @@ public class UserService {
 		}
 		return ResultUtil.getResultMap(ERROR.ERR_FAILED);
 	}
-
+	@Transactional
 	public void editAvatarState(int id) {
 		long uid = userDao.editAvatarState(id, AvatarIMGStatus.ILLEGAL.ordinal());
 		userDao.removeFromFoundUserList(uid);
 		bottleService.clearIllegalMeetBottle(uid);
 	}
-
+	@Transactional
 	public void editAvatarStateByUserId(long uid) {
 		String avatarName = userDao.getCurrentAvatar(uid);
 		try {
@@ -709,7 +708,7 @@ public class UserService {
 		userDao.removeFromFoundUserList(uid);
 		bottleService.clearIllegalMeetBottle(uid);
 	}
-
+	@Transactional
 	public void deleteIllegalAvatarFileRightNow(long uid) {
 		List<String> avatars = userDao.loadAvatarByUid(uid);
 		for (String avatar : avatars) {
@@ -806,11 +805,11 @@ public class UserService {
 		ImagePathUtil.completeAvatarsPath(users, true);
 		return users;
 	}
-
+	@Transactional
 	public void removeOnline(long uid) {
 		userDao.removeOnline(uid);
 	}
-
+	@Transactional
 	public void removeTimeoutOnlineUsers(int timeoutMaxMinute) {
 		userDao.removeTimeoutOnlineUsers(timeoutMaxMinute);
 	}
@@ -824,7 +823,7 @@ public class UserService {
 			}
 		}
 	}
-
+	@Transactional
 	public void clearIllegalUserAndCreate() {
 		List<String> ips = IPUtil.getIpBlackList();
 		for (String ip : ips) {

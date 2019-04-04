@@ -31,7 +31,7 @@ public class VipService {
 	@Resource
 	private VipDao vipDao;
 	private static Logger log = Logger.getLogger(VipService.class);
-
+	@Transactional
 	public ModelMap save(Vip vip) {
 		if (vip.getId() > 0) {
 			vipDao.update(vip);
@@ -152,7 +152,7 @@ public class VipService {
 		VipUser userVip = vipDao.loadUserVip(user_id);
 		return ResultUtil.getResultOKMap().addAttribute("vip_info", userVip);
 	}
-
+	@Transactional
 	public int clearExpireVip() {
 		List<VipUser> vips = vipDao.loadExpireVip();
 		for (VipUser vip : vips) {

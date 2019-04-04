@@ -262,7 +262,7 @@
 			 
 			 
 			 toAdd+="<td>"+pageData["praise_count"]+"</td>";
-			 toAdd+="<td>"+pageData["commentCount"]+"</td>";
+			 toAdd+="<td>"+pageData["comment_count"]+"</td>";
 			 toAdd+="<td><div class='button-group'><a class='button border-main' href='javascript:void(0)'	onclick='return backToCheck("+pageData["id"]+")'><span class='icon-trash-o'></span>恢复到待审核区</a><a class='button border-red' href='javascript:void(0)'	onclick='return del("+pageData["id"]+")'><span class='icon-trash-o'></span>删除</a></div></td>";
 			 toAdd+="</tr>";
 			 tr.after(toAdd);

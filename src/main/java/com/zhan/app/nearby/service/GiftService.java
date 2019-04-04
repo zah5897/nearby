@@ -48,7 +48,7 @@ public class GiftService {
 	private InfoCacheService infoCacheService;
 	@Resource
 	private UserCacheService userCacheService;
-
+	@Transactional
 	public ModelMap save(Gift gift) {
 		if (gift.getId() > 0) {
 			giftDao.update(gift);
@@ -64,7 +64,7 @@ public class GiftService {
 		ImagePathUtil.completeGiftsPath(gifts, true);
 		return ResultUtil.getResultOKMap().addAttribute("gifts", gifts);
 	}
-
+	@Transactional
 	public ModelMap delete(long id) {
 		giftDao.delete(id);
 		return ResultUtil.getResultOKMap().addAttribute("id", id);
@@ -90,7 +90,7 @@ public class GiftService {
 
 	// -----------客户端使用-----------------------
 	// 赠送礼物（用户购买后直接赠送）
-	public Map<?, ?> give(long user_id, long to_user_id, int gift_id, String aid, int count) {
+	public Map<String, Object> give(long user_id, long to_user_id, int gift_id, String aid, int count) {
 		if (gift_id == 0 || user_id == 0 || to_user_id == 0 || TextUtils.isEmpty(aid) || count <= 0) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM);
 		}
@@ -99,8 +99,8 @@ public class GiftService {
 			return ResultUtil.getResultMap(ERROR.ERR_NOT_EXIST, "该礼物不存在");
 		}
 		int gift_coins = gift.getPrice() * count;
-		Map<?, ?> map = HttpService.buy(user_id, aid, gift_coins, gift_id);
-		int code = (int) map.get("code");
+		Map<String, Object> map = HttpService.buy(user_id, aid, gift_coins, gift_id);
+		int code = Integer.parseInt(map.get("code").toString());
 		if (code == 0) {
 			int i = giftDao.addOwn(to_user_id, gift_id, user_id, count);
 			giftDao.addGiftCoins(to_user_id, gift_coins);
@@ -120,7 +120,7 @@ public class GiftService {
 				// Main.sendCmdMessage("sys", users, ext);
 				Object obj = Main.sendTxtMessage(Main.SYS, new String[] { String.valueOf(to_user_id) },
 						u.getNick_name() + desc, ext, PushMsgType.TYPE_RECEIVER_GIFT);
-				Map<?, ?> result = HttpService.queryUserCoins(user_id, aid);
+				Map<String, Object> result = HttpService.queryUserCoins(user_id, aid);
 				return result;
 			} else {
 				return ResultUtil.getResultMap(ERROR.ERR_SYS);
@@ -224,7 +224,7 @@ public class GiftService {
 		}
 		return owns;
 	}
-
+	@Transactional
 	public ModelMap exchange_diamond(long user_id, String token, String aid, int diamond, String code) {
 		if (!userService.checkLogin(user_id, token)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
@@ -254,7 +254,7 @@ public class GiftService {
 		userService.modifyExtra(user_id, aid,(int) (diamond*0.3), 1);
 		return ResultUtil.getResultOKMap("提交成功").addAttribute("value", newVal);
 	}
-
+	@Transactional
 	public ModelMap get_exchange_validate_code(long user_id, String token, Integer code_type) {
 		if (!userService.checkLogin(user_id, token)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);

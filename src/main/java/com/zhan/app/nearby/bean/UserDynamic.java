@@ -72,8 +72,8 @@ public class UserDynamic implements Serializable {
 	
 	private int _from=0;
 	
-	@ColumnType
-	private int commentCount;
+	private int comment_count;
+	private int flover_count;
 	
 
 	public long getId() {
@@ -282,14 +282,23 @@ public class UserDynamic implements Serializable {
 		this._from = _from;
 	}
 
-	public int getCommentCount() {
-		return commentCount;
+	public int getComment_count() {
+		return comment_count;
 	}
 
-	public void setCommentCount(int commentCount) {
-		this.commentCount = commentCount;
+	public void setComment_count(int comment_count) {
+		this.comment_count = comment_count;
 	}
 
+	public int getFlover_count() {
+		return flover_count;
+	}
+
+	public void setFlover_count(int flover_count) {
+		this.flover_count = flover_count;
+	}
+
+	 
 	 
 
 	

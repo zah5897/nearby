@@ -85,7 +85,7 @@ public class HttpService {
      * @param gift_id
      * @return
      */
- 	public static Map<?, ?> buy(long user_id,String aid,int int_amount,int gift_id) {
+ 	public static Map<String, Object> buy(long user_id,String aid,int int_amount,Object gift_id) {
 	   return minusCoins(user_id,aid,int_amount,gift_id);
 	}
  	
@@ -97,7 +97,7 @@ public class HttpService {
  	 * @param ext
  	 * @return
  	 */
-	public static Map<?, ?> minusCoins(long user_id,String aid,int int_amount,Object ext) {
+	public static Map<String, Object> minusCoins(long user_id,String aid,int int_amount,Object ext) {
 		if (TextUtils.isEmpty(MODULE_PAY_URL)) {
 			MODULE_PAY_URL = loadProperty("MODULE_PAY_URL");
 		}
@@ -118,7 +118,7 @@ public class HttpService {
 	
 	
 	//----------------------查询用户coins-------------------------
-	public static Map<?, ?> queryUserCoins(long user_id,String aid) {
+	public static Map<String, Object> queryUserCoins(long user_id,String aid) {
 		if (TextUtils.isEmpty(MODULE_COINS_QUERY_URL)) {
 			MODULE_COINS_QUERY_URL = loadProperty("MODULE_COINS_QUERY_URL");
 		}

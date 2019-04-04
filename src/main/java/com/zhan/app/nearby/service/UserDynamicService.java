@@ -8,6 +8,7 @@ import javax.annotation.Resource;
 
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 
 import com.easemob.server.example.Main;
@@ -35,13 +36,13 @@ public class UserDynamicService {
 	private UserDynamicDao userDynamicDao;
 	@Resource
 	private UserDao userDao;
-
+	@Transactional
 	public long insertDynamic(UserDynamic dynamic) {
 		long id = userDynamicDao.insertDynamic(dynamic);
 		dynamic.setId(id);
 		return id;
 	}
-
+	@Transactional
 	public void addHomeFoundSelected(long dynamic_id) {
 		userDynamicDao.addHomeFoundSelected(dynamic_id);
 	}
@@ -72,10 +73,11 @@ public class UserDynamicService {
 	public List<UserDynamic> getUserDynamic(long user_id, int page, int count) {
 		return getUserDynamic(user_id, page, count, true);
 	}
-
+	@Transactional
 	public long comment(DynamicComment comment) {
 		long id = userDynamicDao.comment(comment);
 		if (id > 0) {
+			userDynamicDao.addCommentCount(id);
 			long user_id = userDynamicDao.getUserIdByDynamicId(comment.getDynamic_id());
 
 			Map<String, String> ext = new HashMap<String, String>();
@@ -138,7 +140,7 @@ public class UserDynamicService {
 		dynamicRelationShip.setRelationship(like.ordinal());
 		return userDynamicDao.updateLikeState(dynamicRelationShip);
 	}
-
+	@Transactional
 	public String delete(Long user_id, String dynamic_ids) {
 		String[] dy_ids = dynamic_ids.split(",");
 		String successid = null;
@@ -215,6 +217,13 @@ public class UserDynamicService {
 			ImageSaveUtils.removeUserImages(dy.getLocal_image_name());
 			userDynamicDao.updateDynamicImgToIllegal(dy.getId());
 		}
+	}
+	public boolean isDynamicExist(long id) {
+		return userDynamicDao.getDynamicCount(id)>0;
+	}
+	public void sendFlover(long user_id, long dynamic_id, int gif_id) {
+		userDynamicDao.sendFlover(user_id,dynamic_id,gif_id);
+		userDynamicDao.addFloverCount(dynamic_id);
 	}
 	
 }

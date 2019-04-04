@@ -1,5 +1,8 @@
 package com.zhan.app.nearby.exception;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -16,7 +19,8 @@ public class AppExceptionHandler implements HandlerExceptionResolver {
 			Exception ex) {
 		String url = request.getRequestURI();
 		MappingJackson2JsonView view = new MappingJackson2JsonView();
-		log.error(url + "\n" + ex.getMessage());
+		String msg = getErrorMessage(ex);
+		log.error(url + "\n" + msg);
 
 		ERROR err;
 		if (ex instanceof AppException) {
@@ -31,6 +35,16 @@ public class AppExceptionHandler implements HandlerExceptionResolver {
 		ModelAndView mv = new ModelAndView();
 		mv.setView(view);
 		return mv;
+	}
+
+	public static String getErrorMessage(Exception e) {
+		if (null == e) {
+			return "";
+		}
+		StringWriter sw = new StringWriter();
+		PrintWriter pw = new PrintWriter(sw);
+		e.printStackTrace(pw);
+		return sw.toString();
 	}
 
 }

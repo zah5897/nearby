@@ -260,7 +260,7 @@
 			 toAdd+="<td>"+time+"</td>";
 			 
 			 toAdd+="<td>"+pageData["praise_count"]+"</td>";
-			 toAdd+="<td>"+pageData["commentCount"]+"</td>";
+			 toAdd+="<td>"+pageData["comment_count"]+"</td>";
 			 toAdd+="<td><div class='button-group'><a class='button border-green' href='javascript:void(0)'	onclick='return verify("+pageData["id"]+")'><span class='icon-trash-o'></span>审核通过</a><a class='button border-yellow' href='javascript:void(0)'	onclick='return illegal("+pageData["id"]+")'><span class='icon-trash-o'></span>违规</a></div></td>";
 			 toAdd+="</tr>";
 			 tr.after(toAdd);

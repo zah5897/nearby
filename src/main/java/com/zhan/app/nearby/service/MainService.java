@@ -4,12 +4,12 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 
 import com.easemob.server.example.Main;
@@ -26,7 +26,6 @@ import com.zhan.app.nearby.cache.UserCacheService;
 import com.zhan.app.nearby.comm.AccountStateType;
 import com.zhan.app.nearby.comm.DynamicMsgType;
 import com.zhan.app.nearby.comm.ExchangeState;
-import com.zhan.app.nearby.comm.PushMsgType;
 import com.zhan.app.nearby.comm.Relationship;
 import com.zhan.app.nearby.dao.GiftDao;
 import com.zhan.app.nearby.dao.SystemDao;
@@ -35,6 +34,7 @@ import com.zhan.app.nearby.dao.UserDynamicDao;
 import com.zhan.app.nearby.dao.VipDao;
 import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.util.HX_SessionUtil;
+import com.zhan.app.nearby.util.HttpService;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.RandomCodeUtil;
 import com.zhan.app.nearby.util.ResultUtil;
@@ -80,7 +80,10 @@ public class MainService {
 			gender = -1;
 		}
 		ModelMap result = ResultUtil.getResultOKMap();
-		List<BaseUser> users = userDao.getFoundUserRandom(user_id, realCount, gender);
+		List<BaseUser> users = systemDao.getTouTiaoUser(realCount);
+		if(users.isEmpty()) {
+			 users = userDao.getFoundUserRandom(user_id, realCount, gender);
+		}
 		ImagePathUtil.completeAvatarsPath(users, true);
 		result.put("users", users);
 		return result;
@@ -99,7 +102,7 @@ public class MainService {
 		return result;
 	}
 
-	public ModelMap getHomeFoundSelected(Long user_id, Long last_id, Integer page_size, Integer city_id) {
+	public ModelMap getHomeFoundSelected(long user_id, Long last_id, Integer page_size, Integer city_id) {
 
 		if (last_id == null || last_id < 0) {
 			last_id = 0l;
@@ -110,9 +113,6 @@ public class MainService {
 			realCount = 20;
 		} else {
 			realCount = page_size;
-		}
-		if (user_id == null) {
-			user_id = 0l;
 		}
 		if (city_id == null || city_id < 0) {
 			city_id = 0;
@@ -589,5 +589,18 @@ public class MainService {
 	public ModelMap test_redis() {
 		userCacheService.test();
 		return ResultUtil.getResultOKMap().addAttribute("test", userCacheService.getTest());
+	}
+
+	public Map<String, Object> buy_first_position(long user_id,String aid) {
+		Map<String, Object> map = HttpService.buy(user_id, aid, 100, "buy_first_position");
+		if(map!=null) {
+			int code =  Integer.parseInt(map.get("code").toString());
+			if (code == 0) {
+				systemDao.insertTouTiaoUser(user_id);
+			}
+			return map;
+		}else {
+			return ResultUtil.getResultMap(ERROR.ERR_FAILED);
+		}
 	}
 }

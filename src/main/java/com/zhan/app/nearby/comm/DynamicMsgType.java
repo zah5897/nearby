@@ -5,5 +5,6 @@ public enum DynamicMsgType {
 	TYPE_COMMENT, // 评论
 	TYPE_EXPRESS, // 表白
 	TYPE_MEET, // 邂逅
-	TYPE_LIKE; // 邂逅
+	TYPE_LIKE, // 邂逅
+	TYPE_SEND_FLOVER; // 送花
 }

@@ -10,8 +10,7 @@
 	xsi:schemaLocation="  
             http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd  
             http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd 
-            http://www.springframework.org/schema/cache
-        http://www.springframework.org/schema/cache/spring-cache.xsd">
+            http://www.springframework.org/schema/cache  http://www.springframework.org/schema/cache/spring-cache.xsd">
 
 	<bean id="poolConfig" class="redis.clients.jedis.JedisPoolConfig">
 		<property name="maxIdle" value="${redis.maxIdle}" />
@@ -65,6 +64,7 @@
 				<entry key="one_day" value="86400" />
 				<entry key="six_hour" value="21600" />
 				<entry key="one_hour" value="3600" />
+				<entry key="thrity_minute" value="1800" />
 				<entry key="one_minute" value="60" />
 			</map>
 		</property>

@@ -24,6 +24,11 @@ public class ImagePathUtil {
 	public static String HOST_PROFIX_BOTTLE_DRAW = "http://nearby-bottle-draw.cn-bj.ufileos.com/";
 
 	public static BaseUser completeAvatarPath(BaseUser user, boolean thumbAndOrigin) {
+		
+		if(user==null) {
+			return user;
+		}
+		
 		String avatar = user.getAvatar();
 		if (TextUtils.isEmpty(avatar)) {
 			return user;
@@ -50,6 +55,12 @@ public class ImagePathUtil {
 	}
 
 	public static Avatar completeAvatarPath(Avatar avatarModel) {
+		
+		if(avatarModel==null) {
+			return avatarModel;
+		}
+		
+		
 		String avatar = avatarModel.getAvatar();
 		if (TextUtils.isEmpty(avatar)) {
 			return avatarModel;
@@ -108,6 +119,11 @@ public class ImagePathUtil {
 
 	public static void completeDynamicPath(UserDynamic dynamic, boolean thumbAndOrigin) {
 
+		
+		if(dynamic==null) {
+			return;
+		}
+		
 		String shortName = dynamic.getLocal_image_name();
 		if (!TextUtils.isEmpty(shortName)) {
 			dynamic.setThumb(HOST_PROFIX_IMAGES + ImageSaveUtils.FILE_IMAGES + shortName);
@@ -125,6 +141,9 @@ public class ImagePathUtil {
 
 	public static void completeImagePath(Image image, boolean thumbAndOrigin) {
 
+		if(image==null) {
+            return;			
+ 		}
 		String shortName = image.getLocal_image_name();
 		if (!TextUtils.isEmpty(shortName)) {
 			image.setThumb(HOST_PROFIX_IMAGES + ImageSaveUtils.FILE_IMAGES + shortName);
@@ -134,6 +153,10 @@ public class ImagePathUtil {
 
 	public static void completeBottleDrawPath(Bottle b) {
 
+		if(b==null) {
+			return;
+		}
+		
 		if (b.getType() != BottleType.DRAW_GUESS.ordinal()) {
 			return;
 		}
@@ -172,6 +195,11 @@ public class ImagePathUtil {
 	}
 
 	public static void completeTopicImagePath(Topic topic, boolean thumbAndOrigin) {
+		
+		if(topic==null) {
+			return;
+		}
+		
 		String small = topic.getIcon();
 		String big = topic.getBig_icon();
 		if (!TextUtils.isEmpty(small)) {
@@ -190,6 +218,11 @@ public class ImagePathUtil {
 	}
 
 	public static void completeGiftPath(Gift gift, boolean thumbAndOrigin) {
+		
+		if(gift==null) {
+			return;
+		}
+		
 		String shortName = gift.getImage_url();
 		if (!TextUtils.isEmpty(shortName)) {
 			gift.setImage_url(HOST_PROFIX_GIFT + ImageSaveUtils.FILE_GIFT_ORIGIN + shortName);

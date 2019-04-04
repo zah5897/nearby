@@ -1,5 +1,7 @@
 package com.zhan.app.nearby.controller;
 
+import java.util.Map;
+
 import javax.annotation.Resource;
 
 import org.apache.log4j.Logger;
@@ -13,6 +15,7 @@ import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.service.CityService;
 import com.zhan.app.nearby.service.MainService;
 import com.zhan.app.nearby.service.UserDynamicService;
+import com.zhan.app.nearby.service.UserService;
 import com.zhan.app.nearby.util.ResultUtil;
 
 @RestController
@@ -26,7 +29,8 @@ public class MainController {
 	private CityService cityService;
 	@Resource
 	private UserCacheService userCacheService;
-	
+	@Resource
+	private UserService userService;
 	private static Logger log = Logger.getLogger(MainController.class);
 	/**
 	 * 发现
@@ -72,6 +76,14 @@ public class MainController {
 		return mainService.found_users(user_id, count, gender);
 	}
 
+	@RequestMapping("buy_first_position")
+	public Map<String, Object> buy_first_position(long user_id,String token,String aid) {
+		if(!userService.checkLogin(user_id, token)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		return mainService.buy_first_position(user_id,aid);
+	}
+	
 	
 	
 	@RequestMapping("new_regist_users")

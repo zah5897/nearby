@@ -380,7 +380,7 @@ public class UserDao extends BaseDao {
 	 * @param count
 	 * @return
 	 */
-	@Cacheable(value="six_hour",key="#root.methodName+'_'+#page+'_'+#count")
+	@Cacheable(value="thrity_minute",key="#root.methodName+'_'+#page+'_'+#count")
 	public List<MeiLi> getVipRankUsers(int page, int count) {
 		String sql = "select u.*, v.dayDiff,c.name as city_name from t_user u "
 				+ "left join (select TIMESTAMPDIFF(DAY,now(),end_time) as dayDiff,start_time,user_id from t_user_vip ) v on u.user_id=v.user_id "
@@ -920,5 +920,15 @@ public class UserDao extends BaseDao {
 	public void cancelFollow(long user_id, long target_id) {
 		String sql = "delete from  t_user_follow where uid=? and target_id=?";
 		jdbcTemplate.update(sql, new Object[] { user_id, target_id });
+	}
+
+	public int getFansCount(long user_id) {
+		String sql="select count(*) from t_user_follow where target_id="+user_id;
+		return jdbcTemplate.queryForObject(sql, Integer.class);
+	}
+
+	public int getFollowCount(long user_id) {
+		String sql="select count(*) from t_user_follow where uid="+user_id;
+		return jdbcTemplate.queryForObject(sql, Integer.class);
 	}
 }

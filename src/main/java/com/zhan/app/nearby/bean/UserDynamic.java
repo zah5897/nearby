@@ -73,7 +73,7 @@ public class UserDynamic implements Serializable {
 	private int _from=0;
 	
 	private int comment_count;
-	private int flover_count;
+	private int flower_count;
 	
 
 	public long getId() {
@@ -290,13 +290,15 @@ public class UserDynamic implements Serializable {
 		this.comment_count = comment_count;
 	}
 
-	public int getFlover_count() {
-		return flover_count;
+	public int getFlower_count() {
+		return flower_count;
 	}
 
-	public void setFlover_count(int flover_count) {
-		this.flover_count = flover_count;
+	public void setFlower_count(int flower_count) {
+		this.flower_count = flower_count;
 	}
+
+	 
 
 	 
 	 

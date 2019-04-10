@@ -311,6 +311,13 @@ public class UserService {
 				user.setContact("花费金币查看");
 			}
 		}
+		
+		
+		user.setFans_count(userDao.getFansCount(user.getUser_id()));
+		user.setMy_follow_count(userDao.getFollowCount(user.getUser_id()));
+		user.setHas_followed(userDao.isFollowed(uid, user_id_for)?1:0);
+		
+		
 		r.put("user", user);
 		Relationship iWithHim = getRelationShip(uid == null ? 0 : uid, user_id_for);
 		Relationship heWithMe = getRelationShip(user_id_for, uid == null ? 0 : uid);

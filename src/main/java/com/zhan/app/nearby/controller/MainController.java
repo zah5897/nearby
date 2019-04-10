@@ -66,6 +66,7 @@ public class MainController {
 		return re;
 	}
 	
+   //是用于第三方的app里面，用于推广我们app用的
 
 	@RequestMapping("foud_users")
 	public ModelMap foud_users(Long user_id, Integer count, Integer gender) {

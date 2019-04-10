@@ -359,7 +359,7 @@ public class UserController {
 					user.setVip(true);
 				}
 				result.put("user", user);
-				result.put("all_coins", userService.loadUserCoins(aid, user.getUser_id()));
+				//result.put("all_coins", userService.loadUserCoins(aid, user.getUser_id()));
 				result.put("vip", vip);
 				return result;
 			} else {

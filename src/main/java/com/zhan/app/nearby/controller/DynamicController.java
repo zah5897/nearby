@@ -181,7 +181,7 @@ public class DynamicController {
 	}
 
 	@RequestMapping("send_flower")
-	public Map<String, Object> send_flower(long user_id,String token,String aid, long dynamic_id) {
+	public Map<String, Object> send_flower(long user_id,String token,String aid, long dynamic_id,int count) {
 		
 		if(!userService.checkLogin(user_id, token)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
@@ -193,13 +193,17 @@ public class DynamicController {
 		long userId = userDynamicService.getUserIdByDynamicId(dynamic_id);
 		
 		int gift_id=44;
-        Map<String, Object> giveResult=giftService.give(user_id, userId, gift_id, aid, 1);
+		
+		if(count<1) {
+			return ResultUtil.getResultMap(ERROR.ERR_PARAM,"赠送数量不能小于1");
+		}
+        Map<String, Object> giveResult=giftService.give(user_id, userId, gift_id, aid, count);
         
         if(((int)giveResult.get("code"))!=0) {
         	return giveResult;
         }
-		userDynamicService.sendFlover(user_id,dynamic_id,gift_id);
-		dynamicMsgService.insertActionMsg(DynamicMsgType.TYPE_SEND_FLOVER, user_id, dynamic_id, userId, "有人为你的动态送花了");
+		userDynamicService.sendFlower(user_id,dynamic_id,gift_id,count);
+		dynamicMsgService.insertActionMsg(DynamicMsgType.TYPE_SEND_FLOWER, user_id, dynamic_id, userId, "有人为你的动态送花了");
 		return ResultUtil.getResultOKMap();
 	}
 	

@@ -54,13 +54,12 @@ public class UserDynamicDao extends BaseDao {
 				+ " u.user_id , u.nick_name ,u.avatar,u.sex ,u.birthday ,u.type " + "from " + TABLE_USER_DYNAMIC
 				+ " dy left join " + TABLE_HOME_FOUND_SELECTED + " hs " + " on dy.id=hs.dynamic_id "
 				+ " left join t_user u on  dy.user_id=u.user_id "
-				+ " left join t_user_relationship ur on dy.user_id=ur.with_user_id "
+				+ " left join (select *from t_user_relationship where user_id=? and relationship=? ) ur on dy.user_id=ur.with_user_id "
 				+ " where hs.selected_state=? and dy.id<?   " + cityIn(city)
-				+ " and ur.user_id<>? and ur.relationship=?  order by dy.id desc limit ?";
+				+ " and   ur.user_id is null order by dy.id desc limit ?";
 
 		long lastID = (last_id <= 0 ? Long.MAX_VALUE : last_id);
-		Object[] param = new Object[] { user_id, ImageStatus.SELECTED.ordinal(), lastID, user_id,
-				Relationship.BLACK.ordinal(), page_size };
+		Object[] param = new Object[] { user_id, user_id,Relationship.BLACK.ordinal(),ImageStatus.SELECTED.ordinal(), lastID, page_size };
 		return jdbcTemplate.query(sql, param, new DynamicMapper());
 //		} else {
 //			if (city != null) {
@@ -88,13 +87,14 @@ public class UserDynamicDao extends BaseDao {
 //		}
 	}
 
-	public void addFloverCount(long dy_id) {
-		String sql = "update " + TABLE_USER_DYNAMIC + " set flover_count=flover_count+1 where id=" + dy_id;
-		jdbcTemplate.update(sql);
+	public void addFlowerCount(long dy_id,int count) {
+		String sql = "update " + TABLE_USER_DYNAMIC + " set flower_count=flower_count+? where id=?";
+		jdbcTemplate.update(sql,new Object[] {count,dy_id});
 	}
 
-	public void addCommentCount(long dy_id) {
-		String sql = "update " + TABLE_USER_DYNAMIC + " set comment_count=comment_count+1 where id=" + dy_id;
+	public void updateCommentCount(long dy_id) {
+		int commentCount=jdbcTemplate.queryForObject("select count(*) from t_dynamic_comment where dynamic_id="+dy_id, Integer.class)+1;
+		String sql = "update " + TABLE_USER_DYNAMIC + " set comment_count="+commentCount+" where id=" + dy_id;
 		jdbcTemplate.update(sql);
 	}
 
@@ -414,9 +414,9 @@ public class UserDynamicDao extends BaseDao {
 		return jdbcTemplate.queryForObject(sql, new Object[] { id }, Integer.class);
 	}
 
-	public void sendFlover(long user_id, long dynamic_id, int gif_id) {
-		String sql = "insert into t_send_flover (uid,dy_id,create_time,gift_id) values (?, ?,?,?)";
-		jdbcTemplate.update(sql, new Object[] { user_id, dynamic_id, new Date(), gif_id });
+	public void sendFlower(long user_id, long dynamic_id, int gif_id,int count) {
+		String sql = "insert into t_send_flower (uid,dy_id,create_time,gift_id,count) values (?, ?,?,?,?)";
+		jdbcTemplate.update(sql, new Object[] { user_id, dynamic_id, new Date(), gif_id,count });
 	}
 
 }

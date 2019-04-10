@@ -19,7 +19,9 @@
 <script src="<%=path%>/js/jquery.js"></script>
 <script src="<%=path%>/js/pintuer.js"></script>
 <style type="text/css">
-   td {word-break:break-all}
+td {
+	word-break: break-all
+}
 </style>
 </head>
 <body>
@@ -53,22 +55,13 @@
 					<th width="5%">评论数量</th>
 					<th width="30%">操作</th>
 				</tr>
-				 
+
 				<tr id="bottom">
 					<td colspan="8">
 						<div class="pagelist">
 							<a href="javascript:void(0)" onclick="return previous()">上一页</a>
-							<a id="next_flag" href="javascript:void(0)"
-								onclick="return next()">下一页</a> <a href="javascript:void(0)"
-								onclick="return page(-1)">尾页</a>
-							<!--  
-							<a href="javascript:void(0)" onclick="return previous()">上一页</a>
-							<a href="javascript:void(0)" onclick="page(1)"><span class="current">1</span></a>
-							<a href="javascript:void(0)">2</a>
-							<a href="javascript:void(0)">3</a>
-							<a href="javascript:void(0)" onclick="return next()">下一页</a>
-							<a href="javascript:void(0)" onclick="return end()">尾页</a>
-							-->
+							<a id="next_flag" href="javascript:void(0)" onclick="next()">下一页</a>
+							<a href="javascript:void(0)" onclick="end()">尾页</a>
 						</div>
 					</td>
 				</tr>
@@ -132,58 +125,52 @@
 					reviewTableTr(pageData[i],tr);
 				}
 			}else{
-				page(json["currentPageIndex"]);
-			}
-			refreshPageIndex(json["pageCount"],json["currentPageIndex"]);		
-		}
-		
-		function refreshPageIndex(page_count,currentPageIndex){
-			currentPage=currentPageIndex;
-			this.pageCount=page_count;
-			
-			var pageIndexHtml="";
-			var nextAflag=$("a#next_flag").eq(0);
-			if(currentPage<=pageSize){
-				var end=pageSize;
-				if(pageCount<pageSize){
-					end=pageCount;
-				} 
-                  for(var i=1;i<=end;i++){
-                	  pageIndexHtml+=getItem(currentPage,i);
-                  }				
-			}else{
-				//11
-				
-				if(currentPage==pageCount){
-					for(var i=pageCount-pageSize+1;i<=pageCount;i++){
-	                	  pageIndexHtml+=getItem(currentPage,i);
-	                  }	
-				}else if(currentPage+5>pageCount){
-					for(var i=pageCount-pageSize+1;i<=pageCount;i++){
-	                	  pageIndexHtml+=getItem(currentPage,i);
-	                  }	
-				}else{
-					for(var i=pageCount-4;i<=pageCount+5;i++){
-	                	  pageIndexHtml+=getItem(currentPage,i);
-	                  }	
-				}
-				
+				alert("no data.");
 			}
 			
-			 $("a.pg_flag").each(function(){
-				 this.remove();//移除当前的元素
-			 })
-			nextAflag.before(pageIndexHtml);
+			currentPage=json["currentPageIndex"]
+			if(currentPage==1){
+				pageCount=json["pageCount"];
+			}
+			refreshPageIndex();		
+	}
+	
+	function refreshPageIndex(){
+		var pageIndexHtml="";
+		var nextAflag=$("a#next_flag").eq(0);
+		var  startIndex=getStartIndex();
+		var  endIndex=getEndIndex(startIndex);
+		 for(var i=startIndex;i<=endIndex;i++){
+       	   pageIndexHtml+=getPageIndexItem(i);
+         }		
+		 $("a.pg_flag").each(function(){
+			 this.remove();//移除当前的元素
+		 })
+		nextAflag.before(pageIndexHtml);
+	}
+	 
+	
+	function getPageIndexItem(i){
+		 if(i==currentPageIndex){
+      		  return "<a  class='pg_flag' href='javascript:void(0)' onclick='return page("+i+")'><span class='current'>"+i+"</span></a>";
+      	  }else{
+      		  return "<a class='pg_flag' href='javascript:void(0)' onclick='return page("+i+")'>"+i+"</a>";
+      	  }
+	}
+	function getStartIndex(){
+	   if(currentPageIndex-2>0){
+		   return currentPageIndex-2;
+	   }else{
+		   return 1;
+	   }
+	}
+	function getEndIndex(startIndex){
+		if(startIndex+4>pageCount){
+			return pageCount;
+		}else{
+			return startIndex+4;
 		}
-		 
-		
-		function getItem(currentPage,i){
-			 if(i==currentPage){
-          		  return "<a  class='pg_flag' href='javascript:void(0)' onclick='return page("+i+")'><span class='current'>"+i+"</span></a>";
-          	  }else{
-          		  return "<a class='pg_flag' href='javascript:void(0)' onclick='return page("+i+")'>"+i+"</a>";
-          	  }
-		}
+	}
 		
 		function verify(id) {
 				$.post("<%=path%>/manager/verify_batch_singl",{id:id,currentPage:currentPage},function(result){
@@ -285,7 +272,8 @@
 			});
 			if(chk_value.length>0){
 				    var ids=JSON.stringify(chk_value);
-					$.post("<%=path%>/manager/verify_batch", {
+					$.post("<%=path%>
+		/manager/verify_batch", {
 							ids : ids,
 							currentPage : currentPage
 						}, function(result) {
@@ -316,11 +304,11 @@
 						return true;
 					}
 				})
-				
-				function imgClick(url){  
-			     var obj = '<img src='+url+'/>';
-			     alert(obj); 
-		        }
+
+		function imgClick(url) {
+			var obj = '<img src='+url+'/>';
+			alert(obj);
+		}
 	</script>
 </body>
 </html>

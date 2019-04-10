@@ -80,10 +80,7 @@ public class MainService {
 			gender = -1;
 		}
 		ModelMap result = ResultUtil.getResultOKMap();
-		List<BaseUser> users = systemDao.getTouTiaoUser(realCount);
-		if(users.isEmpty()) {
-			 users = userDao.getFoundUserRandom(user_id, realCount, gender);
-		}
+		List<BaseUser> users = userDao.getFoundUserRandom(user_id, realCount, gender);
 		ImagePathUtil.completeAvatarsPath(users, true);
 		result.put("users", users);
 		return result;
@@ -249,18 +246,17 @@ public class MainService {
 		if (count == null) {
 			count = 20;
 		}
-		if(type==0) {
+		if (type == 0) {
 			List<MeiLi> users = userDao.getNewRegistUsers(pageIndex, count);
 			return ResultUtil.getResultOKMap().addAttribute("users", users);
-		}else if (type ==1) {
+		} else if (type == 1) {
 			List<MeiLi> meili = giftService.loadMeiLi(pageIndex, count);
 			return ResultUtil.getResultOKMap().addAttribute("users", meili);
-		} 
-		else if (type==2) {
+		} else if (type == 2) {
 			List<MeiLi> meili = giftService.loadTuHao(pageIndex, count);
 			return ResultUtil.getResultOKMap().addAttribute("users", meili);
-		}else if(type==3) {
-			return ResultUtil.getResultOKMap().addAttribute("users",userDao.getVipRankUsers(pageIndex, count));
+		} else if (type == 3) {
+			return ResultUtil.getResultOKMap().addAttribute("users", userDao.getVipRankUsers(pageIndex, count));
 		}
 		return ResultUtil.getResultOKMap();
 	}
@@ -286,51 +282,8 @@ public class MainService {
 				systemDao.loadExchangeHistory(user_id, aid, page_index, count));
 	}
 
-//	public ModelMap exchange_rmb(long user_id, String token, String aid, int diamond, String zhifubao_access_number,
-//			String mobile, String code) {
-//
-//		if (TextUtils.isEmpty(zhifubao_access_number)) {
-//			return ResultUtil.getResultMap(ERROR.ERR_FAILED, "请输入支付宝帐号");
-//		}
-//
-//		boolean isLogin = userService.checkLogin(user_id, token);
-//		if (!isLogin) {
-//			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
-//		}
-//		// 验证code合法性
-//		if (TextUtils.isEmpty(code) || !userCacheService.valideCode(mobile, code)) {
-//			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "验证码错误");
-//		} else {
-//			// userCacheService.clearCode(mobile);
-//		}
-//
-//		PersonalInfo info = systemDao.loadPersonalInfo(user_id, aid);
-//		if (info == null) {
-//			return ResultUtil.getResultMap(ERROR.ERR_FAILED, "请先绑定个人信息");
-//		} else if (!zhifubao_access_number.equals(info.getZhifubao_access_number())) {
-//			return ResultUtil.getResultMap(ERROR.ERR_ZHIFUBAO_ACCOUNT_NOT_MATCH).addAttribute("personal_info", info);
-//		}
-//
-//		int val = giftDao.getVal(user_id);
-//		if (diamond > val) {
-//			return ResultUtil.getResultMap(ERROR.ERR_FAILED, "钻石数量不足");
-//		}
-//		int newVal = val - diamond;
-//		giftDao.updateGiftCoins(user_id, newVal);
-//
-//		Exchange exchange = new Exchange();
-//		exchange.setUser_id(user_id);
-//		exchange.setAid(aid);
-//		exchange.setCreate_time(new Date());
-//		exchange.setDiamond_count(diamond);
-//		exchange.setRmb_fen(diamond * 3);
-//		exchange.setState(ExchangeState.IN_EXCHANGE.ordinal());
-//		systemDao.addExchangeHistory(exchange);
-//		return ResultUtil.getResultOKMap("提交成功").addAttribute("value", newVal);
-//	}
-
 	public ModelMap getHotUsers(String gender, Long fix_user_id, Integer page_index) {
-		int limit = 6;
+		int limit = 5;
 		BaseVipUser fix_user = null;
 
 		if (page_index == null || page_index < 1) {
@@ -338,27 +291,26 @@ public class MainService {
 		}
 
 		if (page_index == 1 && fix_user_id != null && fix_user_id > 0) {
-			limit = 5;
 			fix_user = userDao.getBaseVipUser(fix_user_id);
 		}
-
-		List<BaseVipUser> users = systemDao.loadMaxRateMeiLiRandom(fix_user_id, gender, page_index, limit);
-		// List<BaseUser> users = systemDao.loadMaxRateMeiLi(fix_user_id, gender,
-		// page_index, limit);
+		List<BaseVipUser> users;
+		if(page_index==1&&fix_user!=null) {
+			limit-=1;
+			users=systemDao.getTouTiaoUser(limit);
+			users.add(0,fix_user);
+		}else {
+			users=systemDao.getTouTiaoUser(limit);
+		}
+		if(users.size()<limit) {
+			List<BaseVipUser> tempusers = systemDao.loadMaxRateMeiLiRandom(fix_user_id, gender, page_index, limit-users.size());
+			users.addAll(tempusers);
+		}
 		if (users.size() < limit) {
 			users = systemDao.loadMaxMeiLi(fix_user_id, gender, page_index, limit);
 		}
-
-		if (fix_user != null) {
-
-			for (BaseVipUser user : users) {
-				user.setVip(vipDao.isVip(user.getUser_id()));
-			}
-			users.add(0, fix_user);
-		}
 		ImagePathUtil.completeAvatarsPath(users, true);
-
 		for (BaseVipUser u : users) {
+			u.setVip(vipDao.isVip(u.getUser_id()));
 			u.setBirth_city(cityService.getSimpleCity(u.getBirth_city_id()));
 			u.setCity(cityService.getSimpleCity(u.getCity_id()));
 		}
@@ -545,21 +497,21 @@ public class MainService {
 
 	public void saveBGM(BGM bgm) {
 		bgm.setCreate_time(new Date());
-		if(systemDao.isExist(bgm)>0) {
+		if (systemDao.isExist(bgm) > 0) {
 			systemDao.updateBGM(bgm);
 			return;
 		}
 		systemDao.insertBGM(bgm);
 	}
 
-	public List<BGM> loadBGM(Integer count,Integer test) {
-		if(test!=null&&test==1) { //test=1表示客户端调试，一定返回
+	public List<BGM> loadBGM(Integer count, Integer test) {
+		if (test != null && test == 1) { // test=1表示客户端调试，一定返回
 			return systemDao.loadBGM(count == null || count <= 0 ? 1 : count);
-		}else {
-			int rand=new Random().nextInt(10);
-			if(rand<2) {
+		} else {
+			int rand = new Random().nextInt(10);
+			if (rand < 2) {
 				return systemDao.loadBGM(count == null || count <= 0 ? 1 : count);
-			}else {
+			} else {
 				return new ArrayList<BGM>();
 			}
 		}
@@ -591,15 +543,19 @@ public class MainService {
 		return ResultUtil.getResultOKMap().addAttribute("test", userCacheService.getTest());
 	}
 
-	public Map<String, Object> buy_first_position(long user_id,String aid) {
+	public Map<String, Object> buy_first_position(long user_id, String aid) {
+		long id = systemDao.getTouTiaoFirstUserId();
+		if (user_id == id) {
+			return ResultUtil.getResultOKMap("您已经在头条了");
+		}
 		Map<String, Object> map = HttpService.buy(user_id, aid, 100, "buy_first_position");
-		if(map!=null) {
-			int code =  Integer.parseInt(map.get("code").toString());
+		if (map != null) {
+			int code = Integer.parseInt(map.get("code").toString());
 			if (code == 0) {
 				systemDao.insertTouTiaoUser(user_id);
 			}
 			return map;
-		}else {
+		} else {
 			return ResultUtil.getResultMap(ERROR.ERR_FAILED);
 		}
 	}

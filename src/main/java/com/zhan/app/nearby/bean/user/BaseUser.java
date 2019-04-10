@@ -72,6 +72,12 @@ public class BaseUser implements Serializable{
 	@ColumnType // 忽略保存
 	private int has_followed;
 	
+	@ColumnType // 忽略保存
+	private int fans_count;
+	@ColumnType // 忽略保存
+	private int my_follow_count;
+	
+	
 	public Date getBirthday() {
 		return birthday;
 	}
@@ -247,6 +253,22 @@ public class BaseUser implements Serializable{
 	}
 	public void setHas_followed(int has_followed) {
 		this.has_followed = has_followed;
+	}
+
+	public int getFans_count() {
+		return fans_count;
+	}
+
+	public void setFans_count(int fans_count) {
+		this.fans_count = fans_count;
+	}
+
+	public int getMy_follow_count() {
+		return my_follow_count;
+	}
+
+	public void setMy_follow_count(int my_follow_count) {
+		this.my_follow_count = my_follow_count;
 	}
 	
 }

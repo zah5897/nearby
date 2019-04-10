@@ -7,6 +7,7 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -238,7 +239,7 @@ public class SystemDao extends BaseDao {
 				"insert into t_black_ips (ip) values(?)",new Object[] { ip });
 		return count;
 	}
-	
+	@Cacheable(value="thrity_minute",key="#root.methodName")
 	public List<String> loadBlackIPs() {
 		return jdbcTemplate.queryForList("select *from t_black_ips", String.class);
 	}
@@ -269,7 +270,6 @@ public class SystemDao extends BaseDao {
 	public void updateBGM(BGM bgm) {
 		jdbcTemplate.update("update t_bgm set url=?,create_time=? where author=? and name=? ",new Object[] {bgm.getUrl(),bgm.getCreate_time(),bgm.getAuthor(),bgm.getName()});
 	}
-	
 	/**
 	 * 随机查询bgm
 	 * @param count
@@ -280,14 +280,24 @@ public class SystemDao extends BaseDao {
 	}
 
 	public int insertTouTiaoUser(long user_id) {
+		 jdbcTemplate.update("delete from t_toutiao_user where uid="+user_id);
 		 return jdbcTemplate.update(
 				"insert into t_toutiao_user (uid,create_time) values(?,?)",
 				new Object[] { user_id,new Date()});
 	}
 	
-	public List<BaseUser> getTouTiaoUser(int count){
+	public long getTouTiaoFirstUserId() {
+		List<Long> ids= jdbcTemplate.queryForList("select uid from t_toutiao_user order by create_time desc limit 1", Long.class);
+		if(ids.isEmpty()) {
+			return 0;
+		}
+		return ids.get(0);
+	}
+	
+	
+	public List<BaseVipUser> getTouTiaoUser(int count){
 		String sql="select u.user_id,u.nick_name,u.avatar from t_toutiao_user tt left join t_user u on tt.uid=u.user_id where u.type=1 order by tt.create_time desc limit "+count;
-		return jdbcTemplate.query(sql, new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+		return jdbcTemplate.query(sql, new BeanPropertyRowMapper<BaseVipUser>(BaseVipUser.class));
 	}
 	
 }

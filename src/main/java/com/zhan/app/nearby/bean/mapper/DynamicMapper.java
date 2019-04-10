@@ -33,7 +33,7 @@ public class DynamicMapper implements RowMapper<UserDynamic> {
 		}catch (Exception e) {
 		}
 		try {
-		    dynamic.setComment_count(rs.getInt("flover_count"));
+		    dynamic.setFlower_count(rs.getInt("flower_count"));
 		}catch (Exception e) {
 		}
 		try {

@@ -77,7 +77,7 @@ public class UserDynamicService {
 	public long comment(DynamicComment comment) {
 		long id = userDynamicDao.comment(comment);
 		if (id > 0) {
-			userDynamicDao.addCommentCount(id);
+			userDynamicDao.updateCommentCount(comment.getDynamic_id());
 			long user_id = userDynamicDao.getUserIdByDynamicId(comment.getDynamic_id());
 
 			Map<String, String> ext = new HashMap<String, String>();
@@ -221,9 +221,9 @@ public class UserDynamicService {
 	public boolean isDynamicExist(long id) {
 		return userDynamicDao.getDynamicCount(id)>0;
 	}
-	public void sendFlover(long user_id, long dynamic_id, int gif_id) {
-		userDynamicDao.sendFlover(user_id,dynamic_id,gif_id);
-		userDynamicDao.addFloverCount(dynamic_id);
+	public void sendFlower(long user_id, long dynamic_id, int gif_id,int count) {
+		userDynamicDao.sendFlower(user_id,dynamic_id,gif_id,count);
+		userDynamicDao.addFlowerCount(dynamic_id,count);
 	}
 	
 }

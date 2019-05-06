@@ -33,9 +33,9 @@ import com.zhan.app.nearby.util.MD5Util;
 
 @Service
 public class ManagerService {
-	
+
 	private static Logger log = Logger.getLogger(ManagerService.class);
-	
+
 	@Resource
 	private ManagerDao managerDao;
 	@Resource
@@ -49,7 +49,7 @@ public class ManagerService {
 	private MainService mainService;
 	@Resource
 	private BottleService bottleService;
-	
+
 	@Resource
 	private UserDynamicService userDynamicService;
 	@Resource
@@ -265,7 +265,7 @@ public class ManagerService {
 		managerDao.editUserFoundState(user_id, ship);
 		if (ship == FoundUserRelationship.GONE) {
 			bottleService.clearPoolBottleByUserId(user_id);
-			userDynamicService.updateCommentStatus(user_id,ship);
+			userDynamicService.updateCommentStatus(user_id, ship);
 			Main.disconnect(String.valueOf(user_id));
 		}
 	}
@@ -284,8 +284,8 @@ public class ManagerService {
 	 * 
 	 * @param user_id
 	 */
-	public void editUserMeetBottle(long user_id, int fun,String ip,String by) {
-		managerDao.editUserMeetBottle(user_id, fun,ip,by);
+	public void editUserMeetBottle(long user_id, int fun, String ip, String by) {
+		managerDao.editUserMeetBottle(user_id, fun, ip, by);
 		bottleService.removeMeetBottle(user_id);
 	}
 
@@ -399,29 +399,30 @@ public class ManagerService {
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<BaseUser> listConfirmAvatars(int pageSize, int pageIndex,Long user_id) {
+	public List<BaseUser> listConfirmAvatars(int pageSize, int pageIndex, Long user_id) {
 		return (List<BaseUser>) ImagePathUtil
-				.completeAvatarsPath(userService.listConfirmAvatars(0, pageSize, pageIndex,user_id), false); // state=0为变动，1为
+				.completeAvatarsPath(userService.listConfirmAvatars(0, pageSize, pageIndex, user_id), false); // state=0为变动，1为
 	}
 
 	public int getCountOfConfirmAvatars(Long user_id) {
 		return userService.getCountOfConfirmAvatars(user_id);
 	}
 
-	public void charge_vip(long user_id, int month,String mark) {
-		VipUser vip=new VipUser();
+	public void charge_vip(long user_id, int month, String mark) {
+		VipUser vip = new VipUser();
 		vip.setUser_id(user_id);
 		vip.setMark(mark);
 		vip.setVip_id(vipService.getVipIdByMonth(month));
 		vip.setAid("1178548652");
 		vipService.chargeVip(vip, month);
-		
-	}
-	public Object charge_coin(long user_id, int coin,String mark) {
-	return	userService.modifyExtra(user_id, "1178548652",coin, 1);
+
 	}
 
-	public void change_pwd(String name,String pwd) throws NoSuchAlgorithmException {
-		 managerDao.updateMPwd(name, MD5Util.getMd5(pwd));
+	public Object charge_coin(long user_id, int coin, String mark) {
+		return userService.modifyUserExtra(user_id, "1178548652", coin, 1);
+	}
+
+	public void change_pwd(String name, String pwd) throws NoSuchAlgorithmException {
+		managerDao.updateMPwd(name, MD5Util.getMd5(pwd));
 	}
 }

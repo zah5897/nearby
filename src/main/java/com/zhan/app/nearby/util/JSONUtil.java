@@ -10,7 +10,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 public class JSONUtil {
 	private static Logger log = Logger.getLogger(JSONUtil.class);
 	private static ObjectMapper objectMapper;

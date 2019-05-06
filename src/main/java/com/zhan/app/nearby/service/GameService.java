@@ -22,10 +22,9 @@ public class GameService {
 	@Resource
 	private GameDao gameDao;
 
-	
 	@Resource
 	private UserService userService;
-	
+
 	public void commitGameScore(GameScore score) {
 		if (gameDao.isExist(score)) {
 			gameDao.updateScore(score);
@@ -43,25 +42,26 @@ public class GameService {
 	public List<Map<String, Object>> loadGames() {
 		return gameDao.getGames();
 	}
+
 	public ModelMap startGame(long user_id, String token, String gid) {
-		if(!userService.checkLogin(user_id, token)) {
+		if (!userService.checkLogin(user_id, token)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
-		gameDao.clearStep(user_id,gid);
+		gameDao.clearStep(user_id, gid);
 		return ResultUtil.getResultOKMap();
 	}
 
-	public Map<String, Object> disCube(long user_id, String token,String aid, String gid) {
-		if(!userService.checkLogin(user_id, token)) {
+	public Map<String, Object> disCube(long user_id, String token, String aid, String gid) {
+		if (!userService.checkLogin(user_id, token)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
-		int step=gameDao.getGameStep(user_id, gid)+1;	
-		int coinCount=step*6;
-		Map<String, Object> result=userService.modifyExtra(user_id,aid,coinCount,-1);
-		if((int)result.get("code")==0) {
+		int step = gameDao.getGameStep(user_id, gid) + 1;
+		int coinCount = step * 6;
+		Map<String, Object> result = userService.modifyUserExtra(user_id, aid, coinCount, -1);
+		if ((int) result.get("code") == 0) {
 			gameDao.updateStep(user_id, gid, step);
 			return ResultUtil.getResultOKMap();
-		}else {
+		} else {
 			return result;
 		}
 	}

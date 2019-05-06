@@ -564,9 +564,9 @@ public class BottleDao extends BaseDao {
 
 	public int markDMBottleHadGet(long user_id, long bottle_id) {
 		try {
-			return jdbcTemplate.update("insert into t_dm_bottle_had_get (uid,bid) values(?,?)",
-					new Object[] { user_id, bottle_id });
+			return jdbcTemplate.update("insert into t_dm_bottle_had_get (uid,bid) values(?,?)",new Object[] { user_id, bottle_id });
 		} catch (Exception e) {
+			e.printStackTrace();
 		}
 		return 0;
 	}

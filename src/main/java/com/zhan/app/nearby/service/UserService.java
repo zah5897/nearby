@@ -5,12 +5,10 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.UUID;
 
 import javax.annotation.Resource;
 
-import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
@@ -40,20 +38,15 @@ import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.util.AddressUtil;
 import com.zhan.app.nearby.util.DateTimeUtil;
 import com.zhan.app.nearby.util.HttpService;
-import com.zhan.app.nearby.util.HttpsUtil;
 import com.zhan.app.nearby.util.IPUtil;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.ImageSaveUtils;
-import com.zhan.app.nearby.util.JSONUtil;
 import com.zhan.app.nearby.util.MD5Util;
-import com.zhan.app.nearby.util.PropertiesUtil;
 import com.zhan.app.nearby.util.ResultUtil;
 import com.zhan.app.nearby.util.TextUtils;
 
 @Service
 public class UserService {
-
-	private static Logger log = Logger.getLogger(UserService.class);
 
 	@Resource
 	private UserDao userDao;
@@ -77,6 +70,7 @@ public class UserService {
 	private BottleService bottleService;
 	@Resource
 	private ManagerService managerService;
+
 	public BaseUser getBasicUser(long id) {
 		return userDao.getBaseUser(id);
 	}
@@ -88,9 +82,11 @@ public class UserService {
 	public LocationUser findLocationUserByMobile(String mobile) {
 		return userDao.findLocationUserByMobile(mobile);
 	}
+
 	public String getUserMobileById(long user_id) {
 		return userDao.getUserMobileById(user_id);
 	}
+
 	public String getUserToken(long user_id) {
 		return userDao.getUserToken(user_id);
 	}
@@ -111,6 +107,7 @@ public class UserService {
 	public void delete(long id) {
 		userDao.delete(id);
 	}
+
 	@Transactional
 	public long insertUser(BaseUser user) {
 		user.setCreate_time(new Date());
@@ -134,6 +131,7 @@ public class UserService {
 	public int getUserCountByMobile(String mobile) {
 		return userDao.getUserCountByMobile(mobile);
 	}
+
 	@Transactional
 	public int updateToken(BaseUser user) {
 		// 更新登陆时间
@@ -156,18 +154,22 @@ public class UserService {
 			Main.sendTxtMessage(Main.SYS, new String[] { String.valueOf(user_id) }, msg, ext, PushMsgType.TYPE_WELCOME);
 		}
 	}
+
 	@Transactional
 	public int updatePassword(String mobile, String password) {
 		return userDao.updatePassword(mobile, password);
 	}
+
 	@Transactional
 	public int updateAvatar(long user_id, String newAcatar) {
 		return userDao.updateAvatar(user_id, newAcatar);
 	}
+
 	@Transactional
 	public int saveAvatar(long user_id, String avatar) {
 		return userDao.saveAvatar(user_id, avatar);
 	}
+
 	@Transactional
 	public String deleteAvatar(long user_id, String avatar_id) {
 		int count = userDao.getAvatarCount(user_id);
@@ -181,12 +183,14 @@ public class UserService {
 			return null;
 		}
 	}
+
 	@Transactional
 	public int updateLocation(long user_id, String lat, String lng) {
 		int count = userDao.updateLocation(user_id, lat, lng);
 		// userCacheService.cacheValidateCode(mobile, code);
 		return count;
 	}
+
 	@Transactional
 	public int updateVisitor(long user_id, String app_id, String device_token, String lat, String lng, String zh_cn) {
 		int count = userDao.updateVisitor(user_id, app_id, device_token, lat, lng, zh_cn);
@@ -208,6 +212,7 @@ public class UserService {
 		}
 		return user;
 	}
+
 	@Transactional
 	public int modify_info(long user_id, String nick_name, String birthday, String job, String height, String weight,
 			String signature, String my_tags, String interests, String animals, String musics, String weekday_todo,
@@ -215,6 +220,7 @@ public class UserService {
 		return userDao.modify_info(user_id, nick_name, birthday, job, height, weight, signature, my_tags, interests,
 				animals, musics, weekday_todo, footsteps, want_to_where, birth_city_id, contact);
 	}
+
 	@Transactional
 	public int visitorToNormal(SimpleUser user) {
 		int count = userDao.visitorToNormal(user.getUser_id(), user.getMobile(), user.getPassword(), user.getToken(),
@@ -225,6 +231,7 @@ public class UserService {
 		}
 		return count;
 	}
+
 	public void uploadLocation(final String ip, final Long user_id, String lat, String lng) {
 
 		if (TextUtils.isEmpty(lat) || TextUtils.isEmpty(lng)) {
@@ -245,6 +252,7 @@ public class UserService {
 			userDao.updateLocation(user_id, lat, lng);
 		}
 	}
+
 	@Transactional
 	public void uploadToken(long user_id, String token, String zh_cn) {
 		userDao.uploadToken(user_id, token, zh_cn);
@@ -262,6 +270,7 @@ public class UserService {
 
 		userDao.setCity(user_id, city_id);
 	}
+
 	@Transactional
 	public void updateRelationship(long user_id, long with_user_id, Relationship relation) {
 		userDao.updateRelationship(user_id, with_user_id, relation);
@@ -311,13 +320,11 @@ public class UserService {
 				user.setContact("花费金币查看");
 			}
 		}
-		
-		
+
 		user.setFans_count(userDao.getFansCount(user.getUser_id()));
 		user.setMy_follow_count(userDao.getFollowCount(user.getUser_id()));
-		user.setHas_followed(userDao.isFollowed(uid, user_id_for)?1:0);
-		
-		
+		user.setHas_followed(userDao.isFollowed(uid, user_id_for) ? 1 : 0);
+
 		r.put("user", user);
 		Relationship iWithHim = getRelationShip(uid == null ? 0 : uid, user_id_for);
 		Relationship heWithMe = getRelationShip(user_id_for, uid == null ? 0 : uid);
@@ -652,7 +659,10 @@ public class UserService {
 			int count = userDao.todayCheckInCount(user_id);
 			if (count == 0) {
 				userDao.todayCheckIn(user_id);
-				return modifyExtra(user_id, aid, 1, 1);
+				int checkINCoin = 1;
+				Map<String, Object> result = modifyUserExtra(user_id, aid, checkINCoin, 1);
+				result.put("coins_checkin", checkINCoin);
+				return result;
 			} else {
 				return ResultUtil.getResultMap(ERROR.ERR_FAILED, "已经签过到");
 			}
@@ -662,45 +672,25 @@ public class UserService {
 	}
 
 	public Map<String, Object> checkOut(long user_id, int coin, String aid) {
-		return modifyExtra(user_id, aid, coin, -1);
+		return modifyUserExtra(user_id, aid, coin, -1);
 	}
 
 	public Map<String, Object> rewardCoin(long user_id, int coin, String aid) {
-		return modifyExtra(user_id, aid, coin, 1);
+		return modifyUserExtra(user_id, aid, coin, 1);
 	}
 
-	private String MODULE_ORDER_A_EXTRA;
+	public Map<String, Object> modifyUserExtra(long user_id, String aid, int count, int type) {
+		return HttpService.modifyUserExtra(user_id, aid, count, type);
 
-	public Map<String, Object> modifyExtra(long user_id, String aid, int count, int type) {
-		if (TextUtils.isEmpty(MODULE_ORDER_A_EXTRA)) {
-			Properties prop = PropertiesUtil.load("config.properties");
-			String value = PropertiesUtil.getProperty(prop, "MODULE_ORDER_A_EXTRA");
-			MODULE_ORDER_A_EXTRA = value;
-		}
-		String result = null;
-		try {
-			result = HttpsUtil.sendHttpsPost(MODULE_ORDER_A_EXTRA + "?id_user=" + user_id + "$&aid=" + aid + "&extra="
-					+ count + "_&type=" + type);
-			if (!TextUtils.isEmpty(result)) {
-				Map<String, Object> resultData = JSONUtil.jsonToMap(result);
-				if (resultData != null) {
-					resultData.put("coins_checkin", count);
-				}
-				return resultData;
-			} else {
-				return ResultUtil.getResultMap(ERROR.ERR_FAILED);
-			}
-		} catch (Exception e) {
-			log.error(e.getMessage());
-		}
-		return ResultUtil.getResultMap(ERROR.ERR_FAILED);
 	}
+
 	@Transactional
 	public void editAvatarState(int id) {
 		long uid = userDao.editAvatarState(id, AvatarIMGStatus.ILLEGAL.ordinal());
 		userDao.removeFromFoundUserList(uid);
 		bottleService.clearIllegalMeetBottle(uid);
 	}
+
 	@Transactional
 	public void editAvatarStateByUserId(long uid) {
 		String avatarName = userDao.getCurrentAvatar(uid);
@@ -715,6 +705,7 @@ public class UserService {
 		userDao.removeFromFoundUserList(uid);
 		bottleService.clearIllegalMeetBottle(uid);
 	}
+
 	@Transactional
 	public void deleteIllegalAvatarFileRightNow(long uid) {
 		List<String> avatars = userDao.loadAvatarByUid(uid);
@@ -753,13 +744,13 @@ public class UserService {
 			return ResultUtil.getResultOKMap().addAttribute("contact", weixin);
 		}
 		// 金币减1
-		Map<String, Object> extraData = modifyExtra(user_id, aid, 1, -1);
+		Map<String, Object> extraData = modifyUserExtra(user_id, aid, 1, -1);
 		if (extraData != null && extraData.containsKey("all_coins")) {
 			int all_coins = (int) extraData.get("all_coins");
 			if (all_coins < 0) {
 				throw new AppException(ERROR.ERR_COINS_SHORT);
 			} else {
-				modifyExtra(by_user_id, aid, 1, 1);
+				modifyUserExtra(by_user_id, aid, 1, 1);
 				try {
 					userDao.markContactRel(user_id, by_user_id);
 				} catch (Exception e) {
@@ -812,10 +803,12 @@ public class UserService {
 		ImagePathUtil.completeAvatarsPath(users, true);
 		return users;
 	}
+
 	@Transactional
 	public void removeOnline(long uid) {
 		userDao.removeOnline(uid);
 	}
+
 	@Transactional
 	public void removeTimeoutOnlineUsers(int timeoutMaxMinute) {
 		userDao.removeTimeoutOnlineUsers(timeoutMaxMinute);
@@ -830,6 +823,7 @@ public class UserService {
 			}
 		}
 	}
+
 	@Transactional
 	public void clearIllegalUserAndCreate() {
 		List<String> ips = IPUtil.getIpBlackList();
@@ -844,14 +838,14 @@ public class UserService {
 		}
 	}
 
-	//这里是确定isFace=1的情况，需要添加到首页推荐和邂逅瓶中
+	// 这里是确定isFace=1的情况，需要添加到首页推荐和邂逅瓶中
 	public void addRecommendAndMeetBottle(long user_id) {
 		userDao.addToFound(user_id);
-		managerService.editUserMeetBottle(user_id,1,"127.0.0.1","admin");
+		managerService.editUserMeetBottle(user_id, 1, "127.0.0.1", "admin");
 	}
 
-	public List<BaseUser> listConfirmAvatars(int state, int pageSize, int pageIndex,Long user_id) {
-		return userDao.listConfirmAvatars(state, pageSize, pageIndex,user_id);
+	public List<BaseUser> listConfirmAvatars(int state, int pageSize, int pageIndex, Long user_id) {
+		return userDao.listConfirmAvatars(state, pageSize, pageIndex, user_id);
 	}
 
 	public int getCountOfConfirmAvatars(Long user_id) {
@@ -866,40 +860,41 @@ public class UserService {
 		userDao.clearExpireMeetBottleUser();
 	}
 
-	public void follow(long user_id, long target_id,boolean cancel) {
-		if(cancel) {
-			  userDao.cancelFollow(user_id,target_id);
-		}else {
-			if(!userDao.isFollowed(user_id,target_id)) {
-				userDao.follow(user_id,target_id);
+	public void follow(long user_id, long target_id, boolean cancel) {
+		if (cancel) {
+			userDao.cancelFollow(user_id, target_id);
+		} else {
+			if (!userDao.isFollowed(user_id, target_id)) {
+				userDao.follow(user_id, target_id);
 			}
 		}
-		
 	}
 
 	public BaseUser getBaseUserNoToken(long user_id) {
 		return userDao.getBaseUserNoToken(user_id);
 	}
-	
 	/**
 	 * 消耗金币
+	 * 
 	 * @param user_id
 	 * @param token
 	 * @param aid
 	 * @param coin
 	 * @return
 	 */
-	public Map<String, Object> cost_coin(long user_id, String token, String aid,int coin) {
-		if(coin<0) {
+	public Map<String, Object> cost_coin(long user_id, String token, String aid, int coin) {
+		if (coin < 0) {
 			return ResultUtil.getResultMap(ERROR.ERR_FAILED);
 		}
-		
-		if(coin==0) {
+		if (coin == 0) {
 			return ResultUtil.getResultOKMap();
 		}
-		if(!checkLogin(user_id, token)) {
+		if (!checkLogin(user_id, token)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
-		return modifyExtra(user_id,aid,coin,-1);
+		Map<String, Object> result = modifyUserExtra(user_id, aid, coin, -1);
+		result.put("cost_coins", coin);
+		return result;
+
 	}
 }

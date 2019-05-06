@@ -3,11 +3,9 @@ package com.zhan.app.nearby.service;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import javax.annotation.Resource;
 
-import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
@@ -17,9 +15,7 @@ import com.zhan.app.nearby.bean.VipUser;
 import com.zhan.app.nearby.dao.VipDao;
 import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.util.DateTimeUtil;
-import com.zhan.app.nearby.util.HttpUtil;
-import com.zhan.app.nearby.util.JSONUtil;
-import com.zhan.app.nearby.util.PropertiesUtil;
+import com.zhan.app.nearby.util.HttpService;
 import com.zhan.app.nearby.util.ResultUtil;
 import com.zhan.app.nearby.util.TextUtils;
 
@@ -27,10 +23,10 @@ import com.zhan.app.nearby.util.TextUtils;
 public class VipService {
 
 	public static final int LIMIT_COUNT = 5;
-	private String MODULE_ORDER_URL;
+
 	@Resource
 	private VipDao vipDao;
-	private static Logger log = Logger.getLogger(VipService.class);
+
 	@Transactional
 	public ModelMap save(Vip vip) {
 		if (vip.getId() > 0) {
@@ -63,35 +59,8 @@ public class VipService {
 		if (TextUtils.isEmpty(vipUser.getAid())) {
 			return ResultUtil.getResultMap(ERROR.ERR_NOT_EXIST, "app not exist");
 		}
-		if (TextUtils.isEmpty(MODULE_ORDER_URL)) {
-			Properties prop = PropertiesUtil.load("config.properties");
-			String value = PropertiesUtil.getProperty(prop, "MODULE_ORDER_URL");
-			MODULE_ORDER_URL = value;
-		}
-		String result = null;
-//		try {
-//			result = HttpsUtil.sendHttpsPost(MODULE_ORDER_URL + "?user_id=" + vipUser.getUser_id() + "&aid="
-//					+ vipUser.getAid() + "&rule_id=" + vipUser.getVip_id() + "&subject=" + vip.getName() + "&amount="
-//					+ vip.getAmount() + "&type=1");
-//		} catch (Exception e) {
-//			log.error("购买失败" + e.getMessage());
-//		}
-		
-		
-		
-		try {
-			String name=vip.getName();
-			result = HttpUtil.getGet(MODULE_ORDER_URL + "?user_id=" + vipUser.getUser_id() + "&aid="
-					+ vipUser.getAid() + "&rule_id=" + vipUser.getVip_id() + "&subject=" + name + "&amount="
-					+ vip.getAmount() + "&type=1");
-		} catch (Exception e) {
-			log.error("购买失败" + e.getMessage());
-		}
-		
-		if (!TextUtils.isEmpty(result)) {
-			return JSONUtil.jsonToMap(result);
-		}
-		return ResultUtil.getResultMap(ERROR.ERR_FAILED);
+		return HttpService.buyVIP(vipUser.getUser_id(), vipUser.getAid(), vipUser.getVip_id(), vip.getName(),
+				vip.getAmount(), 1);
 	}
 
 	public String buy_notify(VipUser vipUser) {
@@ -120,10 +89,8 @@ public class VipService {
 		}
 		// 还不是vip
 	}
-	
-	
-	public String chargeVip(VipUser vipUser,int month) {
-		 
+
+	public String chargeVip(VipUser vipUser, int month) {
 
 		// 当前vip类型
 		Date now = new Date();
@@ -134,7 +101,7 @@ public class VipService {
 			vipDao.delUserVip(vipUser.getUser_id());
 			vipUser.setStart_time(now);
 			vipUser.setLast_order_no(DateTimeUtil.getOutTradeNo());
-			vipUser.setEnd_time(DateTimeUtil.getVipEndDate(now,month));
+			vipUser.setEnd_time(DateTimeUtil.getVipEndDate(now, month));
 			vipDao.insert(vipUser);
 			return "success";
 		} else {
@@ -146,12 +113,12 @@ public class VipService {
 		}
 		// 还不是vip
 	}
-	
 
 	public Map<?, ?> load(long user_id) {
 		VipUser userVip = vipDao.loadUserVip(user_id);
 		return ResultUtil.getResultOKMap().addAttribute("vip_info", userVip);
 	}
+
 	@Transactional
 	public int clearExpireVip() {
 		List<VipUser> vips = vipDao.loadExpireVip();
@@ -162,10 +129,10 @@ public class VipService {
 	}
 
 	public int getVipIdByMonth(int month) {
-		List<Integer> ids=vipDao.getVipIdByMonth(month);
-		if(ids.isEmpty()) {
+		List<Integer> ids = vipDao.getVipIdByMonth(month);
+		if (ids.isEmpty()) {
 			return 2;
-		}else {
+		} else {
 			return ids.get(0);
 		}
 	}

@@ -11,11 +11,10 @@ import org.apache.log4j.Logger;
 
 import com.zhan.app.nearby.dao.SystemDao;
 
-
 public class IPUtil {
 	private static Logger log = Logger.getLogger(IPUtil.class);
 	public static List<String> ipBlackList;
-	
+
 	public static String getIpAddress(HttpServletRequest request) {
 		String ipAddress = null;
 		// ipAddress = this.getRequest().getRemoteAddr();
@@ -50,14 +49,13 @@ public class IPUtil {
 		}
 		return ipAddress;
 	}
-	
-	
+
 	public static boolean addIPBlack(String ip) {
-		SystemDao dao=SpringContextUtil.getBean("systemDao");
-		if(ipBlackList==null) {
-			ipBlackList=dao.loadBlackIPs();
+		SystemDao dao = SpringContextUtil.getBean("systemDao");
+		if (ipBlackList == null) {
+			ipBlackList = dao.loadBlackIPs();
 		}
-		if(!ipBlackList.contains(ip)) {
+		if (!ipBlackList.contains(ip)) {
 			ipBlackList.add(ip);
 			dao.insertIpToBlack(ip);
 			return true;
@@ -65,46 +63,39 @@ public class IPUtil {
 		return false;
 	}
 
-	
 	public static void removeBlackIP(String ip) {
-		SystemDao dao=SpringContextUtil.getBean("systemDao");
-		if(ipBlackList==null) {
-			ipBlackList=dao.loadBlackIPs();
+		SystemDao dao = SpringContextUtil.getBean("systemDao");
+		if (ipBlackList == null) {
+			ipBlackList = dao.loadBlackIPs();
 		}
 		ipBlackList.remove(ip);
 		dao.deleteFromBlackIps(ip);
 	}
-	
+
 	public static List<String> getIpBlackList() {
-		if(ipBlackList==null) {
-			SystemDao dao=SpringContextUtil.getBean("systemDao");
-			if(ipBlackList==null) {
-				ipBlackList=dao.loadBlackIPs();
+		if (ipBlackList == null) {
+			SystemDao dao = SpringContextUtil.getBean("systemDao");
+			if (ipBlackList == null) {
+				ipBlackList = dao.loadBlackIPs();
 			}
 		}
 		return ipBlackList;
 	}
-	
+
 	public static boolean doBlackIPFilter(HttpServletRequest request) {
-		String ip=getIpAddress(request);
-		if(getIpBlackList().contains(ip)) {
+		String ip = getIpAddress(request);
+		if (getIpBlackList().contains(ip)) {
 			return true;
 		}
 		return false;
 	}
-	
-	
-	
+
 	public static String getCityName(String ip) {
 		String city_name_url = "http://int.dpool.sina.com.cn/iplookup/iplookup.php?format=json&ip=" + ip;
-
-		String result = HttpUtil.sendGet(city_name_url, null);
+		Map<String, Object> address = HttpClientUtils.get(city_name_url);
 		String cityName = null;
-		if (!TextUtils.isEmpty(result)) {
-			Map<String, Object> address = JSONUtil.jsonToMap(result);
-			if (address != null) {
-				cityName = address.get("city").toString();
-			}
+		if (address != null) {
+			cityName = address.get("city").toString();
 		}
 		return cityName;
 	}

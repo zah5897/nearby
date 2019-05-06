@@ -251,7 +251,7 @@ public class GiftService {
 		exchange.setDiamond_count(diamond);
 		exchange.setState(ExchangeState.IN_EXCHANGE.ordinal());
 		giftDao.addExchangeHistory(exchange);
-		userService.modifyExtra(user_id, aid,(int) (diamond*0.3), 1);
+		userService.modifyUserExtra(user_id, aid,(int) (diamond*0.3), 1);
 		return ResultUtil.getResultOKMap("提交成功").addAttribute("value", newVal);
 	}
 	@Transactional

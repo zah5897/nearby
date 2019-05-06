@@ -8,7 +8,6 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import org.apache.log4j.Logger;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -93,7 +92,7 @@ public class UserDynamicDao extends BaseDao {
 	}
 
 	public void updateCommentCount(long dy_id) {
-		int commentCount=jdbcTemplate.queryForObject("select count(*) from t_dynamic_comment where dynamic_id="+dy_id, Integer.class)+1;
+		int commentCount=jdbcTemplate.queryForObject("select count(*) from t_dynamic_comment where dynamic_id="+dy_id, Integer.class);
 		String sql = "update " + TABLE_USER_DYNAMIC + " set comment_count="+commentCount+" where id=" + dy_id;
 		jdbcTemplate.update(sql);
 	}

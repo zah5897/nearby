@@ -272,8 +272,7 @@ td {
 			});
 			if(chk_value.length>0){
 				    var ids=JSON.stringify(chk_value);
-					$.post("<%=path%>
-		/manager/verify_batch", {
+					$.post("<%=path%>/manager/verify_batch", {
 							ids : ids,
 							currentPage : currentPage
 						}, function(result) {

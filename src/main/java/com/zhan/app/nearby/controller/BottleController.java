@@ -20,6 +20,7 @@ import com.zhan.app.nearby.service.UserService;
 import com.zhan.app.nearby.util.DeviceUtil;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.ImageSaveUtils;
+import com.zhan.app.nearby.util.RedPacketUtils;
 import com.zhan.app.nearby.util.ResultUtil;
 
 @RestController
@@ -75,6 +76,13 @@ public class BottleController {
 
 		bottle.set_from(DeviceUtil.getRequestDevice(_ua));
 
+	    if(bottle.getType()==BottleType.RED_PACKAGE.ordinal()) {
+			if(bottle.getRed_package_coin_total() < bottle.getRed_package_count()) {
+				return ResultUtil.getResultMap(ERROR.ERR_PARAM,"每个红包不得少于1个扇贝");
+			}
+			bottle.setAnswer(String.join(",",RedPacketUtils.splitRedPackets(bottle.getRed_package_coin_total(),bottle.getRed_package_count())));
+			bottle.setRed_package_coin_rest(bottle.getRed_package_coin_total());
+		 }
 		bottleService.send(bottle, aid);
 		return ResultUtil.getResultOKMap().addAttribute("bottle", bottle);
 	}
@@ -239,7 +247,6 @@ public class BottleController {
 
 	@RequestMapping("ignore")
 	public ModelMap ignore() {
-		// long user_id, String token, String with_user_id
 		return ResultUtil.getResultOKMap();
 	}
 
@@ -276,4 +283,10 @@ public class BottleController {
 	public ModelMap reward_list(long user_id,    Integer page,Integer count) {
 		return ResultUtil.getResultOKMap().addAttribute("reward_list", bottleService.rewardHistory(user_id,  page==null?1:page,count==null?20:count));
 	}
+	
+	@RequestMapping("get_red_package_history")
+	public ModelMap get_red_package_history(long user_id, long bottle_id) {
+		return ResultUtil.getResultOKMap().addAttribute("red_package_gets", bottleService.getRedPackageHistory(bottle_id));
+	}
+	
 }

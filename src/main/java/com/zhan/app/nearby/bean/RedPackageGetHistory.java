@@ -4,27 +4,39 @@ import java.io.Serializable;
 import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.zhan.app.nearby.annotation.ColumnType;
 import com.zhan.app.nearby.bean.user.BaseUser;
 
-public class GameScore implements Serializable {
-	private int score;
+public class RedPackageGetHistory implements Serializable {
+	@ColumnType
+	private int id;
+	private long bid;
 	private long uid;
+	private int red_package_coin_get;
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm", locale = "zh", timezone = "GMT+8")
 	private Date create_time;
-	private String gid;
-	@ColumnType
-	private BaseUser user;
-
 	@ColumnType
 	private long create_time_v2;
 
-	public int getScore() {
-		return score;
+	@JsonIgnore
+	@ColumnType
+	private BaseUser user;
+
+	public int getId() {
+		return id;
 	}
 
-	public void setScore(int score) {
-		this.score = score;
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public long getBid() {
+		return bid;
+	}
+
+	public void setBid(long bid) {
+		this.bid = bid;
 	}
 
 	public long getUid() {
@@ -33,6 +45,14 @@ public class GameScore implements Serializable {
 
 	public void setUid(long uid) {
 		this.uid = uid;
+	}
+
+	public int getRed_package_coin_get() {
+		return red_package_coin_get;
+	}
+
+	public void setRed_package_coin_get(int red_package_coin_get) {
+		this.red_package_coin_get = red_package_coin_get;
 	}
 
 	public Date getCreate_time() {
@@ -44,26 +64,12 @@ public class GameScore implements Serializable {
 		this.create_time_v2 = create_time.getTime() / 1000;
 	}
 
-    
-
-	public String getGid() {
-		return gid;
-	}
-
-	public void setGid(String gid) {
-		this.gid = gid;
-	}
-
 	public BaseUser getUser() {
 		return user;
 	}
 
 	public void setUser(BaseUser user) {
 		this.user = user;
-	}
-
-	public long getCreate_time_v2() {
-		return create_time_v2;
 	}
 
 }

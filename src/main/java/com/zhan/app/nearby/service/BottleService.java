@@ -16,6 +16,7 @@ import com.easemob.server.example.Main;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.zhan.app.nearby.bean.Bottle;
 import com.zhan.app.nearby.bean.BottleExpress;
+import com.zhan.app.nearby.bean.RedPackageGetHistory;
 import com.zhan.app.nearby.bean.Reward;
 import com.zhan.app.nearby.bean.VipUser;
 import com.zhan.app.nearby.bean.type.BottleType;
@@ -38,6 +39,8 @@ import com.zhan.app.nearby.util.BottleKeyWordUtil;
 import com.zhan.app.nearby.util.HX_SessionUtil;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.JSONUtil;
+import com.zhan.app.nearby.util.RandomCodeUtil;
+import com.zhan.app.nearby.util.RedPacketUtils;
 import com.zhan.app.nearby.util.ResultUtil;
 import com.zhan.app.nearby.util.TextUtils;
 
@@ -64,6 +67,11 @@ public class BottleService {
 	@Resource
 	private UserCacheService userCacheService;
 
+	
+	private static String[] meet_msg={"你好，很高兴遇见你","你在吗？","遇见你是缘分。","你是我等待的那个朋友哦～","瓶友，你好","好久不见～","亲爱的陌生人，你好！","Hi,你在吗？","Hello!我是你的瓶友","很高兴成为网友～"};
+	
+	
+	
 	public Bottle getBottleFromPool(long user_id) {
 
 		List<Bottle> bottles = bottleDao.getBottleRandomInPool(user_id, 1);
@@ -120,36 +128,62 @@ public class BottleService {
 		int realType = type;
 
 		if (state != BottleState.IOS_REVIEW) {
-
-			// 旧版本
-			if (_ua.startsWith("a") && "1.9".compareTo(version) > 0
-					|| _ua.startsWith("g") && "1.1.2".compareTo(version) > 0) {
-
-				if (look_sex == null) {
-					bolltes = bottleDao.getBottles(user_id, look_sex, page_size, realType);
-				} else {
-					VipUser vip = vipDao.loadUserVip(user_id);
-					if (vip == null || vip.getDayDiff() < 0) {
-						bolltes = bottleDao.getBottles(user_id, null, page_size, realType);
+			if(_ua.startsWith("g")) {
+				if("1.2".compareTo(version) > 0) {
+					if (look_sex == null) {
+						bolltes = bottleDao.getBottles(user_id, look_sex, page_size, realType);
 					} else {
-						int sex = (look_sex == null ? -1 : look_sex);
-						bolltes = bottleDao.getBottles(user_id, sex, page_size, realType);
+						VipUser vip = vipDao.loadUserVip(user_id);
+						if (vip == null || vip.getDayDiff() < 0) {
+							bolltes = bottleDao.getBottles(user_id, null, page_size, realType);
+						} else {
+							int sex = (look_sex == null ? -1 : look_sex);
+							bolltes = bottleDao.getBottles(user_id, sex, page_size, realType);
+						}
 					}
-				}
-			} else {
-				if (look_sex == null) {
-					bolltes = bottleDao.getBottlesV19(user_id, null, page_size, realType);
-				} else {
-					VipUser vip = vipDao.loadUserVip(user_id);
-					if (vip == null || vip.getDayDiff() < 0) {
+				}else {
+					if (look_sex == null) {
 						bolltes = bottleDao.getBottlesV19(user_id, null, page_size, realType);
 					} else {
-						int sex = (look_sex == null ? -1 : look_sex);
-						bolltes = bottleDao.getBottlesV19(user_id, sex, page_size, realType);
+						VipUser vip = vipDao.loadUserVip(user_id);
+						if (vip == null || vip.getDayDiff() < 0) {
+							bolltes = bottleDao.getBottlesV19(user_id, null, page_size, realType);
+						} else {
+							int sex = (look_sex == null ? -1 : look_sex);
+							bolltes = bottleDao.getBottlesV19(user_id, sex, page_size, realType);
+						}
 					}
 				}
 			}
-
+			// 旧版本
+			if (_ua.startsWith("a")) {
+				if("1.9.4".compareTo(version) > 0 ) {
+					if (look_sex == null) {
+						bolltes = bottleDao.getBottlesV19(user_id, null, page_size, realType);
+					} else {
+						VipUser vip = vipDao.loadUserVip(user_id);
+						if (vip == null || vip.getDayDiff() < 0) {
+							bolltes = bottleDao.getBottlesV19(user_id, null, page_size, realType);
+						} else {
+							int sex = (look_sex == null ? -1 : look_sex);
+							bolltes = bottleDao.getBottlesV19(user_id, sex, page_size, realType);
+						}
+					}
+				}else {
+					if (look_sex == null) {
+						bolltes = bottleDao.getBottlesRED_PACKAGE(user_id, null, page_size, realType);
+					} else {
+						VipUser vip = vipDao.loadUserVip(user_id);
+						if (vip == null || vip.getDayDiff() < 0) {
+							bolltes = bottleDao.getBottlesRED_PACKAGE(user_id, null, page_size, realType);
+						} else {
+							int sex = (look_sex == null ? -1 : look_sex);
+							bolltes = bottleDao.getBottlesRED_PACKAGE(user_id, sex, page_size, realType);
+						}
+					}
+				}
+			 
+			}
 		} else { //审核期间的瓶子
 			if (look_sex == null) {
 				bolltes = bottleDao.getBottlesIOS_REVIEW(user_id, null, page_size, realType);
@@ -248,8 +282,12 @@ public class BottleService {
 		// 从池中清理掉重复的瓶子
 		checkExistAndClear(bottle);
 		bottle.setCreate_time(new Date());
+		
 		bottleDao.insert(bottle);
-
+		
+		if(bottle.getType()==BottleType.RED_PACKAGE.ordinal()) {
+			return;
+		}
 		if (bottle.getId() > 0 && bottle.getState() != BottleState.BLACK.ordinal()) {
 			bottleDao.insertToPool(bottle);
 		}
@@ -316,9 +354,9 @@ public class BottleService {
 					BaseUser u1 = userDao.getBaseUserNoToken(user_id);
 					BaseUser u2 = userDao.getBaseUserNoToken(uid);
 					// 异性，且40%概率发送
-//					if(u1.getSex()!=u2.getSex()&&RandomCodeUtil.randomPercentOK(5)) {
-//						mainService.makeChatSession(u1, u2);
-//					}
+					if(u1.getSex()!=u2.getSex()&&RandomCodeUtil.randomPercentOK(5)) {
+						HX_SessionUtil.makeChatSession(u1, u2, bid, "很高兴遇见你");
+					}
 				} catch (Exception e) {
 				}
 			}
@@ -394,6 +432,7 @@ public class BottleService {
 		return ResultUtil.getResultOKMap().addAttribute("with_user_id", user_ids);
 	}
 
+	@Transactional
 	public ModelMap replay(String aid, long user_id, long target, String msg, long bottle_id) {
 		BaseUser user = userDao.getBaseUser(user_id);
 
@@ -427,6 +466,27 @@ public class BottleService {
 				}
 			} else {
 				return ResultUtil.getResultOKMap().addAttribute("result", 0);
+			}
+		}else if(bottle.getType() == BottleType.RED_PACKAGE.ordinal()) {
+			int count=bottle.getRed_package_count();
+			int restCoin=bottle.getRed_package_coin_rest();
+			if(count>0&&restCoin>0&&bottle.getContent().contains(",")) {
+				String content=bottle.getAnswer();
+				String curCount=content.substring(0, content.indexOf(","));
+				String restCount=content.substring(content.indexOf(",")+1);
+				int coinCount=Integer.parseInt(curCount);
+				
+				Map<String, Object> map=userService.modifyExtra(user_id, aid, coinCount, 1); //增加金币
+				int code = Integer.parseInt(map.get("code").toString());
+				if (code == 0) {
+					bottleDao.updateRedPackage(restCount,bottle.getRed_package_count()-1,bottle.getRed_package_coin_rest()-coinCount,bottle_id);//修改该瓶子的剩余数量等信息
+					addGetRedPackageHistory(user_id, bottle_id, Integer.parseInt(curCount)); //记录历史
+					return ResultUtil.getResultOKMap().addAttribute("red_package_get_coin", coinCount);
+				}else {
+					return ResultUtil.getResultOKMap().addAttribute("red_package_get_coin", 0);
+				}
+			}else {
+				return ResultUtil.getResultOKMap().addAttribute("red_package_get_coin", "-1");
 			}
 		}
 		return ResultUtil.getResultOKMap();
@@ -489,7 +549,8 @@ public class BottleService {
 		BaseUser u1 = userDao.getBaseUserNoToken(user_id);
 		BaseUser u2 = userDao.getBaseUserNoToken(target);
 		long meet_bottle_id = bottleDao.getMeetBottleByUserId(target);
-		HX_SessionUtil.makeChatSession(u1, u2, meet_bottle_id, "很高兴遇见你");
+		String msg=meet_msg[RandomCodeUtil.getRandom(meet_msg.length)];
+		HX_SessionUtil.makeChatSession(u1, u2, meet_bottle_id, msg);
 		return ResultUtil.getResultOKMap().addAttribute("user", u2);
 	}
 	@Transactional
@@ -545,8 +606,10 @@ public class BottleService {
 			}else if(type==BottleType.VOICE) {
 				bottleDao.keepVoiceByDay(3);
 				continue;
+			}else if(type==BottleType.RED_PACKAGE) {
+				bottleDao.keepRedPackageByDay(7);
+				continue;
 			}
-			
 			int size = bottleDao.getSizeByType(type.ordinal());
 			if (size < limit) {
 				continue;
@@ -558,5 +621,12 @@ public class BottleService {
 	@Transactional
 	public void removeMeetBottle(long user_id) {
 		bottleDao.removeMeetBottle(user_id);
+	}
+	private void addGetRedPackageHistory(long uid,long bid,int coin) {
+		bottleDao.saveRedPackageHistory(uid,bid,coin);
+	}
+	
+	public List<RedPackageGetHistory> getRedPackageHistory(long bid){
+		return bottleDao.getRedPackageHistoryByBid(bid);
 	}
 }

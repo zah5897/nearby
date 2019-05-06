@@ -337,7 +337,7 @@ public class UserDao extends BaseDao {
 		jdbcTemplate.update(sql);
 	}
 	
-	@Cacheable(value="six_hour",key="#root.methodName+'_'+#page+'_'+#count")
+	@Cacheable(value="one_hour",key="#root.methodName+'_'+#page+'_'+#count")
 	public List<MeiLi> getNewRegistUsers(int page, int count) {
 		
 		String sql="select u.user_id ,u.nick_name, u.avatar,v.dayDiff, gift.tval as sanbei ,gift.tval*5+lk.like_count as mli  from "
@@ -350,7 +350,7 @@ public class UserDao extends BaseDao {
 				+ " on u.user_id=lk.with_user_id "
 				+ " left join t_found_user_relationship fu "
 				+ " on u.user_id=fu.uid "
-				+ "where   u.type=? and  fu.state<>1 and DATE_SUB(CURDATE(), INTERVAL 15 DAY) <= date(create_time) order by mli desc limit ?,?";
+				+ "where   u.type=? and   (fu.state is null or fu.state<>1)  and DATE_SUB(CURDATE(), INTERVAL 15 DAY) <= date(create_time) order by mli desc limit ?,?";
 		
 		List<MeiLi> users = jdbcTemplate.query(sql,
 				new Object[] {Relationship.LIKE.ordinal(), UserType.OFFIEC.ordinal(), (page - 1) * count, count }, new RowMapper<MeiLi>() {
@@ -827,7 +827,12 @@ public class UserDao extends BaseDao {
 	}
 
 	public void saveUserOnline(long uid) {
-		jdbcTemplate.update("insert into t_user_online (uid,check_time) values(?,?)", new Object[] { uid, new Date() });
+   	   int count=jdbcTemplate.queryForObject("select count(*) from t_user_online where uid="+uid, Integer.class);
+		if(count==0) {
+			jdbcTemplate.update("insert into t_user_online (uid,check_time) values(?,?)", new Object[] { uid, new Date() });
+		}else {
+			jdbcTemplate.update("update t_user_online set check_time=? where uid=?", new Object[] {new Date(),uid });
+		}
 	}
 
 	public void updateOnlineCheckTime(long uid) {

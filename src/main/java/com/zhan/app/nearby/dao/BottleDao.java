@@ -14,6 +14,7 @@ import org.springframework.stereotype.Repository;
 
 import com.zhan.app.nearby.bean.Bottle;
 import com.zhan.app.nearby.bean.BottleExpress;
+import com.zhan.app.nearby.bean.RedPackageGetHistory;
 import com.zhan.app.nearby.bean.Reward;
 import com.zhan.app.nearby.bean.type.BottleType;
 import com.zhan.app.nearby.bean.user.BaseUser;
@@ -143,10 +144,10 @@ public class BottleDao extends BaseDao {
 					+ ", u.sex ,c.name as city_name from t_bottle_pool p "
 					+ " left join  t_bottle b  on p.bottle_id=b.id " + "left join t_user u on b.user_id=u.user_id "
 					+ " left join t_sys_city c on u.birth_city_id=c.id "
-					+ " where u.avatar<>'illegal.jpg' and  b.state<>?  and b.user_id<>?  and b.type<>? and b.type<>? and b.type<>? "
+					+ " where u.avatar<>'illegal.jpg' and  b.state<>?  and b.user_id<>?  and b.type<>? and b.type<>? and b.type<>? and b.type<>? "
 					+ sexCondition + " order by  rand()  limit ?";
 			return jdbcTemplate.query(sql, new Object[] {BottleState.BLACK.ordinal(), user_id, BottleType.DM_TXT.ordinal(),
-					BottleType.DM_VOICE.ordinal(), BottleType.DRAW_GUESS.ordinal(), limit }, getBottleMapper());
+					BottleType.DM_VOICE.ordinal(), BottleType.DRAW_GUESS.ordinal(), BottleType.RED_PACKAGE.ordinal(), limit }, getBottleMapper());
 		} else {
 			String sql = "select b.*,u.nick_name,u.avatar,u.birthday,u.birth_city_id,u.city_id," + getAgeSql()
 					+ ", u.sex ,c.name as city_name from t_bottle_pool p "
@@ -173,10 +174,10 @@ public class BottleDao extends BaseDao {
 					+ ", u.sex ,c.name as city_name from t_bottle_pool p "
 					+ " left join  t_bottle b  on p.bottle_id=b.id " + "left join t_user u on b.user_id=u.user_id "
 					+ " left join t_sys_city c on u.birth_city_id=c.id "
-					+ " where u.avatar<>'illegal.jpg' and b.state<>? and  b.user_id<>?  and b.type<>? and b.type<>? " + sexCondition
+					+ " where u.avatar<>'illegal.jpg' and b.state<>? and  b.user_id<>?  and b.type<>? and b.type<>?  and b.type<>?  " + sexCondition
 					+ "  order by  rand()  limit ?";
 			return jdbcTemplate.query(sql,
-					new Object[] {BottleState.BLACK.ordinal(), user_id, BottleType.DM_TXT.ordinal(), BottleType.DM_VOICE.ordinal(), limit },
+					new Object[] {BottleState.BLACK.ordinal(), user_id, BottleType.DM_TXT.ordinal(), BottleType.DM_VOICE.ordinal(),BottleType.RED_PACKAGE.ordinal(), limit },
 					getBottleMapper());
 		} else if (type == BottleType.DRAW_GUESS.ordinal()) {
 
@@ -200,6 +201,51 @@ public class BottleDao extends BaseDao {
 
 		}
 	}
+
+	
+	
+	// 此版本新增 “我画你猜”瓶子
+		public List<Bottle> getBottlesRED_PACKAGE(long user_id, Integer sex, int limit, int type) {
+			if (type != -1) {
+				if (type == BottleType.DM_TXT.ordinal() || type == BottleType.DM_VOICE.ordinal()) {
+					return new ArrayList<Bottle>();
+				}
+			}
+
+			String sexCondition = sex == null ? "" : " and u.sex=" + sex;
+
+			if (type == -1) {
+				String sql = "select b.*,u.nick_name,u.avatar,u.birthday,u.birth_city_id,u.city_id," + getAgeSql()
+						+ ", u.sex ,c.name as city_name from t_bottle_pool p "
+						+ " left join  t_bottle b  on p.bottle_id=b.id " + "left join t_user u on b.user_id=u.user_id "
+						+ " left join t_sys_city c on u.birth_city_id=c.id "
+						+ " where u.avatar<>'illegal.jpg' and b.state<>? and  b.user_id<>?  and b.type<>? and b.type<>? " + sexCondition
+						+ "  order by  rand()  limit ?";
+				return jdbcTemplate.query(sql,
+						new Object[] {BottleState.BLACK.ordinal(), user_id, BottleType.DM_TXT.ordinal(), BottleType.DM_VOICE.ordinal(), limit },
+						getBottleMapper());
+			} else if (type == BottleType.DRAW_GUESS.ordinal()) {
+
+				String sql = "select b.*,u.nick_name,u.avatar,u.birthday,u.birth_city_id,u.city_id," + getAgeSql()
+						+ ", u.sex ,c.name as city_name from t_bottle_pool p "
+						+ " left join  t_bottle b  on p.bottle_id=b.id " + "left join t_user u on b.user_id=u.user_id "
+						+ " left join t_sys_city c on u.birth_city_id=c.id "
+						+ " where u.avatar<>'illegal.jpg' and b.state<>? and  b.user_id<>?  and b.type=? and b.answer_state=? " + sexCondition
+						+ sex + "  order by  rand()  limit ?";
+				return jdbcTemplate.query(sql, new Object[] { BottleState.BLACK.ordinal(),user_id, type, BottleAnswerState.NORMAL.ordinal(), limit },
+						getBottleMapper());
+
+			} else {
+				String sql = "select b.*,u.nick_name,u.avatar,u.birthday,u.birth_city_id,u.city_id," + getAgeSql()
+						+ ", u.sex ,c.name as city_name from t_bottle_pool p "
+						+ " left join  t_bottle b  on p.bottle_id=b.id " + "left join t_user u on b.user_id=u.user_id "
+						+ " left join t_sys_city c on u.birth_city_id=c.id "
+						+ " where u.avatar<>'illegal.jpg' and b.state<>? and  b.user_id<>?  and b.type=?  " + sexCondition
+						+ "  order by  rand()  limit ?";
+				return jdbcTemplate.query(sql, new Object[] {BottleState.BLACK.ordinal(), user_id, type, limit }, getBottleMapper());
+
+			}
+		}
 
 	public List<Bottle> getBottlesIOS_REVIEW(long user_id, Integer sex, int limit, int type) {
 		if (type != -1) {
@@ -661,8 +707,36 @@ public class BottleDao extends BaseDao {
 		jdbcTemplate.update(sql,new Object[] {BottleType.VOICE.ordinal(),8});
 	}
 
+	
+	public void keepRedPackageByDay(int day) {
+		String sql = "delete  from t_bottle_pool  where type=?  and  TO_DAYS( NOW( ) ) - TO_DAYS( create_time) > ?";
+		jdbcTemplate.update(sql,new Object[] {BottleType.RED_PACKAGE.ordinal(),day});
+	}
+	
 	public void removeMeetBottle(long user_id) {
 		jdbcTemplate.update("delete from t_bottle_pool where user_id=? and type=?",new Object[] {user_id,BottleType.MEET.ordinal()});
 		jdbcTemplate.update("delete from t_bottle where user_id=? and type=?",new Object[] {user_id,BottleType.MEET.ordinal()});
+	}
+
+	public void updateRedPackage(String restCount, int count, int restCoin,long bid) {
+		jdbcTemplate.update("update t_bottle set answer=? ,red_package_count=?,red_package_coin_rest=? where id=?",new Object[] {restCount,count,restCoin,bid});
+	}
+	public int saveRedPackageHistory(long uid,long bid,int coin) {
+		return jdbcTemplate.update("insert into t_redpackage_get_history (uid,bid,red_package_coin_get,create_time) values(?,?,?,?)",new Object[] { uid, bid,coin,new Date()});
+	}
+	public List<RedPackageGetHistory> getRedPackageHistoryByBid(long bid){
+		return jdbcTemplate.query("select h.* ,u.nick_name,u.avatar from t_redpackage_get_history h left join t_user u on h.uid=u.user_id where h.bid=?", new Object[] {bid},new BeanPropertyRowMapper<RedPackageGetHistory>(RedPackageGetHistory.class) {
+			@Override
+			public RedPackageGetHistory mapRow(ResultSet rs, int rowNumber) throws SQLException {
+				RedPackageGetHistory h= super.mapRow(rs, rowNumber);
+				BaseUser user=new BaseUser();
+				user.setUser_id(rs.getLong("uid"));
+				user.setNick_name(rs.getString("nick_name"));
+				user.setAvatar(rs.getString("avatar"));
+				ImagePathUtil.completeAvatarPath(user, true);
+				h.setUser(user);
+				return h;
+			}
+		});
 	}
 }

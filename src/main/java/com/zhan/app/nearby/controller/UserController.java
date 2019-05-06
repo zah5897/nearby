@@ -943,6 +943,12 @@ public class UserController {
 		return ResultUtil.getResultOKMap().addAttribute("target_id", target_id);
 	}
 
+	
+	@RequestMapping("cost_coin")
+	public Map<String, Object> cost_coin(long user_id,String token,String aid,int coin) {
+		return userService.cost_coin(user_id,token,aid,coin);
+	}
+	
 	private City getDefaultCityId() {
 
 		City city = new City();

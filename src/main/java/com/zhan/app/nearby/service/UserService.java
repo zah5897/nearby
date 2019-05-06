@@ -880,4 +880,26 @@ public class UserService {
 	public BaseUser getBaseUserNoToken(long user_id) {
 		return userDao.getBaseUserNoToken(user_id);
 	}
+	
+	/**
+	 * 消耗金币
+	 * @param user_id
+	 * @param token
+	 * @param aid
+	 * @param coin
+	 * @return
+	 */
+	public Map<String, Object> cost_coin(long user_id, String token, String aid,int coin) {
+		if(coin<0) {
+			return ResultUtil.getResultMap(ERROR.ERR_FAILED);
+		}
+		
+		if(coin==0) {
+			return ResultUtil.getResultOKMap();
+		}
+		if(!checkLogin(user_id, token)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		return modifyExtra(user_id,aid,coin,-1);
+	}
 }

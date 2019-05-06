@@ -283,7 +283,7 @@ public class MainService {
 	}
 
 	public ModelMap getHotUsers(String gender, Long fix_user_id, Integer page_index) {
-		int limit = 5;
+		int limit = 6;
 		BaseVipUser fix_user = null;
 
 		if (page_index == null || page_index < 1) {
@@ -296,10 +296,10 @@ public class MainService {
 		List<BaseVipUser> users;
 		if(page_index==1&&fix_user!=null) {
 			limit-=1;
-			users=systemDao.getTouTiaoUser(limit);
+			users=systemDao.getTouTiaoUser(page_index,limit);
 			users.add(0,fix_user);
 		}else {
-			users=systemDao.getTouTiaoUser(limit);
+			users=systemDao.getTouTiaoUser(page_index,limit);
 		}
 		if(users.size()<limit) {
 			List<BaseVipUser> tempusers = systemDao.loadMaxRateMeiLiRandom(fix_user_id, gender, page_index, limit-users.size());

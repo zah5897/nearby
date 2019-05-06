@@ -42,6 +42,12 @@ public class Bottle implements Serializable{
 	
 	private int answer_state = 0;
 	
+	@JsonIgnore
+	private int red_package_count; //红包个数
+	@JsonIgnore
+	private int red_package_coin_total; //红包金币总数
+	@JsonIgnore
+	private int red_package_coin_rest; //红包剩余金币数量
 	
 	//来自
 	private int _from=0;
@@ -153,6 +159,30 @@ public class Bottle implements Serializable{
 	public void set_from(int _from) {
 		this._from = _from;
 	}
+
+	public int getRed_package_count() {
+		return red_package_count;
+	}
+
+	public void setRed_package_count(int red_package_count) {
+		this.red_package_count = red_package_count;
+	}
+
+	public int getRed_package_coin_total() {
+		return red_package_coin_total;
+	}
+
+	public void setRed_package_coin_total(int red_package_coin_total) {
+		this.red_package_coin_total = red_package_coin_total;
+	}
+
+	public int getRed_package_coin_rest() {
+		return red_package_coin_rest;
+	}
+
+	public void setRed_package_coin_rest(int red_package_coin_rest) {
+		this.red_package_coin_rest = red_package_coin_rest;
+	}
 	
-	
+	 
 }

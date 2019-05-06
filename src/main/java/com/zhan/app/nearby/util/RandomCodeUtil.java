@@ -17,4 +17,9 @@ public class RandomCodeUtil {
 		int r = ramRandom.nextInt(100);
 		return r < percent;
 	}
+	
+	public static int getRandom(int len) {
+		Random ramRandom = new Random();
+		return ramRandom.nextInt(len);
+	}
 }

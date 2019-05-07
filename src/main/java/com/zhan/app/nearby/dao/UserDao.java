@@ -936,4 +936,11 @@ public class UserDao extends BaseDao {
 		String sql="select count(*) from t_user_follow where uid="+user_id;
 		return jdbcTemplate.queryForObject(sql, Integer.class);
 	}
+	public int getTaskCount(long user_id, String aid, String task_id, String uuid) {
+		return jdbcTemplate.queryForObject("select count(*) from t_task_history where uid=? and aid=? and task_id=? and uuid=?", new Object[] {user_id,aid,task_id,uuid},Integer.class);
+	}
+	public int savaTaskHistory(long user_id, String aid, String task_id, String uuid,int extra) {
+		String sql = "insert into t_task_history (uid,task_id,create_time,aid,uuid,extra) values (?, ?,?,?,?,?)";
+		return jdbcTemplate.update(sql,new Object[] {user_id,task_id,new Date(),aid,uuid,extra});
+	}
 }

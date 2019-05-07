@@ -949,6 +949,12 @@ public class UserController {
 		return userService.cost_coin(user_id,token,aid,coin);
 	}
 	
+	
+	@RequestMapping("add_extra")
+	public Map<String, Object> add_extra(long user_id,String token,String content) {
+		return userService.addCoin(user_id, token,content);
+	}
+	
 	private City getDefaultCityId() {
 
 		City city = new City();

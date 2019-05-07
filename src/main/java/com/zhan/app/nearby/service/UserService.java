@@ -35,6 +35,7 @@ import com.zhan.app.nearby.dao.UserDao;
 import com.zhan.app.nearby.dao.VipDao;
 import com.zhan.app.nearby.exception.AppException;
 import com.zhan.app.nearby.exception.ERROR;
+import com.zhan.app.nearby.util.AESUtil;
 import com.zhan.app.nearby.util.AddressUtil;
 import com.zhan.app.nearby.util.DateTimeUtil;
 import com.zhan.app.nearby.util.HttpService;
@@ -873,6 +874,7 @@ public class UserService {
 	public BaseUser getBaseUserNoToken(long user_id) {
 		return userDao.getBaseUserNoToken(user_id);
 	}
+
 	/**
 	 * 消耗金币
 	 * 
@@ -897,4 +899,49 @@ public class UserService {
 		return result;
 
 	}
+
+	/**
+	 * 增加金币
+	 * 
+	 * @param user_id
+	 * @param token
+	 * @param aid
+	 * @param coin
+	 * @return
+	 */
+	public Map<String, Object> addCoin(long user_id, String token, String content) {
+//		if (!checkLogin(user_id, token)) {
+//			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+//		}
+		if (TextUtils.isEmpty(content)) {
+			return ResultUtil.getResultMap(ERROR.ERR_FAILED);
+		}
+		String discontent = AESUtil.decrypt(content, token);
+//		aid=123&extra=1&task_id=123&token=123&user_id=41&uuid=123
+		String[] params = discontent.split("&");
+
+		Map<String, String> map = new HashMap<String, String>();
+		for (String s : params) {
+			String[] p = s.split("=");
+			if (p.length == 2) {
+				map.put(p[0], p[1]);
+			}
+		}
+
+		String aid = map.get("aid");
+		int extra = Integer.parseInt(map.get("extra"));
+		String task_id = map.get("task_id");
+		String uuid = map.get("uuid");
+
+		int count = userDao.getTaskCount(user_id, aid, task_id, uuid);
+		if (count > 0) {
+			return ResultUtil.getResultMap(ERROR.ERR_FAILED);
+		}
+		userDao.savaTaskHistory(user_id, aid, task_id, uuid, extra);
+		Map<String, Object> result = modifyUserExtra(user_id, aid, extra, 1);
+		result.put("reward_coins", extra);
+		return result;
+
+	}
+
 }

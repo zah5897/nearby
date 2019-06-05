@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.zhan.app.nearby.annotation.ColumnType;
 import com.zhan.app.nearby.bean.City;
 
+@SuppressWarnings("serial")
 public class LocationUser extends SimpleUser {
 
 	public LocationUser(long user_id) {

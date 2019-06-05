@@ -6,6 +6,7 @@ import java.util.Date;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.zhan.app.nearby.annotation.ColumnType;
 
+@SuppressWarnings("serial")
 public class VipUser implements Serializable{
 	private long user_id;
 	private int vip_id;

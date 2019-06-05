@@ -7,7 +7,6 @@ import javax.annotation.Resource;
 
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 
 import com.zhan.app.nearby.bean.DynamicComment;

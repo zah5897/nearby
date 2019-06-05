@@ -943,4 +943,35 @@ public class UserDao extends BaseDao {
 		String sql = "insert into t_task_history (uid,task_id,create_time,aid,uuid,extra) values (?, ?,?,?,?,?)";
 		return jdbcTemplate.update(sql,new Object[] {user_id,task_id,new Date(),aid,uuid,extra});
 	}
+
+	public List<BaseVipUser> followUsers(long user_id, boolean isFollowMe,int page,int count) {
+		
+	        String sql="select u.user_id,u.nick_name,u.avatar,u.city_id,v.dayDiff,c.name as city_name from t_user_follow f left join t_user u on f.target_id =u.user_id "
+	        		+ " left join (select TIMESTAMPDIFF(DAY,now(),end_time) as dayDiff,start_time,user_id from t_user_vip ) v on u.user_id=v.user_id "
+	        		+ " left join t_sys_city c on u.city_id=c.id  "
+	        		+ " where f.uid=? limit ?,?";
+			 if(isFollowMe) { //关注我的用户
+				 sql="select u.user_id,u.nick_name,u.avatar,u.city_id ,v.dayDiff,c.name as city_name from t_user_follow f left join t_user u on f.uid =u.user_id "
+				 	+ " left join (select TIMESTAMPDIFF(DAY,now(),end_time) as dayDiff,start_time,user_id from t_user_vip ) v on u.user_id=v.user_id "
+				 	+ " left join t_sys_city c on u.city_id=c.id "
+				 	+ " where f.target_id=? limit ?,?";
+			 }
+			 return jdbcTemplate.query(sql,new Object[] {user_id,(page-1)*count,count} ,new BeanPropertyRowMapper<BaseVipUser>(BaseVipUser.class) {
+				 @Override
+				public BaseVipUser mapRow(ResultSet rs, int rowNumber) throws SQLException {
+					 BaseVipUser user= super.mapRow(rs, rowNumber);
+					 
+						int dayDiff = rs.getInt("dayDiff");
+						user.setVip(dayDiff > 0);
+					    int cid = rs.getInt("city_id");
+						if (cid > 0) {
+							City c = new City();
+							c.setId(cid);
+							c.setName(rs.getString("city_name"));
+							user.setCity(c);
+						}
+					 return user;
+				}
+			 });
+	}
 }

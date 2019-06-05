@@ -7,6 +7,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.zhan.app.nearby.annotation.ColumnType;
 
+@SuppressWarnings("serial")
 public class Topic implements Serializable{
 	@ColumnType
 	private long id;

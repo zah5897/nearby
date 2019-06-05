@@ -11,6 +11,7 @@ import com.zhan.app.nearby.annotation.ColumnType;
 import com.zhan.app.nearby.bean.property.MsgAttention;
 import com.zhan.app.nearby.bean.user.BaseUser;
 
+@SuppressWarnings("serial")
 public class DynamicMessage implements Serializable{
 	private long id;
 	private long dynamic_id;

@@ -1,5 +1,9 @@
 package com.zhan.app.nearby.service;
 
+import java.io.UnsupportedEncodingException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -8,6 +12,9 @@ import java.util.Map;
 import java.util.UUID;
 
 import javax.annotation.Resource;
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,12 +22,14 @@ import org.springframework.ui.ModelMap;
 
 import com.easemob.server.example.Main;
 import com.easemob.server.example.comm.wrapper.ResponseWrapper;
+import com.fasterxml.jackson.databind.deser.Deserializers.Base;
 import com.zhan.app.nearby.bean.Avatar;
 import com.zhan.app.nearby.bean.City;
 import com.zhan.app.nearby.bean.Tag;
 import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.bean.VipUser;
 import com.zhan.app.nearby.bean.user.BaseUser;
+import com.zhan.app.nearby.bean.user.BaseVipUser;
 import com.zhan.app.nearby.bean.user.DetailUser;
 import com.zhan.app.nearby.bean.user.LocationUser;
 import com.zhan.app.nearby.bean.user.SimpleUser;
@@ -908,18 +917,23 @@ public class UserService {
 	 * @param aid
 	 * @param coin
 	 * @return
+	 * @throws UnsupportedEncodingException
+	 * @throws BadPaddingException
+	 * @throws IllegalBlockSizeException
+	 * @throws InvalidAlgorithmParameterException
+	 * @throws NoSuchPaddingException
+	 * @throws NoSuchAlgorithmException
+	 * @throws Exception
 	 */
-	public Map<String, Object> addCoin(long user_id, String token, String content) {
+	public Map<String, Object> addCoin(long user_id, String token, String content) throws Exception {
 //		if (!checkLogin(user_id, token)) {
 //			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 //		}
 		if (TextUtils.isEmpty(content)) {
 			return ResultUtil.getResultMap(ERROR.ERR_FAILED);
 		}
-		String discontent = AESUtil.decrypt(content, token);
-//		aid=123&extra=1&task_id=123&token=123&user_id=41&uuid=123
+		String discontent = AESUtil.aesDecryptString(content, token);
 		String[] params = discontent.split("&");
-
 		Map<String, String> map = new HashMap<String, String>();
 		for (String s : params) {
 			String[] p = s.split("=");
@@ -943,5 +957,52 @@ public class UserService {
 		return result;
 
 	}
+	/**
+	 * 减少金币
+	 * 
+	 * @param user_id
+	 * @param token
+	 * @param aid
+	 * @param coin
+	 * @return
+	 * @throws UnsupportedEncodingException
+	 * @throws BadPaddingException
+	 * @throws IllegalBlockSizeException
+	 * @throws InvalidAlgorithmParameterException
+	 * @throws NoSuchPaddingException
+	 * @throws NoSuchAlgorithmException
+	 * @throws Exception
+	 */
+	public Map<String, Object> minusCoin(long user_id, String token, String content) throws Exception {
+//		if (!checkLogin(user_id, token)) {
+//			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+//		}
+		if (TextUtils.isEmpty(content)) {
+			return ResultUtil.getResultMap(ERROR.ERR_FAILED);
+		}
+		String discontent = AESUtil.aesDecryptString(content, token);
+		String[] params = discontent.split("&");
+		Map<String, String> map = new HashMap<String, String>();
+		for (String s : params) {
+			String[] p = s.split("=");
+			if (p.length == 2) {
+				map.put(p[0], p[1]);
+			}
+		}
 
+		String aid = map.get("aid");
+		int extra = Integer.parseInt(map.get("extra"));
+		Map<String, Object> result = modifyUserExtra(user_id, aid, extra, -1);
+		result.put("minus_coins", extra);
+		return result;
+
+	}
+	
+	public ModelMap followUsers(long user_id,boolean isFollowMe,Integer page,Integer count){
+		int c=count==null?20:count;
+		List<BaseVipUser> users=userDao.followUsers(user_id,isFollowMe,page==null?1:page,c);
+		ImagePathUtil.completeAvatarsPath(users, true);
+		long last_id=users.size()==0?0:users.get(users.size()-1).getUser_id();
+		return ResultUtil.getResultOKMap().addAttribute("users", users).addAttribute("hasMore", users.size()==c).addAttribute("last_id",last_id);
+	}
 }

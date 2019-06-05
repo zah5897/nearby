@@ -1,6 +1,7 @@
 package com.zhan.app.nearby.controller;
 
-import java.net.URLDecoder;
+import static java.net.URLDecoder.decode;
+
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -125,6 +126,7 @@ public class UserController {
 	 * @return
 	 */
 
+	@SuppressWarnings("deprecation")
 	@RequestMapping("regist")
 	public ModelMap regist(HttpServletRequest request, LoginUser user, String code, String aid, Integer city_id,
 			String bGenderOK, String _ua) {
@@ -201,7 +203,7 @@ public class UserController {
 			if (_ua.contains("\\|")) {
 				user.set_ua(_ua);
 			} else {
-				user.set_ua(URLDecoder.decode(_ua));
+				user.set_ua(decode(_ua));
 			}
 			id = userService.insertUser(user);
 		}
@@ -226,6 +228,7 @@ public class UserController {
 		return result;
 	}
 
+	@SuppressWarnings("deprecation")
 	@RequestMapping("regist_v2")
 	public ModelMap regist_v2(HttpServletRequest request, LoginUser user, String code, String aid, Integer city_id,
 			String bGenderOK, String _ua, String image_names) {
@@ -281,7 +284,7 @@ public class UserController {
 			if (_ua.contains("\\|")) {
 				user.set_ua(_ua);
 			} else {
-				user.set_ua(URLDecoder.decode(_ua));
+				user.set_ua(decode(_ua));
 			}
 			id = userService.insertUser(user);
 		}
@@ -359,7 +362,7 @@ public class UserController {
 					user.setVip(true);
 				}
 				result.put("user", user);
-				//result.put("all_coins", userService.loadUserCoins(aid, user.getUser_id()));
+				// result.put("all_coins", userService.loadUserCoins(aid, user.getUser_id()));
 				result.put("vip", vip);
 				return result;
 			} else {
@@ -600,7 +603,7 @@ public class UserController {
 
 		// 文件保存完毕
 
-		String[] avatars=image_names.split(",");
+		String[] avatars = image_names.split(",");
 		for (String name : avatars) {
 			userService.saveAvatar(user_id, name);
 		}
@@ -943,18 +946,26 @@ public class UserController {
 		return ResultUtil.getResultOKMap().addAttribute("target_id", target_id);
 	}
 
-	
 	@RequestMapping("cost_coin")
-	public Map<String, Object> cost_coin(long user_id,String token,String aid,int coin) {
-		return userService.cost_coin(user_id,token,aid,coin);
+	public Map<String, Object> cost_coin(long user_id, String token, String aid, int coin) {
+		return userService.cost_coin(user_id, token, aid, coin);
 	}
-	
-	
+
 	@RequestMapping("add_extra")
-	public Map<String, Object> add_extra(long user_id,String token,String content) {
-		return userService.addCoin(user_id, token,content);
+	public Map<String, Object> add_extra(long user_id, String token, String content) throws Exception {
+		return userService.addCoin(user_id, token, content);
 	}
-	
+
+	@RequestMapping("follow/{uid}")
+	public ModelMap my_follow(@PathVariable long uid,long user_id, String token,Integer page,Integer count) throws Exception {
+		return  userService.followUsers(uid, false,page,count);
+	}
+
+	@RequestMapping("fans/{uid}")
+	public ModelMap follow_me(@PathVariable long uid,long user_id, String token,Integer page,Integer count) throws Exception {
+		return  userService.followUsers(uid, true,page,count);
+	}
+
 	private City getDefaultCityId() {
 
 		City city = new City();

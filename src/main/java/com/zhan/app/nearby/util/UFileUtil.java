@@ -46,8 +46,8 @@ public class UFileUtil {
 
 	public static void main(String[] args) {
 
-		String path = "C:\\Users\\zah\\Desktop\\test.jpg";
-		File f = new File(path);
+//		String path = "C:\\Users\\zah\\Desktop\\test.jpg";
+//		File f = new File(path);
 //		try {
 //			putFile(f, "nearby/avatar/origin/test.jpg", "nearby-avatar");
 //		} catch (UfileClientException | UfileServerException e) {

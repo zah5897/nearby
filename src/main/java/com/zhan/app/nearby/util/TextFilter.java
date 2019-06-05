@@ -70,6 +70,7 @@ public class TextFilter {
 		return sensitiveWords;
 	}
 
+	@SuppressWarnings("unchecked")
 	public int getSensitiveWordLength(String text, int startIndex, MatchType matchType) {
 		if (text == null || text.trim().length() == 0) {
 			throw new IllegalArgumentException("The input text must not be empty.");
@@ -103,6 +104,7 @@ public class TextFilter {
 		return wordLength;
 	}
 
+	@SuppressWarnings("unchecked")
 	public void initSensitiveWordsMap(Set<String> sensitiveWords) {
 		if (sensitiveWords == null || sensitiveWords.isEmpty()) {
 			throw new IllegalArgumentException("Senditive words must not be empty!");

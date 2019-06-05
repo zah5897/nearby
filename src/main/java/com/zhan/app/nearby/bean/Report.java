@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.zhan.app.nearby.annotation.ColumnType;
 import com.zhan.app.nearby.bean.user.BaseUser;
 
+@SuppressWarnings("serial")
 public class Report implements Serializable{
 	@ColumnType
 	private int id;

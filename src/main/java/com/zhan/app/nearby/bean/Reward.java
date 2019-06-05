@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.zhan.app.nearby.annotation.ColumnType;
 import com.zhan.app.nearby.bean.user.BaseUser;
 
+@SuppressWarnings("serial")
 public class Reward implements Serializable{
 	@JsonIgnore
 	private long bottle_id;

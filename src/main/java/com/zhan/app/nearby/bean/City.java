@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+@SuppressWarnings("serial")
 public class City implements Serializable{
 	private int id;
 	private String name;

@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.zhan.app.nearby.annotation.ColumnType;
 import com.zhan.app.nearby.bean.user.BaseVipUser;
 
+@SuppressWarnings("serial")
 public class DynamicComment implements Serializable{
 	@ColumnType
 	private long id;

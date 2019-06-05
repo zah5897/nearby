@@ -11,7 +11,6 @@ public class SMSHelper {
 		smsRegist("13262510792", "1234");
 	}
 
-	 
 	public static boolean smsRegist(String mobile, String code) {
 		HashMap<String, Object> result = sms("241010", mobile, code);
 		return isSuccess(result);
@@ -39,6 +38,7 @@ public class SMSHelper {
 		return result;
 	}
 
+	@SuppressWarnings("unchecked")
 	public static boolean isSuccess(HashMap<String, Object> result) {
 		if (result == null) {
 			return false;
@@ -48,7 +48,7 @@ public class SMSHelper {
 			HashMap<String, Object> data = (HashMap<String, Object>) result.get("data");
 			Set<String> keySet = data.keySet();
 			for (String key : keySet) {
-				Object object = data.get(key);
+				data.get(key);
 			}
 			return true;
 		}

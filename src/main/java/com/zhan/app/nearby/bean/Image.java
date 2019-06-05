@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+@SuppressWarnings("serial")
 public class Image implements Serializable{
 	public long id; // 主键
 

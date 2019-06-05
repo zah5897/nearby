@@ -1,6 +1,8 @@
 package com.zhan.app.nearby.util;
 
 import java.io.UnsupportedEncodingException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -8,6 +10,10 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 
 public class MD5Util {
 
@@ -64,7 +70,14 @@ public class MD5Util {
 			sb.append("=");
 			sb.append(mapping.getValue());
 		}
-		return AESUtil.encrypt(sb.toString(), key);
+		try {
+			return AESUtil.aesEncryptString(sb.toString(), key);
+		} catch (InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException
+				| InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException
+				| UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	public static void main(String[] args) {
@@ -76,10 +89,17 @@ public class MD5Util {
 		param.put("extra", String.valueOf(1));
 		param.put("uuid", "123");
 		
-		String content=sign(param, "123");
+		
+		String token="abcfegdrfgqwerty1";
+		String content=sign(param, token);
 		System.out.println(content);
-		System.out.println(AESUtil.decrypt(content, "123"));
-		
-		
+		try {
+			System.out.println(AESUtil.aesDecryptString(content, token));
+		} catch (InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException
+				| InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException
+				| UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.zhan.app.nearby.annotation.ColumnType;
 
+@SuppressWarnings("serial")
 public class SimpleUser extends BaseUser {
 
 	public SimpleUser(long user_id) {

@@ -4,14 +4,10 @@ import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.servlet.ModelAndView;
 
 import com.easemob.server.example.Main;
 import com.zhan.app.nearby.bean.Bottle;

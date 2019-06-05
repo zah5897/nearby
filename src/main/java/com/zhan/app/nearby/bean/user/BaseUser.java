@@ -13,6 +13,7 @@ import com.zhan.app.nearby.bean.Avatar;
 import com.zhan.app.nearby.comm.UserType;
 import com.zhan.app.nearby.util.TextUtils;
 
+@SuppressWarnings("serial")
 public class BaseUser implements Serializable{
 
 	public BaseUser(long user_id) {

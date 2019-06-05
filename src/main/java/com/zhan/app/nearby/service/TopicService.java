@@ -5,7 +5,6 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.zhan.app.nearby.bean.Topic;
 import com.zhan.app.nearby.bean.UserDynamic;

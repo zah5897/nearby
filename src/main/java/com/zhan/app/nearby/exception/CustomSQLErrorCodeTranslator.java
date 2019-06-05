@@ -9,6 +9,7 @@ import org.springframework.jdbc.support.SQLErrorCodeSQLExceptionTranslator;
 public class CustomSQLErrorCodeTranslator extends SQLErrorCodeSQLExceptionTranslator {
 	private static Logger log = Logger.getLogger(AppExceptionHandler.class);
 
+	@SuppressWarnings("serial")
 	@Override
 	protected DataAccessException customTranslate(String task, String sql, SQLException sqlEx) {
 		String errMsg = "task:" + task + "\\nsql=" + sql;

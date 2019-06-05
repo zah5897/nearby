@@ -12,6 +12,7 @@ import com.zhan.app.nearby.bean.Tag;
 import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.util.DateTimeUtil;
 
+@SuppressWarnings("serial")
 public class DetailUser extends LocationUser {
 	public DetailUser(long user_id) {
 		super(user_id);

@@ -9,6 +9,7 @@ import com.zhan.app.nearby.annotation.ColumnType;
 import com.zhan.app.nearby.comm.UserType;
 import com.zhan.app.nearby.util.TextUtils;
 
+@SuppressWarnings("serial")
 public class ManagerUser implements Serializable{
 	private long user_id;
 

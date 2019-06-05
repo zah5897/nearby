@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.zhan.app.nearby.annotation.ColumnType;
 import com.zhan.app.nearby.bean.user.BaseUser;
 
+@SuppressWarnings("serial")
 public class GiftOwn extends Gift {
 	private long user_id;
 	private int count;

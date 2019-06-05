@@ -48,6 +48,7 @@ public class GiftService {
 	private InfoCacheService infoCacheService;
 	@Resource
 	private UserCacheService userCacheService;
+
 	@Transactional
 	public ModelMap save(Gift gift) {
 		if (gift.getId() > 0) {
@@ -64,6 +65,7 @@ public class GiftService {
 		ImagePathUtil.completeGiftsPath(gifts, true);
 		return ResultUtil.getResultOKMap().addAttribute("gifts", gifts);
 	}
+
 	@Transactional
 	public ModelMap delete(long id) {
 		giftDao.delete(id);
@@ -118,8 +120,8 @@ public class GiftService {
 				infoCacheService.clear(InfoCacheService.GIFT_SEND_NOTICE);
 
 				// Main.sendCmdMessage("sys", users, ext);
-				Object obj = Main.sendTxtMessage(Main.SYS, new String[] { String.valueOf(to_user_id) },
-						u.getNick_name() + desc, ext, PushMsgType.TYPE_RECEIVER_GIFT);
+				Main.sendTxtMessage(Main.SYS, new String[] { String.valueOf(to_user_id) }, u.getNick_name() + desc, ext,
+						PushMsgType.TYPE_RECEIVER_GIFT);
 				Map<String, Object> result = HttpService.queryUserCoins(user_id, aid);
 				return result;
 			} else {
@@ -140,27 +142,28 @@ public class GiftService {
 
 	/**
 	 * 魅力榜
+	 * 
 	 * @param type
 	 * @param pageIndex
 	 * @param count
 	 * @return
 	 */
 	public List<MeiLi> loadMeiLi(int pageIndex, int count) {
-			return giftDao.loadTotalMeiLi(pageIndex, count);
+		return giftDao.loadTotalMeiLi(pageIndex, count);
 	}
 
 	/**
 	 * 土豪榜
+	 * 
 	 * @param type
 	 * @param pageIndex
 	 * @param count
 	 * @return
 	 */
 	public List<MeiLi> loadTuHao(int pageIndex, int count) {
-	   return giftDao.loadTuHao(pageIndex, count);
+		return giftDao.loadTuHao(pageIndex, count);
 	}
-	
-	
+
 	// 获取用户魅力值
 	public int getUserMeiLiVal(long user_id) {
 		return giftDao.getUserMeiLiVal(user_id);
@@ -224,6 +227,7 @@ public class GiftService {
 		}
 		return owns;
 	}
+
 	@Transactional
 	public ModelMap exchange_diamond(long user_id, String token, String aid, int diamond, String code) {
 		if (!userService.checkLogin(user_id, token)) {
@@ -251,9 +255,10 @@ public class GiftService {
 		exchange.setDiamond_count(diamond);
 		exchange.setState(ExchangeState.IN_EXCHANGE.ordinal());
 		giftDao.addExchangeHistory(exchange);
-		userService.modifyUserExtra(user_id, aid,(int) (diamond*0.3), 1);
+		userService.modifyUserExtra(user_id, aid, (int) (diamond * 0.3), 1);
 		return ResultUtil.getResultOKMap("提交成功").addAttribute("value", newVal);
 	}
+
 	@Transactional
 	public ModelMap get_exchange_validate_code(long user_id, String token, Integer code_type) {
 		if (!userService.checkLogin(user_id, token)) {
@@ -291,11 +296,12 @@ public class GiftService {
 		if (!userService.checkLogin(user_id, token)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
-		
-		List<Exchange>  data=giftDao.loadExchangeDiamondHistory(user_id, i, j);
-		for(Exchange e:data) {
-			e.transferToDesc();//转成描述语句
+
+		List<Exchange> data = giftDao.loadExchangeDiamondHistory(user_id, i, j);
+		for (Exchange e : data) {
+			e.transferToDesc();// 转成描述语句
 		}
-		return ResultUtil.getResultOKMap().addAttribute("data", data).addAttribute("total_exchange_coin", giftDao.getTotalExchangeDiamond(user_id));
+		return ResultUtil.getResultOKMap().addAttribute("data", data).addAttribute("total_exchange_coin",
+				giftDao.getTotalExchangeDiamond(user_id));
 	}
 }

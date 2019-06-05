@@ -379,9 +379,7 @@ public class BottleDao extends BaseDao {
 	}
 
 	public List<Bottle> getMineBottles(long user_id, int page, int page_size) {
-		String sql = "select bottle.*,coalesce(bs.view_nums,0) as view_nums from " + TABLE_BOTTLE
-				+ " bottle left join t_bottle_scan_nums bs on bottle.id=bs.bottle_id "
-				+ "  where bottle.user_id=?  and bottle.type<>? order by bottle.id desc limit ?,?";
+		String sql = "select b.*,count(b.id) as view_nums from t_bottle b left join t_bottle_scan s on b.id=s.bottle_id where b.user_id=? and b.type<>?  group by b.id order by b.id desc limit ?,?";
 		return jdbcTemplate.query(sql,
 				new Object[] { user_id, BottleType.MEET.ordinal(), (page - 1) * page_size, page_size },
 				new BeanPropertyRowMapper<Bottle>(Bottle.class));

@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import com.zhan.app.nearby.annotation.ColumnType;
 
+@SuppressWarnings("serial")
 public class Vip implements Serializable{
 	@ColumnType
 	private long id;

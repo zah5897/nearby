@@ -12,6 +12,7 @@ import com.zhan.app.nearby.bean.user.BaseUser;
  * @author zah
  *
  */
+@SuppressWarnings("serial")
 public class MeiLi implements Serializable{
 	private int value;
 	private int shanbei;

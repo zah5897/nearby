@@ -4,7 +4,6 @@ package com.zhan.app.nearby.util;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.util.StringUtils;
 public class RedPacketUtils {
 	// 最小红包额度
 	private static final int MINMONEY = 1;

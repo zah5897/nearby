@@ -8,6 +8,7 @@ import java.util.Date;
  * @author zah
  *
  */
+@SuppressWarnings("serial")
 public class BottleExpress implements Serializable{
    
 	private long uid;

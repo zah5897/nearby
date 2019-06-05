@@ -7,7 +7,6 @@ import javax.annotation.Resource;
 
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.zhan.app.nearby.bean.City;
 import com.zhan.app.nearby.cache.InfoCacheService;

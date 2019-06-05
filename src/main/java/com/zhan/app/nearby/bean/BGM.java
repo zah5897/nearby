@@ -6,6 +6,7 @@ import java.util.Date;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.zhan.app.nearby.annotation.ColumnType;
 
+@SuppressWarnings("serial")
 public class BGM implements Serializable{
 	@ColumnType
 	private int id;

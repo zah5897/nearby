@@ -61,7 +61,7 @@ public class BottleDao extends BaseDao {
 
 					@Override
 					public Bottle mapRow(ResultSet rs, int rowNumber) throws SQLException {
-						Bottle bottle = super.mapRow(rs, rowNumber);
+						Bottle bottle = (Bottle) PropertyMapperUtil.prase(Bottle.class, rs);
 						bottle.setSender(resultSetToUser(rs));
 						return bottle;
 					}
@@ -77,7 +77,7 @@ public class BottleDao extends BaseDao {
 	public Bottle getBottle(long id) {
 		String sql = "select * from " + TABLE_BOTTLE + " where id=?";
 		List<Bottle> bottles = jdbcTemplate.query(sql, new Object[] { id },
-				new BeanPropertyRowMapper<Bottle>(Bottle.class));
+				getSimpleBottleMapper());
 		if (bottles.isEmpty()) {
 			return null;
 		}
@@ -97,7 +97,7 @@ public class BottleDao extends BaseDao {
 	public Bottle getBottleBySenderAndType(long user_id, int type) {
 		String sql = "select * from " + TABLE_BOTTLE + " where user_id=? and type=?";
 		List<Bottle> ids = jdbcTemplate.query(sql, new Object[] { user_id, type },
-				new BeanPropertyRowMapper<Bottle>(Bottle.class));
+				getSimpleBottleMapper());
 		if (ids.isEmpty()) {
 			return null;
 		}
@@ -122,7 +122,7 @@ public class BottleDao extends BaseDao {
 
 					@Override
 					public Bottle mapRow(ResultSet rs, int rowNumber) throws SQLException {
-						Bottle bottle = super.mapRow(rs, rowNumber);
+						Bottle bottle = (Bottle) PropertyMapperUtil.prase(Bottle.class, rs);
 						bottle.setSender(resultSetToUser(rs));
 						return bottle;
 					}
@@ -382,7 +382,7 @@ public class BottleDao extends BaseDao {
 		String sql = "select b.*,count(b.id) as view_nums from t_bottle b left join t_bottle_scan s on b.id=s.bottle_id where b.user_id=? and b.type<>?  group by b.id order by b.id desc limit ?,?";
 		return jdbcTemplate.query(sql,
 				new Object[] { user_id, BottleType.MEET.ordinal(), (page - 1) * page_size, page_size },
-				new BeanPropertyRowMapper<Bottle>(Bottle.class));
+				getSimpleBottleMapper());
 	}
 
 	public int delete(long user_id, long bottle_id) {
@@ -510,7 +510,7 @@ public class BottleDao extends BaseDao {
 		return jdbcTemplate.query(sql, param, new BeanPropertyRowMapper<Bottle>(Bottle.class) {
 			@Override
 			public Bottle mapRow(ResultSet rs, int rowNumber) throws SQLException {
-				Bottle b = super.mapRow(rs, rowNumber);
+				Bottle b = (Bottle) PropertyMapperUtil.prase(Bottle.class, rs);
 
 				BaseUser u = new BaseUser();
 				u.setUser_id(rs.getLong("user_id"));
@@ -564,7 +564,6 @@ public class BottleDao extends BaseDao {
 		try {
 			return jdbcTemplate.update("insert into t_dm_bottle_had_get (uid,bid) values(?,?)",new Object[] { user_id, bottle_id });
 		} catch (Exception e) {
-			e.printStackTrace();
 		}
 		return 0;
 	}
@@ -657,26 +656,6 @@ public class BottleDao extends BaseDao {
 
 	}
 
-	// in 查询
-//	public void clearBottlePoolIds(List<String> ids) {
-//		    String sql="delete from t_bottle_pool where bottle_id in (:ids)";
-//		    NamedParameterJdbcTemplate namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(jdbcTemplate.getDataSource());
-//			MapSqlParameterSource parameters = new MapSqlParameterSource();
-//			parameters.addValue("ids", ids);
-//	        namedParameterJdbcTemplate.update(sql, parameters);
-//	
-//	}
-
-//	public void refreshPool(int keepSize) {
-//		String sqlCount = "select count(*) from t_bottle_pool";
-//		int count = jdbcTemplate.queryForObject(sqlCount, Integer.class);
-//
-//		if (keepSize >= count) {
-//			return;
-//		}
-//		String sql = "delete from t_bottle_pool order by bottle_id  limit ?";
-//		jdbcTemplate.update(sql, new Object[] { count - keepSize });
-//	}
 
 	public int getSizeByType(int type) {
 		String sql = "select count(*) from t_bottle_pool where type=" + type;
@@ -737,4 +716,17 @@ public class BottleDao extends BaseDao {
 			}
 		});
 	}
+	
+	
+	private BeanPropertyRowMapper<Bottle> getSimpleBottleMapper() {
+		return new BeanPropertyRowMapper<Bottle>(Bottle.class) {
+			@Override
+			public Bottle mapRow(ResultSet rs, int rowNumber) throws SQLException {
+				Bottle bottle = (Bottle) PropertyMapperUtil.prase(Bottle.class, rs);
+				return bottle;
+			}
+		};
+	}
+	
+	
 }

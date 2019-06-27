@@ -118,7 +118,7 @@ public class HttpService {
 		params.put("amount", String.valueOf(amount));
 		params.put("type", String.valueOf(type));
 
-		Map<String, Object> result = HttpClientUtils.post(MODULE_PAY_URL, params);
+		Map<String, Object> result = HttpClientUtils.post(MODULE_ORDER_URL, params);
 		if (result != null) {
 			return result;
 		}

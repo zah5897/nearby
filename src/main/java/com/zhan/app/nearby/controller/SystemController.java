@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.weibo.OAuth4Code;
 import com.zhan.app.nearby.bean.BGM;
 import com.zhan.app.nearby.bean.Report;
 import com.zhan.app.nearby.service.MainService;
@@ -17,6 +18,9 @@ import com.zhan.app.nearby.service.UserService;
 import com.zhan.app.nearby.util.BottleKeyWordUtil;
 import com.zhan.app.nearby.util.IPUtil;
 import com.zhan.app.nearby.util.ResultUtil;
+import com.zhan.app.nearby.util.TextUtils;
+
+import weibo4j.model.WeiboException;
 
 @RestController
 @RequestMapping("/system")
@@ -99,5 +103,30 @@ public class SystemController {
 		return mainService.test_redis();
 	}
 	
+	
+    OAuth4Code weiboLogin;
+	@RequestMapping("weibo_oauth.action")
+	public ModelMap weibo_oauth(String code) {
+		if(weiboLogin==null) {
+			weiboLogin=new OAuth4Code();
+		}
+		if(!TextUtils.isEmpty(code)) {
+			try {
+				weiboLogin.getAccessToken(code);
+			} catch (WeiboException e) {
+				e.printStackTrace();
+			}finally {
+				weiboLogin=null;
+			}
+		}else {
+			try {
+				weiboLogin.getAccessToken(code);
+			} catch (WeiboException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return mainService.test_redis();
+	}
 	
 }

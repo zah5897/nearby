@@ -1,5 +1,6 @@
 package com.zhan.app.nearby.controller;
 
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
@@ -40,9 +41,16 @@ public class GameController {
 	}
 
 	@RequestMapping("rank_list")
-	public ModelMap rankList(String gid, Integer page, Integer count) {
-		return ResultUtil.getResultOKMap().addAttribute("users",
-				gameService.rankList(gid, page == null ? 1 : page, count == null ? 20 : count));
+	public ModelMap rankList(String gid, Integer page, Integer count,Long user_id) {
+		int pi=page == null ? 1 : page;
+		int ps=count == null ? 20 : count;
+		List<GameScore> list=gameService.rankList(gid,pi,ps );
+		ModelMap data= ResultUtil.getResultOKMap().addAttribute("users",list);
+		data.put("hasMore", list.size()==ps);
+		if(page==null||page==1) {
+			data.put("me", gameService.getCurrentPosition(gid,user_id==null?0:user_id));
+		}
+		return data;
 	}
 	
 	@RequestMapping("start")

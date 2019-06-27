@@ -317,9 +317,9 @@ public class MainService {
 		return ResultUtil.getResultOKMap().addAttribute("users", users).addAttribute("hasMore", users.size() == 6);
 	}
 
-	public int injectRate() {
-		return systemDao.injectRate();
-	}
+//	public int injectRate() {
+//		return systemDao.injectRate();
+//	}
 
 	public ModelMap check_submit_personal_id(PersonalInfo personal) {
 		String token = userService.getUserToken(personal.getUser_id());

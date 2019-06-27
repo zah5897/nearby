@@ -229,12 +229,27 @@ public class GiftDao extends BaseDao {
 	}
 
 	public int getUserMeiLiVal(long user_id) {
-		String t_total_meili = "select total_meili  from t_meili_total where user_id=?";
-		try {
-			return jdbcTemplate.queryForObject(t_total_meili, new Object[] { user_id }, Integer.class);
-		} catch (Exception e) {
-			return 0;
-		}
+		String sql="select   gift.tval*5+lk.like_count as mli  from "
+				+ "t_user u left join "
+				+ " (select tg.user_id ,sum(tg.val) as tval from (select o.*,o.count*g.price as val from  t_gift_own o left join t_gift g on o.gift_id=g.id) as tg group by tg.user_id) gift "
+				+ "on u.user_id=gift.user_id "
+				+ "left join  (select TIMESTAMPDIFF(DAY,now(),end_time) as dayDiff,start_time,user_id from t_user_vip ) v  "
+				+ " on u.user_id=v.user_id "
+				+ " left join  (select count(*) as like_count ,with_user_id from t_user_relationship where relationship=?  group by  with_user_id) lk  "
+				+ " on u.user_id=lk.with_user_id "
+				+ " left join t_found_user_relationship fu "
+				+ " on u.user_id=fu.uid "
+				+ "where   u.user_id =?  and DATE_SUB(CURDATE(), INTERVAL 365 DAY) <= date(create_time)";
+//		try {
+//			List<Integer>  ml=jdbcTemplate.queryForList(sql, new Object[] { Relationship.LIKE.ordinal(),user_id }, Integer.class);
+//			if(ml.isEmpty()) {
+//				return 0;
+//			}
+//			return ml.get(0);
+//		} catch (Exception e) {
+//			return 0;
+//		}
+		return 0;
 	}
 
 	public int getUserBeLikeVal(long user_id) {

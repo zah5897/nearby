@@ -13,6 +13,7 @@ import org.springframework.web.multipart.support.DefaultMultipartHttpServletRequ
 
 import com.zhan.app.nearby.bean.Bottle;
 import com.zhan.app.nearby.bean.type.BottleType;
+import com.zhan.app.nearby.comm.BottleState;
 import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.service.BottleService;
 import com.zhan.app.nearby.service.MainService;
@@ -207,6 +208,12 @@ public class BottleController {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM,"不支持弹幕瓶子");
 		}
 		
+		if (_ua.startsWith("a")) {
+			if ("1.9.5".compareTo(version) == 0) {  //ios审核临界版本号
+				state=BottleState.IOS_REVIEW.ordinal();
+			}
+		}
+		
 		return bottleService.getBottles(user_id == null ? 0 : user_id, count == null ? 5 : count, look_sex, type, state,
 				version, _ua);
 	}
@@ -226,8 +233,8 @@ public class BottleController {
 	}
 
 	@RequestMapping("mine")
-	public ModelMap mine(long user_id, Integer page, Integer page_size) {
-		return bottleService.getMineBottles(user_id, page == null ? 1 : page, page_size == null ? 10 : page_size);
+	public ModelMap mine(Long user_id, Integer page, Integer page_size) {
+		return bottleService.getMineBottles(user_id==null?41:user_id, page == null ? 1 : page, page_size == null ? 10 : page_size);
 	}
 
 	@RequestMapping("scan")

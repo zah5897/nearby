@@ -184,26 +184,26 @@ public class SystemDao extends BaseDao {
 		}
 	}
 
-	public int injectRate() {
-
-		// 清除昨天的rate数据，
-		String clearRate = "delete from t_meili_rate_temp";
-		jdbcTemplate.update(clearRate);
-
-		// 生成到现在为止的rate数据
-		String rateSql = "select tm.user_id as uid,(tm.total_meili-coalesce(tt.temp_meili,'0')) as rate from t_meili_total tm left join t_meili_temp tt on tm.user_id=tt.uid ";
-		String injectRate = "insert into t_meili_rate_temp " + rateSql;
-		int rateCount = jdbcTemplate.update(injectRate);
-
-		// 刷新昨天的零时美丽总值
-
-		String clearMeiliTemp = "delete from t_meili_temp";
-		jdbcTemplate.update(clearMeiliTemp);
-		String injectMeiliTemp = "insert into t_meili_temp  select tm.user_id as uid, tm.total_meili as temp_meili from t_meili_total tm";
-		jdbcTemplate.update(injectMeiliTemp);
-
-		return rateCount;
-	}
+//	public int injectRate() {
+//
+//		// 清除昨天的rate数据，
+//		String clearRate = "delete from t_meili_rate_temp";
+//		jdbcTemplate.update(clearRate);
+//
+//		// 生成到现在为止的rate数据
+//		String rateSql = "select tm.user_id as uid,(tm.total_meili-coalesce(tt.temp_meili,'0')) as rate from t_meili_total tm left join t_meili_temp tt on tm.user_id=tt.uid ";
+//		String injectRate = "insert into t_meili_rate_temp " + rateSql;
+//		int rateCount = jdbcTemplate.update(injectRate);
+//
+//		// 刷新昨天的零时美丽总值
+//
+//		String clearMeiliTemp = "delete from t_meili_temp";
+//		jdbcTemplate.update(clearMeiliTemp);
+//		String injectMeiliTemp = "insert into t_meili_temp  select tm.user_id as uid, tm.total_meili as temp_meili from t_meili_total tm";
+//		jdbcTemplate.update(injectMeiliTemp);
+//
+//		return rateCount;
+//	}
 
 	public int savePersonalInfo(PersonalInfo personal) {
 		return saveObjSimple(jdbcTemplate, "t_personal_info", personal);

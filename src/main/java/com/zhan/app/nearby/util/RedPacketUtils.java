@@ -38,6 +38,10 @@ public class RedPacketUtils {
 		return list;
 	}
  
+	
+
+	
+	
 	/**
 	 * @param money
 	 * @param count
@@ -124,6 +128,6 @@ public class RedPacketUtils {
 	}
  
 	public static void main(String[] args) {
-		System.out.println(String.join(",",splitRedPackets(11, 5)));// 随机拆分59块钱拆分5份
+		System.out.println(String.join(",",splitRedPackets(10, 2)));// 随机拆分59块钱拆分5份
 	}
 }

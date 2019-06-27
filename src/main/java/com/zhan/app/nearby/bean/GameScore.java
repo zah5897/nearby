@@ -16,6 +16,9 @@ public class GameScore implements Serializable {
 	private String gid;
 	@ColumnType
 	private BaseUser user;
+	
+	@ColumnType
+	private int position=-1;
 
 	@ColumnType
 	private long create_time_v2;
@@ -67,4 +70,10 @@ public class GameScore implements Serializable {
 		return create_time_v2;
 	}
 
+	public int getPosition() {
+		return position;
+	}
+	public void setPosition(int position) {
+		this.position = position;
+	}
 }

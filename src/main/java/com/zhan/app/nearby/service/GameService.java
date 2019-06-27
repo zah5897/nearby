@@ -1,6 +1,7 @@
 package com.zhan.app.nearby.service;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -37,6 +38,21 @@ public class GameService {
 	public List<GameScore> rankList(String gid, int page, int count) {
 		int start = (page - 1) * count;
 		return gameDao.rankList(gid, start, count);
+	}
+	
+	/**
+	 * 获取当前用户的对应游戏排行
+	 * @param gid
+	 * @param uid
+	 * @return
+	 */
+	public Map<String, Integer> getCurrentPosition(String gid,long uid) {
+		int position=gameDao.getCurrentUserPosition(gid,uid);
+		int score=gameDao.getMyScore(gid,uid);
+		Map<String , Integer> me=new HashMap<String, Integer>();
+		me.put("position",position);
+		me.put("score", score);
+		return me;
 	}
 
 	public List<Map<String, Object>> loadGames() {

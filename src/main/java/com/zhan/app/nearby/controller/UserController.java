@@ -310,6 +310,92 @@ public class UserController {
 	}
 
 	/**
+	 * 游戏用到的用户注册
+	 * 
+	 * @param request
+	 * @param user
+	 * @param code
+	 * @param aid
+	 * @param city_id
+	 * @param bGenderOK
+	 * @param _ua
+	 * @param image_names
+	 * @return
+	 */
+	@RequestMapping("regist_for_game")
+	public ModelMap regist_for_game(HttpServletRequest request, LoginUser user, String code, String aid,
+			Integer city_id, String bGenderOK, String _ua, String image_names) {
+
+		if (TextUtils.isEmpty(user.getMobile())) {
+			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "手机号码不能为空!");
+		}
+
+		if (TextUtils.isTrimEmpty(user.getNick_name())) {
+			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "昵称不能为空");
+		}
+		// 验证code合法性
+		if (!TextUtils.isEmpty(code)) {
+			if (!userCacheService.valideRegistCode(user.getMobile(), code)) {
+				return ResultUtil.getResultMap(ERROR.ERR_PARAM, "验证码错误");
+			}
+		}
+		if (TextUtils.isEmpty(user.getPassword())) {
+			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "密码不能为空!");
+		}
+		try {
+			user.setPassword(MD5Util.getMd5(user.getPassword()));
+		} catch (NoSuchAlgorithmException e1) {
+			e1.printStackTrace();
+			return ResultUtil.getResultMap(ERROR.ERR_PASSWORD);
+		}
+
+		if (TextUtils.isEmpty(bGenderOK)) {
+			if ("0".equals(user.getSex())) {
+				user.setSex("0");
+			} else if ("2".equals(user.getSex())) {
+				user.setSex("0");
+			}
+		}
+		user.setIp(IPUtil.getIpAddress(request));
+		user.setNick_name(BottleKeyWordUtil.filterContent(user.getNick_name()));
+
+		if (user.getBirth_city_id() == 0 && city_id != null) {
+			user.setBirth_city_id(city_id);
+		}
+		user.setAvatar(image_names);
+		String token = UUID.randomUUID().toString();
+		user.setToken(token);
+		user.setType((short) UserType.TEMP_MOBILE.ordinal());
+		user.setLast_login_time(new Date());
+		user.setCreate_time(new Date());
+		if (_ua.contains("\\|")) {
+			user.set_ua(_ua);
+		} else {
+			user.set_ua(decode(_ua));
+		}
+		long id = userService.insertUser(user);
+		if (id == -1l) {
+			return ResultUtil.getResultMap(ERROR.ERR_USER_EXIST, "该手机号码已经注册过");
+		}
+		userService.saveAvatar(id, user.getAvatar());
+		ModelMap result = ResultUtil.getResultOKMap();
+		user.setUser_id(id);
+		user.setAge(DateTimeUtil.getAge(user.getBirthday()));
+		ImagePathUtil.completeAvatarPath(user, true); // 补全图片链接地址
+
+		if (city_id != null) {
+			City city = cityService.getFullCity(city_id);
+			user.setBirth_city(city);
+		}
+
+		user.setAvatars(userService.getUserAvatars(user.getUser_id()));
+		result.put("user", user);
+		// 注册完毕，则可以清理掉redis关于code缓存了
+		userCacheService.clearCode(user.getMobile());
+		return result;
+	}
+
+	/**
 	 * 登录
 	 * 
 	 * @param mobile   手机号码
@@ -957,13 +1043,15 @@ public class UserController {
 	}
 
 	@RequestMapping("follow/{uid}")
-	public ModelMap my_follow(@PathVariable long uid,long user_id, String token,Integer page,Integer count) throws Exception {
-		return  userService.followUsers(uid, false,page,count);
+	public ModelMap my_follow(@PathVariable long uid, long user_id, String token, Integer page, Integer count)
+			throws Exception {
+		return userService.followUsers(uid, false, page, count);
 	}
 
 	@RequestMapping("fans/{uid}")
-	public ModelMap follow_me(@PathVariable long uid,long user_id, String token,Integer page,Integer count) throws Exception {
-		return  userService.followUsers(uid, true,page,count);
+	public ModelMap follow_me(@PathVariable long uid, long user_id, String token, Integer page, Integer count)
+			throws Exception {
+		return userService.followUsers(uid, true, page, count);
 	}
 
 	private City getDefaultCityId() {

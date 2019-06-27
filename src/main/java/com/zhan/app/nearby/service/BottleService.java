@@ -201,6 +201,25 @@ public class BottleService {
 			ImagePathUtil.completeBottleDrawPath(bottle);
 		}
 
+		//过滤语音瓶子问题
+		if (_ua.startsWith("a")) {
+			if ("1.9.5".compareTo(version) > 0) {
+				for(Bottle b:bolltes) {
+			        if(b.getType()==BottleType.VOICE.ordinal()) {
+			        	Map<String,Object> conData=JSONUtil.jsonToMap(b.getContent());
+			        	if(conData.containsKey("duration")) {
+//			        		conData.put("duration", "\""+conData.get("duration")+"\"");
+			        		conData.put("duration", String.valueOf(conData.get("duration")));
+			        	    b.setContent(JSONUtil.writeValueAsString(conData));
+			        	    System.out.println(b.getContent());
+			        	}
+			        	
+			        }    		
+				}  
+			}
+		}
+		
+		
 		result.addAttribute("bottles", bolltes);
 		return result;
 	}
@@ -282,10 +301,7 @@ public class BottleService {
 		bottle.setCreate_time(new Date());
 
 		bottleDao.insert(bottle);
-
-		if (bottle.getType() == BottleType.RED_PACKAGE.ordinal()) {
-			return;
-		}
+	 
 		if (bottle.getId() > 0 && bottle.getState() != BottleState.BLACK.ordinal()) {
 			bottleDao.insertToPool(bottle);
 		}
@@ -444,13 +460,17 @@ public class BottleService {
 
 		ImagePathUtil.completeAvatarPath(user, true);
 		// 发送给对方
-		Map<String, String> ext = new HashMap<String, String>();
-		ext.put("nickname", user.getNick_name());
-		ext.put("avatar", user.getAvatar());
-		ext.put("origin_avatar", user.getOrigin_avatar());
-		ext.put("bottle_id", String.valueOf(bottle_id));
-		Main.sendTxtMessage(String.valueOf(user.getUser_id()), new String[] { String.valueOf(target) }, msg, ext,
-				PushMsgType.TYPE_NEW_CONVERSATION);
+		
+		if(bottle.getType() != BottleType.RED_PACKAGE.ordinal()) {
+			Map<String, String> ext = new HashMap<String, String>();
+			ext.put("nickname", user.getNick_name());
+			ext.put("avatar", user.getAvatar());
+			ext.put("origin_avatar", user.getOrigin_avatar());
+			ext.put("bottle_id", String.valueOf(bottle_id));
+			Main.sendTxtMessage(String.valueOf(user.getUser_id()), new String[] { String.valueOf(target) }, msg, ext,
+					PushMsgType.TYPE_NEW_CONVERSATION);
+		}
+		
 
 		if (bottle.getType() == BottleType.DRAW_GUESS.ordinal()) {
 
@@ -471,19 +491,32 @@ public class BottleService {
 		} else if (bottle.getType() == BottleType.RED_PACKAGE.ordinal()) {
 			int count = bottle.getRed_package_count();
 			int restCoin = bottle.getRed_package_coin_rest();
-			if (count > 0 && restCoin > 0 && bottle.getContent().contains(",")) {
+			if (count > 0 && restCoin >0) {
 				String content = bottle.getAnswer();
-				String curCount = content.substring(0, content.indexOf(","));
-				String restCount = content.substring(content.indexOf(",") + 1);
-				int coinCount = Integer.parseInt(curCount);
+//				String curCount = content.substring(0, content.indexOf(","));
+//				String restCount = content.substring(content.indexOf(",") + 1);
+//				int coinCount = Integer.parseInt(curCount);
+				int restCount; //剩余红包金币数量
+				int curCoin; //当次得到的金币数量
+				if(count==1) {
+					restCount=0;
+					curCoin=restCoin;
+					count=0;
+					content="";
+				}else {
+					curCoin =Integer.parseInt(content.substring(0, content.indexOf(",")));
+					count-=1;
+					restCount=restCoin-curCoin;
+					content=content.substring(content.indexOf(",")+1);
+				}
 
-				Map<String, Object> map = userService.modifyUserExtra(user_id, aid, coinCount, 1); // 增加金币
+				Map<String, Object> map = userService.modifyUserExtra(user_id, aid, curCoin, 1); // 增加金币
 				int code = Integer.parseInt(map.get("code").toString());
 				if (code == 0) {
-					bottleDao.updateRedPackage(restCount, bottle.getRed_package_count() - 1,
-							bottle.getRed_package_coin_rest() - coinCount, bottle_id);// 修改该瓶子的剩余数量等信息
-					addGetRedPackageHistory(user_id, bottle_id, Integer.parseInt(curCount)); // 记录历史
-					return ResultUtil.getResultOKMap().addAttribute("red_package_get_coin", coinCount);
+					bottleDao.updateRedPackage(content, count,restCount, bottle_id);// 修改该瓶子的剩余数量等信息
+					addGetRedPackageHistory(user_id, bottle_id,curCoin); // 记录历史
+					getRedPackageSendMsg(user,bottle_id,target,curCoin);
+					return ResultUtil.getResultOKMap().addAttribute("red_package_get_coin", curCoin);
 				} else {
 					return ResultUtil.getResultOKMap().addAttribute("red_package_get_coin", 0);
 				}
@@ -494,6 +527,17 @@ public class BottleService {
 		return ResultUtil.getResultOKMap();
 	}
 
+	
+	private void getRedPackageSendMsg(BaseUser user,long bottle_id,long target,int coin) {
+		Map<String, String> ext = new HashMap<String, String>();
+		ext.put("nickname", user.getNick_name());
+		ext.put("avatar", user.getAvatar());
+		ext.put("origin_avatar", user.getOrigin_avatar());
+		ext.put("bottle_id", String.valueOf(bottle_id));
+		Main.sendTxtMessage(String.valueOf(user.getUser_id()), new String[] { String.valueOf(target) }, user.getNick_name()+"领取了你的扇贝", ext,
+				PushMsgType.TYPE_NEW_CONVERSATION);
+	}
+	
 	@Transactional
 	public int sendAutoBottle(String id, String content) {
 		boolean hasSend = bottleDao.hasSend(id) > 0;

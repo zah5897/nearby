@@ -119,7 +119,7 @@ public class UserService {
 	}
 
 	@Transactional
-	public long insertUser(BaseUser user) {
+	public long insertUser(BaseUser user,boolean isNeedHX) {
 		user.setCreate_time(new Date());
 		int count = userDao.getUserCountByMobile(user.getMobile());
 		if (count > 0) {
@@ -133,7 +133,7 @@ public class UserService {
 				addRecommendAndMeetBottle(id);
 			}
 			saveUserOnline(user.getUser_id());
-			registHX(user);
+			registHX(user,isNeedHX);
 		}
 		return id;
 	}
@@ -232,12 +232,12 @@ public class UserService {
 	}
 
 	@Transactional
-	public int visitorToNormal(SimpleUser user) {
+	public int visitorToNormal(SimpleUser user,boolean isNeedHX) {
 		int count = userDao.visitorToNormal(user.getUser_id(), user.getMobile(), user.getPassword(), user.getToken(),
 				user.getNick_name(), user.getBirthday(), user.getSex(), user.getAvatar(), user.getLast_login_time());
 		if (count > 0) {
 			addRecommendAndMeetBottle(user.getUser_id());
-			registHX(user);
+			registHX(user,isNeedHX);
 		}
 		return count;
 	}
@@ -630,7 +630,10 @@ public class UserService {
 		return userDao.getRelationShip(user_id, user_id_for);
 	}
 
-	private void registHX(BaseUser user) {
+	public void registHX(BaseUser user,boolean isNeed) {
+		if(!isNeed) {
+			return;
+		}
 		try {
 			String id = String.valueOf(user.getUser_id());
 			String password = MD5Util.getMd5_16(id);

@@ -126,10 +126,9 @@ public class UserController {
 	 * @return
 	 */
 
-	@SuppressWarnings("deprecation")
 	@RequestMapping("regist")
 	public ModelMap regist(HttpServletRequest request, LoginUser user, String code, String aid, Integer city_id,
-			String bGenderOK, String _ua) {
+			String bGenderOK, String _ua,String bDeleteIM) {
 
 		if (TextUtils.isEmpty(user.getMobile())) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "手机号码不能为空!");
@@ -194,8 +193,14 @@ public class UserController {
 		user.setLast_login_time(new Date());
 		user.setCreate_time(new Date());
 		long id = user.getUser_id();
+		
+		boolean isNeedHx=false;
+		if(TextUtils.isEmpty(bDeleteIM)||!"1".equals(bDeleteIM)) {
+			isNeedHx=true;
+		}
+		
 		if (id > 0) {
-			int count = userService.visitorToNormal(user);
+			int count = userService.visitorToNormal(user,isNeedHx);
 			if (count == 0) {
 				return ResultUtil.getResultMap(ERROR.ERR_USER_EXIST, "无法找到该游客账号");
 			}
@@ -205,7 +210,7 @@ public class UserController {
 			} else {
 				user.set_ua(decode(_ua));
 			}
-			id = userService.insertUser(user);
+			id = userService.insertUser(user,isNeedHx);
 		}
 		if (id == -1l) {
 			return ResultUtil.getResultMap(ERROR.ERR_USER_EXIST, "该手机号码已经注册过");
@@ -231,7 +236,7 @@ public class UserController {
 	@SuppressWarnings("deprecation")
 	@RequestMapping("regist_v2")
 	public ModelMap regist_v2(HttpServletRequest request, LoginUser user, String code, String aid, Integer city_id,
-			String bGenderOK, String _ua, String image_names) {
+			String bGenderOK, String _ua, String image_names,String bDeleteIM) {
 
 		if (TextUtils.isEmpty(user.getMobile())) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "手机号码不能为空!");
@@ -274,9 +279,16 @@ public class UserController {
 		user.setType((short) UserType.OFFIEC.ordinal());
 		user.setLast_login_time(new Date());
 		user.setCreate_time(new Date());
+		
+		
+		boolean isNeedHx=false;
+		if(TextUtils.isEmpty(bDeleteIM)||!"1".equals(bDeleteIM)) {
+			isNeedHx=true;
+		}
+		
 		long id = user.getUser_id();
 		if (id > 0) {
-			int count = userService.visitorToNormal(user);
+			int count = userService.visitorToNormal(user,isNeedHx);
 			if (count == 0) {
 				return ResultUtil.getResultMap(ERROR.ERR_USER_EXIST, "无法找到该游客账号");
 			}
@@ -286,7 +298,7 @@ public class UserController {
 			} else {
 				user.set_ua(decode(_ua));
 			}
-			id = userService.insertUser(user);
+			id = userService.insertUser(user,isNeedHx);
 		}
 		if (id == -1l) {
 			return ResultUtil.getResultMap(ERROR.ERR_USER_EXIST, "该手机号码已经注册过");
@@ -373,7 +385,7 @@ public class UserController {
 		} else {
 			user.set_ua(decode(_ua));
 		}
-		long id = userService.insertUser(user);
+		long id = userService.insertUser(user,false);
 		if (id == -1l) {
 			return ResultUtil.getResultMap(ERROR.ERR_USER_EXIST, "该手机号码已经注册过");
 		}
@@ -404,7 +416,7 @@ public class UserController {
 	 * @return
 	 */
 	@RequestMapping("login")
-	public ModelMap loginByMobile(String mobile, String password, String _ua, String aid) {
+	public ModelMap loginByMobile(String mobile, String password, String _ua, String aid,String bDeleteIM ) {
 
 		if (TextUtils.isEmpty(mobile)) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "手机号码不能为空!");
@@ -422,6 +434,13 @@ public class UserController {
 			return ResultUtil.getResultMap(ERROR.ERR_USER_NOT_EXIST, "该账号因举报而无法登录");
 		}
 
+		//注册环信
+		boolean isNeedHx=false;
+		if(TextUtils.isEmpty(bDeleteIM)||!"1".equals(bDeleteIM)) {
+			isNeedHx=true;
+		}
+		userService.registHX(user,isNeedHx);
+		
 		try {
 			String md5 = MD5Util.getMd5(password);
 			if (md5.equals(user.getPassword())) {
@@ -538,7 +557,7 @@ public class UserController {
 			md5Pwd = MD5Util.getMd5(password);
 			userService.updatePassword(mobile, md5Pwd);
 			userCacheService.clearCode(mobile); // 清理缓存
-			return loginByMobile(mobile, password, _ua, aid);
+			return loginByMobile(mobile, password, _ua, aid,"1");
 		} catch (NoSuchAlgorithmException e) {
 			log.error(e.getMessage());
 			return ResultUtil.getResultMap(ERROR.ERR_SYS, "新密码设置异常");
@@ -888,7 +907,7 @@ public class UserController {
 			user.setZh_cn(zh_cn);
 			user.setType((short) UserType.VISITOR.ordinal());
 			user.setCreate_time(new Date());
-			long user_id = userService.insertUser(user);
+			long user_id = userService.insertUser(user,false);
 			user.setUser_id(user_id);
 		} else {
 			userService.updateVisitor(user.getUser_id(), aid, device_token, lat, lng, zh_cn);

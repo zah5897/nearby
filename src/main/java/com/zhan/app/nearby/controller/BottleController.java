@@ -209,7 +209,7 @@ public class BottleController {
 		}
 		
 		if (_ua.startsWith("a")) {
-			if ("1.9.5".compareTo(version) == 0) {  //ios审核临界版本号
+			if ("1.9.6".compareTo(version) == 0) {  //ios审核临界版本号
 				state=BottleState.IOS_REVIEW.ordinal();
 			}
 		}

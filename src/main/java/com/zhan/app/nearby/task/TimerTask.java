@@ -2,12 +2,12 @@ package com.zhan.app.nearby.task;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import com.weibo.BlogBizImp;
 import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.cache.UserCacheService;
 import com.zhan.app.nearby.dao.UserDao;
@@ -17,12 +17,12 @@ import com.zhan.app.nearby.service.UserService;
 import com.zhan.app.nearby.service.VipService;
 import com.zhan.app.nearby.util.HttpClientUtils;
 import com.zhan.app.nearby.util.SpringContextUtil;
+import com.zhan.app.nearby.util.TextUtils;
 
 @Component
 @EnableScheduling
 public class TimerTask {
-	
-	private BlogBizImp blog;
+
 	// @Scheduled(cron = "0 0 0/1 * * ?") // 每小時
 	@Scheduled(cron = "0 0/5 * * * ?") // 每5分钟执行一次
 	public void injectMeetBottle() {
@@ -55,42 +55,34 @@ public class TimerTask {
 		UserDynamicService userDynamicService = SpringContextUtil.getBean("userDynamicService");
 		userDynamicService.clearIllegalDynamic();
 	}
-	
-	
-	@Scheduled(cron = "0 0/2 * * * ?") // 每5分钟执行一次
+
+	@Scheduled(cron = "0 0 0/2 * * ?") // 每2小时执行一次
 	public void injectTextBottle() {
-		
-		if(blog==null) {
-			blog=new BlogBizImp();
-		}
-		
 		BottleService bottleService = SpringContextUtil.getBean("bottleService");
 		bottleService.refreshPool();
-		
-		blog.load();
-		
-//		String url = "http://app.weimobile.com/yuehui/m_lianai!findLove.action?_ua=a|8.1|shiguangliu|1.1|CocoaPods|df67470b7146390726dd8ee072f47413|320|568|0&aid=1044969149&ver=1.1&ln=en&sid=1001&de=2018-04-15%2016:29:15&mod=iPhone%20Simulator&mno=&mos=iPhone%20Simulator&cd=o57aTreul3QUX+4usDu0mA==&sync=1&companyId=89jq3jrsdfu0as98dfh34ho&deviceId=df67470b7146390726dd8ee072f47413&page=1&";
-//		Map<String, Object> map = HttpClientUtils.get(url);
-//		if (map == null) {
-//			return;
-//		}
-//		Map<String, Object> body = (Map<String, Object>) map.get("body");
-//
-//		if (body == null) {
-//			return;
-//		}
-//		List<Object> resultList = (List<Object>) body.get("result");
-//		if (resultList == null) {
-//			return;
-//		}
-//
-//		for (Object obj : resultList) {
-//			Map<String, Object> data = (Map<String, Object>) obj;
-//			String id = (String) data.get("id");
-//			String title = (String) data.get("title");
-//			bottleService.sendAutoBottle(id, title);
-//		}
+		injectTxtBottle(bottleService);
+	}
 
+	private void injectTxtBottle(BottleService bottleService) {
+		String url_1 = "http://api.qqsuu.net/api/index";
+		String url_2 = "https://v1.hitokoto.cn/";
+		int r = new Random().nextInt(2);
+
+		String txt = null;
+		if (r == 0) {
+			txt = HttpClientUtils.getStringResult(url_1);
+		} else {
+			Map<String, Object> map = HttpClientUtils.get(url_2);
+			if (map != null && map.containsKey("hitokoto")) {
+				Object obj = map.get("hitokoto");
+				if (obj != null) {
+					txt = obj.toString();
+				}
+			}
+		}
+		if (!TextUtils.isEmpty(txt)) {
+			bottleService.sendAutoBottle(txt, txt);
+		}
 	}
 
 	@Scheduled(cron = "0 0/20 * * * ?") // 每5分钟执行一次

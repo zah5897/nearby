@@ -167,15 +167,15 @@ public class UserDynamicDao extends BaseDao {
 		if (filterBlock) {
 			sql = "select dy.*,coalesce(t_like.relationship, '0') as like_state,u.nick_name,u.avatar,u.sex,u.type,u.birthday from "
 					+ TABLE_USER_DYNAMIC
-					+ " dy left join t_like_dynamic t_like on dy.id=t_like.dynamic_id and dy.user_id=t_like.user_id left join t_user u on dy.user_id=u.user_id  where dy.user_id=? and dy.state<>"
+					+ " dy left join t_like_dynamic t_like on dy.id=t_like.dynamic_id and dy.user_id=t_like.user_id left join t_user u on dy.user_id=u.user_id  where dy.state=? and dy.user_id=? and dy.state<>"
 					+ DynamicState.T_ILLEGAL.ordinal() + " order by dy.id desc limit ?,?";
 		} else {
 			sql = "select dy.*,coalesce(t_like.relationship, '0') as like_state,u.nick_name,u.avatar,u.sex,u.type,u.birthday from "
 					+ TABLE_USER_DYNAMIC
-					+ " dy left join t_like_dynamic t_like on dy.id=t_like.dynamic_id and dy.user_id=t_like.user_id left join t_user u on dy.user_id=u.user_id  where dy.user_id=? order by dy.id desc limit ?,?";
+					+ " dy left join t_like_dynamic t_like on dy.id=t_like.dynamic_id and dy.user_id=t_like.user_id left join t_user u on dy.user_id=u.user_id  where dy.state=? and  dy.user_id=? order by dy.id desc limit ?,?";
 		}
 
-		return jdbcTemplate.query(sql, new Object[] { user_id, (page - 1) * count, count }, new DynamicMapper());
+		return jdbcTemplate.query(sql, new Object[] {DynamicState.T_FORMAL.ordinal(), user_id, (page - 1) * count, count }, new DynamicMapper());
 	}
 
 	public List<UserDynamic> getAllDynamic() {
@@ -305,8 +305,8 @@ public class UserDynamicDao extends BaseDao {
 	// 获取用户发布的动态里面的图片
 	public List<Image> getUserImages(long user_id, long last_image_id, int count) {
 		return jdbcTemplate.query(
-				"select *from t_user_dynamic  where user_id=? and local_image_name<>? and id<? order by id desc limit ?",
-				new Object[] { user_id, "", last_image_id, count }, new BeanPropertyRowMapper<Image>(Image.class));
+				"select *from t_user_dynamic  where state=? and  user_id=? and local_image_name<>? and id<? order by id desc limit ?",
+				new Object[] {DynamicState.T_FORMAL.ordinal(), user_id, "", last_image_id, count }, new BeanPropertyRowMapper<Image>(Image.class));
 	}
 
 	public int updateCityId(long dy_id, int province_id, int city_id, int district_id) {
@@ -325,9 +325,9 @@ public class UserDynamicDao extends BaseDao {
 				+ "u.user_id ,u.nick_name ,u.avatar,u.sex ,u.birthday ,u.type "
 				+ "from t_user_follow f left join  t_user_dynamic d on f.target_id=d.user_id "
 				+ "left join t_user u on  d.user_id=u.user_id "
-				+ "where f.uid=? and  d.id<? and f.target_id not in (select with_user_id from t_user_relationship where user_id=? and relationship=?) "
+				+ "where  d.state=? and  f.uid=? and  d.id<? and f.target_id not in (select with_user_id from t_user_relationship where user_id=? and relationship=?) "
 				+ "  order by d.id desc limit ?";
-		Object[] param = new Object[] { user_id, user_id, last_id, user_id, Relationship.BLACK.ordinal(), count };
+		Object[] param = new Object[] {  user_id, DynamicState.T_FORMAL.ordinal(),user_id, last_id, user_id, Relationship.BLACK.ordinal(), count };
 		return jdbcTemplate.query(sql, param, new DynamicMapper());
 	}
 

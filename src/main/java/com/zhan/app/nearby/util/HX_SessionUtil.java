@@ -8,7 +8,7 @@ import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.comm.PushMsgType;
 
 public class HX_SessionUtil {
-	public static void makeChatSession(BaseUser user, BaseUser with_user, long bottle_id, String msg) {
+	public static void makeChatSession(BaseUser user, BaseUser with_user, long bottle_id) {
 		ImagePathUtil.completeAvatarPath(with_user, true);
 		ImagePathUtil.completeAvatarPath(user, true);
 		// 发送给对方
@@ -19,6 +19,8 @@ public class HX_SessionUtil {
 		if (bottle_id > 0) {
 			ext.put("bottle_id", String.valueOf(bottle_id));
 		}
+
+		String msg = Main.getRandomMsg();
 		Main.sendTxtMessage(String.valueOf(user.getUser_id()), new String[] { String.valueOf(with_user.getUser_id()) },
 				msg, ext, PushMsgType.TYPE_NEW_CONVERSATION);
 		// 发送给自己
@@ -46,12 +48,8 @@ public class HX_SessionUtil {
 
 	}
 
-	public static void makeChatSession(BaseUser user, BaseUser with_user, String msg) {
-		makeChatSession(user, with_user, 0, msg);
-	}
-
 	public static void makeChatSession(BaseUser user, BaseUser with_user) {
-		makeChatSession(user, with_user, 0, "");
+		makeChatSession(user, with_user, 0);
 	}
 
 }

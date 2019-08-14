@@ -20,6 +20,17 @@ public class SMSHelper {
 		HashMap<String, Object> result = sms("241014", mobile, code);
 		return isSuccess(result);
 	}
+	
+	public static boolean smsGameRegist(String mobile, String code) {
+		HashMap<String, Object> result = sms("241010", mobile, code);
+		return isSuccess(result);
+	}
+	
+	public static boolean smsResetGamePwd(String mobile, String code) {
+		HashMap<String, Object> result = sms("241014", mobile, code);
+		return isSuccess(result);
+	}
+	
 
 	public static HashMap<String, Object> smsExchangeCode(String mobile, String code) {
 		return sms("240623", mobile, code);

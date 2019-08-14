@@ -2,6 +2,7 @@ package com.easemob.server.example;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 import com.easemob.server.example.api.IMUserAPI;
 import com.easemob.server.example.api.SendMessageAPI;
@@ -20,13 +21,20 @@ import com.zhan.app.nearby.util.TextUtils;
 public class Main {
 	private static EasemobRestAPIFactory factory;
 	public static final String SYS = "admin";
-
+	private static String[] meet_msg = { "你好，很高兴遇见你", "你在吗？", "遇见你是缘分。", "你是我等待的那个朋友哦～", "瓶友，你好", "好久不见～", "亲爱的陌生人，你好！",
+			"Hi,你在吗？", "Hello!我是你的瓶友", "很高兴成为网友～" };
 	private static void initFactory() {
 		if (factory == null) {
 			factory = ClientContext.getInstance().init(ClientContext.INIT_FROM_PROPERTIES).getAPIFactory();
 		}
 	}
 
+	
+   public static String  getRandomMsg(){
+	  int r= new Random().nextInt(meet_msg.length);
+	  return meet_msg[r];
+   }
+	
 	public static void main(String[] args) throws Exception {
 		// initFactory();
 		// IMUserAPI user = (IMUserAPI)
@@ -123,7 +131,7 @@ public class Main {
 		
 //		System.out.println(disconnect("112410"));
 
-		Object obj = Main.sendTxtMessage(Main.SYS, new String[] { String.valueOf(41) },
+		Object obj = Main.sendTxtMessage(Main.SYS, new String[] { String.valueOf(108497) },
 				"xx赠送了一个礼物给你", new HashMap<>(), PushMsgType.TYPE_RECEIVER_GIFT);
 		System.out.println(obj);
 	}

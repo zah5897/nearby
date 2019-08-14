@@ -296,12 +296,13 @@ public class GiftService {
 		if (!userService.checkLogin(user_id, token)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
-
 		List<Exchange> data = giftDao.loadExchangeDiamondHistory(user_id, i, j);
 		for (Exchange e : data) {
 			e.transferToDesc();// 转成描述语句
 		}
+		
+		boolean hasMore=data.size()==j;
 		return ResultUtil.getResultOKMap().addAttribute("data", data).addAttribute("total_exchange_coin",
-				giftDao.getTotalExchangeDiamond(user_id));
+				giftDao.getTotalExchangeDiamond(user_id)).addAttribute("hasMore", hasMore);
 	}
 }

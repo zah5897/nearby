@@ -117,6 +117,58 @@ public class UserController {
 		return data;
 	}
 
+	
+	/**
+	 * 获取注册用的短信验证码
+	 * 
+	 * @param request
+	 * @param mobile  手机号码
+	 * @return
+	 */
+	@RequestMapping("code_for_game")
+	public ModelMap code_for_game(HttpServletRequest request, String mobile, Integer code_type) {
+		if (TextUtils.isEmpty(mobile)) {
+			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "手机号码不能为空");
+		}
+		int count = userService.getUserCountByMobile(mobile);
+		if (count > 0) {
+			return ResultUtil.getResultMap(ERROR.ERR_USER_EXIST, "该手机号码已注册");
+		}
+
+		if (userCacheService.getUserCodeCacheCount(mobile) >= 3) {
+			return ResultUtil.getResultMap(ERROR.ERR_SMS_CODE_LIMIT);
+		}
+
+		String code = RandomCodeUtil.randomCode(6);
+
+		if (code_type == null) {
+			code_type = 0;
+		}
+
+		if (code_type == -1000) {
+			userCacheService.cacheRegistValidateCode(mobile, code, code_type);
+			return ResultUtil.getResultOKMap().addAttribute("validate_code", code);
+		}
+
+//		String cache = userCacheService.getCachevalideCode(mobile);
+//		if (cache != null) {
+//			// 已经在一分钟内发过，还没过期
+//		}
+		// if (now - lastTime <= 60) {
+		// return ResultUtil.getResultMap(ERROR.ERR_FREUENT);
+		// }
+		ModelMap data = ResultUtil.getResultOKMap();
+		boolean smsOK = SMSHelper.smsGameRegist(mobile, code);
+		if (smsOK) {
+			userCacheService.cacheRegistValidateCode(mobile, code, code_type == null ? 0 : code_type);
+			data.put("validate_code", code);
+		} else {
+			data = ResultUtil.getResultMap(ERROR.ERR_FAILED, "验证码发送过于频繁");
+		}
+
+		return data;
+	}
+	
 	/**
 	 * 注册
 	 * 
@@ -435,11 +487,9 @@ public class UserController {
 		}
 
 		//注册环信
-		boolean isNeedHx=false;
 		if(TextUtils.isEmpty(bDeleteIM)||!"1".equals(bDeleteIM)) {
-			isNeedHx=true;
+			userService.registHXNoException(user);
 		}
-		userService.registHX(user,isNeedHx);
 		
 		try {
 			String md5 = MD5Util.getMd5(password);
@@ -528,6 +578,40 @@ public class UserController {
 		return data;
 	}
 
+	
+	/**
+	 * 获取重置密码的短信验证码
+	 * 
+	 * @param mobile 手机号码
+	 * @return
+	 */
+	@RequestMapping("reset_game_password_code")
+	public ModelMap reset_game_password_code(String mobile) {
+		if (TextUtils.isEmpty(mobile)) {
+			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "手机号码不能为空");
+		}
+		int count = userService.getUserCountByMobile(mobile);
+		if (count < 1) {
+			return ResultUtil.getResultMap(ERROR.ERR_USER_NOT_EXIST, "该手机号码未注册");
+		}
+
+		if (userCacheService.getUserCodeCacheCount(mobile) >= 3) {
+			return ResultUtil.getResultMap(ERROR.ERR_SMS_CODE_LIMIT);
+		}
+
+		ModelMap data = ResultUtil.getResultOKMap();
+		String code = RandomCodeUtil.randomCode(6);
+
+		boolean smsOK = SMSHelper.smsResetGamePwd(mobile, code);
+		if (smsOK) {
+			userCacheService.cacheRegistValidateCode(mobile, code, 0);
+			data.put("validate_code", code);
+		} else {
+			data = ResultUtil.getResultMap(ERROR.ERR_FAILED, "验证码发送失败");
+		}
+		return data;
+	}
+	
 	/**
 	 * 重置密码
 	 * 

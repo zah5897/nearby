@@ -41,7 +41,7 @@ public class BottleController {
 		if (bottle.getUser_id() <= 0 && !userService.checkLogin(bottle.getUser_id(), token)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
-		
+
 		if (!bottleService.checkTime(bottle)) {
 			return ResultUtil.getResultMap(ERROR.ERR_FREUENT);
 		}
@@ -77,13 +77,14 @@ public class BottleController {
 
 		bottle.set_from(DeviceUtil.getRequestDevice(_ua));
 
-	    if(bottle.getType()==BottleType.RED_PACKAGE.ordinal()) {
-			if(bottle.getRed_package_coin_total() < bottle.getRed_package_count()) {
-				return ResultUtil.getResultMap(ERROR.ERR_PARAM,"每个红包不得少于1个扇贝");
+		if (bottle.getType() == BottleType.RED_PACKAGE.ordinal()) {
+			if (bottle.getRed_package_coin_total() < bottle.getRed_package_count()) {
+				return ResultUtil.getResultMap(ERROR.ERR_PARAM, "每个红包不得少于1个扇贝");
 			}
-			bottle.setAnswer(String.join(",",RedPacketUtils.splitRedPackets(bottle.getRed_package_coin_total(),bottle.getRed_package_count())));
+			bottle.setAnswer(String.join(",",
+					RedPacketUtils.splitRedPackets(bottle.getRed_package_coin_total(), bottle.getRed_package_count())));
 			bottle.setRed_package_coin_rest(bottle.getRed_package_coin_total());
-		 }
+		}
 		bottleService.send(bottle, aid);
 		return ResultUtil.getResultOKMap().addAttribute("bottle", bottle);
 	}
@@ -146,7 +147,7 @@ public class BottleController {
 		}
 		return ResultUtil.getResultMap(ERROR.ERR_PARAM, "无图片上传");
 	}
-	
+
 	/**
 	 * 发现
 	 * 
@@ -157,8 +158,7 @@ public class BottleController {
 	 * @return
 	 */
 	@RequestMapping("upload_v2")
-	public ModelMap upload_v2(Bottle bottle, String token, String _ua,
-			String aid,String image_names) {
+	public ModelMap upload_v2(Bottle bottle, String token, String _ua, String aid, String image_names) {
 
 		if (!userService.checkLogin(bottle.getUser_id(), token)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
@@ -183,13 +183,12 @@ public class BottleController {
 			}
 		}
 		bottle.set_from(DeviceUtil.getRequestDevice(_ua));
- 
+
 		bottle.setContent(image_names);
 		bottleService.send(bottle, aid);
 		ImagePathUtil.completeBottleDrawPath(bottle);
-		return  ResultUtil.getResultOKMap().addAttribute("bottle", bottle);
+		return ResultUtil.getResultOKMap().addAttribute("bottle", bottle);
 	}
-
 
 	@RequestMapping("list")
 	public ModelMap list(Long user_id, Integer count, Integer look_sex, Integer lock_sex, Integer type, Integer state,
@@ -198,22 +197,21 @@ public class BottleController {
 		if (lock_sex != null && look_sex == null) {
 			look_sex = lock_sex;
 		}
-		
-		
-		if(type==null) {
-			type=-1;
+
+		if (type == null) {
+			type = -1;
 		}
-		
-		if(type==BottleType.DM_TXT.ordinal()||type==BottleType.DM_VOICE.ordinal()) {
-			return ResultUtil.getResultMap(ERROR.ERR_PARAM,"不支持弹幕瓶子");
+
+		if (type == BottleType.DM_TXT.ordinal() || type == BottleType.DM_VOICE.ordinal()) {
+			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "不支持弹幕瓶子");
 		}
-		
+
 		if (_ua.startsWith("a")) {
-			if ("1.9.6".compareTo(version) == 0) {  //ios审核临界版本号
-				state=BottleState.IOS_REVIEW.ordinal();
+			if ("1.9.7".compareTo(version) == 0) { // ios审核临界版本号
+				state = BottleState.IOS_REVIEW.ordinal();
 			}
 		}
-		
+
 		return bottleService.getBottles(user_id == null ? 0 : user_id, count == null ? 5 : count, look_sex, type, state,
 				version, _ua);
 	}
@@ -234,12 +232,26 @@ public class BottleController {
 
 	@RequestMapping("mine")
 	public ModelMap mine(Long user_id, Integer page, Integer page_size) {
-		return bottleService.getMineBottles(user_id==null?41:user_id, page == null ? 1 : page, page_size == null ? 10 : page_size);
+		return bottleService.getMineBottles(user_id == null ? 41 : user_id, page == null ? 1 : page,
+				page_size == null ? 10 : page_size);
 	}
+
+	@RequestMapping("setProperty")
+	public ModelMap setProperty(int percent) {
+		this.percent = percent;
+		return ResultUtil.getResultOKMap();
+	}
+
+	@RequestMapping("getProperty")
+	public ModelMap getProperty() {
+		return ResultUtil.getResultOKMap().addAttribute("percent", percent);
+	}
+
+	private int percent = 50;
 
 	@RequestMapping("scan")
 	public ModelMap scan(long user_id, String bottle_id) {
-		return bottleService.scan(user_id, bottle_id);
+		return bottleService.scan(user_id, bottle_id, percent);
 	}
 
 	@RequestMapping("delete")
@@ -286,14 +298,17 @@ public class BottleController {
 	public ModelMap reward_history(long user_id) {
 		return ResultUtil.getResultOKMap().addAttribute("reward_list", bottleService.rewardHistoryGroup(user_id));
 	}
+
 	@RequestMapping("reward_list")
-	public ModelMap reward_list(long user_id,    Integer page,Integer count) {
-		return ResultUtil.getResultOKMap().addAttribute("reward_list", bottleService.rewardHistory(user_id,  page==null?1:page,count==null?20:count));
+	public ModelMap reward_list(long user_id, Integer page, Integer count) {
+		return ResultUtil.getResultOKMap().addAttribute("reward_list",
+				bottleService.rewardHistory(user_id, page == null ? 1 : page, count == null ? 20 : count));
 	}
-	
+
 	@RequestMapping("get_red_package_history")
 	public ModelMap get_red_package_history(long user_id, long bottle_id) {
-		return ResultUtil.getResultOKMap().addAttribute("red_package_gets", bottleService.getRedPackageHistory(bottle_id));
+		return ResultUtil.getResultOKMap().addAttribute("red_package_gets",
+				bottleService.getRedPackageHistory(bottle_id));
 	}
-	
+
 }

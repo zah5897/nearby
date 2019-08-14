@@ -193,7 +193,7 @@ public class MainService {
 								withUser.getUser_id(), "");
 						int count = userDao.isLikeMe(user_id, with_user);
 						if (count > 0) { // 对方喜欢我了，这个时候我也喜欢对方了，需要互相发消息
-							HX_SessionUtil.makeChatSession(user, withUser, "很高兴遇见你");
+							HX_SessionUtil.makeChatSession(user, withUser);
 						}
 					}
 				}
@@ -294,15 +294,16 @@ public class MainService {
 			fix_user = userDao.getBaseVipUser(fix_user_id);
 		}
 		List<BaseVipUser> users;
-		if(page_index==1&&fix_user!=null) {
-			limit-=1;
-			users=systemDao.getTouTiaoUser(page_index,limit);
-			users.add(0,fix_user);
-		}else {
-			users=systemDao.getTouTiaoUser(page_index,limit);
+		if (page_index == 1 && fix_user != null) {
+			limit -= 1;
+			users = systemDao.getTouTiaoUser(page_index, limit);
+			users.add(0, fix_user);
+		} else {
+			users = systemDao.getTouTiaoUser(page_index, limit);
 		}
-		if(users.size()<limit) {
-			List<BaseVipUser> tempusers = systemDao.loadMaxRateMeiLiRandom(fix_user_id, gender, page_index, limit-users.size());
+		if (users.size() < limit) {
+			List<BaseVipUser> tempusers = systemDao.loadMaxRateMeiLiRandom(fix_user_id, gender, page_index,
+					limit - users.size());
 			users.addAll(tempusers);
 		}
 		if (users.size() < limit) {

@@ -1,28 +1,65 @@
 package com.zhan.app.nearby.util;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.ClientProtocolException;
+import org.apache.http.*;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.config.Registry;
+import org.apache.http.config.RegistryBuilder;
+import org.apache.http.conn.socket.ConnectionSocketFactory;
+import org.apache.http.conn.socket.PlainConnectionSocketFactory;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.TrustStrategy;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.protocol.HTTP;
+import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.util.EntityUtils;
-
 import java.io.IOException;
-import java.net.URISyntaxException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 public class HttpClientUtils {
+	private static final String HTTP_STR = "http";
+	private static final String HTTPS_STR = "https";
+	private static SSLConnectionSocketFactory sslsf = null;
+	private static PoolingHttpClientConnectionManager cm = null;
+	private static SSLContextBuilder builder = null;
+	static {
+		try {
+			builder = new SSLContextBuilder();
+			// Trust all certificaties
+			builder.loadTrustMaterial(null, new TrustStrategy() {
+				@Override
+				public boolean isTrusted(X509Certificate[] x509Certificates, String s) throws CertificateException {
+					return true;
+				}
+			});
+			sslsf = new SSLConnectionSocketFactory(builder.build(),
+					new String[] { "SSLv2Hello", "SSLv3", "TLSv1", "TLSv1.2" }, null, NoopHostnameVerifier.INSTANCE);
+			Registry<ConnectionSocketFactory> registry = RegistryBuilder.<ConnectionSocketFactory>create()
+					.register(HTTP_STR, new PlainConnectionSocketFactory()).register(HTTPS_STR, sslsf).build();
+			cm = new PoolingHttpClientConnectionManager(registry);
+			cm.setMaxTotal(200);// max connection
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static CloseableHttpClient getHttpClient() {
+		CloseableHttpClient httpClient = HttpClients.custom().setSSLSocketFactory(sslsf).setConnectionManager(cm)
+				.setConnectionManagerShared(true).build();
+		return httpClient;
+	}
 
 	public static Map<String, Object> post(String url, Map<String, String> map) {
 		List<NameValuePair> params = new ArrayList<NameValuePair>();
@@ -34,7 +71,7 @@ public class HttpClientUtils {
 			params.add(pair);
 		}
 
-		CloseableHttpClient httpClient = HttpClientBuilder.create().build();
+		CloseableHttpClient httpClient = getHttpClient();
 		// 创建Post请求
 		HttpPost httpPost = new HttpPost(url);
 		// 响应模型
@@ -65,10 +102,11 @@ public class HttpClientUtils {
 
 	public static Map<String, Object> get(String url) {
 		String result = null;
-		CloseableHttpClient httpClient = HttpClients.createDefault();
-		HttpGet get = new HttpGet(url);
+		CloseableHttpClient httpClient = null;
 		CloseableHttpResponse response = null;
 		try {
+			httpClient = getHttpClient();
+			HttpGet get = new HttpGet(url);
 			response = httpClient.execute(get);
 			if (response != null && response.getStatusLine().getStatusCode() == 200) {
 				HttpEntity entity = response.getEntity();
@@ -77,7 +115,33 @@ public class HttpClientUtils {
 					return JSONUtil.jsonToMap(result);
 				}
 			}
-		} catch (IOException e) {
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				httpClient.close();
+				if (response != null) {
+					response.close();
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		return null;
+	}
+
+	public static String getStringResult(String url) {
+		CloseableHttpClient httpClient = null;
+		CloseableHttpResponse response = null;
+		try {
+			httpClient = getHttpClient();
+			HttpGet get = new HttpGet(url);
+			response = httpClient.execute(get);
+			if (response != null && response.getStatusLine().getStatusCode() == 200) {
+				HttpEntity entity = response.getEntity();
+				return EntityUtils.toString(entity);
+			}
+		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
 			try {
@@ -120,11 +184,7 @@ public class HttpClientUtils {
 				}
 			}
 
-		} catch (URISyntaxException e) {
-			e.printStackTrace();
-		} catch (ClientProtocolException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
 			try {

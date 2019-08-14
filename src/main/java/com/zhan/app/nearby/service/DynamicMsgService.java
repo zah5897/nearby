@@ -101,11 +101,10 @@ public class DynamicMsgService {
 
 			BaseUser me = userDao.getBaseUser(user_id);
 			BaseUser he = userDao.getBaseUser(msg.getBy_user_id());
-			String niceToMeet = "很高兴遇见你";
 			if (msg.getType() == DynamicMsgType.TYPE_MEET.ordinal()) {
-				HX_SessionUtil.makeChatSession(me, he, msg.getDynamic_id(), niceToMeet);
+				HX_SessionUtil.makeChatSession(me, he, msg.getDynamic_id());
 			} else if (msg.getType() == DynamicMsgType.TYPE_LIKE.ordinal()) {
-				HX_SessionUtil.makeChatSession(me, he, 0, niceToMeet);
+				HX_SessionUtil.makeChatSession(me, he, 0);
 			} else {
 				HX_SessionUtil.makeChatSession(me, he);
 			}

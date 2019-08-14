@@ -119,7 +119,7 @@ public class UserService {
 	}
 
 	@Transactional
-	public long insertUser(BaseUser user,boolean isNeedHX) {
+	public long insertUser(BaseUser user, boolean isNeedHX) {
 		user.setCreate_time(new Date());
 		int count = userDao.getUserCountByMobile(user.getMobile());
 		if (count > 0) {
@@ -133,7 +133,10 @@ public class UserService {
 				addRecommendAndMeetBottle(id);
 			}
 			saveUserOnline(user.getUser_id());
-			registHX(user,isNeedHX);
+			if(isNeedHX) {
+				registHXThrowException(user);
+			}
+			
 		}
 		return id;
 	}
@@ -232,12 +235,15 @@ public class UserService {
 	}
 
 	@Transactional
-	public int visitorToNormal(SimpleUser user,boolean isNeedHX) {
+	public int visitorToNormal(SimpleUser user, boolean isNeedHX) {
 		int count = userDao.visitorToNormal(user.getUser_id(), user.getMobile(), user.getPassword(), user.getToken(),
 				user.getNick_name(), user.getBirthday(), user.getSex(), user.getAvatar(), user.getLast_login_time());
 		if (count > 0) {
 			addRecommendAndMeetBottle(user.getUser_id());
-			registHX(user,isNeedHX);
+			if(isNeedHX) {
+				 registHXThrowException(user);
+			}
+			
 		}
 		return count;
 	}
@@ -630,10 +636,25 @@ public class UserService {
 		return userDao.getRelationShip(user_id, user_id_for);
 	}
 
-	public void registHX(BaseUser user,boolean isNeed) {
-		if(!isNeed) {
-			return;
+	public void registHXNoException(BaseUser user) {
+		try {
+			String id = String.valueOf(user.getUser_id());
+			String password = MD5Util.getMd5_16(id);
+			Object resutl = Main.registUser(id, password, user.getNick_name());
+			if (resutl != null) {
+				if (resutl instanceof ResponseWrapper) {
+					ResponseWrapper response = (ResponseWrapper) resutl;
+					if (response.getResponseStatus() != 200) {
+                        System.out.println("环信regist exception");
+					}
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
+	}
+
+	public void registHXThrowException(BaseUser user) {
 		try {
 			String id = String.valueOf(user.getUser_id());
 			String password = MD5Util.getMd5_16(id);
@@ -960,6 +981,7 @@ public class UserService {
 		return result;
 
 	}
+
 	/**
 	 * 减少金币
 	 * 
@@ -1000,12 +1022,13 @@ public class UserService {
 		return result;
 
 	}
-	
-	public ModelMap followUsers(long user_id,boolean isFollowMe,Integer page,Integer count){
-		int c=count==null?20:count;
-		List<BaseVipUser> users=userDao.followUsers(user_id,isFollowMe,page==null?1:page,c);
+
+	public ModelMap followUsers(long user_id, boolean isFollowMe, Integer page, Integer count) {
+		int c = count == null ? 20 : count;
+		List<BaseVipUser> users = userDao.followUsers(user_id, isFollowMe, page == null ? 1 : page, c);
 		ImagePathUtil.completeAvatarsPath(users, true);
-		long last_id=users.size()==0?0:users.get(users.size()-1).getUser_id();
-		return ResultUtil.getResultOKMap().addAttribute("users", users).addAttribute("hasMore", users.size()==c).addAttribute("last_id",last_id);
+		long last_id = users.size() == 0 ? 0 : users.get(users.size() - 1).getUser_id();
+		return ResultUtil.getResultOKMap().addAttribute("users", users).addAttribute("hasMore", users.size() == c)
+				.addAttribute("last_id", last_id);
 	}
 }

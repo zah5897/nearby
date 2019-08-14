@@ -44,13 +44,24 @@
 		location="/WEB-INF/view/css/" />
 	<mvc:resources mapping="/js/**"
 		location="/WEB-INF/view/js/" />
-
-
-
+	<!-- swagger静态文件路径 -->
+	<mvc:resources mapping="/swagger/**"
+		location="/WEB-INF/swagger/" cache-period="31556926" />
+		
+	 <mvc:resources location="classpath:/META-INF/resources/" mapping="swagger-ui.html"/>
+     <mvc:resources location="classpath:/META-INF/resources/webjars/" mapping="/webjars/**"/>
+		
+		
+	<mvc:default-servlet-handler />
+    <bean class="com.zhan.app.nearby.config.SwaggerConfig" />
 	<!-- 启动自动扫描 该包下所有的Bean(@Controller) -->
 	<context:component-scan
-		base-package="com.zhan.app.nearby.controller" />
+		base-package="com.zhan.app.nearby.controller,com.zhan.app.nearby.bean" />
 	<!-- 上传资源访问 -->
+
+	
+
+
 
 	<mvc:resources mapping="/img/origin/**"
 		location="D:/web/nearby_image/images/origin/" />
@@ -99,7 +110,7 @@
 		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
 		<property name="prefix" value="/WEB-INF/view/" />
 		<property name="suffix" value=".jsp" />
-		<property name="redirectHttp10Compatible" value="false" /> 
+		<property name="redirectHttp10Compatible" value="false" />
 	</bean>
 
 

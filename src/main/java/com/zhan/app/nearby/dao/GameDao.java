@@ -16,7 +16,6 @@ import org.springframework.stereotype.Repository;
 
 import com.zhan.app.nearby.bean.GameScore;
 import com.zhan.app.nearby.bean.user.BaseUser;
-import com.zhan.app.nearby.comm.UserType;
 import com.zhan.app.nearby.util.ImagePathUtil;
 
 @Repository("gameDao")

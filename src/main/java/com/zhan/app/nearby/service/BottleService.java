@@ -365,8 +365,8 @@ public class BottleService {
 					BaseUser u1 = userDao.getBaseUserNoToken(user_id);
 					BaseUser u2 = userDao.getBaseUserNoToken(uid);
 
-					if (u1.getSex() == u2.getSex()) { //同性的话
-							continue;
+					if (u1.getSex().equals(u2.getSex())) { //同性的话
+						continue;
 					}
 					//概率
 					if (RandomCodeUtil.randomPercentOK(percent)) {

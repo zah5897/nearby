@@ -854,7 +854,11 @@ public class UserDao extends BaseDao {
 				+ limit;
 		return jdbcTemplate.queryForList(sql, Long.class);
 	}
-
+	public Date getUserLastLoginTime(long uid) {
+		String sql = "select last_login_time from t_user where user_id = "+uid;
+		return jdbcTemplate.queryForObject(sql, Date.class);
+	}
+	
 	public void removeTimeoutOnlineUsers(int timeoutDay) {
 		String sql = "delete from t_user_online where check_time < DATE_SUB(NOW(),INTERVAL ? DAY)";
 		jdbcTemplate.update(sql, new Object[] { timeoutDay });
@@ -974,4 +978,21 @@ public class UserDao extends BaseDao {
 				}
 			 });
 	}
+	
+	/**
+	 * 获取活跃用户,3个月前注册，且最近1天登陆的异性用户
+	 * @param page
+	 * @param count
+	 * @return
+	 */
+//	@Cacheable(value="one_day",key="#root.methodName+'_'+#sex")
+	public List<BaseUser> getActiveUsers(int sex) {
+		String sql="select u.user_id,u.nick_name,u.avatar from t_user u "
+				+ "where u.type=1 "
+				+ "and u.sex=? "
+				+ "and u.create_time <DATE_SUB(CURDATE(), INTERVAL 3 MONTH) "
+				+ "and u.last_login_time > DATE_SUB(CURDATE(), INTERVAL 1 DAY) order by rand() limit ? ";
+		return  jdbcTemplate.query(sql,new Object[] {sex,1}, new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+	}
+	
 }

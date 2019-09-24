@@ -22,25 +22,41 @@ public class VideoService {
 		if (!userService.checkLogin(video.getUid(), token)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
-		Video last = videoDao.getLastHandlerVideo(video.getClient_uuid(), 1); // 获取上次扣费的最后一条记录
+		Video last = videoDao.getLastHandlerVideo(video.getClient_uuid()); // 获取上次扣费的最后一条记录
 		if (last == null) {
 			video.setState(1);
 			videoDao.insert(video);
 			return userService.cost_coin(video.getUid(), token, aid, 1 * 1);
 		} else {
-			int val = video.getTime_value() - last.getTime_value();
-			if (val > 60) {
-				int minute = (int) Math.ceil(val / 60.0)-1; //向上 取整了，所以要减一
-				video.setState(1);
-				videoDao.insert(video);
-				return userService.cost_coin(video.getUid(), token, aid, minute * 1);
-			} else {
+			int lastMinute=  last.getTime_value()/60;
+			int curMinute=  video.getTime_value()/60;
+			if (lastMinute ==curMinute) {
 				video.setState(0);
 				videoDao.insert(video);
 				int all_coins=userService.loadUserCoins(aid, video.getUid());
 				return ResultUtil.getResultOKMap().addAttribute("cost_coins", "0").addAttribute("all_coins", all_coins);
+			} else {
+				video.setState(1);
+				videoDao.insert(video);
+				return userService.cost_coin(video.getUid(), token, aid, (curMinute -lastMinute)* 1);
 			}
 		}
-
 	}
+	
+//	public static void main(String[] args) {
+//		int t1=1;
+//		int t30=30;
+//		int t59=59;
+//		int t60=60;
+//		int t61=61;
+//		int t70=70;
+//		System.out.println(t1/60);
+//		System.out.println(t30/60);
+//		System.out.println(t59/60);
+//		System.out.println(t60/60);
+//		System.out.println(119/60);
+//		System.out.println(120/60);
+//		
+//	}
+	
 }

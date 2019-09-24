@@ -189,6 +189,7 @@ public class Main {
 		apns.put("msg", msgTxt);
 		if(!TextUtils.isEmpty(alert)) {
 			apns.put("em_push_content", alert);
+			apns.put("extern", alert);
 		}
 		try {
 			ext.put("em_apns_ext", JSONUtil.writeValueAsString(apns));

@@ -30,9 +30,23 @@ public class VideoDao extends BaseDao {
 	public void insert(Video video) {
 		saveObjSimple(jdbcTemplate, TABLE_VIDEo, video);
 	}
-	public Video getLastHandlerVideo(String client_uuid,int state) {
-		String sql = "select *from " + TABLE_VIDEo + " where client_uuid=? and state=? order by create_time desc limit 1";
-		List<Video> video = jdbcTemplate.query(sql,new Object[] {client_uuid,state}, new BeanPropertyRowMapper<Video>(Video.class));
+
+	public Video getLastHandlerVideo(String client_uuid, int state) {
+		String sql = "select *from " + TABLE_VIDEo
+				+ " where client_uuid=? and state=? order by create_time desc limit 1";
+		List<Video> video = jdbcTemplate.query(sql, new Object[] { client_uuid, state },
+				new BeanPropertyRowMapper<Video>(Video.class));
+		if (video.isEmpty()) {
+			return null;
+		} else {
+			return video.get(0);
+		}
+	}
+
+	public Video getLastHandlerVideo(String client_uuid) {
+		String sql = "select *from " + TABLE_VIDEo + " where client_uuid=?  order by create_time desc limit 1";
+		List<Video> video = jdbcTemplate.query(sql, new Object[] { client_uuid },
+				new BeanPropertyRowMapper<Video>(Video.class));
 		if (video.isEmpty()) {
 			return null;
 		} else {

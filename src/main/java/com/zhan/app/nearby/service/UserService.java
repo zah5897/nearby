@@ -16,6 +16,7 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
@@ -44,9 +45,11 @@ import com.zhan.app.nearby.dao.UserDao;
 import com.zhan.app.nearby.dao.VipDao;
 import com.zhan.app.nearby.exception.AppException;
 import com.zhan.app.nearby.exception.ERROR;
+import com.zhan.app.nearby.task.MatchActiveUserTask;
 import com.zhan.app.nearby.util.AESUtil;
 import com.zhan.app.nearby.util.AddressUtil;
 import com.zhan.app.nearby.util.DateTimeUtil;
+import com.zhan.app.nearby.util.HX_SessionUtil;
 import com.zhan.app.nearby.util.HttpService;
 import com.zhan.app.nearby.util.IPUtil;
 import com.zhan.app.nearby.util.ImagePathUtil;
@@ -80,7 +83,9 @@ public class UserService {
 	private BottleService bottleService;
 	@Resource
 	private ManagerService managerService;
-
+	@Autowired
+	private MatchActiveUserTask matchActiveUserTask;
+	
 	public BaseUser getBasicUser(long id) {
 		return userDao.getBaseUser(id);
 	}
@@ -135,6 +140,7 @@ public class UserService {
 			saveUserOnline(user.getUser_id());
 			if(isNeedHX) {
 				registHXThrowException(user);
+				matchActiveUserTask.newRegistMatch(user);
 			}
 			
 		}
@@ -241,11 +247,33 @@ public class UserService {
 		if (count > 0) {
 			addRecommendAndMeetBottle(user.getUser_id());
 			if(isNeedHX) {
-				 registHXThrowException(user);
+				 registHXThrowException(user); 
+				 matchActiveUserTask.newRegistMatch(user); //匹配活跃用户
 			}
 			
 		}
 		return count;
+	}
+	
+	/**
+	 * 检查该用户多久没登陆了，超过1个月没登录的话，需要匹活跃用户创建会话
+	 * @param curUser
+	 */
+	public void checkHowLongNotOpenApp(long uid) {
+		checkHowLongNotOpenApp(userDao.getBaseUser(uid));
+	}
+	public void checkHowLongNotOpenApp(BaseUser user) {
+		Date date=userDao.getUserLastLoginTime(user.getUser_id());
+		if(date==null) {
+            matchActiveUserTask.longTimeNotOpenMatch(user);	
+            return;
+		}
+		long time=date.getTime()/1000;
+		long now=System.currentTimeMillis()/1000;
+		//------上次登录时间超过30天------
+		if((now-time)>30*24*60*60) {
+			 matchActiveUserTask.longTimeNotOpenMatch(user);	
+		}
 	}
 
 	public void uploadLocation(final String ip, final Long user_id, String lat, String lng) {
@@ -751,7 +779,7 @@ public class UserService {
 	public ModelMap openApp(long user_id, String token, String aid) {
 		if (checkLogin(user_id, token)) {
 			saveUserOnline(user_id);
-
+			checkHowLongNotOpenApp(user_id);
 			userDao.uploadLastLoginTime(user_id);
 			return ResultUtil.getResultOKMap();
 		} else {
@@ -1030,5 +1058,17 @@ public class UserService {
 		long last_id = users.size() == 0 ? 0 : users.get(users.size() - 1).getUser_id();
 		return ResultUtil.getResultOKMap().addAttribute("users", users).addAttribute("hasMore", users.size() == c)
 				.addAttribute("last_id", last_id);
+	}
+
+	//该方法为
+	public List<BaseUser> getActiveUser(int sex) {
+		return userDao.getActiveUsers(sex);
+	}
+	
+	public ModelMap test_new_user_regist(long uid, long other_uid) {
+		BaseUser user=userDao.getBaseUser(uid);
+		System.out.println(Thread.currentThread().getName());
+		matchActiveUserTask.newRegistMatch(user);
+		return ResultUtil.getResultOKMap();
 	}
 }

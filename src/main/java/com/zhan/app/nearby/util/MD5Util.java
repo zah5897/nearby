@@ -80,24 +80,35 @@ public class MD5Util {
 		return null;
 	}
 
+//	public static void main(String[] args) {
+//		Map<String, String> param = new HashMap<String, String>();
+//		param.put("user_id", String.valueOf(41));
+//		param.put("token", "123");
+//		param.put("aid", "123");
+//		param.put("task_id", "123");
+//		param.put("extra", String.valueOf(1));
+//		param.put("uuid", "123");
+//		
+//		
+//		String token="abcfegdrfgqwerty1";
+//		String content=sign(param, token);
+//		System.out.println(content);
+//		try {
+//			System.out.println(AESUtil.aesDecryptString(content, token));
+//		} catch (InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException
+//				| InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException
+//				| UnsupportedEncodingException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//	}
+	
 	public static void main(String[] args) {
-		Map<String, String> param = new HashMap<String, String>();
-		param.put("user_id", String.valueOf(41));
-		param.put("token", "123");
-		param.put("aid", "123");
-		param.put("task_id", "123");
-		param.put("extra", String.valueOf(1));
-		param.put("uuid", "123");
-		
-		
-		String token="abcfegdrfgqwerty1";
-		String content=sign(param, token);
-		System.out.println(content);
+		String str="avatar=https://c-ssl.duitang.com/uploads/item/201410/16/20141016202155_5ycRZ.thumb.1400_0.jpeg&out_id=1562573406518HIY&secret_key=b1aeb79c8ad6af7b8316081882124058&username=d1345131366";
+//		String str="avatar=default.jpg&out_id=1562573406518HIY&secret_key=b1aeb79c8ad6af7b8316081882124058&username=d1345131366";
 		try {
-			System.out.println(AESUtil.aesDecryptString(content, token));
-		} catch (InvalidKeyException | NoSuchAlgorithmException | NoSuchPaddingException
-				| InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException
-				| UnsupportedEncodingException e) {
+			System.out.println(getMd5(str));
+		} catch (NoSuchAlgorithmException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

@@ -490,6 +490,8 @@ public class UserController {
 		if(TextUtils.isEmpty(bDeleteIM)||!"1".equals(bDeleteIM)) {
 			userService.registHXNoException(user);
 		}
+		//检查该用户多久没登陆了
+		userService.checkHowLongNotOpenApp(user);
 		
 		try {
 			String md5 = MD5Util.getMd5(password);
@@ -1157,6 +1159,12 @@ public class UserController {
 		return userService.followUsers(uid, true, page, count);
 	}
 
+	@RequestMapping("notOpenApp")
+	public ModelMap test_new_user_regist(long uid) {
+		 userService.checkHowLongNotOpenApp(uid);
+		 return ResultUtil.getResultOKMap();
+	}
+	
 	private City getDefaultCityId() {
 
 		City city = new City();

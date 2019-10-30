@@ -18,6 +18,7 @@ public class VideoService {
 	@Resource
 	private UserService userService;
 
+	private final int ONE_MINUTE_COST=10;
 	public Map<String, Object> live(String token, String aid, Video video) {
 		if (!userService.checkLogin(video.getUid(), token)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
@@ -26,7 +27,7 @@ public class VideoService {
 		if (last == null) {
 			video.setState(1);
 			videoDao.insert(video);
-			return userService.cost_coin(video.getUid(), token, aid, 1 * 1);
+			return userService.cost_coin(video.getUid(), token, aid, 1 * ONE_MINUTE_COST);
 		} else {
 			int lastMinute=  last.getTime_value()/60;
 			int curMinute=  video.getTime_value()/60;
@@ -38,7 +39,7 @@ public class VideoService {
 			} else {
 				video.setState(1);
 				videoDao.insert(video);
-				return userService.cost_coin(video.getUid(), token, aid, (curMinute -lastMinute)* 1);
+				return userService.cost_coin(video.getUid(), token, aid, (curMinute -lastMinute)* ONE_MINUTE_COST);
 			}
 		}
 	}

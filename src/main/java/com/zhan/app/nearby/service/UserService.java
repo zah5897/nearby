@@ -776,17 +776,6 @@ public class UserService {
 		}
 	}
 
-	public ModelMap openApp(long user_id, String token, String aid) {
-		if (checkLogin(user_id, token)) {
-			saveUserOnline(user_id);
-			checkHowLongNotOpenApp(user_id);
-			userDao.uploadLastLoginTime(user_id);
-			return ResultUtil.getResultOKMap();
-		} else {
-			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
-		}
-	}
-
 	public ModelMap getContact(long by_user_id, long user_id, String token, String aid) {
 		if (!checkLogin(user_id, token)) {
 			if (TextUtils.isEmpty(token)) {
@@ -826,6 +815,12 @@ public class UserService {
 	public ModelMap autoLogin(long user_id, String md5_pwd, String aid) {
 		boolean exist = userDao.checkExistByIdAndPwd(user_id, md5_pwd);
 		if (exist) {
+			
+			
+			checkHowLongNotOpenApp(user_id);
+			userDao.uploadLastLoginTime(user_id);
+			
+			
 			String token = UUID.randomUUID().toString();
 			userDao.updateToken(user_id, token, new Date());
 
@@ -1071,4 +1066,21 @@ public class UserService {
 		matchActiveUserTask.newRegistMatch(user);
 		return ResultUtil.getResultOKMap();
 	}
+	
+	
+	public void testLongTimeNoLogin(long user_id,long target_id) {
+		BaseUser i=userDao.getBaseUser(user_id);
+		BaseUser he=userDao.getBaseUser(target_id);
+		HX_SessionUtil.makeChatSession(i, he, 0);
+	}
+
+	/**
+	 * 上传手机的device_token
+	 * @param user_id
+	 * @param token
+	 */
+	public void addDeviceToken(long user_id, String device_token) {
+		userDao.addDeviceToken(user_id,device_token);
+	}
+	
 }

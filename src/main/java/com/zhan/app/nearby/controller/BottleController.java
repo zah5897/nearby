@@ -207,7 +207,7 @@ public class BottleController {
 		}
 
 		if (_ua.startsWith("a")) {
-			if ("1.9.7".compareTo(version) == 0) { // ios审核临界版本号
+			if ("2.0.0".compareTo(version) == 0) { // ios审核临界版本号
 				state = BottleState.IOS_REVIEW.ordinal();
 			}
 		}
@@ -247,8 +247,7 @@ public class BottleController {
 		return ResultUtil.getResultOKMap().addAttribute("percent", percent);
 	}
 
-	private int percent = 50;
-
+	private int percent = 10;
 	@RequestMapping("scan")
 	public ModelMap scan(long user_id, String bottle_id) {
 		return bottleService.scan(user_id, bottle_id, percent);

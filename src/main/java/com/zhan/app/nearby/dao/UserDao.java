@@ -331,29 +331,28 @@ public class UserDao extends BaseDao {
 		return users;
 	}
 
-	
 	public void removeFromFoundUserList(long user_id) {
-		String sql="delete from t_found_user_relationship where uid="+user_id;
+		String sql = "delete from t_found_user_relationship where uid=" + user_id;
 		jdbcTemplate.update(sql);
 	}
-	
-	@Cacheable(value="one_hour",key="#root.methodName+'_'+#page+'_'+#count")
+
+	@Cacheable(value = "one_hour", key = "#root.methodName+'_'+#page+'_'+#count")
 	public List<MeiLi> getNewRegistUsers(int page, int count) {
-		
-		String sql="select u.user_id ,u.nick_name, u.avatar,v.dayDiff, gift.tval as sanbei ,gift.tval*5+lk.like_count as mli  from "
+
+		String sql = "select u.user_id ,u.nick_name, u.avatar,v.dayDiff, gift.tval as sanbei ,gift.tval*5+lk.like_count as mli  from "
 				+ "t_user u left join "
 				+ "(select tg.user_id ,sum(tg.val) as tval from (select o.*,o.count*g.price as val from  t_gift_own o left join t_gift g on o.gift_id=g.id) as tg group by tg.user_id) gift "
 				+ "on u.user_id=gift.user_id "
 				+ "left join  (select TIMESTAMPDIFF(DAY,now(),end_time) as dayDiff,start_time,user_id from t_user_vip ) v  "
 				+ " on u.user_id=v.user_id "
 				+ " left join  (select count(*) as like_count ,with_user_id from t_user_relationship where relationship=?  group by  with_user_id) lk  "
-				+ " on u.user_id=lk.with_user_id "
-				+ " left join t_found_user_relationship fu "
+				+ " on u.user_id=lk.with_user_id " + " left join t_found_user_relationship fu "
 				+ " on u.user_id=fu.uid "
 				+ "where   u.type=? and   (fu.state is null or fu.state<>1)  and DATE_SUB(CURDATE(), INTERVAL 15 DAY) <= date(create_time) order by mli desc limit ?,?";
-		
+
 		List<MeiLi> users = jdbcTemplate.query(sql,
-				new Object[] {Relationship.LIKE.ordinal(), UserType.OFFIEC.ordinal(), (page - 1) * count, count }, new RowMapper<MeiLi>() {
+				new Object[] { Relationship.LIKE.ordinal(), UserType.OFFIEC.ordinal(), (page - 1) * count, count },
+				new RowMapper<MeiLi>() {
 					@Override
 					public MeiLi mapRow(ResultSet rs, int rowNum) throws SQLException {
 						MeiLi m = new MeiLi();
@@ -374,13 +373,15 @@ public class UserDao extends BaseDao {
 				});
 		return users;
 	}
+
 	/**
 	 * vip榜
+	 * 
 	 * @param page
 	 * @param count
 	 * @return
 	 */
-	@Cacheable(value="thrity_minute",key="#root.methodName+'_'+#page+'_'+#count")
+	@Cacheable(value = "thrity_minute", key = "#root.methodName+'_'+#page+'_'+#count")
 	public List<MeiLi> getVipRankUsers(int page, int count) {
 		String sql = "select u.*, v.dayDiff,c.name as city_name from t_user u "
 				+ "left join (select TIMESTAMPDIFF(DAY,now(),end_time) as dayDiff,start_time,user_id from t_user_vip ) v on u.user_id=v.user_id "
@@ -419,7 +420,6 @@ public class UserDao extends BaseDao {
 				});
 		return users;
 	}
-
 
 	public List<BaseUser> getRandomMeetBottleUser(int realCount) {
 		String sql = "select u.* from t_user_meet_bottle_recommend mb  left join t_user u on mb.uid=u.user_id order by  RAND() limit ?";
@@ -691,14 +691,15 @@ public class UserDao extends BaseDao {
 	}
 
 	public int getUserState(long user_id) {
-		 List<Integer> states= jdbcTemplate.queryForList("select state from  t_found_user_relationship where uid=? limit 1",
-					new Object[] { user_id }, Integer.class);
-		 if(states.isEmpty()) {
-			 return FoundUserRelationship.VISIBLE.ordinal();
-		 }else {
-			 return states.get(0);
-		 }
-		 
+		List<Integer> states = jdbcTemplate.queryForList(
+				"select state from  t_found_user_relationship where uid=? limit 1", new Object[] { user_id },
+				Integer.class);
+		if (states.isEmpty()) {
+			return FoundUserRelationship.VISIBLE.ordinal();
+		} else {
+			return states.get(0);
+		}
+
 	}
 
 	public int todayCheckInCount(long user_id) {
@@ -772,11 +773,11 @@ public class UserDao extends BaseDao {
 		String illegalName = "illegal.jpg";
 		if (status == AvatarIMGStatus.ILLEGAL) {
 			ImageSaveUtils.removeAcatar(avatar);
-			sql = "delete from  t_user_avatars where  id="+id;
+			sql = "delete from  t_user_avatars where  id=" + id;
 			int count = jdbcTemplate.update(sql);
 			if (count == 1) {
 				sql = "update t_user set avatar=? where user_id=?";
-				jdbcTemplate.update(sql, new Object[] { illegalName, uid});
+				jdbcTemplate.update(sql, new Object[] { illegalName, uid });
 			}
 		} else {
 		}
@@ -827,11 +828,12 @@ public class UserDao extends BaseDao {
 	}
 
 	public void saveUserOnline(long uid) {
-   	   int count=jdbcTemplate.queryForObject("select count(*) from t_user_online where uid="+uid, Integer.class);
-		if(count==0) {
-			jdbcTemplate.update("insert into t_user_online (uid,check_time) values(?,?)", new Object[] { uid, new Date() });
-		}else {
-			jdbcTemplate.update("update t_user_online set check_time=? where uid=?", new Object[] {new Date(),uid });
+		int count = jdbcTemplate.queryForObject("select count(*) from t_user_online where uid=" + uid, Integer.class);
+		if (count == 0) {
+			jdbcTemplate.update("insert into t_user_online (uid,check_time) values(?,?)",
+					new Object[] { uid, new Date() });
+		} else {
+			jdbcTemplate.update("update t_user_online set check_time=? where uid=?", new Object[] { new Date(), uid });
 		}
 	}
 
@@ -854,21 +856,23 @@ public class UserDao extends BaseDao {
 				+ limit;
 		return jdbcTemplate.queryForList(sql, Long.class);
 	}
+
 	public Date getUserLastLoginTime(long uid) {
-		String sql = "select last_login_time from t_user where user_id = "+uid;
+		String sql = "select last_login_time from t_user where user_id = " + uid;
 		return jdbcTemplate.queryForObject(sql, Date.class);
 	}
-	
+
 	public void removeTimeoutOnlineUsers(int timeoutDay) {
 		String sql = "delete from t_user_online where check_time < DATE_SUB(NOW(),INTERVAL ? DAY)";
 		jdbcTemplate.update(sql, new Object[] { timeoutDay });
 	}
 
 	// 根据状态获取审核的头像列表
-	public List<BaseUser> listConfirmAvatars(int state, int pageSize, int pageIndex,Long user_id) {
+	public List<BaseUser> listConfirmAvatars(int state, int pageSize, int pageIndex, Long user_id) {
 		String sql = "select v.id, u.user_id,u.nick_name,v.avatar from t_user_avatars v left join t_user u on v.uid=u.user_id where v.state=? order by v.id desc limit ?,?";
-		if(user_id!=null&&user_id>0) {
-			sql = "select v.id, u.user_id,u.nick_name,v.avatar from t_user_avatars v left join t_user u on v.uid=u.user_id where v.uid="+user_id+" and  v.state=? order by v.id desc limit ?,?";
+		if (user_id != null && user_id > 0) {
+			sql = "select v.id, u.user_id,u.nick_name,v.avatar from t_user_avatars v left join t_user u on v.uid=u.user_id where v.uid="
+					+ user_id + " and  v.state=? order by v.id desc limit ?,?";
 		}
 		return jdbcTemplate.query(sql, new Object[] { state, (pageIndex - 1) * pageSize, pageSize },
 				new BeanPropertyRowMapper<BaseUser>(BaseUser.class) {
@@ -882,9 +886,10 @@ public class UserDao extends BaseDao {
 	}
 
 	public int getCountOfConfirmAvatars(Long user_id) {
-		if(user_id!=null&&user_id>0)
-		    return jdbcTemplate.queryForObject("select count(*) from t_user_avatars where state=0 and uid="+user_id, Integer.class);
-		else 
+		if (user_id != null && user_id > 0)
+			return jdbcTemplate.queryForObject("select count(*) from t_user_avatars where state=0 and uid=" + user_id,
+					Integer.class);
+		else
 			return jdbcTemplate.queryForObject("select count(*) from t_user_avatars where state=0", Integer.class);
 	}
 
@@ -916,83 +921,93 @@ public class UserDao extends BaseDao {
 		return count;
 	}
 
-	public boolean isFollowed(long user_id,long target_id) {
-		return jdbcTemplate.queryForObject("select count(*) from t_user_follow where uid=? and target_id=?",new Object[] {user_id,target_id},
-				Integer.class) > 0;
+	public boolean isFollowed(long user_id, long target_id) {
+		return jdbcTemplate.queryForObject("select count(*) from t_user_follow where uid=? and target_id=?",
+				new Object[] { user_id, target_id }, Integer.class) > 0;
 	}
 
 	public void follow(long user_id, long target_id) {
 		String sql = "insert into t_user_follow values (?, ?)";
 		jdbcTemplate.update(sql, new Object[] { user_id, target_id });
 	}
-	
+
 	public void cancelFollow(long user_id, long target_id) {
 		String sql = "delete from  t_user_follow where uid=? and target_id=?";
 		jdbcTemplate.update(sql, new Object[] { user_id, target_id });
 	}
 
 	public int getFansCount(long user_id) {
-		String sql="select count(*) from t_user_follow where target_id="+user_id;
+		String sql = "select count(*) from t_user_follow where target_id=" + user_id;
 		return jdbcTemplate.queryForObject(sql, Integer.class);
 	}
 
 	public int getFollowCount(long user_id) {
-		String sql="select count(*) from t_user_follow where uid="+user_id;
+		String sql = "select count(*) from t_user_follow where uid=" + user_id;
 		return jdbcTemplate.queryForObject(sql, Integer.class);
 	}
+
 	public int getTaskCount(long user_id, String aid, String task_id, String uuid) {
-		return jdbcTemplate.queryForObject("select count(*) from t_task_history where uid=? and aid=? and task_id=? and uuid=?", new Object[] {user_id,aid,task_id,uuid},Integer.class);
-	}
-	public int savaTaskHistory(long user_id, String aid, String task_id, String uuid,int extra) {
-		String sql = "insert into t_task_history (uid,task_id,create_time,aid,uuid,extra) values (?, ?,?,?,?,?)";
-		return jdbcTemplate.update(sql,new Object[] {user_id,task_id,new Date(),aid,uuid,extra});
+		return jdbcTemplate.queryForObject(
+				"select count(*) from t_task_history where uid=? and aid=? and task_id=? and uuid=?",
+				new Object[] { user_id, aid, task_id, uuid }, Integer.class);
 	}
 
-	public List<BaseVipUser> followUsers(long user_id, boolean isFollowMe,int page,int count) {
-		
-	        String sql="select u.user_id,u.nick_name,u.avatar,u.city_id,v.dayDiff,c.name as city_name from t_user_follow f left join t_user u on f.target_id =u.user_id "
-	        		+ " left join (select TIMESTAMPDIFF(DAY,now(),end_time) as dayDiff,start_time,user_id from t_user_vip ) v on u.user_id=v.user_id "
-	        		+ " left join t_sys_city c on u.city_id=c.id  "
-	        		+ " where f.uid=? limit ?,?";
-			 if(isFollowMe) { //关注我的用户
-				 sql="select u.user_id,u.nick_name,u.avatar,u.city_id ,v.dayDiff,c.name as city_name from t_user_follow f left join t_user u on f.uid =u.user_id "
-				 	+ " left join (select TIMESTAMPDIFF(DAY,now(),end_time) as dayDiff,start_time,user_id from t_user_vip ) v on u.user_id=v.user_id "
-				 	+ " left join t_sys_city c on u.city_id=c.id "
-				 	+ " where f.target_id=? limit ?,?";
-			 }
-			 return jdbcTemplate.query(sql,new Object[] {user_id,(page-1)*count,count} ,new BeanPropertyRowMapper<BaseVipUser>(BaseVipUser.class) {
-				 @Override
-				public BaseVipUser mapRow(ResultSet rs, int rowNumber) throws SQLException {
-					 BaseVipUser user= super.mapRow(rs, rowNumber);
-					 
+	public int savaTaskHistory(long user_id, String aid, String task_id, String uuid, int extra) {
+		String sql = "insert into t_task_history (uid,task_id,create_time,aid,uuid,extra) values (?, ?,?,?,?,?)";
+		return jdbcTemplate.update(sql, new Object[] { user_id, task_id, new Date(), aid, uuid, extra });
+	}
+
+	public List<BaseVipUser> followUsers(long user_id, boolean isFollowMe, int page, int count) {
+
+		String sql = "select u.user_id,u.nick_name,u.avatar,u.city_id,v.dayDiff,c.name as city_name from t_user_follow f left join t_user u on f.target_id =u.user_id "
+				+ " left join (select TIMESTAMPDIFF(DAY,now(),end_time) as dayDiff,start_time,user_id from t_user_vip ) v on u.user_id=v.user_id "
+				+ " left join t_sys_city c on u.city_id=c.id  " + " where f.uid=? limit ?,?";
+		if (isFollowMe) { // 关注我的用户
+			sql = "select u.user_id,u.nick_name,u.avatar,u.city_id ,v.dayDiff,c.name as city_name from t_user_follow f left join t_user u on f.uid =u.user_id "
+					+ " left join (select TIMESTAMPDIFF(DAY,now(),end_time) as dayDiff,start_time,user_id from t_user_vip ) v on u.user_id=v.user_id "
+					+ " left join t_sys_city c on u.city_id=c.id " + " where f.target_id=? limit ?,?";
+		}
+		return jdbcTemplate.query(sql, new Object[] { user_id, (page - 1) * count, count },
+				new BeanPropertyRowMapper<BaseVipUser>(BaseVipUser.class) {
+					@Override
+					public BaseVipUser mapRow(ResultSet rs, int rowNumber) throws SQLException {
+						BaseVipUser user = super.mapRow(rs, rowNumber);
+
 						int dayDiff = rs.getInt("dayDiff");
 						user.setVip(dayDiff > 0);
-					    int cid = rs.getInt("city_id");
+						int cid = rs.getInt("city_id");
 						if (cid > 0) {
 							City c = new City();
 							c.setId(cid);
 							c.setName(rs.getString("city_name"));
 							user.setCity(c);
 						}
-					 return user;
-				}
-			 });
+						return user;
+					}
+				});
 	}
-	
+
 	/**
 	 * 获取活跃用户,3个月前注册，且最近1天登陆的异性用户
+	 * 
 	 * @param page
 	 * @param count
 	 * @return
 	 */
 //	@Cacheable(value="one_day",key="#root.methodName+'_'+#sex")
 	public List<BaseUser> getActiveUsers(int sex) {
-		String sql="select u.user_id,u.nick_name,u.avatar from t_user u "
-				+ "where u.type=1 "
-				+ "and u.sex=? "
-				+ "and u.create_time <DATE_SUB(CURDATE(), INTERVAL 3 MONTH) "
+		String sql = "select u.user_id,u.nick_name,u.avatar from t_user u " + "where u.type=1 " + "and u.sex=? "
+//				+ "and u.create_time <DATE_SUB(CURDATE(), INTERVAL 3 MONTH) " //去掉三个月的注册限制
 				+ "and u.last_login_time > DATE_SUB(CURDATE(), INTERVAL 1 DAY) order by rand() limit ? ";
-		return  jdbcTemplate.query(sql,new Object[] {sex,1}, new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+		return jdbcTemplate.query(sql, new Object[] { sex, 1 }, new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
 	}
-	
+
+	public void addDeviceToken(long user_id, String device_token) {
+		String sql = "insert into t_user_device_token values (?, ?)";
+		try {
+			jdbcTemplate.update(sql, new Object[] { user_id, device_token });
+		} catch (Exception e) {
+		}
+	}
+
 }

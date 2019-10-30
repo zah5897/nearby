@@ -1085,11 +1085,6 @@ public class UserController {
 		return userService.checkIn(user_id, token, aid);
 	}
 
-	@RequestMapping("/open_app")
-	public ModelMap openApp(long user_id, String token, String aid) {
-		return userService.openApp(user_id, token, aid);
-	}
-
 	@RequestMapping("getContact/{by_user_id}")
 	public ModelMap getContact(@PathVariable long by_user_id, long user_id, String token, String aid) {
 		return userService.getContact(by_user_id, user_id, token, aid);
@@ -1158,10 +1153,17 @@ public class UserController {
 			throws Exception {
 		return userService.followUsers(uid, true, page, count);
 	}
-
-	@RequestMapping("notOpenApp")
-	public ModelMap test_new_user_regist(long uid) {
-		 userService.checkHowLongNotOpenApp(uid);
+//
+//	
+//	@RequestMapping("add_token")
+//	public ModelMap add_token(long user_id,String  device_token) {
+//		 userService.addDeviceToken(user_id,device_token);
+//		 return ResultUtil.getResultOKMap();
+//	}
+	
+	@RequestMapping("test_longtime_no_login")
+	public ModelMap test_new_user_regist(long user_id,long target_id) {
+		 userService.testLongTimeNoLogin(user_id, target_id);
 		 return ResultUtil.getResultOKMap();
 	}
 	

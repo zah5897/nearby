@@ -639,7 +639,7 @@ public class BottleDao extends BaseDao {
 						b.setSender(userDao.getBaseUserNoToken(b.getUser_id()));
 						ImagePathUtil.completeAvatarPath(b.getSender(), true);
 						BaseUser u = new BaseUser();
-						u.setUser_id(rs.getLong("user_id"));
+						u.setUser_id(rs.getLong("uid"));
 						u.setNick_name(rs.getString("nick_name"));
 						u.setAvatar(rs.getString("avatar"));
 						ImagePathUtil.completeAvatarPath(u, true);

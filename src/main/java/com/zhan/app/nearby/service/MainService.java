@@ -549,7 +549,7 @@ public class MainService {
 		if (user_id == id) {
 			return ResultUtil.getResultOKMap("您已经在头条了");
 		}
-		Map<String, Object> map = HttpService.buy(user_id, aid, 100, "buy_first_position");
+		Map<String, Object> map = HttpService.buy(user_id, aid, 1, "buy_first_position");
 		if (map != null) {
 			int code = Integer.parseInt(map.get("code").toString());
 			if (code == 0) {

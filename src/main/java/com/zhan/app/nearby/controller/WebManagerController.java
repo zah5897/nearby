@@ -41,8 +41,8 @@ import com.zhan.app.nearby.util.TextUtils;
 
 @Controller
 @RequestMapping("/manager")
-public class ManagerController {
-	private static Logger log = Logger.getLogger(ManagerController.class);
+public class WebManagerController {
+	private static Logger log = Logger.getLogger(WebManagerController.class);
 	@Resource
 	private ManagerService managerService;
 

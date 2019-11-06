@@ -46,19 +46,17 @@ public class UserDynamicDao extends BaseDao {
 		return jdbcTemplate.queryForObject(sql, new Object[] { ImageStatus.SELECTED.ordinal(), city_id, city_id },
 				Integer.class);
 	}
-
 	public List<UserDynamic> getHomeFoundSelected(long user_id, long last_id, int page_size, City city) {
 		String sql = "select dy.*,"
 				+ " coalesce((select relationship from t_like_dynamic t_like where t_like.dynamic_id=dy.id and t_like.user_id=?), '0') as like_state ,"
 				+ " u.user_id , u.nick_name ,u.avatar,u.sex ,u.birthday ,u.type " + "from " + TABLE_USER_DYNAMIC
 				+ " dy left join " + TABLE_HOME_FOUND_SELECTED + " hs " + " on dy.id=hs.dynamic_id "
 				+ " left join t_user u on  dy.user_id=u.user_id "
-				+ " left join (select *from t_user_relationship where user_id=? and relationship=? ) ur on dy.user_id=ur.with_user_id "
 				+ " where hs.selected_state=? and dy.id<?   " + cityIn(city)
-				+ " and   ur.user_id is null order by dy.id desc limit ?";
+				+ " and   dy.user_id not in(select with_user_id from t_user_relationship where user_id=? and relationship=?) order by dy.id desc limit ?";
 
 		long lastID = (last_id <= 0 ? Long.MAX_VALUE : last_id);
-		Object[] param = new Object[] { user_id, user_id,Relationship.BLACK.ordinal(),ImageStatus.SELECTED.ordinal(), lastID, page_size };
+		Object[] param = new Object[] { user_id, ImageStatus.SELECTED.ordinal(), lastID,user_id,Relationship.BLACK.ordinal(), page_size };
 		return jdbcTemplate.query(sql, param, new DynamicMapper());
 //		} else {
 //			if (city != null) {

@@ -18,6 +18,7 @@ import com.zhan.app.nearby.util.BottleKeyWordUtil;
 import com.zhan.app.nearby.util.IPUtil;
 import com.zhan.app.nearby.util.ResultUtil;
 import com.zhan.app.nearby.util.TextUtils;
+import com.zhan.app.nearby.util.UCloudSMSHelper;
 
 
 @RestController
@@ -99,5 +100,11 @@ public class SystemController {
 	@RequestMapping("test_redis")
 	public ModelMap test_redis() {
 		return mainService.test_redis();
+	}
+
+	@RequestMapping("test")
+	public ModelMap test() {
+		 UCloudSMSHelper.smsRegist("13262510792", "123456");
+		 return ResultUtil.getResultOKMap();
 	}
 }

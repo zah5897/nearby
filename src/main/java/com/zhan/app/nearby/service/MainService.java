@@ -101,10 +101,6 @@ public class MainService {
 
 	public ModelMap getHomeFoundSelected(long user_id, Long last_id, Integer page_size, Integer city_id) {
 
-		if (last_id == null || last_id < 0) {
-			last_id = 0l;
-		}
-
 		int realCount;
 		if (page_size == null || page_size <= 0) {
 			realCount = 20;
@@ -114,8 +110,29 @@ public class MainService {
 		if (city_id == null || city_id < 0) {
 			city_id = 0;
 		}
-		City city = cityService.getFullCity(city_id);
-		List<UserDynamic> dynamics = userDynamicDao.getHomeFoundSelected(user_id, last_id, realCount, city);
+
+		boolean firstPage = false;
+		if (last_id == null || last_id < 0) {
+			last_id = 0l;
+			firstPage = true;
+		}
+		City city = cityService.getFullCity(city_id); // 获取城市
+		List<UserDynamic> dynamics;
+		if (firstPage) {
+			List<UserDynamic> myUnCheckedDynamics = userDynamicDao.getUserUnCheckedDynamic(user_id);
+			if (myUnCheckedDynamics.size() == 0) {
+				dynamics = userDynamicDao.getHomeFoundSelected(user_id, last_id, realCount, city);
+			} else {
+				List<Long> ids = new ArrayList<>();
+				for (UserDynamic dy : myUnCheckedDynamics) {
+					ids.add(dy.getId());
+				}
+				dynamics = userDynamicDao.getHomeFoundSelected(user_id, last_id, realCount-myUnCheckedDynamics.size(), city,ids);
+			}
+		} else {
+			dynamics = userDynamicDao.getHomeFoundSelected(user_id, last_id, realCount, city);
+		}
+
 		ModelMap result = ResultUtil.getResultOKMap();
 		if (dynamics == null || dynamics.size() < realCount) {
 			result.put("hasMore", false);

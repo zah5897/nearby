@@ -23,7 +23,7 @@ public class HttpService {
 	// ----------------------购买规则管理---------------------------
 	public static Map<?, ?> deleteRule(int rule_id) {
 		if (TextUtils.isEmpty(MODULE_RULE_URL)) {
-			MODULE_RULE_URL = loadProperty("MODULE_RULE_URL");
+			MODULE_RULE_URL = loadProperty("PAY_MODULE_RULE_URL");
 		}
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("id", String.valueOf(rule_id));
@@ -36,7 +36,7 @@ public class HttpService {
 
 	public static Map<?, ?> listRule(String aid) {
 		if (TextUtils.isEmpty(MODULE_RULE_URL)) {
-			MODULE_RULE_URL = loadProperty("MODULE_RULE_URL");
+			MODULE_RULE_URL = loadProperty("PAY_MODULE_RULE_URL");
 		}
 		String url = null;
 		if (!TextUtils.isEmpty(aid)) {
@@ -56,7 +56,7 @@ public class HttpService {
 	public static Map<?, ?> saveRule(int id, String name, int coins, int coins_free, int rmb, String description,
 			String aid, String app_name) {
 		if (TextUtils.isEmpty(MODULE_RULE_URL)) {
-			MODULE_RULE_URL = loadProperty("MODULE_RULE_URL");
+			MODULE_RULE_URL = loadProperty("PAY_MODULE_RULE_URL");
 		}
 
 		Map<String, String> params = new HashMap<String, String>();
@@ -108,7 +108,7 @@ public class HttpService {
 	public static Map<String, Object> buyVIP(long user_id, String aid, int  rule_id, String  subject,int amount,int type) {
 		
 		if (TextUtils.isEmpty(MODULE_ORDER_URL)) {
-			MODULE_ORDER_URL = loadProperty("MODULE_ORDER_URL");
+			MODULE_ORDER_URL = loadProperty("PAY_MODULE_ORDER_URL");
 		}
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("user_id", String.valueOf(user_id));
@@ -137,7 +137,7 @@ public class HttpService {
 	 */
 	public static Map<String, Object> minusCoins(long user_id, String aid, int int_amount, Object ext) {
 		if (TextUtils.isEmpty(MODULE_PAY_URL)) {
-			MODULE_PAY_URL = loadProperty("MODULE_PAY_URL");
+			MODULE_PAY_URL = loadProperty("PAY_MODULE_PAY_URL");
 		}
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("user_id", String.valueOf(user_id));
@@ -164,7 +164,7 @@ public class HttpService {
 	 */
 	public static Map<String, Object> modifyUserExtra(long user_id, String aid, int count, int addOrMinus) {
 		if (TextUtils.isEmpty(MODULE_ORDER_A_EXTRA)) {
-			MODULE_ORDER_A_EXTRA = loadProperty("MODULE_ORDER_A_EXTRA");
+			MODULE_ORDER_A_EXTRA = loadProperty("PAY_MODULE_ORDER_A_EXTRA");
 		}
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("id_user", String.valueOf(user_id) + "$");
@@ -182,7 +182,7 @@ public class HttpService {
 	// ----------------------查询用户coins-------------------------
 	public static Map<String, Object> queryUserCoins(long user_id, String aid) {
 		if (TextUtils.isEmpty(MODULE_COINS_QUERY_URL)) {
-			MODULE_COINS_QUERY_URL = loadProperty("MODULE_COINS_QUERY_URL");
+			MODULE_COINS_QUERY_URL = loadProperty("PAY_MODULE_COINS_QUERY_URL");
 		}
 
 		Map<String, String> params = new HashMap<String, String>();
@@ -203,7 +203,7 @@ public class HttpService {
 	 * @return
 	 */
 	private static String loadProperty(String propertyName) {
-		Properties prop = PropertiesUtil.load("config.properties");
+		Properties prop = PropertiesUtil.load("app.properties");
 		return PropertiesUtil.getProperty(prop, propertyName);
 	}
 

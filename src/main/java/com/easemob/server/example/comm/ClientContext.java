@@ -142,10 +142,10 @@ public class ClientContext {
 		Properties p = new Properties();
 
 		try {
-			InputStream inputStream = ClientContext.class.getClassLoader().getResourceAsStream("config.properties");
+			InputStream inputStream = ClientContext.class.getClassLoader().getResourceAsStream("app.properties");
 			p.load(inputStream);
 		} catch (IOException e) {
-			log.error(MessageTemplate.print(MessageTemplate.FILE_ACCESS_MSG, new String[]{"config.properties"}));
+			log.error(MessageTemplate.print(MessageTemplate.FILE_ACCESS_MSG, new String[]{"app.properties"}));
 			return; // Context not initialized
 		}
 		

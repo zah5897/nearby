@@ -46,7 +46,7 @@ public class ImageSaveUtils {
 			} catch (IOException e) {
 				log.error(e.getMessage());
 			}
-			FILE_ROOT_PATH = props.getProperty("IMAGE_SAVE_PATH");
+			FILE_ROOT_PATH = props.getProperty("LOCAL_IMAGE_SAVE_PATH");
 			if (!TextUtils.isEmpty(FILE_ROOT_PATH)) {
 				File file = new File(FILE_ROOT_PATH);
 				file.mkdirs();

@@ -227,11 +227,18 @@
 			<version>1.7.2</version>
 		</dependency>
 
+
+       <!-- ucloUd 相关服务 -->
 		<dependency>
 			<groupId>cn.ucloud.ufile</groupId>
 			<artifactId>ufile-client-java</artifactId>
 			<version>2.0.6</version>
 		</dependency>
+        <dependency>
+          <groupId>cn.ucloud</groupId>
+          <artifactId>ucloud-sdk-java-udisk</artifactId>
+          <version>0.8.2.7-release</version>
+        </dependency>
 
 
 		<!-- swagger -->

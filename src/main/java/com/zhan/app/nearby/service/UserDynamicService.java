@@ -73,6 +73,11 @@ public class UserDynamicService {
 	public List<UserDynamic> getUserDynamic(long user_id, int page, int count) {
 		return getUserDynamic(user_id, page, count, true);
 	}
+	//获取用户自身的动态
+	public List<UserDynamic> getUserSelfDynamic(long user_id, int page, int count) {
+		return userDynamicDao.getUserDynamic(user_id, page, count);
+	}
+	
 	@Transactional
 	public long comment(DynamicComment comment) {
 		long id = userDynamicDao.comment(comment);

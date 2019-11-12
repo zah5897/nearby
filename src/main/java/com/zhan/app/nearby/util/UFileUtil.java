@@ -2,6 +2,7 @@ package com.zhan.app.nearby.util;
 
 import java.io.File;
 import java.io.InputStream;
+import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
@@ -20,11 +21,9 @@ import cn.ucloud.ufile.exception.UfileServerException;
 import cn.ucloud.ufile.http.OnProgressListener;
 import cn.ucloud.ufile.http.UfileCallback;
 import cn.ucloud.ufile.util.MimeTypeUtil;
-
 public class UFileUtil {
-
-	private static final String PUBLIC_KEY = "TOKEN_bacabef4-36cf-4c90-b3ef-c50a22328982";
-	private static final String PRIVATE_KEY = "68ff90d0-c393-4b04-82b4-4e30b70f7b1c";
+	private static String PUBLIC_KEY;
+	private static String PRIVATE_KEY;
 
 	public static final String BUCKET_AVATAR = "nearby-avatar";
 	public static final String BUCKET_IMAGES = "nearby-images";
@@ -39,6 +38,9 @@ public class UFileUtil {
 	private static void init() {
 		// 对象相关API的授权器
 		if (OBJECT_AUTHORIZER == null) {
+			Properties prop = PropertiesUtil.load("app.properties");
+			PRIVATE_KEY=prop.getProperty("ucloud.ufile.privateKey");
+			PUBLIC_KEY=prop.getProperty("ucloud.ufile.publicKey");
 			OBJECT_AUTHORIZER = new UfileObjectLocalAuthorization(PUBLIC_KEY, PRIVATE_KEY);
 			config = new ObjectConfig("cn-bj", "ufileos.com");
 		}

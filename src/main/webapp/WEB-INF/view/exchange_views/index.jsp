@@ -160,7 +160,7 @@ body, input, button {
 	
 	     <p>可提现金币数量：${coins }</p> 
 	
-		<form action="<%=path%>/exchange/do_submit_exchange" method="post">
+		<form action="<%=path%>/exchange/do_submit_exchange" method="post" onsubmit="return checkForm()">
 			 
 			<div class="input-group">
 				<label for="khname">提现    数量：</label>
@@ -172,7 +172,7 @@ body, input, button {
 				<label for="khname">等价人名币：</label> 
 				<input type="text" id="rmb_input"   readonly="readonly" placeholder="0（元）">
 			</div>
-			<button type="button" onclick="checkForm()">提交兑换</button>
+			<button>提交兑换</button>
 		</form>
 	</div>
 

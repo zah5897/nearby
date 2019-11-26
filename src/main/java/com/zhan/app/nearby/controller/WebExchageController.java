@@ -97,6 +97,11 @@ public class WebExchageController {
 			return ResultUtil.getResultMap(ERROR.ERR_USER_NOT_EXIST);
 		}
 		
+		if (userCacheService.getUserCodeCacheCount(mobile) >= 3) {
+			return ResultUtil.getResultMap(ERROR.ERR_SMS_CODE_LIMIT);
+		}
+		
+		
 		String code = RandomCodeUtil.randomCode(6);
 		boolean smsOK = SMSHelper.smsBindZHiFuBao(mobile, code);
 		smsOK=true;
@@ -124,9 +129,9 @@ public class WebExchageController {
 			return new ModelAndView(new RedirectView("login"));
 		}
 		
-//		if(!userCacheService.validateBindZhiFuBaoCode(mobile, code)) {
-//			return new ModelAndView(new RedirectView("error"),ResultUtil.getResultMap( ERROR.ERR_FAILED,"验证码错误"));	
-//		}
+		if(!userCacheService.validateBindZhiFuBaoCode(mobile, code)) {
+			return new ModelAndView(new RedirectView("error"),ResultUtil.getResultMap( ERROR.ERR_FAILED,"验证码错误"));	
+		}
 		exchangeService.savePersonalInfo(user_id, token, mobile, zhifubao,aid);
 		return new ModelAndView(new RedirectView("index")).addObject("user_id", user_id).addObject("token", token);
 	}

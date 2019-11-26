@@ -70,8 +70,7 @@ public class UserCacheService {
 		try {
 			redisTemplate.opsForValue().set(mobile, code, 60, TimeUnit.MINUTES);
 			if (flag != -1000) {//
-				int count = getUserCodeCacheCount(mobile);
-				redisTemplate.opsForHash().put(PERFIX_U_SMS_COUNT, mobile, String.valueOf(count + 1));
+				addTodayMobileSmsCount(mobile);
 			}
 		} catch (Exception e) {
 			log.error(e.getMessage());
@@ -174,8 +173,7 @@ public class UserCacheService {
 		try {
 			redisTemplate.opsForValue().set(mobile, code, 60, TimeUnit.MINUTES);
 			if (flag != -1000) {//
-				int count = getExchageCodeCacheCount(mobile);
-				redisTemplate.opsForHash().put(PERFIX_U_EXCHAGE_COUNT, mobile, String.valueOf(count + 1));
+				addTodayMobileSmsCount(mobile);
 			}
 		} catch (Exception e) {
 			log.error(e.getMessage());
@@ -199,6 +197,7 @@ public class UserCacheService {
 	public void cacheBindZhiFuBaoCode(String mobile, String code) {
 		try {
 			redisTemplate.opsForHash().put(PERFIX_U_BIND_ZHIFUBAO, mobile, code);
+			addTodayMobileSmsCount(mobile);
 		} catch (Exception e) {
 			log.error(e.getMessage());
 		}
@@ -225,6 +224,12 @@ public class UserCacheService {
 		return redisTemplate.opsForValue().get("test");
 	}
 
+	
+	public void addTodayMobileSmsCount(String mobile) {
+		int count = getUserCodeCacheCount(mobile);
+		redisTemplate.opsForHash().put(PERFIX_U_SMS_COUNT, mobile, String.valueOf(count + 1));
+	}
+	
 //	public void setBottleKeyWord(String keywords) {
 //		redisTemplate.opsForValue().set(PERFIX_BOTTLE_KEY_WORD, keywords);
 //	}

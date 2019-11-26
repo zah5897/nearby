@@ -35,6 +35,11 @@ public class ParamInterceptor implements HandlerInterceptor {
 			String ip = IPUtil.getIpAddress(request);
 			return managerService.isAllowed(ip);
 		}
+		if (url.contains("nearby/exchange")) {
+//			String ip = IPUtil.getIpAddress(request);
+//			return managerService.isAllowed(ip);
+			return true;
+		}
 //		return true;
 		if (url.contains("nearby/js")) {
 			return true;
@@ -60,7 +65,11 @@ public class ParamInterceptor implements HandlerInterceptor {
 		if (url.contains("nearby/files/")) {
 			return true;
 		}
-
+		 boolean r=isSupportSwagger(url);
+		 if(r) {
+			 return r;
+		 }
+		
 		if (url.endsWith(".html")) {
 			return true;
 		}
@@ -76,6 +85,17 @@ public class ParamInterceptor implements HandlerInterceptor {
 		return checkSecret(request,_ua, aid, version, timestamp);
 	}
 
+	
+	public boolean isSupportSwagger(String url) {
+		if(url.contains("swagger")) {
+			return true;
+		}
+		if(url.contains("nearby/v2/")) {
+			return true;
+		}
+		System.out.println(url);
+		return true;
+	}
 	@SuppressWarnings("deprecation")
 	private boolean checkSecret(HttpServletRequest request,String _ua, String aid, String version, String timestamp) throws NoSuchAlgorithmException {
 //		

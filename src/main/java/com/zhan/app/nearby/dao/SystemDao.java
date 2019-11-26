@@ -4,6 +4,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
 
@@ -132,18 +133,17 @@ public class SystemDao extends BaseDao {
 	 * @param limit
 	 * @return
 	 */
-	public List<BaseVipUser> loadMaxRateMeiLiRandom(Long ignoreUserId, String gender, int page_index, int limit) {
+	public List<BaseVipUser> loadMaxRateMeiLiRandom(Long ignoreUserId, String gender,  int limit) {
 		if (TextUtils.isEmpty(gender)) {
-			String sql = "select u.user_id,u.nick_name,u.avatar,u.sex,u.birthday,u.birth_city_id, u.city_id from   t_user u left join t_found_user_relationship s on u.user_id=s.uid   where s.state=0 and   u.user_id<>? and  u.avatar<>? order by rand() limit ?,?";
+			String sql = "select u.user_id,u.nick_name,u.avatar,u.sex,u.birthday,u.birth_city_id, u.city_id from   t_user u left join t_found_user_relationship s on u.user_id=s.uid   where s.state=0 and   u.user_id<>? and  u.avatar<>? order by rand() limit ?";
 			return jdbcTemplate.query(sql,
-					new Object[] { ignoreUserId == null ? 0 : ignoreUserId, "", (page_index - 1) * limit, limit },
+					new Object[] { ignoreUserId == null ? 0 : ignoreUserId, "",   limit },
 					new BeanPropertyRowMapper<BaseVipUser>(BaseVipUser.class));
 		} else {
-			String sql = "select u.user_id,u.nick_name,u.avatar,u.sex,u.birthday,u.birth_city_id, u.city_id from   t_user u  left join t_found_user_relationship s on u.user_id=s.uid   where s.state=0 and u.user_id<>? and u.avatar<>? and u.sex=?  order by rand() limit ?,?";
+			String sql = "select u.user_id,u.nick_name,u.avatar,u.sex,u.birthday,u.birth_city_id, u.city_id from   t_user u  left join t_found_user_relationship s on u.user_id=s.uid   where s.state=0 and u.user_id<>? and u.avatar<>? and u.sex=?  order by rand() limit ?";
 			return jdbcTemplate
 					.query(sql,
-							new Object[] { ignoreUserId == null ? 0 : ignoreUserId, "", gender,
-									(page_index - 1) * limit, limit },
+							new Object[] { ignoreUserId == null ? 0 : ignoreUserId, "", gender, limit },
 							new BeanPropertyRowMapper<BaseVipUser>(BaseVipUser.class));
 		}
 	}
@@ -295,9 +295,12 @@ public class SystemDao extends BaseDao {
 	}
 	
 	
-	public List<BaseVipUser> getTouTiaoUser(int page,int count){
+	public List<BaseVipUser> getTouTiaoUser(int startIndex,int limit){
 		String sql="select u.user_id,u.nick_name,u.avatar,u.birthday from t_toutiao_user tt left join t_user u on tt.uid=u.user_id where u.type=1 order by tt.create_time desc limit ?,?";
-		return jdbcTemplate.query(sql, new Object[] {(page-1)*count,count}, new BeanPropertyRowMapper<BaseVipUser>(BaseVipUser.class));
+		return jdbcTemplate.query(sql, new Object[] {startIndex,limit}, new BeanPropertyRowMapper<BaseVipUser>(BaseVipUser.class));
 	}
-	
+	public List<Map<String, Object>> getTouTiaoUserIndexVal(){
+		String sql="SELECT (@i:=@i+1) i,uid FROM t_toutiao_user, (SELECT @i:=0) as i order by create_time desc ";
+		return jdbcTemplate.queryForList(sql);
+	}
 }

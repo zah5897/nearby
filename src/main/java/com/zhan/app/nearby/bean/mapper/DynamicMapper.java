@@ -10,6 +10,7 @@ import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.bean.user.SimpleUser;
 import com.zhan.app.nearby.comm.LikeDynamicState;
 import com.zhan.app.nearby.util.DateTimeUtil;
+import com.zhan.app.nearby.util.ImagePathUtil;
 
 public class DynamicMapper implements RowMapper<UserDynamic> {
 
@@ -51,7 +52,7 @@ public class DynamicMapper implements RowMapper<UserDynamic> {
 		user.setType(rs.getShort("type"));
 		Date birthday = rs.getDate("birthday");
 		user.setAge(DateTimeUtil.getAge(birthday));
-
+		ImagePathUtil.completeAvatarPath(user, true);
 		dynamic.setUser(user);
 		return dynamic;
 	}

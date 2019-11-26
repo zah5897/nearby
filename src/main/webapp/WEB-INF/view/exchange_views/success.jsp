@@ -1,4 +1,10 @@
-﻿<!doctype html>
+﻿<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%
+	String path = request.getContextPath();
+%>
+<!doctype html>
 <html>
 <head>
 <meta charset="UTF-8">
@@ -79,44 +85,24 @@ body, input, button {
 	background-position: 95% center;
 	background-size: auto 20%
 }
+h1,h2,h3{
+text-align:center;
+color:green;
+}
 </style>
 </head>
 
 <body>
 	<h1 class="odform-tit">
-		<img src="images/daetixian-tit.png" >漂流瓶提现
+		 漂流瓶提现-成功
 	</h1>
 	<div class="odform">
-		<form action="#">
-			 
-			<div class="input-group">
-				<label for="khname">客户姓名</label> <input type="text" id="khname"
-					placeholder="请输入您的客户姓名">
-			</div>
-			<div class="input-group">
-				<label for="khname">手机号码</label> <input type="text" id="khname"
-					placeholder="请输入您的手机号码">
-			</div>
-			<div class="input-group">
-				<label for="khname">提现金额</label> <input type="text" id="khname"
-					placeholder="请输入您的提现金额">
-			</div>
-			<div class="input-group">
-				<label for="khname">预约时间</label> <input type="text" class="cal"
-					id="khname" placeholder="请选择提现时间">
-			</div>
-			<div class="input-group">
-				<label for="khname">附加备注</label> <input type="text" id="khname"
-					placeholder="备注">
-			</div>
-			<button>马上预约</button>
-		</form>
+	     <h2>您申请提现了${coins }金币，工作人员处理中...</h2> 
 	</div>
-
 	<div
 		style="text-align: center; margin: 50px 0; font: normal 14px/24px 'MicroSoft YaHei';">
-		<p>适用浏览器：</p>
-
+		<p>漂流瓶官方邮箱：<a href="mailto:2448742182@qq.com">2448742182@qq.com</a></p>
+		<p>客户经理QQ：<a href="http://wpa.qq.com/msgrd?v=3&uin=2448742182&site=qq&menu=yes">2448742182</a></p>
 	</div>
 </body>
 </html>

@@ -136,7 +136,7 @@ public class ImageController {
 	 */
 	@RequestMapping("upload_v2")
 	public ModelMap uploadV2(HttpServletRequest request, long user_id, String token, UserDynamic dynamic,
-			String ios_addr, String _ua, String image_names) {
+			String ios_addr, String _ua, String image_names,String lnt) {
 
 		if (!userService.checkLogin(user_id, token)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
@@ -158,6 +158,9 @@ public class ImageController {
 		String content = BottleKeyWordUtil.filterContent(dynamic.getDescription());
 		dynamic.setDescription(content);
 
+		if(!TextUtils.isEmpty(lnt)) {
+			dynamic.setLng(lnt);	
+		}
 		dynamic.set_from(DeviceUtil.getRequestDevice(_ua));
 		dynamic.setState(DynamicState.T_CREATE.ordinal());
 		dynamic.setLocal_image_name(image_names);

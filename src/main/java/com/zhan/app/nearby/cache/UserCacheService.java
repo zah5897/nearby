@@ -26,6 +26,7 @@ public class UserCacheService {
 	public static final String PERFIX_U_ONLINE = "user_online";
 	public static final String PERFIX_U_SMS_COUNT = "user_sms_count";
 	public static final String PERFIX_U_EXCHAGE_COUNT = "user_exchage_count";
+	public static final String PERFIX_U_BIND_ZHIFUBAO = "user_bind_zhifubao";
 	@Resource
 	protected RedisTemplate<String, Serializable> redisTemplate;
 
@@ -76,7 +77,7 @@ public class UserCacheService {
 			log.error(e.getMessage());
 		}
 	}
-	
+
 	public boolean valideRegistCode(String mobile, String code) {
 
 		try {
@@ -185,6 +186,27 @@ public class UserCacheService {
 
 		try {
 			Object codeObj = redisTemplate.opsForValue().get(mobile);
+			if (codeObj == null) {
+				return false;
+			}
+			return codeObj.toString().equals(code);
+		} catch (Exception e) {
+			log.error(e.getMessage());
+		}
+		return true;
+	}
+
+	public void cacheBindZhiFuBaoCode(String mobile, String code) {
+		try {
+			redisTemplate.opsForHash().put(PERFIX_U_BIND_ZHIFUBAO, mobile, code);
+		} catch (Exception e) {
+			log.error(e.getMessage());
+		}
+	}
+
+	public boolean validateBindZhiFuBaoCode(String mobile, String code) {
+		try {
+			Object codeObj=redisTemplate.opsForHash().get(PERFIX_U_BIND_ZHIFUBAO, mobile);
 			if (codeObj == null) {
 				return false;
 			}

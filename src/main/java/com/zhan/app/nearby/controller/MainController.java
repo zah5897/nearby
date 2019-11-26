@@ -7,6 +7,7 @@ import javax.annotation.Resource;
 import org.apache.log4j.Logger;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.zhan.app.nearby.bean.PersonalInfo;
@@ -18,8 +19,14 @@ import com.zhan.app.nearby.service.UserDynamicService;
 import com.zhan.app.nearby.service.UserService;
 import com.zhan.app.nearby.util.ResultUtil;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+
 @RestController
 @RequestMapping("/main")
+@Api(value = "主页接口", description = "主页接口")
 public class MainController {
 	@Resource
 	private MainService mainService;
@@ -32,6 +39,7 @@ public class MainController {
 	@Resource
 	private UserService userService;
 	private static Logger log = Logger.getLogger(MainController.class);
+
 	/**
 	 * 发现
 	 * 
@@ -43,55 +51,51 @@ public class MainController {
 	 */
 	@RequestMapping("found")
 	public ModelMap found(Long user_id, Long last_id, Integer count, String lat, String lng, Integer city_id) {
-		ModelMap re = mainService.getHomeFoundSelected(user_id==null?0:user_id, last_id, count, city_id);
+		ModelMap re = mainService.getHomeFoundSelected(user_id == null ? 0 : user_id, last_id, count, city_id);
 		return re;
 	}
-	
-	
+
 	@RequestMapping("reset_city")
 	public ModelMap reset_city() {
-		
+
 		long last_time = userCacheService.getLastUploadTime(41);
 		long cur_time = System.currentTimeMillis() / 1000;
-		
-		
-		if(cur_time-last_time<60){
+
+		if (cur_time - last_time < 60) {
 			return ResultUtil.getResultMap(ERROR.ERR_FREUENT);
 		}
 		userCacheService.setLastUploadTime(41);
-		log.error("user_id="+41+",upload img log.");
-		
-		
+		log.error("user_id=" + 41 + ",upload img log.");
+
 		ModelMap re = mainService.reset_city();
 		return re;
 	}
-	
-   //是用于第三方的app里面，用于推广我们app用的
+
+	// 是用于第三方的app里面，用于推广我们app用的
 
 	@RequestMapping("foud_users")
 	public ModelMap foud_users(Long user_id, Integer count, Integer gender) {
 		return mainService.found_users(user_id, count, gender);
 	}
+
 	@RequestMapping("found_users")
 	public ModelMap found_users(Long user_id, Integer count, Integer gender) {
 		return mainService.found_users(user_id, count, gender);
 	}
 
 	@RequestMapping("buy_first_position")
-	public Map<String, Object> buy_first_position(long user_id,String token,String aid) {
-		if(!userService.checkLogin(user_id, token)) {
+	public Map<String, Object> buy_first_position(long user_id, String token, String aid) {
+		if (!userService.checkLogin(user_id, token)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
-		return mainService.buy_first_position(user_id,aid);
+		return mainService.buy_first_position(user_id, aid);
 	}
-	
-	
-	
+
 	@RequestMapping("new_regist_users")
-	public ModelMap new_regist_users(Integer page,Integer count) {
+	public ModelMap new_regist_users(Integer page, Integer count) {
 		return mainService.newRegistUsers(page, count);
 	}
-	
+
 	@RequestMapping("report")
 	public ModelMap report(Long user_id, String token, Long dynamic_id) {
 		return ResultUtil.getResultOKMap();
@@ -102,8 +106,7 @@ public class MainController {
 	 * 
 	 * @param user_id
 	 * @param token
-	 * @param with_user_id
-	 *            ��ϲ����ĳ��
+	 * @param with_user_id ��ϲ����ĳ��
 	 * @return
 	 */
 	@RequestMapping("like")
@@ -111,70 +114,89 @@ public class MainController {
 		return mainService.like(user_id, with_user_id);
 	}
 
-	
 	@RequestMapping("add_block")
 	public ModelMap add_block(long user_id, String token, String with_user_id) {
 		return mainService.addBlock(user_id, with_user_id);
 	}
-	 
+
 	@RequestMapping("ignore")
 	public ModelMap ignore(long user_id, String token, String with_user_id) {
 		return mainService.ignore(user_id, with_user_id);
 	}
-	
-	
+
 	@RequestMapping("rank_list")
-	public ModelMap meili(int type,Integer page,Integer count) {
-		return mainService.meiliList(type,page,count);
+	public ModelMap meili(int type, Integer page, Integer count) {
+		return mainService.meiliList(type, page, count);
 	}
-	 
-	//提现历史记录
+
+	// 提现历史记录
 	@RequestMapping("exchange_history")
-	public ModelMap exchange_history(long user_id,String token,String aid,Integer page,Integer count) {
-		return mainService.exchange_history(user_id,aid,page,count);
+	public ModelMap exchange_history(long user_id, String token, String aid, Integer page, Integer count) {
+		return mainService.exchange_history(user_id, aid, page, count);
 	}
-	
+
 //	//钻石兑换RMB
 //	@RequestMapping("exchange_rmb")
 //	public ModelMap exchange_rmb(long user_id,String token,String aid,int diamond,String zhifubao,String mobile,String code) {
 //		return mainService.exchange_rmb(user_id,token,aid,diamond,zhifubao,mobile,code);
 //	}
-	
-	
-	//获取成长率最高的用户
+
+	// 获取成长率最高的用户
 	@RequestMapping("hot_users")
-	public ModelMap hot_users(String gender,Long fix_user_id,Integer page) {
-		return mainService.getHotUsers(gender,fix_user_id,page);
+	public ModelMap hot_users(String gender, Long fix_user_id, Integer page) {
+		return mainService.getHotUsers(gender, fix_user_id, page);
 	}
-	//提交个人身份证
+
+	@ApiOperation( value = "获取顶部购买头条的用户",httpMethod = "GET") // swagger 当前接口注解
+	@ApiImplicitParams({ @ApiImplicitParam(name = "fix_user_id", value = "固定显示的用户id", required = false, paramType = "query"),
+			@ApiImplicitParam(name = "page", value = "页码，从1开始", required = false, paramType = "query"),
+			@ApiImplicitParam(name = "count", value = "每页条数", required = false, paramType = "query")  })
+	@RequestMapping(value="top_users",method = {RequestMethod.POST,RequestMethod.GET})
+	public ModelMap top_users(Long fix_user_id, Integer page, Integer count) {
+		return mainService.getTopUsers(fix_user_id, page, count);
+	}
+	@ApiOperation(value = "随机获取推荐用户",httpMethod = "GET") // swagger 当前接口注解
+	@ApiImplicitParams({ @ApiImplicitParam(name = "gender", value = "性别", required = false, paramType = "query"),
+		    @ApiImplicitParam(name = "fix_user_id", value = "固定显示的用户id", required = false, paramType = "query"),
+			@ApiImplicitParam(name = "count", value = "每次条数", required = false, paramType = "query")  })
+	@RequestMapping(value="momo_users",method = {RequestMethod.POST,RequestMethod.GET})
+	public ModelMap momo_users(String gender, Long fix_user_id,  Integer count) {
+		return mainService.getmomoUsers(gender, fix_user_id, count);
+	}
+
+	// 提交个人身份证
 	@RequestMapping("check_submit_personal_id")
 	public ModelMap check_submit_personal_id(PersonalInfo personal) {
 		return mainService.check_submit_personal_id(personal);
 	}
-	//提交支付宝信息
+
+	// 提交支付宝信息
 	@RequestMapping("check_submit_personal_zhifubao")
-	public ModelMap check_submit_zhifubao(PersonalInfo personal,String code) {
-		return mainService.check_submit_zhifubao(personal,code);
+	public ModelMap check_submit_zhifubao(PersonalInfo personal, String code) {
+		return mainService.check_submit_zhifubao(personal, code);
 	}
-	//修改个人绑定的信息
+
+	// 修改个人绑定的信息
 	@RequestMapping("modify_bind_personal_info")
-	public ModelMap modify_bind_personal_info(PersonalInfo personal,String code) {
-		return mainService.modify_bind_personal_info(personal,code);
+	public ModelMap modify_bind_personal_info(PersonalInfo personal, String code) {
+		return mainService.modify_bind_personal_info(personal, code);
 	}
-	//获取个人绑定的信息
+
+	// 获取个人绑定的信息
 	@RequestMapping("load_personal_info")
-	public ModelMap load_personal_info(long user_id,String token,String aid) {
-		return mainService.load_personal_info(user_id,token,aid);
+	public ModelMap load_personal_info(long user_id, String token, String aid) {
+		return mainService.load_personal_info(user_id, token, aid);
 	}
-	
-	//获取验证码
+
+	// 获取验证码
 	@RequestMapping("get_personal_validate_code")
-	public ModelMap get_personal_validate_code(long user_id,String token,String aid,String mobile,Integer code_type) {
-		return mainService.get_personal_validate_code(user_id,token,mobile,code_type);
+	public ModelMap get_personal_validate_code(long user_id, String token, String aid, String mobile,
+			Integer code_type) {
+		return mainService.get_personal_validate_code(user_id, token, mobile, code_type);
 	}
-	
+
 	@RequestMapping("load_special_users")
 	public ModelMap special_users(Integer count) {
-		return mainService.getSpecialUsers(1,count==null?5:count);
+		return mainService.getSpecialUsers(1, count == null ? 5 : count);
 	}
 }

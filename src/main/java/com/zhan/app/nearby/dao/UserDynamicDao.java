@@ -126,11 +126,9 @@ public class UserDynamicDao extends BaseDao {
 				+ "user.type " + "from " + TABLE_USER_DYNAMIC + " dynamic left join " + TABLE_HOME_FOUND_SELECTED
 				+ " selected on dynamic.id=selected.dynamic_id "
 				+ " left join t_user user on  dynamic.user_id=user.user_id  "
-				+ " left join t_user_relationship ur on dynamic.user_id=ur.with_user_id "
-				+ "where selected.selected_state=?  ur.user_id<>? and ur.relationship=?   order by RAND() limit ?";
+				+ "where selected.selected_state=? and dynamic.user_id<>? and dynamic.user_id not in(select with_user_id from t_user_relationship where user_id=? and relationship=?)   order by RAND() limit ?";
 
-		Object[] param = new Object[] { user_id, ImageStatus.SELECTED.ordinal(), user_id, Relationship.BLACK.ordinal(),
-				size };
+		Object[] param = new Object[] { user_id, ImageStatus.SELECTED.ordinal(), user_id,user_id, Relationship.BLACK.ordinal(),	size };
 		return jdbcTemplate.query(sql, param, new DynamicMapper());
 	}
 

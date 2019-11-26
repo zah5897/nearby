@@ -75,7 +75,9 @@ public class UserDynamicService {
 	}
 	//获取用户自身的动态
 	public List<UserDynamic> getUserSelfDynamic(long user_id, int page, int count) {
-		return userDynamicDao.getUserDynamic(user_id, page, count);
+		List<UserDynamic> dynamics= userDynamicDao.getUserDynamic(user_id, page, count);
+		ImagePathUtil.completeDynamicsPath(dynamics, true);
+		return dynamics;
 	}
 	
 	@Transactional

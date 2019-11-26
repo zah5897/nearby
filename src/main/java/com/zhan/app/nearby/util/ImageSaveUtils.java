@@ -39,7 +39,7 @@ public class ImageSaveUtils {
 
 	private static String getRootPath() {
 		if (FILE_ROOT_PATH == null) {
-			InputStream in = ImageSaveUtils.class.getClassLoader().getResourceAsStream("config.properties");
+			InputStream in = ImageSaveUtils.class.getClassLoader().getResourceAsStream("app.properties");
 			Properties props = new Properties();
 			try {
 				props.load(in);

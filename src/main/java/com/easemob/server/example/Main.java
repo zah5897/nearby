@@ -131,8 +131,8 @@ public class Main {
 		
 //		System.out.println(disconnect("112410"));
 
-		Object obj = Main.sendTxtMessage(Main.SYS, new String[] { String.valueOf(108497) },
-				"xx赠送了一个礼物给你", new HashMap<>(), PushMsgType.TYPE_RECEIVER_GIFT);
+		Object obj = Main.sendTxtMessage("498394", new String[] { String.valueOf(498394) },
+				"xx赠送了一个礼物给你", new HashMap<>(), PushMsgType.TYPE_WELCOME);
 		System.out.println(obj);
 	}
 

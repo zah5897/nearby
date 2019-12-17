@@ -192,7 +192,7 @@ public class BottleController {
 
 	@RequestMapping("list")
 	public ModelMap list(Long user_id, Integer count, Integer look_sex, Integer lock_sex, Integer type, Integer state,
-			String version, String _ua) {
+			String version, String _ua,String channel) {
 
 		if (lock_sex != null && look_sex == null) {
 			look_sex = lock_sex;
@@ -205,15 +205,15 @@ public class BottleController {
 		if (type == BottleType.DM_TXT.ordinal() || type == BottleType.DM_VOICE.ordinal()) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "不支持弹幕瓶子");
 		}
-
 		if (_ua.startsWith("a")) {
 			if ("2.0.1".compareTo(version) == 0) { // ios审核临界版本号
 				state = BottleState.IOS_REVIEW.ordinal();
 			}
 		}
 
-		return bottleService.getBottles(user_id == null ? 0 : user_id, count == null ? 5 : count, look_sex, type, state,
-				version, _ua);
+		user_id = user_id == null ? 0 : user_id;
+		count=count == null ? 5 : count;
+		return bottleService.getBottles(user_id, count, look_sex, type, state,version, _ua,channel);
 	}
 
 	@RequestMapping("list_dm")
@@ -248,6 +248,7 @@ public class BottleController {
 	}
 
 	private int percent = 10;
+
 	@RequestMapping("scan")
 	public ModelMap scan(long user_id, String bottle_id) {
 		return bottleService.scan(user_id, bottle_id, percent);

@@ -143,8 +143,8 @@ public class MainController {
 
 	// 获取成长率最高的用户
 	@RequestMapping("hot_users")
-	public ModelMap hot_users(String gender, Long fix_user_id, Integer page) {
-		return mainService.getHotUsers(gender, fix_user_id, page);
+	public ModelMap hot_users(String gender, Long fix_user_id, Integer page,Integer count) {
+		return mainService.getHotUsers(gender, fix_user_id, page,count);
 	}
 
 	@ApiOperation( value = "获取顶部购买头条的用户",httpMethod = "GET") // swagger 当前接口注解

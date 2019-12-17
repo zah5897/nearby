@@ -24,6 +24,7 @@ import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.bean.user.MeetListUser;
 import com.zhan.app.nearby.cache.UserCacheService;
 import com.zhan.app.nearby.comm.AccountStateType;
+import com.zhan.app.nearby.comm.AndroidChannel;
 import com.zhan.app.nearby.comm.BottleAnswerState;
 import com.zhan.app.nearby.comm.BottleState;
 import com.zhan.app.nearby.comm.DynamicMsgType;
@@ -65,6 +66,7 @@ public class BottleService {
 
 	@Resource
 	private UserCacheService userCacheService;
+
 	public Bottle getBottleFromPool(long user_id) {
 
 		List<Bottle> bottles = bottleDao.getBottleRandomInPool(user_id, 1);
@@ -103,7 +105,7 @@ public class BottleService {
 	 * @return
 	 */
 	public ModelMap getBottles(long user_id, int page_size, Integer look_sex, Integer type, Integer state_val,
-			String version, String _ua) {
+			String version, String _ua, String channel) {
 		ModelMap result = ResultUtil.getResultOKMap();
 		BottleState state = BottleState.NORMAL;
 		if (state_val == null) {
@@ -120,18 +122,30 @@ public class BottleService {
 		List<Bottle> bolltes = null;
 		int realType = type;
 
-		if (state != BottleState.IOS_REVIEW) {
-			if (_ua.startsWith("g")) {
+		if (_ua.startsWith("g")) {
+			if (AndroidChannel.dev.name().equals(channel)) {
+				if (look_sex == null) {
+					bolltes = bottleDao.getBottlesLeastVersion(user_id, look_sex, page_size, realType);
+				} else {
+					VipUser vip = vipDao.loadUserVip(user_id);
+					if (vip == null || vip.getDayDiff() < 0) {
+						bolltes = bottleDao.getBottlesLeastVersion(user_id, null, page_size, realType);
+					} else {
+						int sex = (look_sex == null ? -1 : look_sex);
+						bolltes = bottleDao.getBottlesLeastVersion(user_id, sex, page_size, realType);
+					}
+				}
+			} else { // 其他渠道
 				if ("1.2".compareTo(version) > 0) {
 					if (look_sex == null) {
-						bolltes = bottleDao.getBottles(user_id, look_sex, page_size, realType);
+						bolltes = bottleDao.getBottlesLowVersion(user_id, look_sex, page_size, realType);
 					} else {
 						VipUser vip = vipDao.loadUserVip(user_id);
 						if (vip == null || vip.getDayDiff() < 0) {
-							bolltes = bottleDao.getBottles(user_id, null, page_size, realType);
+							bolltes = bottleDao.getBottlesLowVersion(user_id, null, page_size, realType);
 						} else {
 							int sex = (look_sex == null ? -1 : look_sex);
-							bolltes = bottleDao.getBottles(user_id, sex, page_size, realType);
+							bolltes = bottleDao.getBottlesLowVersion(user_id, sex, page_size, realType);
 						}
 					}
 				} else {
@@ -148,45 +162,30 @@ public class BottleService {
 					}
 				}
 			}
-			// 旧版本
-			if (_ua.startsWith("a")) {
-				if ("1.9.4".compareTo(version) > 0) {
-					if (look_sex == null) {
-						bolltes = bottleDao.getBottlesV19(user_id, null, page_size, realType);
-					} else {
-						VipUser vip = vipDao.loadUserVip(user_id);
-						if (vip == null || vip.getDayDiff() < 0) {
-							bolltes = bottleDao.getBottlesV19(user_id, null, page_size, realType);
-						} else {
-							int sex = (look_sex == null ? -1 : look_sex);
-							bolltes = bottleDao.getBottlesV19(user_id, sex, page_size, realType);
-						}
-					}
+		} else {// ios 手机
+			if (state != BottleState.IOS_REVIEW) {
+				if (look_sex == null) {
+					bolltes = bottleDao.getBottlesLeastVersion(user_id, null, page_size, realType);
 				} else {
-					if (look_sex == null) {
-						bolltes = bottleDao.getBottlesRED_PACKAGE(user_id, null, page_size, realType);
+					VipUser vip = vipDao.loadUserVip(user_id);
+					if (vip == null || vip.getDayDiff() < 0) {
+						bolltes = bottleDao.getBottlesLeastVersion(user_id, null, page_size, realType);
 					} else {
-						VipUser vip = vipDao.loadUserVip(user_id);
-						if (vip == null || vip.getDayDiff() < 0) {
-							bolltes = bottleDao.getBottlesRED_PACKAGE(user_id, null, page_size, realType);
-						} else {
-							int sex = (look_sex == null ? -1 : look_sex);
-							bolltes = bottleDao.getBottlesRED_PACKAGE(user_id, sex, page_size, realType);
-						}
+						int sex = (look_sex == null ? -1 : look_sex);
+						bolltes = bottleDao.getBottlesLeastVersion(user_id, sex, page_size, realType);
 					}
 				}
-
-			}
-		} else { // 审核期间的瓶子
-			if (look_sex == null) {
-				bolltes = bottleDao.getBottlesIOS_REVIEW(user_id, null, page_size, realType);
-			} else {
-				VipUser vip = vipDao.loadUserVip(user_id);
-				if (vip == null || vip.getDayDiff() < 0) {
+			} else { // 审核期间的瓶子
+				if (look_sex == null) {
 					bolltes = bottleDao.getBottlesIOS_REVIEW(user_id, null, page_size, realType);
 				} else {
-					int sex = (look_sex == null ? -1 : look_sex);
-					bolltes = bottleDao.getBottlesIOS_REVIEW(user_id, sex, page_size, realType);
+					VipUser vip = vipDao.loadUserVip(user_id);
+					if (vip == null || vip.getDayDiff() < 0) {
+						bolltes = bottleDao.getBottlesIOS_REVIEW(user_id, null, page_size, realType);
+					} else {
+						int sex = (look_sex == null ? -1 : look_sex);
+						bolltes = bottleDao.getBottlesIOS_REVIEW(user_id, sex, page_size, realType);
+					}
 				}
 			}
 		}
@@ -196,7 +195,6 @@ public class BottleService {
 			}
 			ImagePathUtil.completeBottleDrawPath(bottle);
 		}
-
 		// 过滤语音瓶子问题
 		if (_ua.startsWith("a")) {
 			if ("1.9.5".compareTo(version) > 0) {
@@ -365,10 +363,10 @@ public class BottleService {
 					BaseUser u1 = userDao.getBaseUserNoToken(user_id);
 					BaseUser u2 = userDao.getBaseUserNoToken(uid);
 
-					if (u1.getSex().equals(u2.getSex())) { //同性的话
+					if (u1.getSex().equals(u2.getSex())) { // 同性的话
 						continue;
 					}
-					//概率
+					// 概率
 					if (RandomCodeUtil.randomPercentOK(percent)) {
 						HX_SessionUtil.makeChatSession(u1, u2, bid);
 					}

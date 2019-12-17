@@ -1170,7 +1170,16 @@ public class UserController {
 		 userService.testLongTimeNoLogin(user_id, target_id);
 		 return ResultUtil.getResultOKMap();
 	}
-	
+	@RequestMapping("setProperty")
+	public ModelMap setProperty(int percent) {
+		userService.setPercent(percent);
+		return ResultUtil.getResultOKMap();
+	}
+
+	@RequestMapping("getProperty")
+	public ModelMap getProperty() {
+		return ResultUtil.getResultOKMap().addAttribute("percent", userService.getPercent());
+	}
 	private City getDefaultCityId() {
 
 		City city = new City();

@@ -130,8 +130,8 @@ public class BottleDao extends BaseDao {
 				});
 	}
 
-	// 旧版本类型
-	public List<Bottle> getBottles(long user_id, Integer sex, int limit, int type) {
+	// 低版本支持
+	public List<Bottle> getBottlesLowVersion(long user_id, Integer sex, int limit, int type) {
 		if (type != -1) {
 			if (type == BottleType.DM_TXT.ordinal() || type == BottleType.DM_VOICE.ordinal()) {
 				return new ArrayList<Bottle>();
@@ -159,6 +159,30 @@ public class BottleDao extends BaseDao {
 		}
 	}
 
+	  // 最新版本支持
+		public List<Bottle> getBottlesLeastVersion(long user_id, Integer sex, int limit, int type) {
+			String sexCondition = sex == null ? "" : " and u.sex=" + sex;
+			if (type == -1) {
+				String sql = "select b.*,u.nick_name,u.avatar,u.birthday,u.birth_city_id,u.city_id," + getAgeSql()
+						+ ", u.sex ,c.name as city_name from t_bottle_pool p "
+						+ " left join  t_bottle b  on p.bottle_id=b.id " + "left join t_user u on b.user_id=u.user_id "
+						+ " left join t_sys_city c on u.birth_city_id=c.id "
+						+ " where u.avatar<>'illegal.jpg' and  b.state<>?  and b.user_id<>?  and b.type<>? and b.type<>?  "
+						+ sexCondition + " order by  rand()  limit ?";
+				return jdbcTemplate.query(sql, new Object[] {BottleState.BLACK.ordinal(), user_id, BottleType.DM_TXT.ordinal(),
+						BottleType.DM_VOICE.ordinal(), limit }, getBottleMapper());
+			} else {
+				String sql = "select b.*,u.nick_name,u.avatar,u.birthday,u.birth_city_id,u.city_id," + getAgeSql()
+						+ ", u.sex ,c.name as city_name from t_bottle_pool p "
+						+ " left join  t_bottle b  on p.bottle_id=b.id " + "left join t_user u on b.user_id=u.user_id "
+						+ " left join t_sys_city c on u.birth_city_id=c.id "
+						+ " where u.avatar<>'illegal.jpg'  and b.state<>?  and b.user_id<>?   and b.type=? " + sexCondition
+						+ " order by  rand()  limit ?";
+				return jdbcTemplate.query(sql, new Object[] {BottleState.BLACK.ordinal(), user_id, type, limit }, getBottleMapper());
+			}
+		}
+	
+	
 	// 此版本新增 “我画你猜”瓶子
 	public List<Bottle> getBottlesV19(long user_id, Integer sex, int limit, int type) {
 		if (type != -1) {

@@ -55,6 +55,7 @@ import com.zhan.app.nearby.util.IPUtil;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.ImageSaveUtils;
 import com.zhan.app.nearby.util.MD5Util;
+import com.zhan.app.nearby.util.RandomCodeUtil;
 import com.zhan.app.nearby.util.ResultUtil;
 import com.zhan.app.nearby.util.TextUtils;
 
@@ -256,11 +257,18 @@ public class UserService {
 	}
 	
 	/**
-	 * 检查该用户多久没登陆了，超过1个月没登录的话，需要匹活跃用户创建会话
+	 * 最近3个月内打开过app的用户，匹配一些正在活跃的用户
 	 * @param curUser
 	 */
 	public void checkHowLongNotOpenApp(long uid) {
 		checkHowLongNotOpenApp(userDao.getBaseUser(uid));
+	}
+	private int percent=10;
+	public void setPercent(int percent) {
+		this.percent = percent;
+	}
+	public int getPercent() {
+		return percent;
 	}
 	public void checkHowLongNotOpenApp(BaseUser user) {
 		Date date=userDao.getUserLastLoginTime(user.getUser_id());
@@ -271,8 +279,11 @@ public class UserService {
 		long time=date.getTime()/1000;
 		long now=System.currentTimeMillis()/1000;
 		//------上次登录时间超过30天------
-		if((now-time)>30*24*60*60) {
-			 matchActiveUserTask.longTimeNotOpenMatch(user);	
+		if((now-time)< 3*30*24*60*60) {
+			
+			if (RandomCodeUtil.randomPercentOK(percent)) { //5%的概率
+				 matchActiveUserTask.shortTimeOpenMatch(user);	
+			}
 		}
 	}
 

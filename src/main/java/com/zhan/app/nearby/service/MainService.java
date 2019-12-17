@@ -347,12 +347,11 @@ public class MainService {
 					break;
 				}
 			}
-			users=systemDao.getTouTiaoUser(startIndex-1, count);
-		}else {
+			users = systemDao.getTouTiaoUser(startIndex - 1, count);
+		} else {
 			users = systemDao.loadMaxRateMeiLiRandom(fix_user_id, gender, count);
 		}
 
-		 
 		ImagePathUtil.completeAvatarsPath(users, true);
 		for (BaseVipUser u : users) {
 			u.setVip(vipDao.isVip(u.getUser_id()));
@@ -362,30 +361,20 @@ public class MainService {
 		return ResultUtil.getResultOKMap().addAttribute("users", users).addAttribute("hasMore", users.size() == count);
 	}
 
-	public ModelMap getHotUsers(String gender, Long fix_user_id, Integer page) {
-		BaseVipUser fix_user = null;
-
-		if (fix_user_id != null && fix_user_id > 0) {
-			fix_user = userDao.getBaseVipUser(fix_user_id);
-		}
-		List<BaseVipUser> users;
-		if (page == null) {
+	public ModelMap getHotUsers(String gender, Long fix_user_id, Integer page, Integer count) {
+		if (page == null || page < 1) {
 			page = 1;
 		}
-		if (page == 1) {
-			if (fix_user != null) {
-				users = systemDao.getTouTiaoUser(0, 5);
-				users.add(0, fix_user);
-			} else {
-				users = systemDao.getTouTiaoUser(0, 6);
-			}
+		if (count == null || count < 1) {
+			count = 6;
+		}
+		List<BaseVipUser> users;
+		if (page == 1 && fix_user_id == null) {
+			users = systemDao.getTouTiaoUser(0, count);
+		} else if (page == 1 && fix_user_id != null) {
+			users = getAfterFixUsers(fix_user_id,count);
 		} else {
-			if (fix_user != null) {
-				users = systemDao.loadMaxRateMeiLiRandom(fix_user_id, gender, 5);
-				users.add(0, fix_user);
-			} else {
-				users = systemDao.loadMaxRateMeiLiRandom(fix_user_id, gender, 6);
-			}
+			users = systemDao.loadMaxRateMeiLiRandom(fix_user_id, gender, count);
 		}
 		ImagePathUtil.completeAvatarsPath(users, true);
 		for (BaseVipUser u : users) {
@@ -393,64 +382,21 @@ public class MainService {
 			u.setBirth_city(cityService.getSimpleCity(u.getBirth_city_id()));
 			u.setCity(cityService.getSimpleCity(u.getCity_id()));
 		}
-		return ResultUtil.getResultOKMap().addAttribute("users", users).addAttribute("hasMore", users.size() == 6);
+		return ResultUtil.getResultOKMap().addAttribute("users", users).addAttribute("hasMore", users.size() == count);
+	}
 
-//		if (page == null) {
-//			page = 1;
-//		}
-//		List<BaseVipUser> users = null;
-//		int start = 0;
-//		if (page == 1) {
-//			users = systemDao.getTouTiaoUser(start, 6);
-//		} else {
-//			BaseVipUser fix_user = userDao.getBaseVipUser(fix_user_id);
-//			users = systemDao.loadMaxRateMeiLiRandom(fix_user_id, gender, page, 5);
-//			users.add(0,fix_user);
-//		}
-//
-//		ImagePathUtil.completeAvatarsPath(users, true);
-//		for (BaseVipUser u : users) {
-//			u.setVip(vipDao.isVip(u.getUser_id()));
-//			u.setBirth_city(cityService.getSimpleCity(u.getBirth_city_id()));
-//			u.setCity(cityService.getSimpleCity(u.getCity_id()));
-//		}
-//		return ResultUtil.getResultOKMap().addAttribute("users", users).addAttribute("hasMore", users.size() == 6);
-
-		// 旧的实现
-
-//		int limit = 6;
-//		BaseVipUser fix_user = null;
-//
-//		if (page == null || page < 1) {
-//			page = 1;
-//		}
-//
-//		if (page == 1 && fix_user_id != null && fix_user_id > 0) {
-//			fix_user = userDao.getBaseVipUser(fix_user_id);
-//		}
-//		List<BaseVipUser> users;
-//		if (page == 1 && fix_user != null) {
-//			limit -= 1;
-//			users = systemDao.getTouTiaoUser(page, limit);
-//			users.add(0, fix_user);
-//		} else {
-//			users = systemDao.getTouTiaoUser(page, limit);
-//		}
-//		if (users.size() < limit) {
-//			List<BaseVipUser> tempusers = systemDao.loadMaxRateMeiLiRandom(fix_user_id, gender, page,
-//					limit - users.size());
-//			users.addAll(tempusers);
-//		}
-//		if (users.size() < limit) {
-//			users = systemDao.loadMaxMeiLi(fix_user_id, gender, page, limit);
-//		}
-//		ImagePathUtil.completeAvatarsPath(users, true);
-//		for (BaseVipUser u : users) {
-//			u.setVip(vipDao.isVip(u.getUser_id()));
-//			u.setBirth_city(cityService.getSimpleCity(u.getBirth_city_id()));
-//			u.setCity(cityService.getSimpleCity(u.getCity_id()));
-//		}
-//		return ResultUtil.getResultOKMap().addAttribute("users", users).addAttribute("hasMore", users.size() == 6);
+	private List<BaseVipUser> getAfterFixUsers(long fix_user_id, int count) {
+		int startIndex = 0;
+		List<Map<String, Object>> index_userids = systemDao.getTouTiaoUserIndexVal();
+		for (Map<String, Object> idMap : index_userids) {
+			long uid = (long) idMap.get("uid");
+			if (uid == fix_user_id) {
+				double i = (double) idMap.get("i");
+				startIndex = (int) i;
+				break;
+			}
+		}
+		return systemDao.getTouTiaoUser(startIndex - 1, count);
 	}
 
 //	public int injectRate() {

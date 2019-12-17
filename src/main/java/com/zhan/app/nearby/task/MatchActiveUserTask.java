@@ -41,4 +41,17 @@ public class MatchActiveUserTask {
 			HX_SessionUtil.makeChatSession(curUser, user, 0);
 		}
 	}
+	//最近3个月内打开过app的用户，匹配一些正在活跃的用户
+	@Async
+	public void shortTimeOpenMatch(BaseUser curUser) {
+		int sex = 0;
+		if ("0".equals(curUser.getSex())) {
+			sex = 1;
+		}
+		List<BaseUser> users = userService.getActiveUser(sex);
+		if (users.size() > 0) {
+			BaseUser user = users.get(0);
+			HX_SessionUtil.makeChatSession(curUser, user, 0);
+		}
+	}
 }

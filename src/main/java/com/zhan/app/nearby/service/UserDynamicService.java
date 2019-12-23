@@ -7,6 +7,7 @@ import java.util.Map;
 import javax.annotation.Resource;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
@@ -124,6 +125,7 @@ public class UserDynamicService {
 			}
 			int likeState = userDynamicDao.getLikeState(user_id, dynamic_id);
 			dynamic.setLike_state(likeState);
+			dynamic.getUser().setHas_followed(userDao.isFollowed(user_id, dynamic.getUser_id())?1:0);
 		}
 		return dynamic;
 	}

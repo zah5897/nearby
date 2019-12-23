@@ -941,7 +941,16 @@ public class UserService {
 	public BaseUser getBaseUserNoToken(long user_id) {
 		return userDao.getBaseUserNoToken(user_id);
 	}
-
+	/**
+	 * 判断是否关注了该用户
+	 * @param user_id
+	 * @param targetUid
+	 * @return
+	 */
+	public boolean isFollowed(long user_id,long targetUid) {
+		return userDao.isFollowed(user_id, targetUid);
+	}
+	
 	/**
 	 * 消耗金币
 	 * 

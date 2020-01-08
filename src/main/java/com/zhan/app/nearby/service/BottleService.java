@@ -136,7 +136,7 @@ public class BottleService {
 					}
 				}
 			} else { // 其他渠道
-				if ("1.2".compareTo(version) > 0) {
+				if ("2.0.0".compareTo(version) > 0) { //低于2.0.0
 					if (look_sex == null) {
 						bolltes = bottleDao.getBottlesLowVersion(user_id, look_sex, page_size, realType);
 					} else {
@@ -149,17 +149,32 @@ public class BottleService {
 						}
 					}
 				} else {
-					if (look_sex == null) {
-						bolltes = bottleDao.getBottlesV19(user_id, null, page_size, realType);
-					} else {
-						VipUser vip = vipDao.loadUserVip(user_id);
-						if (vip == null || vip.getDayDiff() < 0) {
+					if(AndroidChannel.oppo.name().equals(channel)||AndroidChannel.xiaomi.name().equals(channel)||AndroidChannel.vivo.name().equals(channel)||AndroidChannel.huawei.name().equals(channel)) {
+						if (look_sex == null) {
+							bolltes = bottleDao.getBottlesLeastVersion(user_id, null, page_size, realType);
+						} else {
+							VipUser vip = vipDao.loadUserVip(user_id);
+							if (vip == null || vip.getDayDiff() < 0) {
+								bolltes = bottleDao.getBottlesLeastVersion(user_id, null, page_size, realType);
+							} else {
+								int sex = (look_sex == null ? -1 : look_sex);
+								bolltes = bottleDao.getBottlesLeastVersion(user_id, sex, page_size, realType);
+							}
+						}
+					}else {
+						if (look_sex == null) {
 							bolltes = bottleDao.getBottlesV19(user_id, null, page_size, realType);
 						} else {
-							int sex = (look_sex == null ? -1 : look_sex);
-							bolltes = bottleDao.getBottlesV19(user_id, sex, page_size, realType);
+							VipUser vip = vipDao.loadUserVip(user_id);
+							if (vip == null || vip.getDayDiff() < 0) {
+								bolltes = bottleDao.getBottlesV19(user_id, null, page_size, realType);
+							} else {
+								int sex = (look_sex == null ? -1 : look_sex);
+								bolltes = bottleDao.getBottlesV19(user_id, sex, page_size, realType);
+							}
 						}
 					}
+					
 				}
 			}
 		} else {// ios 手机

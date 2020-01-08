@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.easemob.server.example.Main;
+import com.zhan.app.nearby.bean.type.BottleType;
 import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.comm.PushMsgType;
 
@@ -51,5 +52,16 @@ public class HX_SessionUtil {
 	public static void makeChatSession(BaseUser user, BaseUser with_user) {
 		makeChatSession(user, with_user, 0);
 	}
+	
+	
+	public static void matchCopyDraw(BaseUser fromU,long toU,String msg) {
+			Map<String, String> ext = new HashMap<String, String>();
+			ext.put("nickname", fromU.getNick_name());
+			ext.put("avatar", fromU.getAvatar());
+			ext.put("origin_avatar", fromU.getOrigin_avatar());
+			Main.sendTxtMessage(String.valueOf(fromU.getUser_id()), new String[] { String.valueOf(toU) }, msg, ext,
+					PushMsgType.TYPE_NEW_CONVERSATION);
+		}
+	
 
 }

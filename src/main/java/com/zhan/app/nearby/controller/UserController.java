@@ -31,6 +31,7 @@ import com.zhan.app.nearby.bean.user.DetailUser;
 import com.zhan.app.nearby.bean.user.LocationUser;
 import com.zhan.app.nearby.bean.user.LoginUser;
 import com.zhan.app.nearby.cache.UserCacheService;
+import com.zhan.app.nearby.comm.AccountStateType;
 import com.zhan.app.nearby.comm.FoundUserRelationship;
 import com.zhan.app.nearby.comm.Relationship;
 import com.zhan.app.nearby.comm.UserType;
@@ -50,8 +51,14 @@ import com.zhan.app.nearby.util.ResultUtil;
 import com.zhan.app.nearby.util.SMSHelper;
 import com.zhan.app.nearby.util.TextUtils;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+
 @RestController
 @RequestMapping("/user")
+@Api(value = "用户相关")
 public class UserController {
 	private static Logger log = Logger.getLogger(UserController.class);
 	@Resource
@@ -117,7 +124,6 @@ public class UserController {
 		return data;
 	}
 
-	
 	/**
 	 * 获取注册用的短信验证码
 	 * 
@@ -168,7 +174,7 @@ public class UserController {
 
 		return data;
 	}
-	
+
 	/**
 	 * 注册
 	 * 
@@ -180,7 +186,7 @@ public class UserController {
 
 	@RequestMapping("regist")
 	public ModelMap regist(HttpServletRequest request, LoginUser user, String code, String aid, Integer city_id,
-			String bGenderOK, String _ua,String bDeleteIM) {
+			String bGenderOK, String _ua, String bDeleteIM) {
 
 		if (TextUtils.isEmpty(user.getMobile())) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "手机号码不能为空!");
@@ -245,14 +251,14 @@ public class UserController {
 		user.setLast_login_time(new Date());
 		user.setCreate_time(new Date());
 		long id = user.getUser_id();
-		
-		boolean isNeedHx=false;
-		if(TextUtils.isEmpty(bDeleteIM)||!"1".equals(bDeleteIM)) {
-			isNeedHx=true;
+
+		boolean isNeedHx = false;
+		if (TextUtils.isEmpty(bDeleteIM) || !"1".equals(bDeleteIM)) {
+			isNeedHx = true;
 		}
-		
+
 		if (id > 0) {
-			int count = userService.visitorToNormal(user,isNeedHx);
+			int count = userService.visitorToNormal(user, isNeedHx);
 			if (count == 0) {
 				return ResultUtil.getResultMap(ERROR.ERR_USER_EXIST, "无法找到该游客账号");
 			}
@@ -262,7 +268,7 @@ public class UserController {
 			} else {
 				user.set_ua(decode(_ua));
 			}
-			id = userService.insertUser(user,isNeedHx);
+			id = userService.insertUser(user, isNeedHx);
 		}
 		if (id == -1l) {
 			return ResultUtil.getResultMap(ERROR.ERR_USER_EXIST, "该手机号码已经注册过");
@@ -272,7 +278,7 @@ public class UserController {
 		user.setUser_id(id);
 		user.setAge(DateTimeUtil.getAge(user.getBirthday()));
 		ImagePathUtil.completeAvatarPath(user, true); // 补全图片链接地址
-
+		userService.checkHowLongNotOpenApp(user);
 		if (city_id != null) {
 			City city = cityService.getFullCity(city_id);
 			user.setBirth_city(city);
@@ -288,7 +294,7 @@ public class UserController {
 	@SuppressWarnings("deprecation")
 	@RequestMapping("regist_v2")
 	public ModelMap regist_v2(HttpServletRequest request, LoginUser user, String code, String aid, Integer city_id,
-			String bGenderOK, String _ua, String image_names,String bDeleteIM) {
+			String bGenderOK, String _ua, String image_names, String bDeleteIM) {
 
 		if (TextUtils.isEmpty(user.getMobile())) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "手机号码不能为空!");
@@ -331,16 +337,15 @@ public class UserController {
 		user.setType((short) UserType.OFFIEC.ordinal());
 		user.setLast_login_time(new Date());
 		user.setCreate_time(new Date());
-		
-		
-		boolean isNeedHx=false;
-		if(TextUtils.isEmpty(bDeleteIM)||!"1".equals(bDeleteIM)) {
-			isNeedHx=true;
+
+		boolean isNeedHx = false;
+		if (TextUtils.isEmpty(bDeleteIM) || !"1".equals(bDeleteIM)) {
+			isNeedHx = true;
 		}
-		
+
 		long id = user.getUser_id();
 		if (id > 0) {
-			int count = userService.visitorToNormal(user,isNeedHx);
+			int count = userService.visitorToNormal(user, isNeedHx);
 			if (count == 0) {
 				return ResultUtil.getResultMap(ERROR.ERR_USER_EXIST, "无法找到该游客账号");
 			}
@@ -350,7 +355,7 @@ public class UserController {
 			} else {
 				user.set_ua(decode(_ua));
 			}
-			id = userService.insertUser(user,isNeedHx);
+			id = userService.insertUser(user, isNeedHx);
 		}
 		if (id == -1l) {
 			return ResultUtil.getResultMap(ERROR.ERR_USER_EXIST, "该手机号码已经注册过");
@@ -360,6 +365,8 @@ public class UserController {
 		user.setUser_id(id);
 		user.setAge(DateTimeUtil.getAge(user.getBirthday()));
 		ImagePathUtil.completeAvatarPath(user, true); // 补全图片链接地址
+
+		userService.checkHowLongNotOpenApp(user);
 
 		if (city_id != null) {
 			City city = cityService.getFullCity(city_id);
@@ -437,7 +444,7 @@ public class UserController {
 		} else {
 			user.set_ua(decode(_ua));
 		}
-		long id = userService.insertUser(user,false);
+		long id = userService.insertUser(user, false);
 		if (id == -1l) {
 			return ResultUtil.getResultMap(ERROR.ERR_USER_EXIST, "该手机号码已经注册过");
 		}
@@ -468,7 +475,7 @@ public class UserController {
 	 * @return
 	 */
 	@RequestMapping("login")
-	public ModelMap loginByMobile(String mobile, String password, String _ua, String aid,String bDeleteIM ) {
+	public ModelMap loginByMobile(String mobile, String password, String _ua, String aid, String bDeleteIM) {
 
 		if (TextUtils.isEmpty(mobile)) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "手机号码不能为空!");
@@ -482,17 +489,21 @@ public class UserController {
 			return ResultUtil.getResultMap(ERROR.ERR_USER_NOT_EXIST, "该账号不存在");
 		}
 
+		if (user.getAccount_state() == AccountStateType.CLOSE.ordinal()) {
+			return ResultUtil.getResultMap(ERROR.ERR_USER_CLOSE, "该账号已经注销");
+		}
+
 		if (userService.getUserState(user.getUser_id()) == FoundUserRelationship.GONE.ordinal()) {
 			return ResultUtil.getResultMap(ERROR.ERR_USER_NOT_EXIST, "该账号因举报而无法登录");
 		}
 
-		//注册环信
-		if(TextUtils.isEmpty(bDeleteIM)||!"1".equals(bDeleteIM)) {
+		// 注册环信
+		if (TextUtils.isEmpty(bDeleteIM) || !"1".equals(bDeleteIM)) {
 			userService.registHXNoException(user);
 		}
-		//检查该用户多久没登陆了
+		// 检查该用户多久没登陆了
 		userService.checkHowLongNotOpenApp(user);
-		
+
 		try {
 			String md5 = MD5Util.getMd5(password);
 			if (md5.equals(user.getPassword())) {
@@ -580,7 +591,6 @@ public class UserController {
 		return data;
 	}
 
-	
 	/**
 	 * 获取重置密码的短信验证码
 	 * 
@@ -613,7 +623,7 @@ public class UserController {
 		}
 		return data;
 	}
-	
+
 	/**
 	 * 重置密码
 	 * 
@@ -643,7 +653,7 @@ public class UserController {
 			md5Pwd = MD5Util.getMd5(password);
 			userService.updatePassword(mobile, md5Pwd);
 			userCacheService.clearCode(mobile); // 清理缓存
-			return loginByMobile(mobile, password, _ua, aid,"1");
+			return loginByMobile(mobile, password, _ua, aid, "1");
 		} catch (NoSuchAlgorithmException e) {
 			log.error(e.getMessage());
 			return ResultUtil.getResultMap(ERROR.ERR_SYS, "新密码设置异常");
@@ -876,7 +886,7 @@ public class UserController {
 	 * 
 	 * @param user_id
 	 * @param user_id_for
-	 * @param             countz'z
+	 * @param countz'z
 	 * @return
 	 */
 	@RequestMapping("detial_info")
@@ -891,7 +901,7 @@ public class UserController {
 	}
 
 	@RequestMapping("dynamic")
-	public ModelMap dynamic(long user_id,Long user_id_for, Integer page, Integer count) {
+	public ModelMap dynamic(long user_id, Long user_id_for, Integer page, Integer count) {
 
 		if (user_id_for == null || user_id_for < 1) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "请确定用户ID");
@@ -904,9 +914,9 @@ public class UserController {
 		}
 		ModelMap result = ResultUtil.getResultOKMap();
 		List<UserDynamic> dynamics;
-		if(user_id==user_id_for) {
-			 dynamics = userDynamicService.getUserSelfDynamic(user_id_for, page, count);
-		}else {
+		if (user_id == user_id_for) {
+			dynamics = userDynamicService.getUserSelfDynamic(user_id_for, page, count);
+		} else {
 			dynamics = userDynamicService.getUserDynamic(user_id_for, page, count);
 		}
 		result.put("dynamics", dynamics);
@@ -934,44 +944,6 @@ public class UserController {
 		return ResultUtil.getResultOKMap();
 	}
 
-//	@RequestMapping("visitor_regist")
-//	public ModelMap visitor_regist(String device_id, String aid, String device_token, String zh_cn, String lat,
-//			String lng) {
-//
-//		if (!TextUtils.isEmpty(zh_cn)) {
-//			if (zh_cn.length() > 2) {
-//				return ResultUtil.getResultMap(ERROR.ERR_PARAM, "zh_cn has too long,max &lt 2");
-//			}
-//		}
-//		if (TextUtils.isEmpty(device_id)) {
-//			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "deviceId is empty");
-//		}
-//
-//		LocationUser user = userService.findLocationUserByDeviceId(device_id);
-//		if (user == null) {
-//
-//			user = new LocationUser();
-//			user.setMobile(device_id);
-//			user.setDevice_token(device_token);
-//			user.setAid(aid);
-//			user.setLat(lat);
-//			user.setLng(lng);
-//			user.setZh_cn(zh_cn);
-//			user.setType((short) UserType.VISITOR.ordinal());
-//			user.setCreate_time(new Date());
-//			long user_id = userService.insertUser(user);
-//			user.setUser_id(user_id);
-//		} else {
-//			userService.updateVisitor(user.getUser_id(), aid, device_token, lat, lng, zh_cn);
-//			user.setDevice_token(device_token);
-//		}
-//		ModelMap result = ResultUtil.getResultOKMap();
-//
-//		user.setCity(getDefaultCityId());
-//		result.put("user", user);
-//		return result;
-//	}
-
 	@RequestMapping("add_app_user")
 	public ModelMap add_app_user(String device_id, String aid, String device_token, String zh_cn, String lat,
 			String lng) {
@@ -985,10 +957,10 @@ public class UserController {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "deviceId is empty");
 		}
 
-		LocationUser user = userService.findLocationUserByDeviceId(device_id);
+		LoginUser user = userService.findLocationUserByDeviceId(device_id);
 		if (user == null) {
 
-			user = new LocationUser();
+			user = new LoginUser();
 			user.setMobile(device_id);
 			user.setDevice_token(device_token);
 			user.setLat(lat);
@@ -997,7 +969,7 @@ public class UserController {
 			user.setZh_cn(zh_cn);
 			user.setType((short) UserType.VISITOR.ordinal());
 			user.setCreate_time(new Date());
-			long user_id = userService.insertUser(user,false);
+			long user_id = userService.insertUser(user, false);
 			user.setUser_id(user_id);
 		} else {
 			userService.updateVisitor(user.getUser_id(), aid, device_token, lat, lng, zh_cn);
@@ -1026,14 +998,26 @@ public class UserController {
 		return result;
 	}
 
+	@Deprecated
 	@RequestMapping("center_page")
 	public ModelMap center_page(Long user_id_for, String token, String aid, long user_id) {
 		return userService.getUserCenterData(token, aid, user_id_for, user_id);
 	}
 
+	@Deprecated
 	@RequestMapping("center_page/{user_id_for}")
 	public ModelMap center_page_path(@PathVariable Long user_id_for, String token, String aid, Long user_id) {
 		return userService.getUserCenterData(token, aid, user_id_for, user_id);
+	}
+
+	@RequestMapping("center_page_v2")
+	public ModelMap center_page_v2(Long user_id_for, String token, String aid, long user_id) {
+		return userService.getUserCenterDataV2(token, aid, user_id_for, user_id);
+	}
+
+	@RequestMapping("center_page_v2/{user_id_for}")
+	public ModelMap center_page_v2(@PathVariable Long user_id_for, String token, String aid, Long user_id) {
+		return userService.getUserCenterDataV2(token, aid, user_id_for, user_id);
 	}
 
 	@RequestMapping("avatar/{user_id}")
@@ -1157,6 +1141,27 @@ public class UserController {
 			throws Exception {
 		return userService.followUsers(uid, true, page, count);
 	}
+
+	@RequestMapping("close")
+	public ModelMap close(long user_id, String token) throws Exception {
+		if (!userService.checkLogin(user_id, token)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		return userService.close(user_id);
+	}
+
+	@RequestMapping("match")
+	@ApiOperation(httpMethod = "POST", value = "通知服务器视频通话正常进行中") // swagger 当前接口注解
+	@ApiImplicitParams({ @ApiImplicitParam(name = "user_id", value = "用户id", required = true, paramType = "query"),
+			@ApiImplicitParam(name = "exclude_uids", value = "当前已经存在的会话用户id,以,分割", paramType = "query"),
+			@ApiImplicitParam(name = "percent", value = "匹配的概率，最低1%，默认30%",  paramType = "query"),
+			@ApiImplicitParam(name = "days", value = "匹配n天内的登录异性账号",   paramType = "query"),
+			@ApiImplicitParam(name = "count", value = "每次匹配的数量，默认1",   paramType = "query") })
+	public ModelMap match(long user_id, String exclude_uids,Integer percent,Integer days,Integer count) {
+		userService.match(user_id,exclude_uids,percent,days,count);
+		return  ResultUtil.getResultOKMap();
+	}
+
 //
 //	
 //	@RequestMapping("add_token")
@@ -1164,12 +1169,13 @@ public class UserController {
 //		 userService.addDeviceToken(user_id,device_token);
 //		 return ResultUtil.getResultOKMap();
 //	}
-	
+
 	@RequestMapping("test_longtime_no_login")
-	public ModelMap test_new_user_regist(long user_id,long target_id) {
-		 userService.testLongTimeNoLogin(user_id, target_id);
-		 return ResultUtil.getResultOKMap();
+	public ModelMap test_new_user_regist(long user_id, long target_id) {
+		userService.testLongTimeNoLogin(user_id, target_id);
+		return ResultUtil.getResultOKMap();
 	}
+
 	@RequestMapping("setProperty")
 	public ModelMap setProperty(int percent) {
 		userService.setPercent(percent);
@@ -1180,6 +1186,12 @@ public class UserController {
 	public ModelMap getProperty() {
 		return ResultUtil.getResultOKMap().addAttribute("percent", userService.getPercent());
 	}
+
+	@RequestMapping("m")
+	public ModelMap m(long f, long to) {
+		return userService.testMakeSession(f, to);
+	}
+
 	private City getDefaultCityId() {
 
 		City city = new City();

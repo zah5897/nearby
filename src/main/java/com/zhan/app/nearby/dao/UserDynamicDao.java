@@ -49,9 +49,10 @@ public class UserDynamicDao extends BaseDao {
 	public List<UserDynamic> getHomeFoundSelected(long user_id, long last_id, int page_size, City city,List<Long> notIn) {
 		String sql = "select dy.*,"
 				+ " coalesce((select relationship from t_like_dynamic t_like where t_like.dynamic_id=dy.id and t_like.user_id=?), '0') as like_state ,"
-				+ " u.user_id , u.nick_name ,u.avatar,u.sex ,u.birthday ,u.type " + "from " + TABLE_USER_DYNAMIC
+				+ " u.user_id , u.nick_name ,u.avatar,u.sex ,u.birthday ,u.type,v.vip_id " + "from " + TABLE_USER_DYNAMIC
 				+ " dy left join " + TABLE_HOME_FOUND_SELECTED + " hs " + " on dy.id=hs.dynamic_id "
 				+ " left join t_user u on  dy.user_id=u.user_id "
+				+ " left join t_user_vip v on dy.user_id=v.user_id "
 				+ " where dy.id not in (?) and  hs.selected_state=? and dy.id<?   " + cityIn(city)
 				+ " and   dy.user_id not in(select with_user_id from t_user_relationship where user_id=? and relationship=?) order by dy.id desc limit ?";
 
@@ -62,9 +63,10 @@ public class UserDynamicDao extends BaseDao {
 	public List<UserDynamic> getHomeFoundSelected(long user_id, long last_id, int page_size, City city) {
 		String sql = "select dy.*,"
 				+ " coalesce((select relationship from t_like_dynamic t_like where t_like.dynamic_id=dy.id and t_like.user_id=?), '0') as like_state ,"
-				+ " u.user_id , u.nick_name ,u.avatar,u.sex ,u.birthday ,u.type " + "from " + TABLE_USER_DYNAMIC
+				+ " u.user_id , u.nick_name ,u.avatar,u.sex ,u.birthday ,u.type, v.vip_id " + "from " + TABLE_USER_DYNAMIC
 				+ " dy left join " + TABLE_HOME_FOUND_SELECTED + " hs " + " on dy.id=hs.dynamic_id "
 				+ " left join t_user u on  dy.user_id=u.user_id "
+				+ " left join t_user_vip v on dy.user_id=v.user_id "
 				+ " where hs.selected_state=? and dy.id<?   " + cityIn(city)
 				+ " and   dy.user_id not in(select with_user_id from t_user_relationship where user_id=? and relationship=?) order by dy.id desc limit ?";
 
@@ -123,9 +125,10 @@ public class UserDynamicDao extends BaseDao {
 		String sql = "select dynamic.*,"
 				+ "coalesce((select relationship from t_like_dynamic t_like where t_like.dynamic_id=dynamic.id and t_like.user_id=?), '0') as like_state ,"
 				+ "user.user_id  ," + "user.nick_name ," + "user.avatar," + "user.sex ," + "user.birthday ,"
-				+ "user.type " + "from " + TABLE_USER_DYNAMIC + " dynamic left join " + TABLE_HOME_FOUND_SELECTED
+				+ "user.type , v.vip_id " + "from " + TABLE_USER_DYNAMIC + " dynamic left join " + TABLE_HOME_FOUND_SELECTED
 				+ " selected on dynamic.id=selected.dynamic_id "
 				+ " left join t_user user on  dynamic.user_id=user.user_id  "
+				+ " left join t_user_vip v on dynamic.user_id=v.user_id "
 				+ "where selected.selected_state=? and dynamic.user_id<>? and dynamic.user_id not in(select with_user_id from t_user_relationship where user_id=? and relationship=?)   order by RAND() limit ?";
 
 		Object[] param = new Object[] { user_id, ImageStatus.SELECTED.ordinal(), user_id,user_id, Relationship.BLACK.ordinal(),	size };
@@ -232,8 +235,10 @@ public class UserDynamicDao extends BaseDao {
 
 	public UserDynamic detail(long dynamic_id) {
 		try {
-			String sql = "select dy.*,user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday,user.type  from "
-					+ TABLE_USER_DYNAMIC + " dy left join t_user user on dy.user_id=user.user_id where dy.id=?";
+			String sql = "select dy.*,user.user_id ,v.vip_id ,user.nick_name ,user.avatar,user.sex ,user.birthday,user.type  from "
+					+ TABLE_USER_DYNAMIC + " dy left join t_user user on dy.user_id=user.user_id "
+					+ " left join t_user_vip v on dy.user_id=v.user_id "		
+					+ " where dy.id=?";
 			return jdbcTemplate.queryForObject(sql, new Object[] { dynamic_id }, new DynamicMapper());
 		} catch (Exception e) {
 			return null;
@@ -341,9 +346,10 @@ public class UserDynamicDao extends BaseDao {
 	public List<UserDynamic> loadFollow(long user_id, long last_id, int count) {
 		String sql = "select d.*,"
 				+ "coalesce((select relationship from t_like_dynamic t_like where t_like.dynamic_id=d.id and t_like.user_id=?), '0') as like_state ,"
-				+ "u.user_id ,u.nick_name ,u.avatar,u.sex ,u.birthday ,u.type "
+				+ "u.user_id ,u.nick_name ,u.avatar,u.sex ,u.birthday ,u.type ,v.vip_id  "
 				+ "from t_user_follow f left join  t_user_dynamic d on f.target_id=d.user_id "
 				+ "left join t_user u on  d.user_id=u.user_id "
+				+ " left join t_user_vip v on d.user_id=v.user_id "
 				+ "where  d.state=? and  f.uid=? and  d.id<? and f.target_id not in (select with_user_id from t_user_relationship where user_id=? and relationship=?) "
 				+ "  order by d.id desc limit ?";
 		Object[] param = new Object[] {  user_id, DynamicState.T_FORMAL.ordinal(),user_id, last_id, user_id, Relationship.BLACK.ordinal(), count };
@@ -438,9 +444,10 @@ public class UserDynamicDao extends BaseDao {
 	}
 	
 	public List<UserDynamic> getUserUnCheckedDynamic(long user_id) {
-			String sql = "select dy.*, '0' as like_state ,"
+			String sql = "select dy.*, '0' as like_state, v.vip_id ,"
 					+ " u.user_id , u.nick_name ,u.avatar,u.sex ,u.birthday ,u.type  from " + TABLE_USER_DYNAMIC
 					+ " dy left join t_user u on  dy.user_id=u.user_id "
+					+ " left join t_user_vip v on dy.user_id=v.user_id"
 					+ " where dy.user_id=? and dy.create_time>DATE_SUB(CURDATE(), INTERVAL 2 DAY) order by id desc limit 18";
 			return jdbcTemplate.query(sql, new Object[] {user_id}, new DynamicMapper());
 	}

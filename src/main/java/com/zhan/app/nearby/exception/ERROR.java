@@ -18,7 +18,8 @@ public enum ERROR {
 	ERR_COINS_SHORT(13, "金币不足"),
 	ERR_ZHIFUBAO_ACCOUNT_NOT_MATCH(14, "支付宝账号错误，与绑定的支付宝账号不匹配"),
 	ERR_ACCOUNT_BLACKLIST(15, "该账号处于黑名单状态"),
-	ERR_SMS_CODE_LIMIT(16, "验证码发送次数已超每日限制");
+	ERR_SMS_CODE_LIMIT(16, "验证码发送次数已超每日限制"),
+	ERR_USER_CLOSE(17, "该帐号已注销");
 	private int value;
 	private String errorMsg;
 

@@ -14,7 +14,7 @@ import com.zhan.app.nearby.comm.UserType;
 import com.zhan.app.nearby.util.TextUtils;
 
 @SuppressWarnings("serial")
-public class BaseUser implements Serializable{
+public class BaseUser implements Serializable {
 
 	public BaseUser(long user_id) {
 		this.user_id = user_id;
@@ -22,10 +22,9 @@ public class BaseUser implements Serializable{
 
 	public BaseUser() {
 	}
-	
-	private int isFace=0;
-	
-	
+
+	private int isFace = 0;
+
 	@ColumnType
 	private long user_id;
 	@JsonIgnore
@@ -66,19 +65,28 @@ public class BaseUser implements Serializable{
 	private String contact;
 	@JsonIgnore
 	private String ip;
-	
+
 	@ColumnType // 忽略保存
-	private int _from=0; //1 ios ，2 android
-	
+	private int _from = 0; // 1 ios ，2 android
+
 	@ColumnType // 忽略保存
 	private int has_followed;
-	
+
 	@ColumnType // 忽略保存
 	private int fans_count;
 	@ColumnType // 忽略保存
 	private int my_follow_count;
-	
-	
+
+	private String age;
+
+	public void setAge(String age) {
+		this.age = age;
+	}
+
+	public String getAge() {
+		return age;
+	}
+
 	public Date getBirthday() {
 		return birthday;
 	}
@@ -191,11 +199,11 @@ public class BaseUser implements Serializable{
 
 	public void set_ua(String _ua) {
 		this._ua = _ua;
-	 
-		if(!TextUtils.isEmpty(_ua)) {
-			if(_ua.startsWith("a")) {
-			   this.set_from(1);
-			}else {
+
+		if (!TextUtils.isEmpty(_ua)) {
+			if (_ua.startsWith("a")) {
+				this.set_from(1);
+			} else {
 				this.set_from(2);
 			}
 		}
@@ -248,10 +256,11 @@ public class BaseUser implements Serializable{
 	public void set_from(int _from) {
 		this._from = _from;
 	}
-    
+
 	public int getHas_followed() {
 		return has_followed;
 	}
+
 	public void setHas_followed(int has_followed) {
 		this.has_followed = has_followed;
 	}
@@ -271,5 +280,5 @@ public class BaseUser implements Serializable{
 	public void setMy_follow_count(int my_follow_count) {
 		this.my_follow_count = my_follow_count;
 	}
-	
+
 }

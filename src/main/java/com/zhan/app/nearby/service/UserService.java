@@ -33,6 +33,7 @@ import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.bean.user.BaseVipUser;
 import com.zhan.app.nearby.bean.user.DetailUser;
 import com.zhan.app.nearby.bean.user.LocationUser;
+import com.zhan.app.nearby.bean.user.LoginUser;
 import com.zhan.app.nearby.bean.user.SimpleUser;
 import com.zhan.app.nearby.cache.UserCacheService;
 import com.zhan.app.nearby.comm.AvatarIMGStatus;
@@ -86,7 +87,7 @@ public class UserService {
 	private ManagerService managerService;
 	@Autowired
 	private MatchActiveUserTask matchActiveUserTask;
-	
+
 	public BaseUser getBasicUser(long id) {
 		return userDao.getBaseUser(id);
 	}
@@ -111,26 +112,18 @@ public class UserService {
 		return userDao.findUserByDeviceId(deviceId);
 	}
 
-	public LocationUser findLocationUserByDeviceId(String deviceId) {
+	public LoginUser findLocationUserByDeviceId(String deviceId) {
 		return userDao.findLocationUserByDeviceId(deviceId);
 	}
 
-	// @Transactional(readOnly = true)
-	// public User findUserByName(String name) {
-	// return userDao.findUserByName(name);
-	// }
 	@Transactional
-	public void delete(long id) {
-		userDao.delete(id);
-	}
-
-	@Transactional
-	public long insertUser(BaseUser user, boolean isNeedHX) {
+	public long insertUser(LoginUser user, boolean isNeedHX) {
 		user.setCreate_time(new Date());
 		int count = userDao.getUserCountByMobile(user.getMobile());
 		if (count > 0) {
 			return -1l;
 		}
+		user.setLast_login_time(new Date());
 		long id = (Long) userDao.insert(user);
 		user.setUser_id(id);
 
@@ -139,11 +132,11 @@ public class UserService {
 				addRecommendAndMeetBottle(id);
 			}
 			saveUserOnline(user.getUser_id());
-			if(isNeedHX) {
+			if (isNeedHX) {
 				registHXThrowException(user);
 				matchActiveUserTask.newRegistMatch(user);
 			}
-			
+
 		}
 		return id;
 	}
@@ -247,46 +240,46 @@ public class UserService {
 				user.getNick_name(), user.getBirthday(), user.getSex(), user.getAvatar(), user.getLast_login_time());
 		if (count > 0) {
 			addRecommendAndMeetBottle(user.getUser_id());
-			if(isNeedHX) {
-				 registHXThrowException(user); 
-				 matchActiveUserTask.newRegistMatch(user); //匹配活跃用户
+			if (isNeedHX) {
+				registHXThrowException(user);
+				matchActiveUserTask.newRegistMatch(user); // 匹配活跃用户
 			}
-			
+
 		}
 		return count;
 	}
-	
+
 	/**
 	 * 最近3个月内打开过app的用户，匹配一些正在活跃的用户
+	 * 
 	 * @param curUser
 	 */
 	public void checkHowLongNotOpenApp(long uid) {
 		checkHowLongNotOpenApp(userDao.getBaseUser(uid));
 	}
-	private int percent=10;
+
+	private int percent = 30;
+
 	public void setPercent(int percent) {
 		this.percent = percent;
 	}
+
 	public int getPercent() {
 		return percent;
 	}
 	public void checkHowLongNotOpenApp(BaseUser user) {
-		Date date=userDao.getUserLastLoginTime(user.getUser_id());
-		if(date==null) {
-            matchActiveUserTask.longTimeNotOpenMatch(user);	
-            return;
+		Date date = userDao.getUserLastLoginTime(user.getUser_id());
+		if (date == null) {
+			matchActiveUserTask.longTimeNotOpenMatch(user);
 		}
-		long time=date.getTime()/1000;
-		long now=System.currentTimeMillis()/1000;
-		//------上次登录时间超过30天------
-		if((now-time)< 3*30*24*60*60) {
-			
-			if (RandomCodeUtil.randomPercentOK(percent)) { //5%的概率
-				 matchActiveUserTask.shortTimeOpenMatch(user);	
-			}
+		int newPercent=percent;
+		if ("0".equals(user.getSex())) {
+			newPercent=(int) (percent*2.56); 
+		}
+		if (RandomCodeUtil.randomPercentOK(newPercent)) { // 5%的概率
+			matchActiveUserTask.shortTimeOpenMatch(user);
 		}
 	}
-
 	public void uploadLocation(final String ip, final Long user_id, String lat, String lng) {
 
 		if (TextUtils.isEmpty(lat) || TextUtils.isEmpty(lng)) {
@@ -348,6 +341,69 @@ public class UserService {
 
 		List<UserDynamic> dys = userDynamicService.getUserDynamic(user_id_for, 1, 5, true);
 		user.setImages(dys);
+		// //
+		// Map<String, Object> userJson = new HashMap<>();
+		// userJson.put("about_me", user);
+		// Map<String, Object> secret_me = new HashMap<String, Object>();
+		// userJson.put("secret_me", secret_me);
+		// userJson.put("my_tags", new HashMap<>());
+		// ModelMap result = ResultUtil.getResultOKMap();
+		// result.put("user", userJson);
+
+		ImagePathUtil.completeAvatarPath(user, true);
+		setTagByIds(user);
+
+		City bc = cityService.getSimpleCity(user.getBirth_city_id());
+		user.setBirth_city(bc);
+
+		City cc = cityService.getSimpleCity(user.getCity_id());
+		user.setCity(cc);
+
+		ModelMap r = ResultUtil.getResultOKMap();
+		user.setIs_vip(vipDao.isVip(user_id_for));
+		user.setAvatars(getUserAvatars(user_id_for));
+
+		if (!TextUtils.isEmpty(user.getContact()) && uid != user_id_for) {
+			if (!userDao.hadGetContact(uid == null ? 0 : uid, user_id_for == null ? 0 : user_id_for)) {
+				user.setContact("花费金币查看");
+			}
+		}
+
+		user.setFans_count(userDao.getFansCount(user.getUser_id()));
+		user.setMy_follow_count(userDao.getFollowCount(user.getUser_id()));
+		user.setHas_followed(userDao.isFollowed(uid, user_id_for) ? 1 : 0);
+
+		r.put("user", user);
+		Relationship iWithHim = getRelationShip(uid == null ? 0 : uid, user_id_for);
+		Relationship heWithMe = getRelationShip(user_id_for, uid == null ? 0 : uid);
+		int relationShip = 0;
+		if (iWithHim == Relationship.LIKE && heWithMe == Relationship.LIKE) {
+			relationShip = 4;
+		} else if (iWithHim == Relationship.LIKE && heWithMe != Relationship.LIKE) {
+			relationShip = 5;
+		} else if (iWithHim != Relationship.LIKE && heWithMe == Relationship.LIKE) {
+			relationShip = 6;
+		} else {
+			relationShip = 7;
+		}
+		r.put("relationship", relationShip);
+		r.addAttribute("meili", giftService.getUserMeiLiVal(user_id_for));
+		r.addAttribute("coins", giftService.getUserCoins(aid, user_id_for));
+		r.addAttribute("like_count", giftService.getUserBeLikeVal(user_id_for));
+		return r;
+	}
+
+	public ModelMap getUserCenterDataV2(String token, String aid, Long user_id_for, Long uid) {
+		if (user_id_for == null || user_id_for <= 0) {
+			return ResultUtil.getResultMap(ERROR.ERR_FAILED, "对应用户不存在");
+		}
+		DetailUser user = userDao.getUserDetailInfo(user_id_for);
+		if (user == null) {
+			return ResultUtil.getResultMap(ERROR.ERR_FAILED, "对应ID不存在");
+		}
+
+		user.setAge(DateTimeUtil.getAge(user.getBirthday()));
+
 		// //
 		// Map<String, Object> userJson = new HashMap<>();
 		// userJson.put("about_me", user);
@@ -684,7 +740,7 @@ public class UserService {
 				if (resutl instanceof ResponseWrapper) {
 					ResponseWrapper response = (ResponseWrapper) resutl;
 					if (response.getResponseStatus() != 200) {
-                        System.out.println("环信regist exception");
+						System.out.println("环信regist exception");
 					}
 				}
 			}
@@ -826,12 +882,10 @@ public class UserService {
 	public ModelMap autoLogin(long user_id, String md5_pwd, String aid) {
 		boolean exist = userDao.checkExistByIdAndPwd(user_id, md5_pwd);
 		if (exist) {
-			
-			
+
 			checkHowLongNotOpenApp(user_id);
 			userDao.uploadLastLoginTime(user_id);
-			
-			
+
 			String token = UUID.randomUUID().toString();
 			userDao.updateToken(user_id, token, new Date());
 
@@ -941,16 +995,18 @@ public class UserService {
 	public BaseUser getBaseUserNoToken(long user_id) {
 		return userDao.getBaseUserNoToken(user_id);
 	}
+
 	/**
 	 * 判断是否关注了该用户
+	 * 
 	 * @param user_id
 	 * @param targetUid
 	 * @return
 	 */
-	public boolean isFollowed(long user_id,long targetUid) {
+	public boolean isFollowed(long user_id, long targetUid) {
 		return userDao.isFollowed(user_id, targetUid);
 	}
-	
+
 	/**
 	 * 消耗金币
 	 * 
@@ -1075,32 +1131,85 @@ public class UserService {
 				.addAttribute("last_id", last_id);
 	}
 
-	//该方法为
+	// 该方法为
 	public List<BaseUser> getActiveUser(int sex) {
 		return userDao.getActiveUsers(sex);
 	}
-	
+
 	public ModelMap test_new_user_regist(long uid, long other_uid) {
-		BaseUser user=userDao.getBaseUser(uid);
+		BaseUser user = userDao.getBaseUser(uid);
 		System.out.println(Thread.currentThread().getName());
 		matchActiveUserTask.newRegistMatch(user);
 		return ResultUtil.getResultOKMap();
 	}
-	
-	
-	public void testLongTimeNoLogin(long user_id,long target_id) {
-		BaseUser i=userDao.getBaseUser(user_id);
-		BaseUser he=userDao.getBaseUser(target_id);
+
+	public void testLongTimeNoLogin(long user_id, long target_id) {
+		BaseUser i = userDao.getBaseUser(user_id);
+		BaseUser he = userDao.getBaseUser(target_id);
 		HX_SessionUtil.makeChatSession(i, he, 0);
 	}
 
 	/**
 	 * 上传手机的device_token
+	 * 
 	 * @param user_id
 	 * @param token
 	 */
 	public void addDeviceToken(long user_id, String device_token) {
-		userDao.addDeviceToken(user_id,device_token);
+		userDao.addDeviceToken(user_id, device_token);
 	}
-	
+
+	public ModelMap close(long uid) {
+		userDao.close(uid);
+		return ResultUtil.getResultOKMap();
+	}
+
+	public ModelMap testMakeSession(long f, long to) {
+		BaseUser fu=userDao.getBaseUser(f);
+		BaseUser toU=userDao.getBaseUser(to);
+		HX_SessionUtil.makeChatSession(fu, toU, 0);
+		return ResultUtil.getResultOKMap();
+	}
+	public List<BaseUser> get2daysLoginUserWithOutIds(long uid,int sex,int day,int count,long[] withOutids){
+		return userDao.get2daysLoginUserWithOutIds(uid, sex, day, count, withOutids);
+	}
+	public List<BaseUser> get2daysLoginUser(long uid,int sex, int day, int count) {
+		return userDao.get2daysLoginUser(uid,sex, day, count);
+	}
+
+	public void match(long user_id, String exclude_uids, Integer percent, Integer days, Integer count) {
+		String[] uids=null;
+        long[] eids=null;
+		if(!TextUtils.isEmpty(exclude_uids)) {
+			uids=exclude_uids.split(",");
+			eids=new long[uids.length];
+			for(int i=0;i<uids.length;i++) {
+				eids[i]=Long.parseLong(uids[i]);
+			}
+		}
+		
+		BaseUser cur=getBasicUser(user_id);
+		if(percent==null||percent<1) {
+			percent=this.percent;
+		}
+		int sex=0;
+		if("0".equals(cur.getSex())) {
+			percent=(int) (percent*2.56);
+		    sex=1;
+		}
+		
+		if(days==null||days<1) {
+			days=90;
+		}
+		
+		if(count==null||count<1) {
+			count=1;
+		}
+		
+		if (RandomCodeUtil.randomPercentOK(percent)) { // 
+			matchActiveUserTask.newMatch(cur, eids, days, count, sex);
+		}
+		
+		
+	}
 }

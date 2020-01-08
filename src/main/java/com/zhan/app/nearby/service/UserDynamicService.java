@@ -125,7 +125,7 @@ public class UserDynamicService {
 			}
 			int likeState = userDynamicDao.getLikeState(user_id, dynamic_id);
 			dynamic.setLike_state(likeState);
-			dynamic.getUser().setHas_followed(userDao.isFollowed(user_id, dynamic.getUser_id())?1:0);
+			dynamic.getUser().setHas_followed(userDao.isFollowed(user_id, dynamic.getUser().getUser_id())?1:0);
 		}
 		return dynamic;
 	}

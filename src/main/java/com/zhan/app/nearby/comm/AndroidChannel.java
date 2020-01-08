@@ -1,5 +1,5 @@
 package com.zhan.app.nearby.comm;
 
 public enum AndroidChannel {
-	dev,oppo, xiaomi, alibaba, huawei;
+	dev,oppo, xiaomi, alibaba, huawei,vivo;
 }

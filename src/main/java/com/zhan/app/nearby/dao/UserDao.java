@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +25,8 @@ import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.bean.user.BaseVipUser;
 import com.zhan.app.nearby.bean.user.DetailUser;
 import com.zhan.app.nearby.bean.user.LocationUser;
+import com.zhan.app.nearby.bean.user.LoginUser;
+import com.zhan.app.nearby.comm.AccountStateType;
 import com.zhan.app.nearby.comm.AvatarIMGStatus;
 import com.zhan.app.nearby.comm.FoundUserRelationship;
 import com.zhan.app.nearby.comm.Relationship;
@@ -162,10 +165,10 @@ public class UserDao extends BaseDao {
 		}
 	}
 
-	public LocationUser findLocationUserByDeviceId(String deviceId) {
-		List<LocationUser> list = jdbcTemplate.query("select *from t_user user where user.mobile=? and type=?",
+	public LoginUser findLocationUserByDeviceId(String deviceId) {
+		List<LoginUser> list = jdbcTemplate.query("select *from t_user user where user.mobile=? and type=?",
 				new Object[] { deviceId, UserType.VISITOR.ordinal() },
-				new BeanPropertyRowMapper<LocationUser>(LocationUser.class));
+				new BeanPropertyRowMapper<LoginUser>(LoginUser.class));
 		if (list != null && list.size() > 0) {
 			return list.get(0);
 		} else {
@@ -1002,12 +1005,44 @@ public class UserDao extends BaseDao {
 		return jdbcTemplate.query(sql, new Object[] { sex, 1 }, new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
 	}
 
+	
+	//获取最近两天登陆的用户
+	public List<BaseUser> get2daysLoginUser(long uid,int sex,int day,int count){
+		String sql = "select u.user_id,u.nick_name,u.avatar from t_user u  where u.user_id<>? and u.type=1  and u.sex=? and  DATE_SUB(CURDATE(), INTERVAL ? DAY) <= date(u.last_login_time) order by rand() limit ? ";
+		return jdbcTemplate.query(sql, new Object[] { uid,sex,day ,count}, new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+		
+	}
+	
+	public List<BaseUser> get2daysLoginUserWithOutIds(long uid,int sex,int day,int count,long[] withOutids){
+		
+		if(withOutids==null) {
+			String sql = "select u.user_id,u.nick_name,u.avatar from t_user u  where u.user_id<>? and u.type=1  and u.sex=? and  DATE_SUB(CURDATE(), INTERVAL ? DAY) <= date(u.last_login_time) order by rand() limit ? ";
+			return jdbcTemplate.query(sql, new Object[] { uid,sex,day,count}, new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+		}else {
+			String sql = "select u.user_id,u.nick_name,u.avatar from t_user u  where u.user_id<>? and u.type=1 and u.user_id not in (?) and u.sex=? and  DATE_SUB(CURDATE(), INTERVAL ? DAY) <= date(u.last_login_time) order by rand() limit ? ";
+			return jdbcTemplate.query(sql, new Object[] { uid,withOutids,sex,day,count}, new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+		}
+		
+	}
+	
+	
 	public void addDeviceToken(long user_id, String device_token) {
 		String sql = "insert into t_user_device_token values (?, ?)";
 		try {
 			jdbcTemplate.update(sql, new Object[] { user_id, device_token });
 		} catch (Exception e) {
 		}
+	}
+
+	public void close(long uid) {
+ 
+//		jdbcTemplate.update("delete from t_bottle_scan where user_id="+uid);//删除瓶子
+//		jdbcTemplate.update("delete from t_check_in_record where uid="+uid);//删除签到
+//		jdbcTemplate.update("delete from t_coin_exchange where uid="+uid);//删除交易信息
+//		jdbcTemplate.update("delete from t_contact_get_rel where uid="+uid+" or target_uid="+uid);//删除获取联系方式的记录
+		
+        jdbcTemplate.update("update t_user set account_state=? where user_id=?",new Object[] {AccountStateType.CLOSE.ordinal(),uid});
+		
 	}
 
 }

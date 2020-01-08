@@ -7,6 +7,7 @@ import java.util.Date;
 import org.springframework.jdbc.core.RowMapper;
 
 import com.zhan.app.nearby.bean.UserDynamic;
+import com.zhan.app.nearby.bean.user.BaseVipUser;
 import com.zhan.app.nearby.bean.user.SimpleUser;
 import com.zhan.app.nearby.comm.LikeDynamicState;
 import com.zhan.app.nearby.util.DateTimeUtil;
@@ -28,14 +29,14 @@ public class DynamicMapper implements RowMapper<UserDynamic> {
 		dynamic.setCity(rs.getString("city"));
 		dynamic.setTopic_id(rs.getLong("topic_id"));
 		dynamic.set_from(rs.getInt("_from"));
-	 
+
 		try {
-		    dynamic.setComment_count(rs.getInt("comment_count"));
-		}catch (Exception e) {
+			dynamic.setComment_count(rs.getInt("comment_count"));
+		} catch (Exception e) {
 		}
 		try {
-		    dynamic.setFlower_count(rs.getInt("flower_count"));
-		}catch (Exception e) {
+			dynamic.setFlower_count(rs.getInt("flower_count"));
+		} catch (Exception e) {
 		}
 		try {
 			dynamic.setLike_state(rs.getInt("like_state"));
@@ -43,7 +44,7 @@ public class DynamicMapper implements RowMapper<UserDynamic> {
 			dynamic.setLike_state(LikeDynamicState.UNLIKE.ordinal());
 		}
 
-		SimpleUser  user = new SimpleUser();
+		BaseVipUser user = new BaseVipUser();
 
 		user.setUser_id(rs.getLong("user_id"));
 		user.setNick_name(rs.getString("nick_name"));
@@ -53,6 +54,16 @@ public class DynamicMapper implements RowMapper<UserDynamic> {
 		Date birthday = rs.getDate("birthday");
 		user.setAge(DateTimeUtil.getAge(birthday));
 		ImagePathUtil.completeAvatarPath(user, true);
+
+		try {
+			Object vipObj = rs.getObject("vip_id");
+			if (vipObj != null && !"null".equals(vipObj.toString())) {
+				user.setVip(true);
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+
 		dynamic.setUser(user);
 		return dynamic;
 	}

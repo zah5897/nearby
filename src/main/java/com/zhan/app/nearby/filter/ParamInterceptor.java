@@ -62,10 +62,10 @@ public class ParamInterceptor implements HandlerInterceptor {
 		if (url.contains("nearby/files/")) {
 			return true;
 		}
-//		 boolean r=isSupportSwagger(url);
-//		 if(r) {
-//			 return r;
-//		 }
+		 boolean r=isSupportSwagger(url);
+		 if(r) {
+			 return r;
+		 }
 		
 		if (url.endsWith(".html")) {
 			return true;

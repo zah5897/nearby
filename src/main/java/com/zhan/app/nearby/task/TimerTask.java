@@ -85,11 +85,18 @@ public class TimerTask {
 		}
 	}
 
-	@Scheduled(cron = "0 0/20 * * * ?") // 每5分钟执行一次
+	@Scheduled(cron = "0 0/20 * * * ?") // 每20分钟执行一次
 	public void checkUserOnline() {
 		UserService userService = SpringContextUtil.getBean("userService");
 		userService.removeTimeoutOnlineUsers(4);
 	}
+	
+	@Scheduled(cron = "0 0/10 * * * ?") // 每10分钟执行一次
+	public void timerMatchActiveUser() {
+		UserService userService = SpringContextUtil.getBean("userService");
+		userService.matchActiveUsers();
+	}
+	
 
 	public void autoAddBlackIP() {
 		UserService userService = SpringContextUtil.getBean("userService");

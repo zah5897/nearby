@@ -35,6 +35,8 @@ public class SimpleUser extends BaseUser {
 	@JsonIgnore
 	private String device_token;
 
+	@JsonIgnore
+	private String openid;
 	public String getAge() {
 		return age;
 	}
@@ -93,6 +95,14 @@ public class SimpleUser extends BaseUser {
 
 	public void setDevice_token(String device_token) {
 		this.device_token = device_token;
+	}
+
+	public String getOpenid() {
+		return openid;
+	}
+
+	public void setOpenid(String openid) {
+		this.openid = openid;
 	}
 
 }

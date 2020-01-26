@@ -278,7 +278,6 @@ public class UserController {
 		user.setUser_id(id);
 		user.setAge(DateTimeUtil.getAge(user.getBirthday()));
 		ImagePathUtil.completeAvatarPath(user, true); // 补全图片链接地址
-		userService.checkHowLongNotOpenApp(user);
 		if (city_id != null) {
 			City city = cityService.getFullCity(city_id);
 			user.setBirth_city(city);
@@ -366,7 +365,6 @@ public class UserController {
 		user.setAge(DateTimeUtil.getAge(user.getBirthday()));
 		ImagePathUtil.completeAvatarPath(user, true); // 补全图片链接地址
 
-		userService.checkHowLongNotOpenApp(user);
 
 		if (city_id != null) {
 			City city = cityService.getFullCity(city_id);
@@ -377,6 +375,64 @@ public class UserController {
 		result.put("user", user);
 		// 注册完毕，则可以清理掉redis关于code缓存了
 		userCacheService.clearCode(user.getMobile());
+		return result;
+	}
+
+	@RequestMapping("login_thrid_channel")
+	@ApiOperation(httpMethod = "POST", value = "第三方渠道账号登陆") // swagger 当前接口注解
+	@ApiImplicitParams({ @ApiImplicitParam(name = "aid", value = "aid", required = true, paramType = "query"),
+			@ApiImplicitParam(name = "city_id", value = "city_id", paramType = "query"),
+			@ApiImplicitParam(name = "_ua", value = "_ua",required = true, paramType = "query"),
+			@ApiImplicitParam(name = "channel", value = "channel",required = true, paramType = "query"),
+			  })
+	public ModelMap login_thrid_channel(HttpServletRequest request, LoginUser user, String aid, Integer city_id,
+			String _ua, String channel,String image_names) {
+
+		if (TextUtils.isEmpty(user.getOpenid())) {
+			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "此为第三方账号登录，openid不能为空");
+		}
+		if (_ua.contains("\\|")) {
+			user.set_ua(_ua);
+		} else {
+			user.set_ua(decode(_ua));
+		}
+		user.setOpenid(channel+"#"+user.getOpenid());
+		user.setToken(UUID.randomUUID().toString());
+		if (userService.getUserCountByOpenid(user.getOpenid()) >= 1) {
+			return userService.doLogin(user, user.get_ua(), aid, getDefaultCityId());
+		}
+		if (TextUtils.isTrimEmpty(user.getNick_name())) {
+			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "昵称不能为空");
+		}
+		user.setIp(IPUtil.getIpAddress(request));
+		
+		user.setAvatar(image_names );
+		
+//		user.setNick_name(BottleKeyWordUtil.filterContent(user.getNick_name()));
+
+		if (user.getBirth_city_id() == 0 && city_id != null) {
+			user.setBirth_city_id(city_id);
+		}
+		
+		user.setType((short) UserType.THRID_CHANNEL.ordinal());
+		user.setLast_login_time(new Date());
+		user.setCreate_time(new Date());
+		long id = userService.insertUserThridChannel(user, false);
+		if (id == -1l) {
+			return ResultUtil.getResultMap(ERROR.ERR_USER_EXIST, "该第三方账号登录信息已存在");
+		}
+		ModelMap result = ResultUtil.getResultOKMap();
+		user.setUser_id(id);
+		user.setAge(DateTimeUtil.getAge(user.getBirthday()));
+		userService.saveAvatar(id, user.getAvatar());
+		ImagePathUtil.completeAvatarPath(user, true); // 补全图片链接地址
+
+		if (city_id != null) {
+			City city = cityService.getFullCity(city_id);
+			user.setBirth_city(city);
+		}
+		user.setAvatars(userService.getUserAvatars(user.getUser_id()));
+		result.put("user", user);
 		return result;
 	}
 
@@ -475,16 +531,20 @@ public class UserController {
 	 * @return
 	 */
 	@RequestMapping("login")
-	public ModelMap loginByMobile(String mobile, String password, String _ua, String aid, String bDeleteIM) {
+	public ModelMap loginByMobile(String mobile, String password, String openid, String _ua, String aid,
+			String bDeleteIM,String device_token) {
 
-		if (TextUtils.isEmpty(mobile)) {
-			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "手机号码不能为空!");
-		}
-		if (TextUtils.isEmpty(password)) {
-			return ResultUtil.getResultMap(ERROR.ERR_PASSWORD);
+		LocationUser user = null;
+		if (TextUtils.isEmpty(openid)) {
+			if (TextUtils.isEmpty(mobile) || TextUtils.isEmpty(password)) {
+				return ResultUtil.getResultMap(ERROR.ERR_PARAM, "手机号码或密码不能为空");
+			}
+			user = userService.findLocationUserByMobile(mobile);
+		} else {
+			// login by openid;
+			user = userService.findLocationUserByOpenId(openid);
 		}
 
-		LocationUser user = userService.findLocationUserByMobile(mobile);
 		if (user == null) {
 			return ResultUtil.getResultMap(ERROR.ERR_USER_NOT_EXIST, "该账号不存在");
 		}
@@ -501,8 +561,6 @@ public class UserController {
 		if (TextUtils.isEmpty(bDeleteIM) || !"1".equals(bDeleteIM)) {
 			userService.registHXNoException(user);
 		}
-		// 检查该用户多久没登陆了
-		userService.checkHowLongNotOpenApp(user);
 
 		try {
 			String md5 = MD5Util.getMd5(password);
@@ -512,7 +570,7 @@ public class UserController {
 				user.set_ua(_ua);
 				userService.pushLongTimeNoLoginMsg(user.getUser_id(), user.getLast_login_time());
 				userService.saveUserOnline(user.getUser_id());
-				userService.updateToken(user); // 更新token，弱登录
+				userService.updateToken(user,device_token); // 更新token，弱登录
 				user.set_ua(null);
 				user.setAge(DateTimeUtil.getAge(user.getBirthday()));
 				// userCacheService.cacheLoginToken(user); // 缓存token，缓解检查登陆查询
@@ -633,7 +691,7 @@ public class UserController {
 	 * @return
 	 */
 	@RequestMapping("reset_password")
-	public ModelMap reset_password(String mobile, String password, String code, String _ua, String aid) {
+	public ModelMap reset_password(String mobile, String password, String code, String _ua, String aid,String device_token) {
 
 		if (TextUtils.isEmpty(mobile)) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "手机号码为空");
@@ -653,7 +711,7 @@ public class UserController {
 			md5Pwd = MD5Util.getMd5(password);
 			userService.updatePassword(mobile, md5Pwd);
 			userCacheService.clearCode(mobile); // 清理缓存
-			return loginByMobile(mobile, password, _ua, aid, "1");
+			return loginByMobile(mobile, password, null, _ua, aid, "1",device_token);
 		} catch (NoSuchAlgorithmException e) {
 			log.error(e.getMessage());
 			return ResultUtil.getResultMap(ERROR.ERR_SYS, "新密码设置异常");
@@ -1079,13 +1137,13 @@ public class UserController {
 	}
 
 	@RequestMapping("autoLogin")
-	public ModelMap autoLogin(long user_id, String md5pwd, String aid) {
+	public ModelMap autoLogin(long user_id, String md5pwd, String aid,String device_token) {
 
 		if (userService.getUserState(user_id) == FoundUserRelationship.GONE.ordinal()) {
 			return ResultUtil.getResultMap(ERROR.ERR_USER_NOT_EXIST, "该账号因举报而无法登录");
 		}
 
-		return userService.autoLogin(user_id, md5pwd, aid);
+		return userService.autoLogin(user_id, md5pwd, aid,device_token);
 	}
 
 	@RequestMapping("online_list")
@@ -1154,12 +1212,12 @@ public class UserController {
 	@ApiOperation(httpMethod = "POST", value = "通知服务器视频通话正常进行中") // swagger 当前接口注解
 	@ApiImplicitParams({ @ApiImplicitParam(name = "user_id", value = "用户id", required = true, paramType = "query"),
 			@ApiImplicitParam(name = "exclude_uids", value = "当前已经存在的会话用户id,以,分割", paramType = "query"),
-			@ApiImplicitParam(name = "percent", value = "匹配的概率，最低1%，默认30%",  paramType = "query"),
-			@ApiImplicitParam(name = "days", value = "匹配n天内的登录异性账号",   paramType = "query"),
-			@ApiImplicitParam(name = "count", value = "每次匹配的数量，默认1",   paramType = "query") })
-	public ModelMap match(long user_id, String exclude_uids,Integer percent,Integer days,Integer count) {
-		userService.match(user_id,exclude_uids,percent,days,count);
-		return  ResultUtil.getResultOKMap();
+			@ApiImplicitParam(name = "percent", value = "匹配的概率，最低1%，默认30%", paramType = "query"),
+			@ApiImplicitParam(name = "days", value = "匹配n天内的登录异性账号", paramType = "query"),
+			@ApiImplicitParam(name = "count", value = "每次匹配的数量，默认1", paramType = "query") })
+	public ModelMap match(long user_id, String exclude_uids, Integer percent, Integer days, Integer count) {
+//		userService.match(user_id, exclude_uids, percent, days, count);
+		return ResultUtil.getResultOKMap();
 	}
 
 //

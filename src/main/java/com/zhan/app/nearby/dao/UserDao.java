@@ -134,6 +134,17 @@ public class UserDao extends BaseDao {
 		}
 	}
 
+	public LocationUser findLocationUserByOpenid(String openid) {
+		List<LocationUser> list = jdbcTemplate.query(
+				"select user.* ,city.name as city_name from t_user user left join t_sys_city city on user.city_id=city.id where user.openid=?",
+				new Object[] { openid }, new BeanPropertyRowMapper<LocationUser>(LocationUser.class));
+		if (list != null && list.size() > 0) {
+			return list.get(0);
+		} else {
+			return null;
+		}
+	}
+
 	public LocationUser findLocationUserById(long user_id) {
 		List<LocationUser> list = jdbcTemplate.query(
 				"select user.* ,city.name as city_name from t_user user left join t_sys_city city on user.city_id=city.id where user.user_id=?",
@@ -191,9 +202,20 @@ public class UserDao extends BaseDao {
 		return count;
 	}
 
+	public int getUserCountByOpenId(String openid) {
+		int count = jdbcTemplate.queryForObject("select count(*) from t_user user where user.openid=?",
+				new String[] { openid }, Integer.class);
+		return count;
+	}
+
 	public int updateToken(long userId, String token, Date last_login_time) {
 		return jdbcTemplate.update("update t_user set token=?,last_login_time=? where user_id=?",
 				new Object[] { token, last_login_time, userId });
+	}
+
+	public int updateToken(long userId, String token, Date last_login_time, String device_token) {
+		return jdbcTemplate.update("update t_user set token=?,last_login_time=?,device_token=? where user_id=?",
+				new Object[] { token, last_login_time, device_token, userId });
 	}
 
 	public int updatePassword(String mobile, String password) {
@@ -1005,27 +1027,33 @@ public class UserDao extends BaseDao {
 		return jdbcTemplate.query(sql, new Object[] { sex, 1 }, new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
 	}
 
-	
-	//获取最近两天登陆的用户
-	public List<BaseUser> get2daysLoginUser(long uid,int sex,int day,int count){
+	// 获取最近两天登陆的用户
+	public List<BaseUser> get2daysLoginUser(long uid, int sex, int day, int count) {
 		String sql = "select u.user_id,u.nick_name,u.avatar from t_user u  where u.user_id<>? and u.type=1  and u.sex=? and  DATE_SUB(CURDATE(), INTERVAL ? DAY) <= date(u.last_login_time) order by rand() limit ? ";
-		return jdbcTemplate.query(sql, new Object[] { uid,sex,day ,count}, new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
-		
+		return jdbcTemplate.query(sql, new Object[] { uid, sex, day, count },
+				new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+
 	}
-	
-	public List<BaseUser> get2daysLoginUserWithOutIds(long uid,int sex,int day,int count,long[] withOutids){
-		
-		if(withOutids==null) {
+
+	public List<BaseUser> get2daysLoginUserWithOutIds(long uid, int sex, int day, int count, long[] withOutids) {
+
+		if (withOutids == null) {
 			String sql = "select u.user_id,u.nick_name,u.avatar from t_user u  where u.user_id<>? and u.type=1  and u.sex=? and  DATE_SUB(CURDATE(), INTERVAL ? DAY) <= date(u.last_login_time) order by rand() limit ? ";
-			return jdbcTemplate.query(sql, new Object[] { uid,sex,day,count}, new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
-		}else {
+			return jdbcTemplate.query(sql, new Object[] { uid, sex, day, count },
+					new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+		} else {
 			String sql = "select u.user_id,u.nick_name,u.avatar from t_user u  where u.user_id<>? and u.type=1 and u.user_id not in (?) and u.sex=? and  DATE_SUB(CURDATE(), INTERVAL ? DAY) <= date(u.last_login_time) order by rand() limit ? ";
-			return jdbcTemplate.query(sql, new Object[] { uid,withOutids,sex,day,count}, new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+			return jdbcTemplate.query(sql, new Object[] { uid, withOutids, sex, day, count },
+					new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
 		}
-		
 	}
-	
-	
+
+	public List<BaseUser> getActiveUserBySex(int sex, int days, int count) {
+		String sql = "select u.user_id,u.nick_name,u.avatar from t_user u  where   u.sex=? and  DATE_SUB(CURDATE(), INTERVAL ? DAY) <= date(u.last_login_time) order by rand() limit ? ";
+		return jdbcTemplate.query(sql, new Object[] { sex, days, count },
+				new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+	}
+
 	public void addDeviceToken(long user_id, String device_token) {
 		String sql = "insert into t_user_device_token values (?, ?)";
 		try {
@@ -1034,15 +1062,21 @@ public class UserDao extends BaseDao {
 		}
 	}
 
+	public void saveMatchLog(long uid, long target_uid) {
+		String sql = "insert into t_user_match values (?, ?,?)";
+		jdbcTemplate.update(sql, new Object[] { uid, target_uid, new Date() });
+	}
+
 	public void close(long uid) {
- 
+
 //		jdbcTemplate.update("delete from t_bottle_scan where user_id="+uid);//删除瓶子
 //		jdbcTemplate.update("delete from t_check_in_record where uid="+uid);//删除签到
 //		jdbcTemplate.update("delete from t_coin_exchange where uid="+uid);//删除交易信息
 //		jdbcTemplate.update("delete from t_contact_get_rel where uid="+uid+" or target_uid="+uid);//删除获取联系方式的记录
-		
-        jdbcTemplate.update("update t_user set account_state=? where user_id=?",new Object[] {AccountStateType.CLOSE.ordinal(),uid});
-		
+
+		jdbcTemplate.update("update t_user set account_state=? where user_id=?",
+				new Object[] { AccountStateType.CLOSE.ordinal(), uid });
+
 	}
 
 }

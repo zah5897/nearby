@@ -603,17 +603,17 @@ public class MainService {
 		ModelMap goodsList = ResultUtil.getResultOKMap();
 		if (type == 0) {
 			List<String> vips = new ArrayList<String>();
-			vips.add("vv_2");
-			vips.add("vv_3");
-			vips.add("v_4");
-			vips.add("v_5");
+			vips.add("vip_2");
+			vips.add("vip_3");
+			vips.add("vip_4");
+			vips.add("vip_5");
 			List<String> coins = new ArrayList<String>();
-			coins.add("c_60");
-			coins.add("c_310");
-			coins.add("c_520");
-			coins.add("c_1340");
-			coins.add("c_3460");
-			coins.add("c_7580");
+			coins.add("sb_60");
+			coins.add("sb_310");
+			coins.add("sb_520");
+			coins.add("sb_1340");
+			coins.add("sb_3460");
+			coins.add("sb_7580");
 			goodsList.addAttribute("vip_goods_ids", vips);
 			goodsList.addAttribute("coin_goods_ids", coins);
 		}

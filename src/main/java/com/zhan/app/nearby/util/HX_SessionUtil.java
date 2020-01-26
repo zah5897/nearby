@@ -46,22 +46,43 @@ public class HX_SessionUtil {
 		ext.put("origin_avatar", user.getOrigin_avatar());
 		Main.sendTxtMessage(String.valueOf(user.getUser_id()), new String[] { String.valueOf(with_user.getUser_id()) },
 				expressMsg, ext, PushMsgType.TYPE_NEW_CONVERSATION);
-
 	}
 
 	public static void makeChatSession(BaseUser user, BaseUser with_user) {
 		makeChatSession(user, with_user, 0);
 	}
-	
-	
-	public static void matchCopyDraw(BaseUser fromU,long toU,String msg) {
-			Map<String, String> ext = new HashMap<String, String>();
-			ext.put("nickname", fromU.getNick_name());
-			ext.put("avatar", fromU.getAvatar());
-			ext.put("origin_avatar", fromU.getOrigin_avatar());
-			Main.sendTxtMessage(String.valueOf(fromU.getUser_id()), new String[] { String.valueOf(toU) }, msg, ext,
-					PushMsgType.TYPE_NEW_CONVERSATION);
-		}
-	
+
+	public static void matchCopyDraw(BaseUser fromU, long toU, String msg) {
+		Map<String, String> ext = new HashMap<String, String>();
+		ext.put("nickname", fromU.getNick_name());
+		ext.put("avatar", fromU.getAvatar());
+		ext.put("origin_avatar", fromU.getOrigin_avatar());
+		Main.sendTxtMessage(String.valueOf(fromU.getUser_id()), new String[] { String.valueOf(toU) }, msg, ext,
+				PushMsgType.TYPE_NEW_CONVERSATION);
+	}
+
+	public static void pushPraise(long toUid) {
+		Map<String, String> ext = new HashMap<String, String>();
+		ext.put("type", PushMsgType.TYPE_RECEIVE_PRAISE);
+		Main.sendCmdMessage("admin", new String[] { String.valueOf(toUid) }, ext);
+	}
+
+	public static void pushComment(long toUid) {
+		Map<String, String> ext = new HashMap<String, String>();
+		ext.put("type", PushMsgType.TYPE_RECEIVE_COMMENT);
+		Main.sendCmdMessage("admin", new String[] { String.valueOf(toUid) }, ext);
+	}
+
+	public static void pushLike(long toUid) {
+		Map<String, String> ext = new HashMap<String, String>();
+		ext.put("type", PushMsgType.TYPE_RECEIVE_LIKE);
+		Main.sendCmdMessage("admin", new String[] { String.valueOf(toUid) }, ext);
+	}
+
+	public static void pushGift(long toUid) {
+		Map<String, String> ext = new HashMap<String, String>();
+		ext.put("type", PushMsgType.TYPE_RECEIVE_GIFT);
+		Main.sendCmdMessage("admin", new String[] { String.valueOf(toUid) }, ext);
+	}
 
 }

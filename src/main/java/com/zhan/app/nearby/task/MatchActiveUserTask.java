@@ -45,33 +45,34 @@ public class MatchActiveUserTask {
 		}
 	}
 
-	// 最近3个月内打开过app的用户，匹配一些正在活跃的用户
-	@Async
-	public void shortTimeOpenMatch(BaseUser curUser) {
-		int sex = 0;
-		if ("0".equals(curUser.getSex())) {
-			sex = 1;
-		}
-		List<BaseUser> users = userService.get2daysLoginUser(curUser.getUser_id(),sex, 90, 1);
-		ImagePathUtil.completeAvatarPath(curUser, true);
-		for (BaseUser u : users) {
-			String msg = Main.getRandomMsg();
-			HX_SessionUtil.matchCopyDraw(curUser, u.getUser_id(), msg);
-			HX_SessionUtil.matchCopyDraw(ImagePathUtil.completeAvatarPath(u, true), curUser.getUser_id(), msg);
-		}
-
-	}
-	
-	
-	@Async
-	public void newMatch(BaseUser curUser,long[] execuld_uids, int days,int count,int sex) {
-		List<BaseUser> users = userService.get2daysLoginUserWithOutIds(curUser.getUser_id(),sex, days, count,execuld_uids);
-		ImagePathUtil.completeAvatarPath(curUser, true);
-		for (BaseUser u : users) {
-			String msg = Main.getRandomMsg();
-			HX_SessionUtil.matchCopyDraw(curUser, u.getUser_id(), msg);
-			HX_SessionUtil.matchCopyDraw(ImagePathUtil.completeAvatarPath(u, true), curUser.getUser_id(), msg);
-		}
-
-	}
+//	// 最近3个月内打开过app的用户，匹配一些正在活跃的用户
+//	@Async
+//	public void shortTimeOpenMatch(BaseUser curUser) {
+//		int sex = 0;
+//		if ("0".equals(curUser.getSex())) {
+//			sex = 1;
+//		}
+//		List<BaseUser> users = userService.get2daysLoginUser(curUser.getUser_id(),sex, 90, 1);
+//		ImagePathUtil.completeAvatarPath(curUser, true);
+//		for (BaseUser u : users) {
+//			String msg = Main.getRandomMsg();
+//			userService.saveMatchLog(curUser.getUser_id(), u.getUser_id());
+//			HX_SessionUtil.matchCopyDraw(curUser, u.getUser_id(), msg);
+//			HX_SessionUtil.matchCopyDraw(ImagePathUtil.completeAvatarPath(u, true), curUser.getUser_id(), msg);
+//		}
+//
+//	}
+//	
+//	
+//	@Async
+//	public void newMatch(BaseUser curUser,long[] execuld_uids, int days,int count,int sex) {
+//		List<BaseUser> users = userService.get2daysLoginUserWithOutIds(curUser.getUser_id(),sex, days, count,execuld_uids);
+//		ImagePathUtil.completeAvatarPath(curUser, true);
+//		for (BaseUser u : users) {
+//			String msg = Main.getRandomMsg();
+//			HX_SessionUtil.matchCopyDraw(curUser, u.getUser_id(), msg);
+//			HX_SessionUtil.matchCopyDraw(ImagePathUtil.completeAvatarPath(u, true), curUser.getUser_id(), msg);
+//		}
+//
+//	}
 }

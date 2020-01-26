@@ -296,7 +296,7 @@ public class SystemDao extends BaseDao {
 	
 	
 	public List<BaseVipUser> getTouTiaoUser(int startIndex,int limit){
-		String sql="select u.user_id,u.nick_name,u.avatar,u.birthday from t_toutiao_user tt left join t_user u on tt.uid=u.user_id where u.type=1 order by tt.create_time desc limit ?,?";
+		String sql="select u.user_id,u.nick_name,u.avatar,u.birthday from t_toutiao_user tt left join t_user u on tt.uid=u.user_id where u.type<>0 and u.type<>2 order by tt.create_time desc limit ?,?";
 		return jdbcTemplate.query(sql, new Object[] {startIndex,limit}, new BeanPropertyRowMapper<BaseVipUser>(BaseVipUser.class));
 	}
 	public List<Map<String, Object>> getTouTiaoUserIndexVal(){

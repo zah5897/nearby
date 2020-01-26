@@ -131,9 +131,13 @@ public class Main {
 		
 //		System.out.println(disconnect("112410"));
 
-		Object obj = Main.sendTxtMessage("498394", new String[] { String.valueOf(41) },
-				"测试给41", new HashMap<>(), PushMsgType.TYPE_WELCOME);
+		Object obj = Main.sendCmdMessage("admin", new String[] { String.valueOf(133258) }, new HashMap<>());
 		System.out.println(obj);
+		
+		
+//		Map map=new HashMap<>();
+//		map.put("image_id", "0");
+//		Main.sendTxtMessage("admin", new String[] {"133258"},map);
 	}
 
 	public static Object registUser(String userName, String password, String nickname) {
@@ -184,18 +188,27 @@ public class Main {
 			ext = new HashMap<String, String>();
 		}
 		ext.put("send_by_admim", "admin");
-		Map<String, String> apns = new HashMap<String, String>();
-		apns.put("type", TYPE);
-		apns.put("msg", msgTxt);
+		
+		
+		
+//		Map<String, String> apns = new HashMap<String, String>();
+//		apns.put("type", TYPE);
+//		apns.put("msg", msgTxt);
+//		if(!TextUtils.isEmpty(alert)) {
+//			apns.put("em_push_content", alert);
+//			apns.put("extern", alert);
+//		}
+//		try {
+//			ext.put("em_apns_ext", JSONUtil.writeValueAsString(apns));
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+		
 		if(!TextUtils.isEmpty(alert)) {
-			apns.put("em_push_content", alert);
-			apns.put("extern", alert);
+			ext.put("em_apns_ext", alert);
 		}
-		try {
-			ext.put("em_apns_ext", JSONUtil.writeValueAsString(apns));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		
+		
 		initFactory();
 
 		BodyWrapper payload = new TextMessageBody("users", users, from, ext, msgTxt);

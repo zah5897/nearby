@@ -121,7 +121,7 @@ public class GiftService {
 
 				// Main.sendCmdMessage("sys", users, ext);
 				Main.sendTxtMessage(Main.SYS, new String[] { String.valueOf(to_user_id) }, u.getNick_name() + desc, ext,
-						PushMsgType.TYPE_RECEIVER_GIFT);
+						PushMsgType.TYPE_RECEIVE_GIFT);
 				Map<String, Object> result = HttpService.queryUserCoins(user_id, aid);
 				return result;
 			} else {

@@ -59,7 +59,7 @@ public class UserDynamicService {
 				String msg = "有人赞了你的图片！";
 				ext.put("msg", msg);
 				Main.sendTxtMessage(Main.SYS, new String[] { String.valueOf(user_id) }, msg, ext,
-						PushMsgType.TYPE_NEW_PRAISE);
+						PushMsgType.TYPE_RECEIVE_PRAISE);
 			}
 		}
 		return result;
@@ -95,7 +95,7 @@ public class UserDynamicService {
 
 			String msg = "有人评论了你的图片，快去看看！";
 			ext.put("msg", msg);
-			Main.sendTxtMessage(Main.SYS, new String[] { user_id_str }, msg, ext, PushMsgType.TYPE_NEW_COMMENT);
+			Main.sendTxtMessage(Main.SYS, new String[] { user_id_str }, msg, ext, PushMsgType.TYPE_RECEIVE_COMMENT);
 		}
 		return id;
 	}

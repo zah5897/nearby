@@ -35,6 +35,7 @@ public class ImagePathUtil {
 		}
 		
 		if(avatar.startsWith("http")) {
+			user.setOrigin_avatar(avatar);
 			return user;
 		}
 		
@@ -67,6 +68,7 @@ public class ImagePathUtil {
 		}
 		
 		if(avatar.startsWith("http")) {
+			avatarModel.setOrigin_avatar(avatar);
 			return avatarModel;
 		}
 		

@@ -81,7 +81,7 @@ public class HttpClientRestAPIInvoker implements RestAPIInvoker {
 		log.debug("URL: " + url);
 		log.debug("Header: " + header);
 		log.debug("Body: " + ((null == body) ? "" : body.getBody()));
-		System.out.println(body==null?"":body.getBody());
+		//System.out.println(body==null?"":body.getBody());
 		log.debug("Query: " + query);
 		log.debug("===========Request End===========");
 		

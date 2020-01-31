@@ -69,8 +69,12 @@ public class BottleController {
 				return ResultUtil.getResultMap(ERROR.ERR_PARAM, "每个红包不得少于1个扇贝");
 			}
 			
-			int coin = userService.loadUserCoins(aid, bottle.getUser_id());
-			if(coin<=0||coin<bottle.getRed_package_coin_total() ) {
+			Object coins = userService.checkOut(bottle.getUser_id(), bottle.getRed_package_coin_total(), aid).get("all_coins");
+			if (coins == null) {
+				return ResultUtil.getResultMap(ERROR.ERR_FAILED);
+			}
+			int icoin = Integer.parseInt(coins.toString());
+			if (icoin < 0) {
 				return ResultUtil.getResultMap(ERROR.ERR_COINS_SHORT);
 			}
 			

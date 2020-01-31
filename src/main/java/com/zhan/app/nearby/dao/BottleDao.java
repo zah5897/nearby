@@ -417,7 +417,7 @@ public class BottleDao extends BaseDao {
 	}
 
 	public int logScan(long user_id, long bottle_id) {
-		String sql = "insert into t_bottle_scan (bottle_id,user_id,create_time)  values (?,?,?)";
+		String sql = "insert ignore  into t_bottle_scan (bottle_id,user_id,create_time)  values (?,?,?)";
 		return jdbcTemplate.update(sql, new Object[] { bottle_id, user_id, new Date() });
 	}
 
@@ -586,7 +586,7 @@ public class BottleDao extends BaseDao {
 
 	public int markDMBottleHadGet(long user_id, long bottle_id) {
 		try {
-			return jdbcTemplate.update("insert into t_dm_bottle_had_get (uid,bid) values(?,?)",new Object[] { user_id, bottle_id });
+			return jdbcTemplate.update("insert ignore  into t_dm_bottle_had_get (uid,bid) values(?,?)",new Object[] { user_id, bottle_id });
 		} catch (Exception e) {
 		}
 		return 0;

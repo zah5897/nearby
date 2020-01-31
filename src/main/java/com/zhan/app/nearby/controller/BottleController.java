@@ -59,28 +59,21 @@ public class BottleController {
 			return ResultUtil.getResultMap(ERROR.ERR_FAILED, "不支持该类型瓶子");
 		}
 
-		if (bottle.getReward() > 0) {
-
-			int coin = userService.loadUserCoins(aid, bottle.getUser_id());
-			if (coin < bottle.getReward()) {
-				return ResultUtil.getResultMap(ERROR.ERR_COINS_SHORT);
-			}
-			Object coins = userService.checkOut(bottle.getUser_id(), bottle.getReward(), aid).get("all_coins");
-			if (coins == null) {
+		bottle.set_from(DeviceUtil.getRequestDevice(_ua));
+		if (bottle.getType() == BottleType.RED_PACKAGE.ordinal()) {
+			
+			if (bottle.getRed_package_count()<1) {
 				return ResultUtil.getResultMap(ERROR.ERR_FAILED);
 			}
-			int icoin = Integer.parseInt(coins.toString());
-			if (icoin < 0) {
-				return ResultUtil.getResultMap(ERROR.ERR_COINS_SHORT);
-			}
-		}
-
-		bottle.set_from(DeviceUtil.getRequestDevice(_ua));
-
-		if (bottle.getType() == BottleType.RED_PACKAGE.ordinal()) {
 			if (bottle.getRed_package_coin_total() < bottle.getRed_package_count()) {
 				return ResultUtil.getResultMap(ERROR.ERR_PARAM, "每个红包不得少于1个扇贝");
 			}
+			
+			int coin = userService.loadUserCoins(aid, bottle.getUser_id());
+			if(coin<=0||coin<bottle.getRed_package_coin_total() ) {
+				return ResultUtil.getResultMap(ERROR.ERR_COINS_SHORT);
+			}
+			
 			bottle.setAnswer(String.join(",",
 					RedPacketUtils.splitRedPackets(bottle.getRed_package_coin_total(), bottle.getRed_package_count())));
 			bottle.setRed_package_coin_rest(bottle.getRed_package_coin_total());

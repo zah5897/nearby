@@ -63,7 +63,7 @@ public class BottleController {
 		if (bottle.getType() == BottleType.RED_PACKAGE.ordinal()) {
 			
 			if (bottle.getRed_package_count()<1) {
-				return ResultUtil.getResultMap(ERROR.ERR_FAILED);
+				return ResultUtil.getResultMap(ERROR.ERR_PARAM);
 			}
 			if (bottle.getRed_package_coin_total() < bottle.getRed_package_count()) {
 				return ResultUtil.getResultMap(ERROR.ERR_PARAM, "每个红包不得少于1个扇贝");

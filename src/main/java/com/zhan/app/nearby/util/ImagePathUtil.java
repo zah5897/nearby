@@ -11,6 +11,7 @@ import com.zhan.app.nearby.bean.Image;
 import com.zhan.app.nearby.bean.ManagerUser;
 import com.zhan.app.nearby.bean.Topic;
 import com.zhan.app.nearby.bean.UserDynamic;
+import com.zhan.app.nearby.bean.Video;
 import com.zhan.app.nearby.bean.type.BottleType;
 import com.zhan.app.nearby.bean.user.BaseUser;
 
@@ -22,6 +23,8 @@ public class ImagePathUtil {
 	public static String HOST_PROFIX_GIFT = "http://nearby-gift-img.cn-bj.ufileos.com/";
 	public static String HOST_PROFIX_TOPIC = "http://nearby-topic-img.cn-bj.ufileos.com/";
 	public static String HOST_PROFIX_BOTTLE_DRAW = "http://nearby-bottle-draw.cn-bj.ufileos.com/";
+	public static String HOST_PROFIX_VIDEO = "http://nearby-video.cn-bj.ufileos.com/";
+	public static String HOST_PROFIX_VIDEO_THUMB = "http://nearby-video-thumb.cn-bj.ufileos.com/";
 
 	public static BaseUser completeAvatarPath(BaseUser user, boolean thumbAndOrigin) {
 		
@@ -167,7 +170,19 @@ public class ImagePathUtil {
 			b.setContent(HOST_PROFIX_BOTTLE_DRAW + ImageSaveUtils.FILE_BOTTLE_DRAW + shortName);
 		}
 	}
-
+	
+	public static void completeVideoPath(Video video) {
+		if(video==null) {
+			return;
+		}
+		if(TextUtils.isEmpty(video.getId())) {
+			return;
+		}
+        video.setUrl(HOST_PROFIX_VIDEO+video.getId());
+        video.setThumb(HOST_PROFIX_VIDEO_THUMB+video.getId());
+	}
+	
+	
 	public static String getFilterWordsPath() {
 		return HOST_PROFIX_FILE + ImageSaveUtils.FILE_ROOT_FILES + ImageSaveUtils.FILTER_WORDS_FILE_NAME;
 	}

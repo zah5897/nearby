@@ -6,39 +6,39 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
 
-import com.zhan.app.nearby.bean.Video;
-import com.zhan.app.nearby.dao.VideoDao;
+import com.zhan.app.nearby.bean.TelVideo;
+import com.zhan.app.nearby.dao.TelVideoDao;
 import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.util.ResultUtil;
 
 @Service
-public class VideoService {
+public class TelVideoService {
 	@Resource
-	private VideoDao videoDao;
+	private TelVideoDao telVideoDao;
 	@Resource
 	private UserService userService;
 
 	private final int ONE_MINUTE_COST=10;
-	public Map<String, Object> live(String token, String aid, Video video) {
+	public Map<String, Object> live(String token, String aid, TelVideo video) {
 		if (!userService.checkLogin(video.getUid(), token)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
-		Video last = videoDao.getLastHandlerVideo(video.getClient_uuid()); // 获取上次扣费的最后一条记录
+		TelVideo last = telVideoDao.getLastHandlerVideo(video.getClient_uuid()); // 获取上次扣费的最后一条记录
 		if (last == null) {
 			video.setState(1);
-			videoDao.insert(video);
+			telVideoDao.insert(video);
 			return userService.cost_coin(video.getUid(), token, aid, 1 * ONE_MINUTE_COST);
 		} else {
 			int lastMinute=  last.getTime_value()/60;
 			int curMinute=  video.getTime_value()/60;
 			if (lastMinute ==curMinute) {
 				video.setState(0);
-				videoDao.insert(video);
+				telVideoDao.insert(video);
 				int all_coins=userService.loadUserCoins(aid, video.getUid());
 				return ResultUtil.getResultOKMap().addAttribute("cost_coins", "0").addAttribute("all_coins", all_coins);
 			} else {
 				video.setState(1);
-				videoDao.insert(video);
+				telVideoDao.insert(video);
 				return userService.cost_coin(video.getUid(), token, aid, (curMinute -lastMinute)* ONE_MINUTE_COST);
 			}
 		}

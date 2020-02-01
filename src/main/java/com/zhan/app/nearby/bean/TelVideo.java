@@ -5,7 +5,7 @@ import java.util.Set;
 
 import com.zhan.app.nearby.annotation.ColumnType;
 
-public class Video {
+public class TelVideo {
 	private String id;
 	private long uid;
 	private String client_uuid;

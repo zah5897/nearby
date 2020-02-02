@@ -13,58 +13,58 @@ public class AddressUtil {
 
 	private static final String GAODE_KEY = "ab07209cb3e51a69e2e2adb8911c0d6c";
 
-	public static void praseAddress(final String ip, final UserDynamic dynamic, final String ios_addr) {
-		dynamic.setIp(ip);
-		new Thread() {
-			@Override
-			public void run() {
-				String[] address = null;
-				if (!TextUtils.isEmpty(ios_addr)) {
-					try {
-						Map<String, Object> obj = JSONUtil.jsonToMap(ios_addr);
-						address = new String[8];
-						String city = obj.get("City").toString();
-						String SubLocality = obj.get("SubLocality").toString();
-						String Street = obj.get("Street").toString();
-						address[1] = city;
-						address[2] = SubLocality;
-						address[3] = Street;
+//	public static void praseAddress(final String ip, final UserDynamic dynamic, final String ios_addr) {
+//		dynamic.setIp(ip);
+//		new Thread() {
+//			@Override
+//			public void run() {
+//				String[] address = null;
+//				if (!TextUtils.isEmpty(ios_addr)) {
+//					try {
+//						Map<String, Object> obj = JSONUtil.jsonToMap(ios_addr);
+//						address = new String[8];
+//						String city = obj.get("City").toString();
+//						String SubLocality = obj.get("SubLocality").toString();
+//						String Street = obj.get("Street").toString();
+//						address[1] = city;
+//						address[2] = SubLocality;
+//						address[3] = Street;
+//
+//						address[6] = dynamic.getLat();
+//						address[7] = dynamic.getLng();
+//					} catch (Exception e) {
+//						address = null;
+//					}
+//
+//				}
+//				if (address == null && !TextUtils.isEmpty(dynamic.getLat())) {
+//					address = getAddressByLatLng(dynamic.getLat(), dynamic.getLng());
+//				}
+//				if (address == null || TextUtils.isEmpty(address[1])) {
+//					address = getAddressByIp(ip);
+//				}
+//				if (address == null || TextUtils.isEmpty(address[1])) {
+//					String[] city = getAddressByIp_GAODE(ip);
+//					if (city != null && !TextUtils.isEmpty(city[1])) {
+//						if (address == null) {
+//							address = new String[8];
+//						}
+//						address[0] = city[0];
+//						address[1] = city[1];
+//						address[6] = city[2];
+//						address[7] = city[3];
+//					}
+//				}
+//				setCity(dynamic, address);
+//				UserDynamicService userDynamicService = ((UserDynamicService) SpringContextUtil
+//						.getBean("userDynamicService"));
+//				userDynamicService.updateAddress(dynamic);
+//
+//			}
+//		}.start();
+//	}
 
-						address[6] = dynamic.getLat();
-						address[7] = dynamic.getLng();
-					} catch (Exception e) {
-						address = null;
-					}
-
-				}
-				if (address == null && !TextUtils.isEmpty(dynamic.getLat())) {
-					address = getAddressByLatLng(dynamic.getLat(), dynamic.getLng());
-				}
-				if (address == null || TextUtils.isEmpty(address[1])) {
-					address = getAddressByIp(ip);
-				}
-				if (address == null || TextUtils.isEmpty(address[1])) {
-					String[] city = getAddressByIp_GAODE(ip);
-					if (city != null && !TextUtils.isEmpty(city[1])) {
-						if (address == null) {
-							address = new String[8];
-						}
-						address[0] = city[0];
-						address[1] = city[1];
-						address[6] = city[2];
-						address[7] = city[3];
-					}
-				}
-				setCity(dynamic, address);
-				UserDynamicService userDynamicService = ((UserDynamicService) SpringContextUtil
-						.getBean("userDynamicService"));
-				userDynamicService.updateAddress(dynamic);
-
-			}
-		}.start();
-	}
-
-	private static void setCity(UserDynamic dynamic, String[] address) {
+	public static void setCity(UserDynamic dynamic, String[] address) {
 		if (!TextUtils.isEmpty(address[1])) {
 			String addr = address[1] + address[2] + address[3];
 			dynamic.setAddr(addr);

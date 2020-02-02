@@ -375,6 +375,9 @@ public class UserController {
 		result.put("user", user);
 		// 注册完毕，则可以清理掉redis关于code缓存了
 		userCacheService.clearCode(user.getMobile());
+		
+		//触发随机匹配会话
+		userService.checkHowLongNotOpenApp(user);
 		return result;
 	}
 
@@ -433,6 +436,9 @@ public class UserController {
 		}
 		user.setAvatars(userService.getUserAvatars(user.getUser_id()));
 		result.put("user", user);
+		
+		//触发随机匹配会话
+		userService.checkHowLongNotOpenApp(user);
 		return result;
 	}
 
@@ -590,6 +596,8 @@ public class UserController {
 				result.put("user", user);
 				// result.put("all_coins", userService.loadUserCoins(aid, user.getUser_id()));
 				result.put("vip", vip);
+				//触发随机匹配会话
+				userService.checkHowLongNotOpenApp(user);
 				return result;
 			} else {
 				return ResultUtil.getResultMap(ERROR.ERR_PASSWORD);
@@ -1151,11 +1159,11 @@ public class UserController {
 		if (page == null || page < 0) {
 			page = 1;
 		}
-
 		if (count == null || count <= 0) {
 			count = 10;
 		}
-		return ResultUtil.getResultOKMap().addAttribute("users", userService.getOnlineUsers(page, count));
+		List<LoginUser> users=userService.getOnlineUsers(page, count);
+		return ResultUtil.getResultOKMap().addAttribute("users", users).addAttribute("hasMore", users.size()==count);
 	}
 
 	@RequestMapping("follow")

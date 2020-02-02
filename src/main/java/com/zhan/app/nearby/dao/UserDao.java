@@ -55,7 +55,7 @@ public class UserDao extends BaseDao {
 	// return list;
 	// }
 	/**
-	 * 根据类型获取用户
+	 * 鏍规嵁绫诲瀷鑾峰彇鐢ㄦ埛
 	 * 
 	 * @param pageSize
 	 * @param currentPage
@@ -84,7 +84,7 @@ public class UserDao extends BaseDao {
 	}
 
 	/**
-	 * 获取所有用户
+	 * 鑾峰彇鎵�鏈夌敤鎴�
 	 * 
 	 * @param pageSize
 	 * @param currentPage
@@ -400,7 +400,7 @@ public class UserDao extends BaseDao {
 	}
 
 	/**
-	 * vip榜
+	 * vip姒�
 	 * 
 	 * @param page
 	 * @param count
@@ -525,7 +525,7 @@ public class UserDao extends BaseDao {
 	}
 
 	/**
-	 * 获取用户总数
+	 * 鑾峰彇鐢ㄦ埛鎬绘暟
 	 * 
 	 * @return
 	 */
@@ -546,7 +546,7 @@ public class UserDao extends BaseDao {
 	}
 
 	/**
-	 * 根据类型获取用户总数
+	 * 鏍规嵁绫诲瀷鑾峰彇鐢ㄦ埛鎬绘暟
 	 * 
 	 * @param type
 	 * @return
@@ -567,7 +567,7 @@ public class UserDao extends BaseDao {
 	}
 
 	/**
-	 * 获取发现黑名单用户
+	 * 鑾峰彇鍙戠幇榛戝悕鍗曠敤鎴�
 	 * 
 	 * @param pageSize
 	 * @param pageIndex
@@ -580,7 +580,7 @@ public class UserDao extends BaseDao {
 	}
 
 	/**
-	 * 获取发现用户黑名单总数
+	 * 鑾峰彇鍙戠幇鐢ㄦ埛榛戝悕鍗曟�绘暟
 	 * 
 	 * @return
 	 */
@@ -590,7 +590,7 @@ public class UserDao extends BaseDao {
 	}
 
 	/**
-	 * 获取邂逅瓶推荐用户
+	 * 鑾峰彇閭傞�呯摱鎺ㄨ崘鐢ㄦ埛
 	 * 
 	 * @param pageSize
 	 * @param pageIndex
@@ -633,7 +633,7 @@ public class UserDao extends BaseDao {
 	}
 
 	/**
-	 * 获取喜欢我的人的列表
+	 * 鑾峰彇鍠滄鎴戠殑浜虹殑鍒楄〃
 	 * 
 	 * @param user_id
 	 * @param page_index
@@ -648,7 +648,7 @@ public class UserDao extends BaseDao {
 	}
 
 	/**
-	 * 获取最后一个喜欢我的人
+	 * 鑾峰彇鏈�鍚庝竴涓枩娆㈡垜鐨勪汉
 	 * 
 	 * @param user_id
 	 * @return
@@ -866,10 +866,10 @@ public class UserDao extends BaseDao {
 		jdbcTemplate.update("update t_user_online set check_time=? where uid=?", new Object[] { new Date(), uid });
 	}
 
-	public List<BaseUser> getOnlineUsers(int page, int count) {
-		String sql = "select u.user_id,u.nick_name,u.avatar from t_user_online l left join t_user u on l.uid=u.user_id order by l.check_time desc limit ?,?";
+	public List<LoginUser> getOnlineUsers(int page, int count) {
+		String sql = "select u.user_id,u.nick_name,u.avatar,u.last_login_time from t_user_online l left join t_user u on l.uid=u.user_id order by l.check_time desc limit ?,?";
 		return jdbcTemplate.query(sql, new Object[] { (page - 1) * count, count },
-				new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+				new BeanPropertyRowMapper<LoginUser>(LoginUser.class));
 	}
 
 	public void removeOnline(long uid) {
@@ -892,7 +892,7 @@ public class UserDao extends BaseDao {
 		jdbcTemplate.update(sql, new Object[] { timeoutDay });
 	}
 
-	// 根据状态获取审核的头像列表
+	// 鏍规嵁鐘舵�佽幏鍙栧鏍哥殑澶村儚鍒楄〃
 	public List<BaseUser> listConfirmAvatars(int state, int pageSize, int pageIndex, Long user_id) {
 		String sql = "select v.id, u.user_id,u.nick_name,v.avatar from t_user_avatars v left join t_user u on v.uid=u.user_id where v.state=? order by v.id desc limit ?,?";
 		if (user_id != null && user_id > 0) {
@@ -987,7 +987,7 @@ public class UserDao extends BaseDao {
 		String sql = "select u.user_id,u.nick_name,u.avatar,u.city_id,v.dayDiff,c.name as city_name from t_user_follow f left join t_user u on f.target_id =u.user_id "
 				+ " left join (select TIMESTAMPDIFF(DAY,now(),end_time) as dayDiff,start_time,user_id from t_user_vip ) v on u.user_id=v.user_id "
 				+ " left join t_sys_city c on u.city_id=c.id  " + " where f.uid=? limit ?,?";
-		if (isFollowMe) { // 关注我的用户
+		if (isFollowMe) { // 鍏虫敞鎴戠殑鐢ㄦ埛
 			sql = "select u.user_id,u.nick_name,u.avatar,u.city_id ,v.dayDiff,c.name as city_name from t_user_follow f left join t_user u on f.uid =u.user_id "
 					+ " left join (select TIMESTAMPDIFF(DAY,now(),end_time) as dayDiff,start_time,user_id from t_user_vip ) v on u.user_id=v.user_id "
 					+ " left join t_sys_city c on u.city_id=c.id " + " where f.target_id=? limit ?,?";
@@ -1013,7 +1013,7 @@ public class UserDao extends BaseDao {
 	}
 
 	/**
-	 * 获取活跃用户,3个月前注册，且最近1天登陆的异性用户
+	 * 鑾峰彇娲昏穬鐢ㄦ埛,3涓湀鍓嶆敞鍐岋紝涓旀渶杩�1澶╃櫥闄嗙殑寮傛�х敤鎴�
 	 * 
 	 * @param page
 	 * @param count
@@ -1022,12 +1022,12 @@ public class UserDao extends BaseDao {
 //	@Cacheable(value="one_day",key="#root.methodName+'_'+#sex")
 	public List<BaseUser> getActiveUsers(int sex) {
 		String sql = "select u.user_id,u.nick_name,u.avatar from t_user u " + "where u.type=1 " + "and u.sex=? "
-//				+ "and u.create_time <DATE_SUB(CURDATE(), INTERVAL 3 MONTH) " //去掉三个月的注册限制
+//				+ "and u.create_time <DATE_SUB(CURDATE(), INTERVAL 3 MONTH) " //鍘绘帀涓変釜鏈堢殑娉ㄥ唽闄愬埗
 				+ "and u.last_login_time > DATE_SUB(CURDATE(), INTERVAL 1 DAY) order by rand() limit ? ";
 		return jdbcTemplate.query(sql, new Object[] { sex, 1 }, new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
 	}
 
-	// 获取最近两天登陆的用户
+	// 鑾峰彇鏈�杩戜袱澶╃櫥闄嗙殑鐢ㄦ埛
 	public List<BaseUser> get2daysLoginUser(long uid, int sex, int day, int count) {
 		String sql = "select u.user_id,u.nick_name,u.avatar from t_user u  where u.user_id<>? and u.type=1  and u.sex=? and  DATE_SUB(CURDATE(), INTERVAL ? DAY) <= date(u.last_login_time) order by rand() limit ? ";
 		return jdbcTemplate.query(sql, new Object[] { uid, sex, day, count },
@@ -1069,14 +1069,17 @@ public class UserDao extends BaseDao {
 
 	public void close(long uid) {
 
-//		jdbcTemplate.update("delete from t_bottle_scan where user_id="+uid);//删除瓶子
-//		jdbcTemplate.update("delete from t_check_in_record where uid="+uid);//删除签到
-//		jdbcTemplate.update("delete from t_coin_exchange where uid="+uid);//删除交易信息
-//		jdbcTemplate.update("delete from t_contact_get_rel where uid="+uid+" or target_uid="+uid);//删除获取联系方式的记录
+//		jdbcTemplate.update("delete from t_bottle_scan where user_id="+uid);//鍒犻櫎鐡跺瓙
+//		jdbcTemplate.update("delete from t_check_in_record where uid="+uid);//鍒犻櫎绛惧埌
+//		jdbcTemplate.update("delete from t_coin_exchange where uid="+uid);//鍒犻櫎浜ゆ槗淇℃伅
+//		jdbcTemplate.update("delete from t_contact_get_rel where uid="+uid+" or target_uid="+uid);//鍒犻櫎鑾峰彇鑱旂郴鏂瑰紡鐨勮褰�
 
 		jdbcTemplate.update("update t_user set account_state=? where user_id=?",
 				new Object[] { AccountStateType.CLOSE.ordinal(), uid });
 
 	}
 
+	public int updateAvatarIsFace(long userId, int isFace) {
+		return jdbcTemplate.update("update t_user set isFace=? where user_id=?", new Object[] { isFace, userId });
+	}
 }

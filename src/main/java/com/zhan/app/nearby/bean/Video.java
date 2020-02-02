@@ -2,7 +2,10 @@ package com.zhan.app.nearby.bean;
 
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.zhan.app.nearby.annotation.ColumnType;
+import com.zhan.app.nearby.bean.user.BaseUser;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -10,18 +13,43 @@ import io.swagger.annotations.ApiModelProperty;
 public class Video {
 	@ApiModelProperty(value = "客户端生成的文件名称")
 	private String id;
+	@JsonIgnore
 	private long uid;
 	
+	@ApiModelProperty(value = "视频文件名称")
+	@JsonIgnore
+	private String video_name;
+	@JsonIgnore
+	@ApiModelProperty(value = "视频缩略图文件名称")
+	private String thumb_img_name;
+	
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm", locale = "zh", timezone = "GMT+8")
 	private Date create_time;
 	@ColumnType
 	private long create_time_v2;
-	@ApiModelProperty(value = "视频长度")
+	@ApiModelProperty(value = "视频长度（s）")
 	private int duration;
 	@ColumnType
-	@ApiModelProperty(value = "视频缩略图路径")
-	private String thumb;
+	private String thumb_url;
+	@ColumnType
 	private String url;
 	
+	@ApiModelProperty(value = "视频标题")
+	private String title;
+	public String getTitle() {
+		return title;
+	}
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
+	private BaseUser sender;
+	public BaseUser getSender() {
+		return sender;
+	}
+	public void setSender(BaseUser sender) {
+		this.sender = sender;
+	}
 	public String getUrl() {
 		return url;
 	}
@@ -72,12 +100,30 @@ public class Video {
 		this.id = id;
 	}
 
-	public String getThumb() {
-		return thumb;
+	 
+
+	public String getVideo_name() {
+		return video_name;
 	}
 
-	public void setThumb(String thumb) {
-		this.thumb = thumb;
+	public void setVideo_name(String video_name) {
+		this.video_name = video_name;
 	}
-	 
+
+	public String getThumb_img_name() {
+		return thumb_img_name;
+	}
+
+	public void setThumb_img_name(String thumb_img_name) {
+		this.thumb_img_name = thumb_img_name;
+	}
+
+	public String getThumb_url() {
+		return thumb_url;
+	}
+
+	public void setThumb_url(String thumb_url) {
+		this.thumb_url = thumb_url;
+	}
+
 }

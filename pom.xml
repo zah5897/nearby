@@ -254,7 +254,13 @@
             <version>2.6.1</version>
         </dependency>
 
-
+        <!-- 百度人脸检测 -->
+         <dependency>
+              <groupId>com.baidu.aip</groupId>
+              <artifactId>java-sdk</artifactId>
+              <version>4.4.0</version>
+          </dependency>
+       
     </dependencies>
     <build>
         <finalName>nearby</finalName>

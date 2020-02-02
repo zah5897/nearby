@@ -15,6 +15,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -28,6 +29,7 @@ import com.zhan.app.nearby.dao.BottleDao;
 import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.service.UserDynamicService;
 import com.zhan.app.nearby.service.UserService;
+import com.zhan.app.nearby.task.CommAsyncTask;
 import com.zhan.app.nearby.util.AddressUtil;
 import com.zhan.app.nearby.util.BottleKeyWordUtil;
 import com.zhan.app.nearby.util.DeviceUtil;
@@ -49,6 +51,8 @@ public class ImageController {
 
 	@Resource
 	private UserCacheService userCacheService;
+	@Autowired 
+	private CommAsyncTask commAsyncTask;
 
 	private static Logger log = Logger.getLogger(ImageController.class);
 
@@ -98,8 +102,7 @@ public class ImageController {
 						dynamic.setCreate_time(new Date());
 						long id = userDynamicService.insertDynamic(dynamic);
 						dynamic.setId(id);
-						AddressUtil.praseAddress(IPUtil.getIpAddress(multipartRequest), dynamic, ios_addr);
-
+						commAsyncTask.getDynamicLocation(IPUtil.getIpAddress(multipartRequest), dynamic, ios_addr);
 						// 预先放在首页推荐
 						// if (id > 0) {
 						// userDynamicService.addHomeFoundSelected(id);
@@ -167,7 +170,7 @@ public class ImageController {
 		dynamic.setCreate_time(new Date());
 		long id = userDynamicService.insertDynamic(dynamic);
 		dynamic.setId(id);
-		AddressUtil.praseAddress(IPUtil.getIpAddress(request), dynamic, ios_addr);
+		commAsyncTask.getDynamicLocation(IPUtil.getIpAddress(request), dynamic, ios_addr);
 
 		ImagePathUtil.completeDynamicPath(dynamic,true);
 		ImagePathUtil.completeAvatarPath(dynamic.getUser(), true);

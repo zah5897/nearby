@@ -100,7 +100,7 @@ public class TimerTask {
 
 	public void autoAddBlackIP() {
 		UserService userService = SpringContextUtil.getBean("userService");
-		userService.checkRegistIP(10);
+		userService.checkRegistIP(20);
 	}
 
 }

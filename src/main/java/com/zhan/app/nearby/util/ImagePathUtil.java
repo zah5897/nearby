@@ -175,13 +175,21 @@ public class ImagePathUtil {
 		if(video==null) {
 			return;
 		}
-		if(TextUtils.isEmpty(video.getId())) {
+		if(TextUtils.isEmpty(video.getVideo_name())) {
 			return;
 		}
-        video.setUrl(HOST_PROFIX_VIDEO+video.getId());
-        video.setThumb(HOST_PROFIX_VIDEO_THUMB+video.getId());
+		if(TextUtils.isEmpty(video.getThumb_img_name())) {
+			return;
+		}
+        video.setUrl(HOST_PROFIX_VIDEO+video.getVideo_name());
+        video.setThumb_url(HOST_PROFIX_VIDEO_THUMB+video.getThumb_img_name());
 	}
 	
+	public static void completeVideosPath(List<Video> videos) {
+		 for(Video v:videos) {
+			 completeVideoPath(v);
+		 }
+	}
 	
 	public static String getFilterWordsPath() {
 		return HOST_PROFIX_FILE + ImageSaveUtils.FILE_ROOT_FILES + ImageSaveUtils.FILTER_WORDS_FILE_NAME;

@@ -1,4 +1,8 @@
 eclipse.preferences.version=1
+encoding//src/main/java/com/zhan/app/nearby/dao/UserDao.java=UTF-8
+encoding//src/main/java/com/zhan/app/nearby/service/UserService.java=UTF-8
+encoding//src/main/java/com/zhan/app/nearby/task/MatchActiveUserTask.java=UTF-8
+encoding//src/main/java/com/zhan/app/nearby/task/TimerTask.java=UTF-8
 encoding//src/main/webapp/WEB-INF/view/exchange_views/index.jsp=UTF-8
 encoding//src/main/webapp/WEB-INF/view/update_welcome.jsp=UTF-8
 encoding/<project>=UTF-8

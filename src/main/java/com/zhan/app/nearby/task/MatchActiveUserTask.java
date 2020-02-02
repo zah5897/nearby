@@ -1,7 +1,6 @@
 package com.zhan.app.nearby.task;
 
 import java.util.List;
-import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
@@ -45,23 +44,23 @@ public class MatchActiveUserTask {
 		}
 	}
 
-//	// 最近3个月内打开过app的用户，匹配一些正在活跃的用户
-//	@Async
-//	public void shortTimeOpenMatch(BaseUser curUser) {
-//		int sex = 0;
-//		if ("0".equals(curUser.getSex())) {
-//			sex = 1;
-//		}
-//		List<BaseUser> users = userService.get2daysLoginUser(curUser.getUser_id(),sex, 90, 1);
-//		ImagePathUtil.completeAvatarPath(curUser, true);
-//		for (BaseUser u : users) {
-//			String msg = Main.getRandomMsg();
-//			userService.saveMatchLog(curUser.getUser_id(), u.getUser_id());
-//			HX_SessionUtil.matchCopyDraw(curUser, u.getUser_id(), msg);
-//			HX_SessionUtil.matchCopyDraw(ImagePathUtil.completeAvatarPath(u, true), curUser.getUser_id(), msg);
-//		}
-//
-//	}
+	// 鏈�杩�3涓湀鍐呮墦寮�杩嘺pp鐨勭敤鎴凤紝鍖归厤涓�浜涙鍦ㄦ椿璺冪殑鐢ㄦ埛
+	@Async
+	public void shortTimeOpenMatch(BaseUser curUser) {
+		int sex = 0;
+		if ("0".equals(curUser.getSex())) {
+			sex = 1;
+		}
+		List<BaseUser> users = userService.get2daysLoginUser(curUser.getUser_id(),sex, 90, 1);
+		ImagePathUtil.completeAvatarPath(curUser, true);
+		for (BaseUser u : users) {
+			String msg = Main.getRandomMsg();
+			userService.saveMatchLog(curUser.getUser_id(), u.getUser_id());
+			HX_SessionUtil.matchCopyDraw(curUser, u.getUser_id(), msg);
+			HX_SessionUtil.matchCopyDraw(ImagePathUtil.completeAvatarPath(u, true), curUser.getUser_id(), msg);
+		}
+
+	}
 //	
 //	
 //	@Async

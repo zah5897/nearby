@@ -365,6 +365,13 @@ public class UserDynamicDao extends BaseDao {
 
 	}
 
+	
+	// 修改动态的状态
+		public int updateDynamicState(long id, DynamicState state) {
+			String sql = "update  t_user_dynamic set state=? where id=? ";
+			return jdbcTemplate.update(sql, new Object[] { state.ordinal(), id });
+		}
+	
 	public List<UserDynamic> getIllegalDyanmic() {
 		String sql = "select  id,local_image_name from " + TABLE_USER_DYNAMIC
 				+ "   where state=?  and local_image_name<>'illegal.jpg'";

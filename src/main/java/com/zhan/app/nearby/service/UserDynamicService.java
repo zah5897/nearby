@@ -215,7 +215,13 @@ public class UserDynamicService {
 	    return userDynamicDao.getDyanmicByState(pageIndex, pageSize, state);
 	    		
 	}
+	public int updateDynamicState(long id, DynamicState state) {
+		return userDynamicDao.updateDynamicState(id, state);
+	}
 
+	public int updateDynamicImgToIllegal(long id) {
+		return userDynamicDao.updateDynamicImgToIllegal(id);
+	}
 	public int getPageCountByState(int state) {
 		return userDynamicDao.getPageCountByState(state);
 	}

@@ -17,7 +17,6 @@ import com.zhan.app.nearby.service.UserService;
 import com.zhan.app.nearby.util.BottleKeyWordUtil;
 import com.zhan.app.nearby.util.IPUtil;
 import com.zhan.app.nearby.util.ResultUtil;
-import com.zhan.app.nearby.util.TextUtils;
 import com.zhan.app.nearby.util.UCloudSMSHelper;
 
 

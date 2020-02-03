@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -22,7 +23,8 @@ import com.zhan.app.nearby.util.TextUtils;
 @Component
 @EnableScheduling
 public class TimerTask {
-
+    @Autowired 
+    private FaceCheckTask faceCheckTask;
 	// @Scheduled(cron = "0 0 0/1 * * ?") // 每小時
 	@Scheduled(cron = "0 0/5 * * * ?") // 每5分钟执行一次
 	public void injectMeetBottle() {
@@ -42,6 +44,9 @@ public class TimerTask {
 	public void meiliRateTask() {
 		UserCacheService userCacheService = SpringContextUtil.getBean("userCacheService");
 		userCacheService.clearCacheCount();
+		//删除匹配的用户记录
+		UserService userService = SpringContextUtil.getBean("userService");
+		userService.clearUserMatchData();
 	}
 
 	@Scheduled(cron = "0 10 0 * * ?") // 每天0：10分执行
@@ -97,10 +102,14 @@ public class TimerTask {
 		userService.matchActiveUsers();
 	}
 	
+	@Scheduled(cron = "0 0/5 * * * ?") // 每10分钟执行一次
+	public void doCheckImg() { //自动审核待审核的图片
+		faceCheckTask.doCheckImg();
+	}
 
 	public void autoAddBlackIP() {
 		UserService userService = SpringContextUtil.getBean("userService");
-		userService.checkRegistIP(20);
+		userService.checkRegistIP(10);
 	}
 
 }

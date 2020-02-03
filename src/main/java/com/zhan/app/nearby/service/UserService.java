@@ -169,7 +169,7 @@ public class UserService {
 				matchActiveUserTask.newRegistMatch(user);
 			}
 		}
-		faceCheckTask.doCheck(user);
+		faceCheckTask.doCheckFace(user);
 		return id;
 	}
 
@@ -306,17 +306,17 @@ public class UserService {
 		checkHowLongNotOpenApp(getBasicUser(uid));
 	}
 	public void checkHowLongNotOpenApp(BaseUser user) {
-		Date date = userDao.getUserLastLoginTime(user.getUser_id());
-		if (date == null) {
-			matchActiveUserTask.longTimeNotOpenMatch(user);
-		}
-		int newPercent = percent;
-		if ("0".equals(user.getSex())) {
-			newPercent = (int) (percent * 2.56);
-		}
-		if (RandomCodeUtil.randomPercentOK(newPercent)) { // 5%鐨勬鐜�
-			matchActiveUserTask.shortTimeOpenMatch(user);
-		}
+//		Date date = userDao.getUserLastLoginTime(user.getUser_id());
+//		if (date == null) {
+//			matchActiveUserTask.longTimeNotOpenMatch(user);
+//		}
+//		int newPercent = percent;
+//		if ("0".equals(user.getSex())) {
+//			newPercent = (int) (percent * 2.56);
+//		}
+//		if (RandomCodeUtil.randomPercentOK(newPercent)) { // 5%鐨勬鐜�
+//			matchActiveUserTask.shortTimeOpenMatch(user);
+//		}
 	}
 
 	public void uploadLocation(final String ip, final Long user_id, String lat, String lng) {
@@ -1314,9 +1314,17 @@ public class UserService {
 	public int updateAvatarIsFace(long user_id, int isFace) {
 		return userDao.updateAvatarIsFace(user_id, isFace);
 	}
+	
+	
+	public void editAvatarStateToIllegal(long user_id ,String avatarName) {
+		userDao.editAvatarStateToIllegal(user_id,avatarName);
+		userDao.removeFromFoundUserList(user_id);
+		bottleService.clearIllegalMeetBottle(user_id);
+	}
+	
 	public void matchActiveUsers() {
-		List<BaseUser> women = userDao.getActiveUserBySex(0, 90, 10);
-		List<BaseUser> mans = userDao.getActiveUserBySex(1, 90, 10);
+		List<BaseUser> women = userDao.getActiveUserNotDoMatch(0, 90, 200);
+		List<BaseUser> mans = userDao.getActiveUserNotBeMatch(1, 90, 200);
 		for (int i = 0; i < women.size(); i++) {
             BaseUser woman=women.get(i);
             BaseUser man=mans.get(i);
@@ -1327,6 +1335,10 @@ public class UserService {
 			HX_SessionUtil.matchCopyDraw(woman, man.getUser_id(), msg);
 			HX_SessionUtil.matchCopyDraw(man, woman.getUser_id(), msg);
 		}
+	}
+
+	public void clearUserMatchData() {
+		 userDao.clearUserMatchData();
 	}
 
 }

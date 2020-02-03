@@ -38,9 +38,9 @@ public class VideoController {
 			@ApiImplicitParam(name = "aid", value = "aid", required = true, paramType = "query")
 			  })
 	public ModelMap send(long user_id, String token, String aid, Video video) {
-		if(!userService.checkLogin(user_id, token)) {
-			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
-		}
+//		if(!userService.checkLogin(user_id, token)) {
+//			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+//		}
 		video.setCreate_time(new Date());
 		video.setUid(user_id);
 		videoService.save(video);

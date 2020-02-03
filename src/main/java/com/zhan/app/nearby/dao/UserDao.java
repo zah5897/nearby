@@ -809,6 +809,17 @@ public class UserDao extends BaseDao {
 		return uid;
 	}
 
+	public void editAvatarStateToIllegal(long user_id, String name) {
+		String illegalName = "illegal.jpg";
+		ImageSaveUtils.removeAcatar(name);
+		String sql = "delete from  t_user_avatars where  avatar=?";
+		int count = jdbcTemplate.update(sql, new Object[] { name });
+		if (count == 1) {
+			sql = "update t_user set avatar=? where user_id=?";
+			jdbcTemplate.update(sql, new Object[] { illegalName, user_id });
+		}
+	}
+
 	public long editAvatarStateByUserId(long uid, int state) {
 		AvatarIMGStatus status = AvatarIMGStatus.values()[state];
 		String illegalName = "illegal.jpg";
@@ -1048,12 +1059,32 @@ public class UserDao extends BaseDao {
 		}
 	}
 
-	public List<BaseUser> getActiveUserBySex(int sex, int days, int count) {
-		String sql = "select u.user_id,u.nick_name,u.avatar from t_user u  where   u.sex=? and  DATE_SUB(CURDATE(), INTERVAL ? DAY) <= date(u.last_login_time) order by rand() limit ? ";
+//	public List<BaseUser> getActiveUserBySex(int sex, int days, int count) {
+//		String sql = "select u.user_id,u.nick_name,u.avatar from t_user u  where   u.sex=? and  DATE_SUB(CURDATE(), INTERVAL ? DAY) <= date(u.last_login_time) order by rand() limit ? ";
+//		return jdbcTemplate.query(sql, new Object[] { sex, days, count },
+//				new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+//	}
+	
+    //获取今天没有主动触发匹配的用户
+	public List<BaseUser> getActiveUserNotDoMatch(int sex, int days, int count) {
+		String sql="select u.user_id,u.type,u.last_login_time ,u.sex ,u.avatar from t_user u "
+				+ " where u.sex=? and (u.type=1 or u.type=3)"
+				+ " and u.user_id not in (select uid from t_user_match where  to_days(match_time) = to_days(now())) "
+				+ " and  DATE_SUB(CURDATE(), INTERVAL ? DAY) <= date(u.last_login_time) order by rand() limit ?";
 		return jdbcTemplate.query(sql, new Object[] { sex, days, count },
 				new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
 	}
 
+	//获取今天没被匹配的用户
+	public List<BaseUser> getActiveUserNotBeMatch(int sex, int days, int count) {
+			String sql="select u.user_id,u.type,u.last_login_time ,u.sex ,u.avatar from t_user u "
+					+ " where u.sex=? and (u.type=1 or u.type=3)"
+					+ " and u.user_id not in (select target_uid from t_user_match where  to_days(match_time) = to_days(now())) "
+					+ " and  DATE_SUB(CURDATE(), INTERVAL ? DAY) <= date(u.last_login_time) order by rand() limit ?";
+			return jdbcTemplate.query(sql, new Object[] { sex, days, count },
+					new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+	}
+		
 	public void addDeviceToken(long user_id, String device_token) {
 		String sql = "insert into t_user_device_token values (?, ?)";
 		try {
@@ -1081,5 +1112,9 @@ public class UserDao extends BaseDao {
 
 	public int updateAvatarIsFace(long userId, int isFace) {
 		return jdbcTemplate.update("update t_user set isFace=? where user_id=?", new Object[] { isFace, userId });
+	}
+
+	public void clearUserMatchData() {
+		jdbcTemplate.update("delete  from t_user_match where DATE_SUB(CURDATE(), INTERVAL 7 DAY) <= date(match_time)");
 	}
 }

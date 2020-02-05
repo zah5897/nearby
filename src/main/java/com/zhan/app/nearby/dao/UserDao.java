@@ -1068,7 +1068,7 @@ public class UserDao extends BaseDao {
 	//获取当前需要匹配的男性账号总数
 	public int getNeedMatchManCount(int days) {
 		String sql="select count(*)  from t_user u  where u.sex=1 and (u.type=1 or u.type=3) and u.user_id not in (select uid from t_user_match where  to_days(match_time) = to_days(now()))  and  DATE_SUB(CURDATE(), INTERVAL ? DAY) <= date(u.last_login_time)";
-	    return jdbcTemplate.queryForObject(sql, Integer.class);
+	    return jdbcTemplate.queryForObject(sql,new Object[] {days}, Integer.class);
 	}
 	//获取今天没做匹配的男性账号
 	public List<BaseUser> getActiveManToMatch( int days, int count) {

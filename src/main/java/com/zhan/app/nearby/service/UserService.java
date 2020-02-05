@@ -5,6 +5,7 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -291,8 +292,6 @@ public class UserService {
 		return count;
 	}
 
- 
-
 	private int percent = 20;
 
 	public void setPercent(int percent) {
@@ -302,9 +301,11 @@ public class UserService {
 	public int getPercent() {
 		return percent;
 	}
-	public void checkHowLongNotOpenApp(long  uid) {
+
+	public void checkHowLongNotOpenApp(long uid) {
 		checkHowLongNotOpenApp(getBasicUser(uid));
 	}
+
 	public void checkHowLongNotOpenApp(BaseUser user) {
 //		Date date = userDao.getUserLastLoginTime(user.getUser_id());
 //		if (date == null) {
@@ -949,7 +950,7 @@ public class UserService {
 			result.put("user", user);
 			result.put("all_coins", loadUserCoins(aid, user.getUser_id()));
 			result.put("vip", vip);
-			//触发随机匹配会话
+			// 触发随机匹配会话
 			checkHowLongNotOpenApp(user);
 			return result;
 		} else {
@@ -1311,34 +1312,61 @@ public class UserService {
 		return result;
 
 	}
+
 	public int updateAvatarIsFace(long user_id, int isFace) {
 		return userDao.updateAvatarIsFace(user_id, isFace);
 	}
-	
-	
-	public void editAvatarStateToIllegal(long user_id ,String avatarName) {
-		userDao.editAvatarStateToIllegal(user_id,avatarName);
+
+	public void editAvatarStateToIllegal(long user_id, String avatarName) {
+		userDao.editAvatarStateToIllegal(user_id, avatarName);
 		userDao.removeFromFoundUserList(user_id);
 		bottleService.clearIllegalMeetBottle(user_id);
 	}
-	
+
 	public void matchActiveUsers() {
-		List<BaseUser> women = userDao.getActiveUserNotDoMatch(0, 90, 200);
-		List<BaseUser> mans = userDao.getActiveUserNotBeMatch(1, 90, 200);
-		for (int i = 0; i < women.size(); i++) {
-            BaseUser woman=women.get(i);
-            BaseUser man=mans.get(i);
-            String msg = Main.getRandomMsg();
-            ImagePathUtil.completeAvatarPath(woman, true);
-            ImagePathUtil.completeAvatarPath(man, true);
-			saveMatchLog(woman.getUser_id(), man.getUser_id());
+
+		Calendar c = Calendar.getInstance();
+		c.setTime(new Date());
+
+		int hour = c.get(Calendar.HOUR_OF_DAY);
+		if (hour < 5) { // 5点开始执行
+			return;
+		}
+
+		int days = 90; // 3个月的内登录的男性账号
+		int count = userDao.getNeedMatchManCount(days);
+
+		int everyTimesCount = count / 16;// 按白天有16小时，其中8-12点也算天黑的黄金时间段
+
+		if (hour == 23) {// 当天的最后一次匹配
+			everyTimesCount = count;
+		}
+
+		List<BaseUser> mans = userDao.getActiveManToMatch(days, everyTimesCount);
+		List<BaseUser> women = userDao.getActiveWomenUserNotDoMatch(everyTimesCount);
+
+		int sizeMan = mans.size();
+		int sizeWomen = women.size();
+
+		int len = sizeMan;
+		if (sizeMan > sizeWomen) {// 男多女少
+			len = sizeWomen;
+		}
+		for (int i = 0; i <len; i++) {
+			BaseUser woman = women.get(i);
+			BaseUser man = mans.get(i);
+			String msg = Main.getRandomMsg();
+			ImagePathUtil.completeAvatarPath(woman, true);
+			ImagePathUtil.completeAvatarPath(man, true);
+			saveMatchLog(man.getUser_id(), woman.getUser_id());
 			HX_SessionUtil.matchCopyDraw(woman, man.getUser_id(), msg);
 			HX_SessionUtil.matchCopyDraw(man, woman.getUser_id(), msg);
 		}
+
 	}
 
 	public void clearUserMatchData() {
-		 userDao.clearUserMatchData();
+		userDao.clearUserMatchData();
 	}
 
 }

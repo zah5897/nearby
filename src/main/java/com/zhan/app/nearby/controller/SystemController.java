@@ -14,11 +14,12 @@ import com.zhan.app.nearby.bean.BGM;
 import com.zhan.app.nearby.bean.Report;
 import com.zhan.app.nearby.service.MainService;
 import com.zhan.app.nearby.service.UserService;
+import com.zhan.app.nearby.task.FaceCheckTask;
 import com.zhan.app.nearby.util.BottleKeyWordUtil;
 import com.zhan.app.nearby.util.IPUtil;
 import com.zhan.app.nearby.util.ResultUtil;
 import com.zhan.app.nearby.util.UCloudSMSHelper;
-
+import com.zhan.app.nearby.util.baidu.ImgCheckHelper;
 
 @RestController
 @RequestMapping("/system")
@@ -76,15 +77,15 @@ public class SystemController {
 	}
 
 	@RequestMapping("bgm")
-	public ModelMap bgm(Integer count,Integer  test) {
-		return ResultUtil.getResultOKMap().addAttribute("bgms", mainService.loadBGM(count,test));
+	public ModelMap bgm(Integer count, Integer test) {
+		return ResultUtil.getResultOKMap().addAttribute("bgms", mainService.loadBGM(count, test));
 	}
 
 	@RequestMapping("bgm_like/{id}")
 	public ModelMap bgmLike(@PathVariable int id) {
 		return ResultUtil.getResultOKMap().addAttribute("id", id);
 	}
-	
+
 	@RequestMapping("bgm_add")
 	public ModelMap bgmAdd(BGM bgm) {
 		mainService.saveBGM(bgm);
@@ -96,6 +97,12 @@ public class SystemController {
 		return mainService.goods_id_list(type);
 	}
 
+	@RequestMapping("resetCheckImgClient")
+	public ModelMap resetCheckImgClient(String app_id, String api_key, String sccret_key) {
+		ImgCheckHelper.instance.resetClient(app_id, api_key, sccret_key);
+		return ResultUtil.getResultOKMap();
+	}
+
 	@RequestMapping("test_redis")
 	public ModelMap test_redis() {
 		return mainService.test_redis();
@@ -103,7 +110,6 @@ public class SystemController {
 
 	@RequestMapping("test")
 	public ModelMap test() {
-		 UCloudSMSHelper.smsRegist("13262510792", "123456");
-		 return ResultUtil.getResultOKMap();
+		return ResultUtil.getResultOKMap();
 	}
 }

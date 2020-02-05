@@ -61,6 +61,11 @@ public class MatchActiveUserTask {
 		}
 
 	}
+	@Async
+	public void matchActiveUsers() {
+		userService.matchActiveUsers();
+	}
+	
 //	
 //	
 //	@Async

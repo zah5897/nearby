@@ -13,9 +13,9 @@ import com.zhan.app.nearby.util.TextUtils;
 public enum ImgCheckHelper {
 	instance;
 	// ����APPID/AK/SK
-	public static final String APP_ID = "18372828";
-	public static final String API_KEY = "mlL9B8GWtyoi5q4RbTR5E7kT";
-	public static final String SECRET_KEY = "bNIyhoOhDUuO7ho8umxwTOC95i69q4GF";
+	public static final String APP_ID = "18382787";
+	public static final String API_KEY = "N6BoHUVGEQyhne7tDpFa16r5";
+	public static final String SECRET_KEY = "vqYLIaTNGj1DBi1VaZuTwNbqQWmBdUVx";
 
 	
 	private AipContentCensor client;
@@ -28,6 +28,11 @@ public enum ImgCheckHelper {
 		}
 	}
 
+	public void resetClient(String app_id,String api_key,String sccret_key) {
+		client = new AipContentCensor(app_id, api_key, sccret_key);
+		client.setConnectionTimeoutInMillis(10000);
+		client.setSocketTimeoutInMillis(600000);
+	}
 	public int checkImg(String url) {
 		init();
 		// 参数为url

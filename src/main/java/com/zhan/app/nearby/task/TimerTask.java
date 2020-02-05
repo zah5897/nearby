@@ -25,6 +25,9 @@ import com.zhan.app.nearby.util.TextUtils;
 public class TimerTask {
     @Autowired 
     private FaceCheckTask faceCheckTask;
+    @Autowired 
+    private MatchActiveUserTask matchActiveUserTask;
+    
 	// @Scheduled(cron = "0 0 0/1 * * ?") // 每小時
 	@Scheduled(cron = "0 0/5 * * * ?") // 每5分钟执行一次
 	public void injectMeetBottle() {
@@ -96,17 +99,16 @@ public class TimerTask {
 		userService.removeTimeoutOnlineUsers(4);
 	}
 	
-	@Scheduled(cron = "0 0/10 * * * ?") // 每10分钟执行一次
-	public void timerMatchActiveUser() {
-		UserService userService = SpringContextUtil.getBean("userService");
-		userService.matchActiveUsers();
-	}
-	
 	@Scheduled(cron = "0 0/5 * * * ?") // 每10分钟执行一次
 	public void doCheckImg() { //自动审核待审核的图片
 		faceCheckTask.doCheckImg();
 	}
-
+	
+	
+	 @Scheduled(cron = "0 0 0/1 * * ?") // 每小時
+	 public void doMatchActiveUser() { // 
+			matchActiveUserTask.matchActiveUsers();
+		}
 	public void autoAddBlackIP() {
 		UserService userService = SpringContextUtil.getBean("userService");
 		userService.checkRegistIP(10);

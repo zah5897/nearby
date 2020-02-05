@@ -1065,26 +1065,30 @@ public class UserDao extends BaseDao {
 //				new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
 //	}
 	
-    //获取今天没有主动触发匹配的用户
-	public List<BaseUser> getActiveUserNotDoMatch(int sex, int days, int count) {
-		String sql="select u.user_id,u.type,u.last_login_time ,u.sex ,u.avatar from t_user u "
-				+ " where u.sex=? and (u.type=1 or u.type=3)"
-				+ " and u.user_id not in (select uid from t_user_match where  to_days(match_time) = to_days(now())) "
-				+ " and  DATE_SUB(CURDATE(), INTERVAL ? DAY) <= date(u.last_login_time) order by rand() limit ?";
-		return jdbcTemplate.query(sql, new Object[] { sex, days, count },
-				new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+	//获取当前需要匹配的男性账号总数
+	public int getNeedMatchManCount(int days) {
+		String sql="select count(*)  from t_user u  where u.sex=1 and (u.type=1 or u.type=3) and u.user_id not in (select uid from t_user_match where  to_days(match_time) = to_days(now()))  and  DATE_SUB(CURDATE(), INTERVAL ? DAY) <= date(u.last_login_time)";
+	    return jdbcTemplate.queryForObject(sql, Integer.class);
 	}
-
-	//获取今天没被匹配的用户
-	public List<BaseUser> getActiveUserNotBeMatch(int sex, int days, int count) {
+	//获取今天没做匹配的男性账号
+	public List<BaseUser> getActiveManToMatch( int days, int count) {
 			String sql="select u.user_id,u.type,u.last_login_time ,u.sex ,u.avatar from t_user u "
-					+ " where u.sex=? and (u.type=1 or u.type=3)"
-					+ " and u.user_id not in (select target_uid from t_user_match where  to_days(match_time) = to_days(now())) "
+					+ " where u.sex=1 and (u.type=1 or u.type=3)"
+					+ " and u.user_id not in (select uid from t_user_match where  to_days(match_time) = to_days(now())) "
 					+ " and  DATE_SUB(CURDATE(), INTERVAL ? DAY) <= date(u.last_login_time) order by rand() limit ?";
-			return jdbcTemplate.query(sql, new Object[] { sex, days, count },
+			return jdbcTemplate.query(sql, new Object[] {days, count },
 					new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
 	}
-		
+	//获取被匹配的女性账号
+	public List<BaseUser> getActiveWomenUserNotDoMatch(int count) {
+			String sql="select u.user_id,u.type,u.last_login_time ,u.sex ,u.avatar from t_user u "
+					+ " where u.sex=0 and (u.type=1 or u.type=3)"
+					+ " and u.user_id not in (select target_uid from t_user_match where  to_days(match_time) = to_days(now())) "
+					+ " order by u.last_login_time desc limit ?";
+			return jdbcTemplate.query(sql, new Object[] {count },
+					new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+	}
+
 	public void addDeviceToken(long user_id, String device_token) {
 		String sql = "insert into t_user_device_token values (?, ?)";
 		try {

@@ -1,25 +1,17 @@
 package com.zhan.app.nearby.task;
 
-import java.time.Clock;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-import javax.annotation.Resource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
-import com.zhan.app.nearby.bean.Avatar;
-import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.bean.user.BaseUser;
-import com.zhan.app.nearby.comm.DynamicState;
 import com.zhan.app.nearby.service.UserDynamicService;
 import com.zhan.app.nearby.service.UserService;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.SpringContextUtil;
 import com.zhan.app.nearby.util.TextUtils;
-import com.zhan.app.nearby.util.UFileUtil;
 import com.zhan.app.nearby.util.baidu.FaceCheckHelper;
 import com.zhan.app.nearby.util.baidu.ImgCheckHelper;
 
@@ -46,19 +38,19 @@ public class FaceCheckTask {
 	@Async
 	public void doCheckImg() {
 		//检查用户发布的动态图片
-		List<UserDynamic> dys = userDynamicService.getDyanmicByState(1, 200, DynamicState.T_CREATE);
-		for (UserDynamic dy : dys) {
-			String localName=dy.getLocal_image_name();
-			ImagePathUtil.completeDynamicPath(dy, false);
-			int result  = ImgCheckHelper.instance.checkImg(dy.getThumb()); //-1 为接口异常，0为违规图片  ，1正常图片
-			if (result==1) {
-				userDynamicService.updateDynamicState(dy.getId(), DynamicState.T_FORMAL);
-			} else  if(result==0){
-				userDynamicService.updateDynamicImgToIllegal(dy.getId());
-				//删除ufile 文件
-				UFileUtil.delFileexecuteAsync(localName, UFileUtil.BUCKET_IMAGES);
-			}
-		}
+//		List<UserDynamic> dys = userDynamicService.getDyanmicByState(1, 200, DynamicState.T_CREATE);
+//		for (UserDynamic dy : dys) {
+//			String localName=dy.getLocal_image_name();
+//			ImagePathUtil.completeDynamicPath(dy, false);
+//			int result  = ImgCheckHelper.instance.checkImg(dy.getThumb()); //-1 为接口异常，0为违规图片  ，1正常图片
+//			if (result==1) {
+//				userDynamicService.updateDynamicState(dy.getId(), DynamicState.T_FORMAL);
+//			} else  if(result==0){
+//				userDynamicService.updateDynamicImgToIllegal(dy.getId());
+//				//删除ufile 文件
+//				UFileUtil.delFileexecuteAsync(localName, UFileUtil.BUCKET_IMAGES);
+//			}
+//		}
 		//检查用户相册
 		List<BaseUser> users=userService.listConfirmAvatars(0, 100, 1, null);
 		for(BaseUser u:users) {
@@ -69,6 +61,12 @@ public class FaceCheckTask {
 				 userService.editAvatarStateToIllegal(u.getUser_id(), localName);
 			}
 			
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		
 	}

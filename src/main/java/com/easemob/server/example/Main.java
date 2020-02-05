@@ -191,22 +191,22 @@ public class Main {
 		
 		
 		
-//		Map<String, String> apns = new HashMap<String, String>();
-//		apns.put("type", TYPE);
-//		apns.put("msg", msgTxt);
-//		if(!TextUtils.isEmpty(alert)) {
-//			apns.put("em_push_content", alert);
-//			apns.put("extern", alert);
-//		}
-//		try {
-//			ext.put("em_apns_ext", JSONUtil.writeValueAsString(apns));
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-		
+		Map<String, String> apns = new HashMap<String, String>();
+		apns.put("type", TYPE);
+		apns.put("msg", msgTxt);
 		if(!TextUtils.isEmpty(alert)) {
-			ext.put("em_apns_ext", alert);
+			apns.put("em_push_content", alert);
+			apns.put("extern", alert);
 		}
+		try {
+			ext.put("em_apns_ext", JSONUtil.writeValueAsString(apns));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+//		if(!TextUtils.isEmpty(alert)) {
+//			ext.put("em_apns_ext", alert);
+//		}
 		
 		
 		initFactory();

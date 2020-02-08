@@ -1337,6 +1337,7 @@ public class UserService {
 		c.setTime(new Date());
 
 		int hour = c.get(Calendar.HOUR_OF_DAY);
+		int minute = c.get(Calendar.MINUTE);
 		if (hour < 5) { // 5点开始执行
 			return;
 		}
@@ -1344,10 +1345,13 @@ public class UserService {
 		int days = 90; // 3个月的内登录的男性账号
 		int count = userDao.getNeedMatchManCount(days);
 
-		int everyTimesCount = count / 16;// 按白天有16小时，其中8-12点也算天黑的黄金时间段
+		int everyTimesCount=count/((19*60)/5); //19小时，每5分钟执行一次
+		
 
 		if (hour == 23) {// 当天的最后一次匹配
-			everyTimesCount = count;
+			if(minute>=55) {
+				everyTimesCount = count;
+			}
 		}
 
 		List<BaseUser> mans = userDao.getActiveManToMatch(days, everyTimesCount);
@@ -1370,9 +1374,8 @@ public class UserService {
 			HX_SessionUtil.matchCopyDraw(woman, man.getUser_id(), msg);
 			HX_SessionUtil.matchCopyDraw(man, woman.getUser_id(), msg);
 		}
-
 	}
-
+	 
 	public void clearUserMatchData() {
 		userDao.clearUserMatchData();
 	}

@@ -23,11 +23,11 @@ import com.zhan.app.nearby.util.TextUtils;
 @Component
 @EnableScheduling
 public class TimerTask {
-    @Autowired 
-    private FaceCheckTask faceCheckTask;
-    @Autowired 
-    private MatchActiveUserTask matchActiveUserTask;
-    
+	@Autowired
+	private FaceCheckTask faceCheckTask;
+	@Autowired
+	private MatchActiveUserTask matchActiveUserTask;
+
 	// @Scheduled(cron = "0 0 0/1 * * ?") // 每小時
 	@Scheduled(cron = "0 0/5 * * * ?") // 每5分钟执行一次
 	public void injectMeetBottle() {
@@ -47,7 +47,7 @@ public class TimerTask {
 	public void meiliRateTask() {
 		UserCacheService userCacheService = SpringContextUtil.getBean("userCacheService");
 		userCacheService.clearCacheCount();
-		//删除匹配的用户记录
+		// 删除匹配的用户记录
 		UserService userService = SpringContextUtil.getBean("userService");
 		userService.clearUserMatchData();
 	}
@@ -98,17 +98,17 @@ public class TimerTask {
 		UserService userService = SpringContextUtil.getBean("userService");
 		userService.removeTimeoutOnlineUsers(4);
 	}
-	
+
 	@Scheduled(cron = "0 0/5 * * * ?") // 每10分钟执行一次
-	public void doCheckImg() { //自动审核待审核的图片
+	public void doCheckImg() { // 自动审核待审核的图片
 		faceCheckTask.doCheckImg();
 	}
-	
-	
-	 @Scheduled(cron = "0 0 0/1 * * ?") // 每小時
-	 public void doMatchActiveUser() { // 
-			matchActiveUserTask.matchActiveUsers();
-		}
+
+	@Scheduled(cron = "0 0/5 * * * ?") // 每10分钟执行一次
+	public void doMatchActiveUser() { //
+		matchActiveUserTask.matchActiveUsers();
+	}
+
 	public void autoAddBlackIP() {
 		UserService userService = SpringContextUtil.getBean("userService");
 		userService.checkRegistIP(10);

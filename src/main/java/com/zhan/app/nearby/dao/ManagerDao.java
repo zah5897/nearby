@@ -159,20 +159,21 @@ public class ManagerDao extends BaseDao {
 	public int getNewUserCount(int type) {
 		String sql = "";
 		if (type == -1) { // 今日
-			sql = "select count(*) from t_user where type=? and  to_days(create_time) = to_days(now())";
+			sql = "select count(*) from t_user where (type=? or type=?) and  to_days(create_time) = to_days(now())";
 		} else if (type == 0) {
-			sql = "select count(*) from t_user where type=? and  to_days(create_time) >= (to_days(now())-2)";
+			sql = "select count(*) from t_user where (type=? or type=?) and  to_days(create_time) >= (to_days(now())-2)";
 		} else if (type == 1) {
-			sql = "select count(*) from t_user where type=? and  to_days(create_time) >= (to_days(now())-7)";
+			sql = "select count(*) from t_user where (type=? or type=?) and  to_days(create_time) >= (to_days(now())-7)";
 		} else if (type == 2) {
-			sql = "select count(*) from t_user where type=? and  to_days(create_time) >= (to_days(now())-30)";
+			sql = "select count(*) from t_user where (type=? or type=?) and  to_days(create_time) >= (to_days(now())-30)";
 		}
-		return jdbcTemplate.queryForObject(sql, new Object[] { UserType.OFFIEC.ordinal() }, int.class);
+		return jdbcTemplate.queryForObject(sql, new Object[] { UserType.OFFIEC.ordinal(),UserType.THRID_CHANNEL.ordinal() }, int.class);
 	}
 
 	public List<ManagerUser> listNewUser(int pageIndex, int pageSize, int type) {
 
-		String sql = "select user.user_id ,user._ua,user.nick_name,user.avatar,user.sex,user.type,coalesce(ship.state,0) as state,user.create_time from t_user user left join t_found_user_relationship ship on user.user_id=ship.uid where  type=? and";
+		String sql = "select user.user_id ,user._ua,user.nick_name,user.avatar,user.sex,user.type,coalesce(ship.state,0) as state,user.create_time from t_user user"
+				+ "  left join t_found_user_relationship ship on user.user_id=ship.uid where  (type=? or type=?) and";
 		if (type == -1) { // 今日
 			sql += "  to_days(create_time) = to_days(now())";
 		} else if (type == 0) {
@@ -183,7 +184,7 @@ public class ManagerDao extends BaseDao {
 			sql += " to_days(create_time) >= (to_days(now())-30)";
 		}
 		sql += " order by user.user_id desc limit ?,?";
-		return jdbcTemplate.query(sql, new Object[] { UserType.OFFIEC.ordinal(), (pageIndex - 1) * pageSize, pageSize },
+		return jdbcTemplate.query(sql, new Object[] { UserType.OFFIEC.ordinal(),UserType.THRID_CHANNEL.ordinal(), (pageIndex - 1) * pageSize, pageSize },
 				new BeanPropertyRowMapper<ManagerUser>(ManagerUser.class));
 	}
 

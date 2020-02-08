@@ -158,10 +158,10 @@ public class GiftDao extends BaseDao {
 				+ " left join  (select count(*) as like_count ,with_user_id from t_user_relationship where relationship=?  group by  with_user_id) lk  "
 				+ " on u.user_id=lk.with_user_id " + " left join t_found_user_relationship fu "
 				+ " on u.user_id=fu.uid "
-				+ "where   u.user_id not in(41,93837,96651,90055,95470,148641) and   u.type=? and  (fu.state is null or fu.state<>1)  and DATE_SUB(CURDATE(), INTERVAL 365 DAY) <= date(create_time) order by mli desc limit ?,?";
+				+ "where   u.user_id not in(41,93837,96651,90055,95470,148641) and  (u.type=? or u.type=?) and  (fu.state is null or fu.state<>1)  and DATE_SUB(CURDATE(), INTERVAL 365 DAY) <= date(create_time) order by mli desc limit ?,?";
 
 		List<MeiLi> users = jdbcTemplate.query(sql,
-				new Object[] { Relationship.LIKE.ordinal(), UserType.OFFIEC.ordinal(), (page - 1) * count, count },
+				new Object[] { Relationship.LIKE.ordinal(), UserType.OFFIEC.ordinal(),UserType.THRID_CHANNEL.ordinal(), (page - 1) * count, count },
 				new RowMapper<MeiLi>() {
 					@Override
 					public MeiLi mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -200,10 +200,10 @@ public class GiftDao extends BaseDao {
 				+ "on u.user_id=gift.from_uid "
 				+ "left join  (select TIMESTAMPDIFF(DAY,now(),end_time) as dayDiff,start_time,user_id from t_user_vip ) v  "
 				+ " on u.user_id=v.user_id " + " left join t_found_user_relationship fu " + " on u.user_id=fu.uid "
-				+ "where u.user_id not in(41,93837,96651,90055,95470,148641) and  u.type=? and  (fu.state is null or fu.state<>1)  order by sanbei desc limit ?,?";
+				+ "where u.user_id not in(41,93837,96651,90055,95470,148641) and  (u.type=? or  u.type=?) and  (fu.state is null or fu.state<>1)  order by sanbei desc limit ?,?";
 
 		List<MeiLi> users = jdbcTemplate.query(sql,
-				new Object[] { UserType.OFFIEC.ordinal(), (page - 1) * count, count }, new RowMapper<MeiLi>() {
+				new Object[] { UserType.OFFIEC.ordinal(),UserType.THRID_CHANNEL.ordinal(), (page - 1) * count, count }, new RowMapper<MeiLi>() {
 					@Override
 					public MeiLi mapRow(ResultSet rs, int rowNum) throws SQLException {
 						MeiLi m = new MeiLi();

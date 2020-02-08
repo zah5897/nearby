@@ -107,7 +107,11 @@ public class ImagePathUtil {
 		if (TextUtils.isEmpty(avatar)) {
 			return avatars;
 		}
-		
+		if(avatar.startsWith("http")) {
+			avatars[0] = avatar;
+			avatars[1] = avatar;
+			return avatars;
+		}
 		avatars[0] = HOST_PROFIX_AVATAR + ImageSaveUtils.FILE_AVATAR + avatar;
 		avatars[1] = avatars[0];
 		return avatars;

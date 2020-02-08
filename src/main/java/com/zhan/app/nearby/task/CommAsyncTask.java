@@ -1,19 +1,21 @@
 package com.zhan.app.nearby.task;
 
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
+import com.zhan.app.nearby.bean.City;
 import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.bean.user.BaseUser;
+import com.zhan.app.nearby.dao.CityDao;
 import com.zhan.app.nearby.service.UserDynamicService;
 import com.zhan.app.nearby.service.UserService;
 import com.zhan.app.nearby.util.AddressUtil;
 import com.zhan.app.nearby.util.JSONUtil;
 import com.zhan.app.nearby.util.SpringContextUtil;
 import com.zhan.app.nearby.util.TextUtils;
-import com.zhan.app.nearby.util.baidu.FaceCheckHelper;
 
 @Component
 public class CommAsyncTask {
@@ -61,6 +63,34 @@ public class CommAsyncTask {
 		AddressUtil.setCity(dynamic, address);
 		UserDynamicService userDynamicService = ((UserDynamicService) SpringContextUtil.getBean("userDynamicService"));
 		userDynamicService.updateAddress(dynamic);
+	}
+
+	@Async
+	public void getUserLocationByIP(BaseUser user, String ip) {
+
+		String[] city = AddressUtil.getAddressByIp_GAODE(ip);
+		String [] address = new String[8];
+		if (city != null && !TextUtils.isEmpty(city[1])) {
+			address[0] = city[0];
+			address[1] = city[1];
+			address[6] = city[2];
+			address[7] = city[3];
+		}
+		City userLocation = null;
+		if (!TextUtils.isEmpty(address[1])) {
+			CityDao cityDao = ((CityDao) SpringContextUtil.getBean("cityDao"));
+			List<City> provincesAll = cityDao.list();
+			if (provincesAll != null) {
+				for (City c : provincesAll) {
+					if (address[1].contains(c.getName())) {
+						userLocation=c;
+						break;
+					}
+				}
+			}
+		}
+		UserService userService =  SpringContextUtil.getBean("userService");
+		userService.updateUserBirthCity(user.getUser_id(), userLocation);
 	}
 
 }

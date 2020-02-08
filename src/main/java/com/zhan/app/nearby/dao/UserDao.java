@@ -373,10 +373,10 @@ public class UserDao extends BaseDao {
 				+ " left join  (select count(*) as like_count ,with_user_id from t_user_relationship where relationship=?  group by  with_user_id) lk  "
 				+ " on u.user_id=lk.with_user_id " + " left join t_found_user_relationship fu "
 				+ " on u.user_id=fu.uid "
-				+ "where   u.type=? and   (fu.state is null or fu.state<>1)  and DATE_SUB(CURDATE(), INTERVAL 15 DAY) <= date(create_time) order by mli desc limit ?,?";
+				+ "where  (u.type=? or u.type=?) and   (fu.state is null or fu.state<>1)  and DATE_SUB(CURDATE(), INTERVAL 15 DAY) <= date(create_time) order by mli desc limit ?,?";
 
 		List<MeiLi> users = jdbcTemplate.query(sql,
-				new Object[] { Relationship.LIKE.ordinal(), UserType.OFFIEC.ordinal(), (page - 1) * count, count },
+				new Object[] { Relationship.LIKE.ordinal(), UserType.OFFIEC.ordinal(),UserType.THRID_CHANNEL.ordinal(), (page - 1) * count, count },
 				new RowMapper<MeiLi>() {
 					@Override
 					public MeiLi mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -411,9 +411,9 @@ public class UserDao extends BaseDao {
 		String sql = "select u.*, v.dayDiff,c.name as city_name from t_user u "
 				+ "left join (select TIMESTAMPDIFF(DAY,now(),end_time) as dayDiff,start_time,user_id from t_user_vip ) v on u.user_id=v.user_id "
 				+ "left join t_sys_city c on u.city_id=c.id   "
-				+ "where v.dayDiff >0 and  u.type=? order by v.start_time desc limit ?,?";
+				+ "where v.dayDiff >0 and  (u.type=? or u.type=?) order by v.start_time desc limit ?,?";
 		List<MeiLi> users = jdbcTemplate.query(sql,
-				new Object[] { UserType.OFFIEC.ordinal(), (page - 1) * count, count }, new RowMapper<MeiLi>() {
+				new Object[] { UserType.OFFIEC.ordinal(),UserType.THRID_CHANNEL.ordinal(), (page - 1) * count, count }, new RowMapper<MeiLi>() {
 					@Override
 					public MeiLi mapRow(ResultSet rs, int rowNum) throws SQLException {
 						MeiLi m = new MeiLi();
@@ -1120,5 +1120,10 @@ public class UserDao extends BaseDao {
 
 	public void clearUserMatchData() {
 		jdbcTemplate.update("delete  from t_user_match where DATE_SUB(CURDATE(), INTERVAL 7 DAY) <= date(match_time)");
+	}
+
+	public int updateUserBirthCity(long user_id, int city_id) {
+		String sql="update t_user set birth_city_id=? where user_id=?";
+		return jdbcTemplate.update(sql,new Object[] {city_id,user_id});
 	}
 }

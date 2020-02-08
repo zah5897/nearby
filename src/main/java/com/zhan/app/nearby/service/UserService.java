@@ -49,6 +49,7 @@ import com.zhan.app.nearby.dao.UserDao;
 import com.zhan.app.nearby.dao.VipDao;
 import com.zhan.app.nearby.exception.AppException;
 import com.zhan.app.nearby.exception.ERROR;
+import com.zhan.app.nearby.task.CommAsyncTask;
 import com.zhan.app.nearby.task.FaceCheckTask;
 import com.zhan.app.nearby.task.MatchActiveUserTask;
 import com.zhan.app.nearby.util.AESUtil;
@@ -93,6 +94,8 @@ public class UserService {
 	private MatchActiveUserTask matchActiveUserTask;
 	@Autowired
 	private FaceCheckTask faceCheckTask;
+	@Autowired
+	private CommAsyncTask commAsyncTask;
 
 	public BaseUser getBasicUser(long id) {
 		return userDao.getBaseUser(id);
@@ -171,6 +174,7 @@ public class UserService {
 			}
 		}
 		faceCheckTask.doCheckFace(user);
+		commAsyncTask.getUserLocationByIP(user, user.getIp());
 		return id;
 	}
 
@@ -1321,6 +1325,10 @@ public class UserService {
 		userDao.editAvatarStateToIllegal(user_id, avatarName);
 		userDao.removeFromFoundUserList(user_id);
 		bottleService.clearIllegalMeetBottle(user_id);
+	}
+	
+	public int updateUserBirthCity(long user_id, City city) {
+		return userDao.updateUserBirthCity(user_id, city.getId());
 	}
 
 	public void matchActiveUsers() {

@@ -11,30 +11,25 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 @ApiModel(description= "短视频对象")
 public class Video {
-	@ApiModelProperty(value = "客户端生成的文件名称")
 	private String id;
 	@JsonIgnore
 	private long uid;
 	
-	@ApiModelProperty(value = "视频文件名称")
 	@JsonIgnore
 	private String video_name;
 	@JsonIgnore
-	@ApiModelProperty(value = "视频缩略图文件名称")
 	private String thumb_img_name;
 	
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm", locale = "zh", timezone = "GMT+8")
 	private Date create_time;
 	@ColumnType
 	private long create_time_v2;
-	@ApiModelProperty(value = "视频长度（s）")
 	private int duration;
 	@ColumnType
 	private String thumb_url;
 	@ColumnType
 	private String url;
 	
-	@ApiModelProperty(value = "视频标题")
 	private String title;
 	public String getTitle() {
 		return title;

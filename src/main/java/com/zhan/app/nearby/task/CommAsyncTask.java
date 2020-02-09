@@ -69,7 +69,7 @@ public class CommAsyncTask {
 	public void getUserLocationByIP(BaseUser user, String ip) {
 
 		String[] city = AddressUtil.getAddressByIp_GAODE(ip);
-		String [] address = new String[8];
+		String[] address = new String[8];
 		if (city != null && !TextUtils.isEmpty(city[1])) {
 			address[0] = city[0];
 			address[1] = city[1];
@@ -83,13 +83,13 @@ public class CommAsyncTask {
 			if (provincesAll != null) {
 				for (City c : provincesAll) {
 					if (address[1].contains(c.getName())) {
-						userLocation=c;
+						userLocation = c;
 						break;
 					}
 				}
 			}
 		}
-		UserService userService =  SpringContextUtil.getBean("userService");
+		UserService userService = SpringContextUtil.getBean("userService");
 		userService.updateUserBirthCity(user.getUser_id(), userLocation);
 	}
 

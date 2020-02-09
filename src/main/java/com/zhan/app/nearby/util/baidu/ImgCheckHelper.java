@@ -13,9 +13,9 @@ import com.zhan.app.nearby.util.TextUtils;
 public enum ImgCheckHelper {
 	instance;
 	// ����APPID/AK/SK
-	public static final String APP_ID = "18382787";
-	public static final String API_KEY = "N6BoHUVGEQyhne7tDpFa16r5";
-	public static final String SECRET_KEY = "vqYLIaTNGj1DBi1VaZuTwNbqQWmBdUVx";
+	public static final String APP_ID = "18422246";
+	public static final String API_KEY = "oIAnB9WKkuqKalWCprXv3IXN";
+	public static final String SECRET_KEY = "efnoGbyFTIfUBkPrHbG6ooNYYqZdGW2T";
 
 	
 	private AipContentCensor client;

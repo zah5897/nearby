@@ -31,6 +31,41 @@ public class Video {
 	private String url;
 	
 	private String title;
+	
+	
+	private int comment_count;
+	
+	private int praise_count;
+	
+	
+	private int share_count;
+	
+	private int store_count;
+	
+	public int getComment_count() {
+		return comment_count;
+	}
+	public void setComment_count(int comment_count) {
+		this.comment_count = comment_count;
+	}
+	public int getPraise_count() {
+		return praise_count;
+	}
+	public void setPraise_count(int praise_count) {
+		this.praise_count = praise_count;
+	}
+	public int getShare_count() {
+		return share_count;
+	}
+	public void setShare_count(int share_count) {
+		this.share_count = share_count;
+	}
+	public int getStore_count() {
+		return store_count;
+	}
+	public void setStore_count(int store_count) {
+		this.store_count = store_count;
+	}
 	public String getTitle() {
 		return title;
 	}

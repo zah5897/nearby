@@ -111,7 +111,8 @@ public class SystemController {
 	}
 
 	@RequestMapping("test")
-	public ModelMap test() {
+	public ModelMap test(long uid) {
+		userService.updateModifySexTimes(uid);
 		return ResultUtil.getResultOKMap();
 	}
 }

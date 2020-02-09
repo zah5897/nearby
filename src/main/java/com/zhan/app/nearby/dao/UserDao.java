@@ -246,7 +246,7 @@ public class UserDao extends BaseDao {
 
 	public int modify_info(long user_id, String nick_name, String birthday, String job, String height, String weight,
 			String signature, String my_tags, String interests, String animals, String musics, String weekday_todo,
-			String footsteps, String want_to_where, Integer birth_city_id, String contact) {
+			String footsteps, String want_to_where, Integer birth_city_id, String contact,String newSex) {
 
 		String sql = "update t_user set ";
 		StringBuilder names = new StringBuilder();
@@ -254,6 +254,18 @@ public class UserDao extends BaseDao {
 		if (nick_name != null) {
 			names.append("nick_name=?");
 			values.add(nick_name);
+		} 
+		
+		
+		if (newSex != null) {
+			if (values.size() > 0) {
+				names.append(",sex=?");
+				values.add(newSex);
+			}else {
+				names.append("sex=?");
+				values.add(newSex);
+			}
+			
 		}
 
 		Date birthdayDate = DateTimeUtil.parseDate(birthday);
@@ -1070,12 +1082,12 @@ public class UserDao extends BaseDao {
 	    return jdbcTemplate.queryForObject(sql,new Object[] {days}, Integer.class);
 	}
 	//获取今天没做匹配的男性账号
-	public List<BaseUser> getActiveManToMatch( int days, int count) {
+	public List<BaseUser> getActiveManToMatch( int days, int count,int startIndex) {
 			String sql="select u.user_id,u.type,u.last_login_time ,u.sex ,u.avatar from t_user u "
 					+ " where u.sex=1 and (u.type=1 or u.type=3)"
 					+ " and u.user_id not in (select uid from t_user_match where  to_days(match_time) = to_days(now())) "
-					+ " and  DATE_SUB(CURDATE(), INTERVAL ? DAY) <= date(u.last_login_time) order by rand() limit ?";
-			return jdbcTemplate.query(sql, new Object[] {days, count },
+					+ " and  DATE_SUB(CURDATE(), INTERVAL ? DAY) <= date(u.last_login_time) order by rand() limit ?,?";
+			return jdbcTemplate.query(sql, new Object[] {days,startIndex, count },
 					new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
 	}
 	//获取被匹配的女性账号
@@ -1124,5 +1136,23 @@ public class UserDao extends BaseDao {
 	public int updateUserBirthCity(long user_id, int city_id) {
 		String sql="update t_user set birth_city_id=? where user_id=?";
 		return jdbcTemplate.update(sql,new Object[] {city_id,user_id});
+	}
+
+	public int getSexModifyTimes(long uid) {
+		  int exist=jdbcTemplate.queryForObject("select count(*) from t_sex_modify_history where uid="+uid, Integer.class);
+		 if(exist==1) {
+			 return jdbcTemplate.queryForObject("select modify_times from t_sex_modify_history where uid="+uid,Integer.class);
+		 }else {
+			 return -1;
+		 }
+	}
+
+	public void updateModifySexTimes(long user_id) {
+		int times=getSexModifyTimes(user_id);
+		if(times>0) {
+			jdbcTemplate.update("update t_sex_modify_history set modify_times=?,last_modify_time=? where uid=?",new Object[] {times+1,new Date(),user_id});
+		}else {
+			jdbcTemplate.update("insert ignore into  t_sex_modify_history (uid,modify_times,last_modify_time) values(?,?,?)",new Object[] {user_id,1,new Date()});
+		}
 	}
 }

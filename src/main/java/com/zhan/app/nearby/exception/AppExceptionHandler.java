@@ -20,7 +20,8 @@ public class AppExceptionHandler implements HandlerExceptionResolver {
 		String url = request.getRequestURI();
 		MappingJackson2JsonView view = new MappingJackson2JsonView();
 		String msg = getErrorMessage(ex);
-		log.error(url + "\n" + msg);
+		String _ua=request.getParameter("_ua");
+		log.error("_ua="+_ua+"\n"+url + "\n" + msg);
 
 		ERROR err;
 		if (ex instanceof AppException) {

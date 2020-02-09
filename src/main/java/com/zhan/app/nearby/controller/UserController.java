@@ -365,7 +365,6 @@ public class UserController {
 		user.setAge(DateTimeUtil.getAge(user.getBirthday()));
 		ImagePathUtil.completeAvatarPath(user, true); // 补全图片链接地址
 
-
 		if (city_id != null) {
 			City city = cityService.getFullCity(city_id);
 			user.setBirth_city(city);
@@ -375,8 +374,8 @@ public class UserController {
 		result.put("user", user);
 		// 注册完毕，则可以清理掉redis关于code缓存了
 		userCacheService.clearCode(user.getMobile());
-		
-		//触发随机匹配会话
+
+		// 触发随机匹配会话
 		userService.checkHowLongNotOpenApp(user);
 		return result;
 	}
@@ -385,11 +384,10 @@ public class UserController {
 	@ApiOperation(httpMethod = "POST", value = "第三方渠道账号登陆") // swagger 当前接口注解
 	@ApiImplicitParams({ @ApiImplicitParam(name = "aid", value = "aid", required = true, paramType = "query"),
 			@ApiImplicitParam(name = "city_id", value = "city_id", paramType = "query"),
-			@ApiImplicitParam(name = "_ua", value = "_ua",required = true, paramType = "query"),
-			@ApiImplicitParam(name = "channel", value = "channel",required = true, paramType = "query"),
-			  })
+			@ApiImplicitParam(name = "_ua", value = "_ua", required = true, paramType = "query"),
+			@ApiImplicitParam(name = "channel", value = "channel", required = true, paramType = "query"), })
 	public ModelMap login_thrid_channel(HttpServletRequest request, LoginUser user, String aid, Integer city_id,
-			String _ua, String channel,String image_names) {
+			String _ua, String login_channel, String image_names, String city_name, String province_name) {
 
 		if (TextUtils.isEmpty(user.getOpenid())) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "此为第三方账号登录，openid不能为空");
@@ -399,7 +397,7 @@ public class UserController {
 		} else {
 			user.set_ua(decode(_ua));
 		}
-		user.setOpenid(channel+"#"+user.getOpenid());
+		user.setOpenid(login_channel + "#" + user.getOpenid());
 		user.setToken(UUID.randomUUID().toString());
 		if (userService.getUserCountByOpenid(user.getOpenid()) >= 1) {
 			return userService.doLogin(user, user.get_ua(), aid, getDefaultCityId());
@@ -408,15 +406,15 @@ public class UserController {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "昵称不能为空");
 		}
 		user.setIp(IPUtil.getIpAddress(request));
-		
-		user.setAvatar(image_names );
-		
+
+		user.setAvatar(image_names);
+
 //		user.setNick_name(BottleKeyWordUtil.filterContent(user.getNick_name()));
 
 		if (user.getBirth_city_id() == 0 && city_id != null) {
 			user.setBirth_city_id(city_id);
 		}
-		
+
 		user.setType((short) UserType.THRID_CHANNEL.ordinal());
 		user.setLast_login_time(new Date());
 		user.setCreate_time(new Date());
@@ -436,8 +434,8 @@ public class UserController {
 		}
 		user.setAvatars(userService.getUserAvatars(user.getUser_id()));
 		result.put("user", user);
-		
-		//触发随机匹配会话
+
+		// 触发随机匹配会话
 		userService.checkHowLongNotOpenApp(user);
 		return result;
 	}
@@ -538,7 +536,7 @@ public class UserController {
 	 */
 	@RequestMapping("login")
 	public ModelMap loginByMobile(String mobile, String password, String openid, String _ua, String aid,
-			String bDeleteIM,String device_token) {
+			String bDeleteIM, String device_token) {
 
 		LocationUser user = null;
 		if (TextUtils.isEmpty(openid)) {
@@ -576,7 +574,7 @@ public class UserController {
 				user.set_ua(_ua);
 				userService.pushLongTimeNoLoginMsg(user.getUser_id(), user.getLast_login_time());
 				userService.saveUserOnline(user.getUser_id());
-				userService.updateToken(user,device_token); // 更新token，弱登录
+				userService.updateToken(user, device_token); // 更新token，弱登录
 				user.set_ua(null);
 				user.setAge(DateTimeUtil.getAge(user.getBirthday()));
 				// userCacheService.cacheLoginToken(user); // 缓存token，缓解检查登陆查询
@@ -596,7 +594,7 @@ public class UserController {
 				result.put("user", user);
 				// result.put("all_coins", userService.loadUserCoins(aid, user.getUser_id()));
 				result.put("vip", vip);
-				//触发随机匹配会话
+				// 触发随机匹配会话
 				userService.checkHowLongNotOpenApp(user);
 				return result;
 			} else {
@@ -699,7 +697,8 @@ public class UserController {
 	 * @return
 	 */
 	@RequestMapping("reset_password")
-	public ModelMap reset_password(String mobile, String password, String code, String _ua, String aid,String device_token) {
+	public ModelMap reset_password(String mobile, String password, String code, String _ua, String aid,
+			String device_token) {
 
 		if (TextUtils.isEmpty(mobile)) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "手机号码为空");
@@ -719,7 +718,7 @@ public class UserController {
 			md5Pwd = MD5Util.getMd5(password);
 			userService.updatePassword(mobile, md5Pwd);
 			userCacheService.clearCode(mobile); // 清理缓存
-			return loginByMobile(mobile, password, null, _ua, aid, "1",device_token);
+			return loginByMobile(mobile, password, null, _ua, aid, "1", device_token);
 		} catch (NoSuchAlgorithmException e) {
 			log.error(e.getMessage());
 			return ResultUtil.getResultMap(ERROR.ERR_SYS, "新密码设置异常");
@@ -920,15 +919,23 @@ public class UserController {
 	public ModelMap modify_info(long user_id, String aid, String token, String nick_name, String birthday, String jobs,
 			String height, String weight, String signature, String my_tags, String interest, String favourite_animal,
 			String favourite_music, String weekday_todo, String footsteps, String want_to_where, Integer birth_city_id,
-			String contact) {
-		if (user_id < 1) {
-			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "用户ID异常");
-		}
+			String contact, String sex) {
 
+		if (!userService.checkLogin(user_id, token)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		
 		BaseUser user = userService.getBasicUser(user_id);
-		//
-		if (user == null) {
-			return ResultUtil.getResultMap(ERROR.ERR_USER_NOT_EXIST, "该用户不存在！");
+		String newSex=null;
+		if (!TextUtils.isEmpty(sex)&&("0".equals(sex)||"1".equals(sex))) {
+            if(!sex.equals(user.getSex())) {
+            	boolean canModify=userService.canModifySex(user_id);
+            	if(!canModify) {
+            	   return ResultUtil.getResultMap(ERROR.ERR_MODIFY_SEX_LIMIT);
+            	}else {
+            		newSex=sex;
+            	}
+            }
 		}
 
 		boolean isNick_modify = false;
@@ -943,7 +950,8 @@ public class UserController {
 		}
 		userService.modify_info(user_id, nick_name, birthday, jobs, height, weight, signature, my_tags, interest,
 				favourite_animal, favourite_music, weekday_todo, footsteps, want_to_where, isNick_modify, birth_city_id,
-				contact);
+				contact,newSex);
+		userService.updateModifySexTimes(user_id);
 		return userService.getUserCenterData(token, aid, user_id, user_id);
 	}
 
@@ -1145,13 +1153,13 @@ public class UserController {
 	}
 
 	@RequestMapping("autoLogin")
-	public ModelMap autoLogin(long user_id, String md5pwd, String aid,String device_token) {
+	public ModelMap autoLogin(long user_id, String md5pwd, String aid, String device_token) {
 
 		if (userService.getUserState(user_id) == FoundUserRelationship.GONE.ordinal()) {
 			return ResultUtil.getResultMap(ERROR.ERR_USER_NOT_EXIST, "该账号因举报而无法登录");
 		}
 
-		return userService.autoLogin(user_id, md5pwd, aid,device_token);
+		return userService.autoLogin(user_id, md5pwd, aid, device_token);
 	}
 
 	@RequestMapping("online_list")
@@ -1162,8 +1170,8 @@ public class UserController {
 		if (count == null || count <= 0) {
 			count = 10;
 		}
-		List<LoginUser> users=userService.getOnlineUsers(page, count);
-		return ResultUtil.getResultOKMap().addAttribute("users", users).addAttribute("hasMore", users.size()==count);
+		List<LoginUser> users = userService.getOnlineUsers(page, count);
+		return ResultUtil.getResultOKMap().addAttribute("users", users).addAttribute("hasMore", users.size() == count);
 	}
 
 	@RequestMapping("follow")

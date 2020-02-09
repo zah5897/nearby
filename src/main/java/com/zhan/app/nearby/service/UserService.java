@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.UUID;
 
 import javax.annotation.Resource;
@@ -276,9 +277,9 @@ public class UserService {
 	@Transactional
 	public int modify_info(long user_id, String nick_name, String birthday, String job, String height, String weight,
 			String signature, String my_tags, String interests, String animals, String musics, String weekday_todo,
-			String footsteps, String want_to_where, boolean isNick_modify, Integer birth_city_id, String contact) {
+			String footsteps, String want_to_where, boolean isNick_modify, Integer birth_city_id, String contact,String newSex) {
 		return userDao.modify_info(user_id, nick_name, birthday, job, height, weight, signature, my_tags, interests,
-				animals, musics, weekday_todo, footsteps, want_to_where, birth_city_id, contact);
+				animals, musics, weekday_todo, footsteps, want_to_where, birth_city_id, contact,newSex);
 	}
 
 	@Transactional
@@ -1331,6 +1332,15 @@ public class UserService {
 		return userDao.updateUserBirthCity(user_id, city.getId());
 	}
 
+	/**
+	 * 是否能修改性别，只能修改1次
+	 * @param uid
+	 * @return
+	 */
+	public boolean canModifySex(long uid) {
+		int times=userDao.getSexModifyTimes(uid);
+		return times<=0;
+	}
 	public void matchActiveUsers() {
 
 		Calendar c = Calendar.getInstance();
@@ -1353,8 +1363,12 @@ public class UserService {
 				everyTimesCount = count;
 			}
 		}
+		int start=0;
+		if(everyTimesCount<count) {
+			start= new Random().nextInt(count-everyTimesCount);
+		}
 
-		List<BaseUser> mans = userDao.getActiveManToMatch(days, everyTimesCount);
+		List<BaseUser> mans = userDao.getActiveManToMatch(days, everyTimesCount,start);
 		List<BaseUser> women = userDao.getActiveWomenUserNotDoMatch(everyTimesCount);
 
 		int sizeMan = mans.size();
@@ -1378,6 +1392,10 @@ public class UserService {
 	 
 	public void clearUserMatchData() {
 		userDao.clearUserMatchData();
+	}
+
+	public void updateModifySexTimes(long user_id) {
+		userDao.updateModifySexTimes(user_id);
 	}
 
 }

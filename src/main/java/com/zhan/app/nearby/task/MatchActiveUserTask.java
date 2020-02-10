@@ -59,24 +59,10 @@ public class MatchActiveUserTask {
 			HX_SessionUtil.matchCopyDraw(curUser, u.getUser_id(), msg);
 			HX_SessionUtil.matchCopyDraw(ImagePathUtil.completeAvatarPath(u, true), curUser.getUser_id(), msg);
 		}
-
 	}
 	@Async
 	public void matchActiveUsers() {
 		userService.matchActiveUsers();
 	}
-	
-//	
-//	
-//	@Async
-//	public void newMatch(BaseUser curUser,long[] execuld_uids, int days,int count,int sex) {
-//		List<BaseUser> users = userService.get2daysLoginUserWithOutIds(curUser.getUser_id(),sex, days, count,execuld_uids);
-//		ImagePathUtil.completeAvatarPath(curUser, true);
-//		for (BaseUser u : users) {
-//			String msg = Main.getRandomMsg();
-//			HX_SessionUtil.matchCopyDraw(curUser, u.getUser_id(), msg);
-//			HX_SessionUtil.matchCopyDraw(ImagePathUtil.completeAvatarPath(u, true), curUser.getUser_id(), msg);
-//		}
-//
-//	}
+ 
 }

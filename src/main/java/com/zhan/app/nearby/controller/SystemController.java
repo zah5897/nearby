@@ -29,6 +29,8 @@ public class SystemController {
 	private UserService userService;
 	@Autowired
 	private MainService mainService;
+	@Autowired
+	private MatchActiveUserTask matchActiveUserTask;
 	
     
 	@Deprecated
@@ -112,7 +114,6 @@ public class SystemController {
 
 	@RequestMapping("test")
 	public ModelMap test(long uid) {
-		userService.updateModifySexTimes(uid);
 		return ResultUtil.getResultOKMap();
 	}
 }

@@ -277,9 +277,10 @@ public class UserService {
 	@Transactional
 	public int modify_info(long user_id, String nick_name, String birthday, String job, String height, String weight,
 			String signature, String my_tags, String interests, String animals, String musics, String weekday_todo,
-			String footsteps, String want_to_where, boolean isNick_modify, Integer birth_city_id, String contact,String newSex) {
+			String footsteps, String want_to_where, boolean isNick_modify, Integer birth_city_id, String contact,
+			String newSex) {
 		return userDao.modify_info(user_id, nick_name, birthday, job, height, weight, signature, my_tags, interests,
-				animals, musics, weekday_todo, footsteps, want_to_where, birth_city_id, contact,newSex);
+				animals, musics, weekday_todo, footsteps, want_to_where, birth_city_id, contact, newSex);
 	}
 
 	@Transactional
@@ -1327,20 +1328,22 @@ public class UserService {
 		userDao.removeFromFoundUserList(user_id);
 		bottleService.clearIllegalMeetBottle(user_id);
 	}
-	
+
 	public int updateUserBirthCity(long user_id, City city) {
 		return userDao.updateUserBirthCity(user_id, city.getId());
 	}
 
 	/**
 	 * 是否能修改性别，只能修改1次
+	 * 
 	 * @param uid
 	 * @return
 	 */
 	public boolean canModifySex(long uid) {
-		int times=userDao.getSexModifyTimes(uid);
-		return times<=0;
+		int times = userDao.getSexModifyTimes(uid);
+		return times <= 0;
 	}
+
 	public void matchActiveUsers() {
 
 		Calendar c = Calendar.getInstance();
@@ -1355,41 +1358,41 @@ public class UserService {
 		int days = 90; // 3个月的内登录的男性账号
 		int count = userDao.getNeedMatchManCount(days);
 
-		int everyTimesCount=count/((19*60)/5); //19小时，每5分钟执行一次
-		
+		int everyTimesCount = count / ((19 * 60) / 5); // 19小时，每5分钟执行一次
 
 		if (hour == 23) {// 当天的最后一次匹配
-			if(minute>=55) {
+			if (minute >= 55) {
 				everyTimesCount = count;
 			}
 		}
-		int start=0;
-		if(everyTimesCount<count) {
-			start= new Random().nextInt(count-everyTimesCount);
-		}
-
-		List<BaseUser> mans = userDao.getActiveManToMatch(days, everyTimesCount,start);
-		List<BaseUser> women = userDao.getActiveWomenUserNotDoMatch(everyTimesCount);
-
-		int sizeMan = mans.size();
-		int sizeWomen = women.size();
-
-		int len = sizeMan;
-		if (sizeMan > sizeWomen) {// 男多女少
-			len = sizeWomen;
-		}
-		for (int i = 0; i <len; i++) {
-			BaseUser woman = women.get(i);
-			BaseUser man = mans.get(i);
+		
+		do {
+			int startIndex=new Random().nextInt(count);
+			List<BaseUser> mans = userDao.getActiveManToMatch(days,startIndex,1);
+			if(mans.isEmpty()) {
+				continue;
+			}
+			BaseUser man=mans.get(0);
+			List<BaseUser> women = userDao.getActiveWomenUserNotDoMatch(1);
+			if(women.isEmpty()) {
+				continue;
+			}
+			BaseUser woman=women.get(0);
+			
 			String msg = Main.getRandomMsg();
 			ImagePathUtil.completeAvatarPath(woman, true);
 			ImagePathUtil.completeAvatarPath(man, true);
+			
 			saveMatchLog(man.getUser_id(), woman.getUser_id());
 			HX_SessionUtil.matchCopyDraw(woman, man.getUser_id(), msg);
 			HX_SessionUtil.matchCopyDraw(man, woman.getUser_id(), msg);
-		}
+			
+			everyTimesCount--;
+			count--;
+		}while(everyTimesCount>0);
 	}
-	 
+
+ 
 	public void clearUserMatchData() {
 		userDao.clearUserMatchData();
 	}

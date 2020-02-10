@@ -1083,16 +1083,16 @@ public class UserDao extends BaseDao {
 	}
 	//获取今天没做匹配的男性账号
 	public List<BaseUser> getActiveManToMatch( int days, int count,int startIndex) {
-			String sql="select u.user_id,u.type,u.last_login_time ,u.sex ,u.avatar from t_user u "
+			String sql="select u.user_id,u.nick_name,u.type,u.last_login_time ,u.sex ,u.avatar from t_user u "
 					+ " where u.sex=1 and (u.type=1 or u.type=3)"
 					+ " and u.user_id not in (select uid from t_user_match where  to_days(match_time) = to_days(now())) "
-					+ " and  DATE_SUB(CURDATE(), INTERVAL ? DAY) <= date(u.last_login_time) order by rand() limit ?,?";
+					+ " and  DATE_SUB(CURDATE(), INTERVAL ? DAY) <= date(u.last_login_time) order by u.last_login_time desc limit ?,?";
 			return jdbcTemplate.query(sql, new Object[] {days,startIndex, count },
 					new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
 	}
 	//获取被匹配的女性账号
 	public List<BaseUser> getActiveWomenUserNotDoMatch(int count) {
-			String sql="select u.user_id,u.type,u.last_login_time ,u.sex ,u.avatar from t_user u "
+			String sql="select u.user_id,u.nick_name,u.type,u.last_login_time ,u.sex ,u.avatar from t_user u "
 					+ " where u.sex=0 and (u.type=1 or u.type=3)"
 					+ " and u.user_id not in (select target_uid from t_user_match where  to_days(match_time) = to_days(now())) "
 					+ " order by u.last_login_time desc limit ?";

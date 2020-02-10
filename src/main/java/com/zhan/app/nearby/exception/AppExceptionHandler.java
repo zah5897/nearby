@@ -11,6 +11,8 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 
+import com.zhan.app.nearby.util.IPUtil;
+
 public class AppExceptionHandler implements HandlerExceptionResolver {
 
 	private static Logger log = Logger.getLogger(AppExceptionHandler.class);
@@ -21,7 +23,8 @@ public class AppExceptionHandler implements HandlerExceptionResolver {
 		MappingJackson2JsonView view = new MappingJackson2JsonView();
 		String msg = getErrorMessage(ex);
 		String _ua=request.getParameter("_ua");
-		log.error("_ua="+_ua+"\n"+url + "\n" + msg);
+		String ip = IPUtil.getIpAddress(request);
+		log.error("_ua="+_ua+"\nip="+ip+"\n"+url + "\n" + msg);
 
 		ERROR err;
 		if (ex instanceof AppException) {

@@ -771,6 +771,9 @@ public class UserDao extends BaseDao {
 		return null;
 	}
 
+	public void deleteAvatar(int id) {
+		jdbcTemplate.update("delete from t_user_avatars  where id=" + id);
+	}
 	public String getLastAvatar(long user_id) {
 		return jdbcTemplate.queryForObject(
 				"select avatar from t_user_avatars where uid=" + user_id + " order by id desc  limit 1", String.class);
@@ -1153,7 +1156,7 @@ public class UserDao extends BaseDao {
 		return jdbcTemplate.update("update t_user set isFace=? where user_id=?", new Object[] { isFace, userId });
 	}
 	public int updateAvatarState(int id, int state) {
-		return jdbcTemplate.update("update t_user_avatar set state=? where id=?", new Object[] { state, id });
+		return jdbcTemplate.update("update t_user_avatars set state=? where id=?", new Object[] { state, id });
 	}
 
 	public void clearUserMatchData() {

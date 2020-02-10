@@ -58,14 +58,18 @@ public class FaceCheckTask {
 		List<Avatar> avatars = userService.listNotCheckedAvatars(100);
 		for (Avatar v : avatars) {
 			String name = v.getAvatar();
+			if (TextUtils.isEmpty(name)) {
+				userService.deleteAvatar(v.getId());
+				continue;
+			}
 			ImagePathUtil.completeAvatarPath(v);
-			String result = UCloudImgCheckHelper.instance.check(v.getOrigin_avatar()); //   pass-放行， forbid-封禁，      check-人工审核
+			String result = UCloudImgCheckHelper.instance.check(v.getOrigin_avatar()); // pass-放行， forbid-封禁， check-人工审核
 			if ("forbid".equals(result)) {
-				userService.editAvatarStateToIllegal(v.getUid(),name);
-			}else if("pass".equals(result)){ 
-				userService.updateAvatarState(v.getId(), AvatarIMGStatus.CHECK_PASS.ordinal()); //通过
-			}else {
-				userService.updateAvatarState(v.getId(), AvatarIMGStatus.NEED_RECHECK.ordinal()); //需要人工复审
+				userService.editAvatarStateToIllegal(v.getUid(), name);
+			} else if ("pass".equals(result)) {
+				userService.updateAvatarState(v.getId(), AvatarIMGStatus.CHECK_PASS.ordinal()); // 通过
+			} else {
+				userService.updateAvatarState(v.getId(), AvatarIMGStatus.NEED_RECHECK.ordinal()); // 需要人工复审
 			}
 
 		}

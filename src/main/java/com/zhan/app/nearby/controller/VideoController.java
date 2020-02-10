@@ -39,7 +39,7 @@ public class VideoController {
 	@ApiImplicitParams({ @ApiImplicitParam(name = "user_id", value = "用户id", required = true, paramType = "query"),
 			@ApiImplicitParam(name = "token", value = "用户登录token", required = true, paramType = "query"),
 			@ApiImplicitParam(name = "aid", value = "aid", required = true, paramType = "query"),
-			@ApiImplicitParam(name = "title", value = "视频标题", required = true, paramType = "query"),
+			@ApiImplicitParam(name = "title", value = "视频标题", paramType = "query"),
 			@ApiImplicitParam(name = "video_name", value = "视频上传在UCloud上面的文件名称", required = true, paramType = "query"),
 			@ApiImplicitParam(name = "thumb_img_name", value = "视频预览图，上传在UCloud上面的文件名称", paramType = "query"),
 			@ApiImplicitParam(name = "duration", value = "视频时长单位秒", required = true, paramType = "query") })
@@ -48,10 +48,7 @@ public class VideoController {
 //		if(!userService.checkLogin(user_id, token)) {
 //			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 //		}
-
-		if (TextUtils.isEmpty(title)) {
-			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "title is null");
-		}
+		 
 		if (TextUtils.isEmpty(video_name)) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "video_name is null");
 		}

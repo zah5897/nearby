@@ -244,6 +244,9 @@ public class UserService {
 			return null;
 		}
 	}
+	public void deleteAvatar(int id) {
+		userDao.deleteAvatar(id);
+	}
 
 	@Transactional
 	public int updateLocation(long user_id, String lat, String lng) {

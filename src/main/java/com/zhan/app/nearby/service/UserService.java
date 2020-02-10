@@ -1018,12 +1018,21 @@ public class UserService {
 		managerService.editUserMeetBottle(user_id, 1, "127.0.0.1", "admin");
 	}
 
+	public List<Avatar> listNotCheckedAvatars(int count) {
+		return userDao.listNotCheckedAvatars(count);
+	}
 	public List<BaseUser> listConfirmAvatars(int state, int pageSize, int pageIndex, Long user_id) {
 		return userDao.listConfirmAvatars(state, pageSize, pageIndex, user_id);
 	}
+	public List<BaseUser> listAvatarsByUid(int pageSize, int pageIndex, long user_id) {
+		return userDao.listAvatarsByUid(pageSize, pageIndex, user_id);
+	}
 
-	public int getCountOfConfirmAvatars(Long user_id) {
-		return userDao.getCountOfConfirmAvatars(user_id);
+	public int getCountOfConfirmAvatars(Long user_id,int state) {
+		return userDao.getCountOfConfirmAvatars(user_id,state);
+	}
+	public int getCountOfUserAvatars(long user_id) {
+		return userDao.getCountOfUserAvatars(user_id);
 	}
 
 	public int getUserState(long uid) {
@@ -1323,6 +1332,9 @@ public class UserService {
 		return userDao.updateAvatarIsFace(user_id, isFace);
 	}
 
+	public int updateAvatarState(int id, int state) {
+		return userDao.updateAvatarState(id, state);
+	}
 	public void editAvatarStateToIllegal(long user_id, String avatarName) {
 		userDao.editAvatarStateToIllegal(user_id, avatarName);
 		userDao.removeFromFoundUserList(user_id);

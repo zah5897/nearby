@@ -6,7 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
+import com.zhan.app.nearby.bean.Avatar;
 import com.zhan.app.nearby.bean.user.BaseUser;
+import com.zhan.app.nearby.comm.AvatarIMGStatus;
 import com.zhan.app.nearby.service.UserDynamicService;
 import com.zhan.app.nearby.service.UserService;
 import com.zhan.app.nearby.util.ImagePathUtil;
@@ -14,6 +16,7 @@ import com.zhan.app.nearby.util.SpringContextUtil;
 import com.zhan.app.nearby.util.TextUtils;
 import com.zhan.app.nearby.util.baidu.FaceCheckHelper;
 import com.zhan.app.nearby.util.baidu.ImgCheckHelper;
+import com.zhan.app.nearby.util.ucloud.imgcheck.UCloudImgCheckHelper;
 
 @Component
 public class FaceCheckTask {
@@ -37,7 +40,7 @@ public class FaceCheckTask {
 
 	@Async
 	public void doCheckImg() {
-		//检查用户发布的动态图片
+		// 检查用户发布的动态图片
 //		List<UserDynamic> dys = userDynamicService.getDyanmicByState(1, 200, DynamicState.T_CREATE);
 //		for (UserDynamic dy : dys) {
 //			String localName=dy.getLocal_image_name();
@@ -51,23 +54,21 @@ public class FaceCheckTask {
 //				UFileUtil.delFileexecuteAsync(localName, UFileUtil.BUCKET_IMAGES);
 //			}
 //		}
-		//检查用户相册
-		List<BaseUser> users=userService.listConfirmAvatars(0, 100, 1, null);
-		for(BaseUser u:users) {
-			String localName=u.getAvatar();
-			ImagePathUtil.completeAvatarPath(u, false);
-			int result  = ImgCheckHelper.instance.checkImg(u.getAvatar()); //-1 为接口异常，0为违规图片  ，1正常图片
-			if (result==0) {
-				 userService.editAvatarStateToIllegal(u.getUser_id(), localName);
+		// 检查用户相册
+		List<Avatar> avatars = userService.listNotCheckedAvatars(100);
+		for (Avatar v : avatars) {
+			String name = v.getAvatar();
+			ImagePathUtil.completeAvatarPath(v);
+			String result = UCloudImgCheckHelper.instance.check(v.getOrigin_avatar()); //   pass-放行， forbid-封禁，      check-人工审核
+			if ("forbid".equals(result)) {
+				userService.editAvatarStateToIllegal(v.getUid(),name);
+			}else if("pass".equals(result)){ 
+				userService.updateAvatarState(v.getId(), AvatarIMGStatus.AICHECK_PASS.ordinal()); //通过
+			}else {
+				userService.updateAvatarState(v.getId(), AvatarIMGStatus.NEED_RECHECK.ordinal()); //需要人工复审
 			}
-			
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+
 		}
-		
+
 	}
 }

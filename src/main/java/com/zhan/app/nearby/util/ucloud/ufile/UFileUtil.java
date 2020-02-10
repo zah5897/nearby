@@ -1,4 +1,4 @@
-package com.zhan.app.nearby.util;
+package com.zhan.app.nearby.util.ucloud.ufile;
 
 import java.io.File;
 import java.io.InputStream;
@@ -7,6 +7,7 @@ import java.util.Properties;
 import org.apache.log4j.Logger;
 
 import com.zhan.app.nearby.controller.ImageController;
+import com.zhan.app.nearby.util.PropertiesUtil;
 
 import cn.ucloud.ufile.UfileClient;
 import cn.ucloud.ufile.api.ApiError;
@@ -22,8 +23,6 @@ import cn.ucloud.ufile.http.OnProgressListener;
 import cn.ucloud.ufile.http.UfileCallback;
 import cn.ucloud.ufile.util.MimeTypeUtil;
 public class UFileUtil {
-	private static String PUBLIC_KEY;
-	private static String PRIVATE_KEY;
 
 	public static final String BUCKET_AVATAR = "nearby-avatar";
 	public static final String BUCKET_IMAGES = "nearby-images";
@@ -35,15 +34,21 @@ public class UFileUtil {
 	static ObjectConfig config;
 	private static Logger log = Logger.getLogger(ImageController.class);
 
-	private static void init() {
+	public static void init() {
 		// 对象相关API的授权器
 		if (OBJECT_AUTHORIZER == null) {
-			Properties prop = PropertiesUtil.load("app.properties");
-			PRIVATE_KEY=prop.getProperty("ucloud.ufile.privateKey");
-			PUBLIC_KEY=prop.getProperty("ucloud.ufile.publicKey");
-			OBJECT_AUTHORIZER = new UfileObjectLocalAuthorization(PUBLIC_KEY, PRIVATE_KEY);
+			String[] keys=loadKeys();
+			OBJECT_AUTHORIZER = new UfileObjectLocalAuthorization(keys[0], keys[1]);
 			config = new ObjectConfig("cn-bj", "ufileos.com");
 		}
+	}
+	
+	
+	public static String[] loadKeys() {
+		Properties prop = PropertiesUtil.load("app.properties");
+		String PRIVATE_KEY=prop.getProperty("ucloud.ufile.privateKey");
+		String PUBLIC_KEY=prop.getProperty("ucloud.ufile.publicKey");
+		return new String[] {PUBLIC_KEY,PRIVATE_KEY};
 	}
 
 	public static void main(String[] args) {

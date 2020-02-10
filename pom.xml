@@ -239,6 +239,11 @@
 			<artifactId>ucloud-sdk-java-udisk</artifactId>
 			<version>0.8.2.7-release</version>
 		</dependency>
+		<dependency>
+		  <groupId>cn.ucloud</groupId>
+          <artifactId>ucloud-sdk-java-censor</artifactId>
+          <version>0.8.2.8-release</version>
+		</dependency>
 
 
 		<!-- swagger -->

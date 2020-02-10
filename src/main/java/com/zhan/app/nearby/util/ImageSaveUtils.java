@@ -12,6 +12,8 @@ import java.util.UUID;
 import org.apache.log4j.Logger;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.zhan.app.nearby.util.ucloud.ufile.UFileUtil;
+
 import cn.ucloud.ufile.exception.UfileClientException;
 import cn.ucloud.ufile.exception.UfileServerException;
 

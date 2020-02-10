@@ -1,13 +1,10 @@
 package com.zhan.app.nearby.util.baidu;
 
-import java.util.HashMap;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.baidu.aip.contentcensor.AipContentCensor;
 import com.baidu.aip.contentcensor.EImgType;
-import com.baidu.aip.face.AipFace;
 import com.zhan.app.nearby.util.TextUtils;
 
 public enum ImgCheckHelper {

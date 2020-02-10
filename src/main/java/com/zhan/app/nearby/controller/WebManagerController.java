@@ -902,11 +902,11 @@ public class WebManagerController {
 	
 	//获取需要審核的用戶头像
 	@RequestMapping(value = "/list_confirm_avatars")
-	public @ResponseBody ModelMap list_confirm_avatars(int pageSize, int pageIndex,Long user_id) {
+	public @ResponseBody ModelMap list_confirm_avatars(int pageSize, int pageIndex,Long user_id,int state) {
 		ModelMap r=ResultUtil.getResultOKMap();
-		r.addAttribute("users", managerService.listConfirmAvatars(pageSize,pageIndex,user_id));
+		r.addAttribute("users", managerService.listConfirmAvatars(pageSize,pageIndex,user_id,state));
 		if (pageIndex == 1) {
-			int totalSize = managerService.getCountOfConfirmAvatars(user_id);
+			int totalSize = managerService.getCountOfConfirmAvatars(user_id,state);
 			int pageCount = totalSize / pageSize;
 			if (totalSize % pageSize > 0) {
 				pageCount += 1;
@@ -919,6 +919,25 @@ public class WebManagerController {
 		r.put("currentPageIndex", pageIndex);
 		return r;
 	}
+	//获取需要審核的用戶头像
+		@RequestMapping(value = "/list_avatars_by_uid")
+		public @ResponseBody ModelMap list_avatars_by_uid(int pageSize, int pageIndex,Long user_id) {
+			ModelMap r=ResultUtil.getResultOKMap();
+			r.addAttribute("users", managerService.listAvatarsByUid(pageSize,pageIndex,user_id));
+			if (pageIndex == 1) {
+				int totalSize = managerService.getCountOfUserAvatars(user_id);
+				int pageCount = totalSize / pageSize;
+				if (totalSize % pageSize > 0) {
+					pageCount += 1;
+				}
+				if (pageCount == 0) {
+					pageCount = 1;
+				}
+				r.put("pageCount", pageCount);
+			}
+			r.put("currentPageIndex", pageIndex);
+			return r;
+		}
 	//充值会员
 	@RequestMapping(value = "/charge_vip")
 	public @ResponseBody ModelMap charge_vip(long user_id,int month,String mark) {

@@ -418,6 +418,10 @@ public class UserController {
 		user.setType((short) UserType.THRID_CHANNEL.ordinal());
 		user.setLast_login_time(new Date());
 		user.setCreate_time(new Date());
+		
+		if(user.getBirthday()==null) {
+			user.setBirthday(DateTimeUtil.parseDate("2002-01-01"));
+		}
 		long id = userService.insertUserThridChannel(user, false);
 		if (id == -1l) {
 			return ResultUtil.getResultMap(ERROR.ERR_USER_EXIST, "该第三方账号登录信息已存在");

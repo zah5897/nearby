@@ -19,8 +19,8 @@ import com.zhan.app.nearby.task.MatchActiveUserTask;
 import com.zhan.app.nearby.util.BottleKeyWordUtil;
 import com.zhan.app.nearby.util.IPUtil;
 import com.zhan.app.nearby.util.ResultUtil;
-import com.zhan.app.nearby.util.UCloudSMSHelper;
 import com.zhan.app.nearby.util.baidu.ImgCheckHelper;
+import com.zhan.app.nearby.util.ucloud.usms.UCloudSMSHelper;
 
 @RestController
 @RequestMapping("/system")

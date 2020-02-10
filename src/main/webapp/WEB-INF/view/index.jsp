@@ -44,6 +44,8 @@
     <li><a href="<%=path %>/manager/forword?path=user_new" target="right"><span class="icon-caret-right"></span>新增用户</a></li>
     
     <li><a href="<%=path %>/manager/forword?path=avatar_confirm" target="right"><span class="icon-caret-right"></span>变动头像审核</a></li>
+    <li><a href="<%=path %>/manager/forword?path=avatar_re_confirm" target="right"><span class="icon-caret-right"></span>变动头像复审</a></li>
+    <li><a href="<%=path %>/manager/forword?path=avatar_search" target="right"><span class="icon-caret-right"></span>用户头像搜索</a></li>
     
     <li><a href="<%=path %>/manager/forword?path=user_found_list" target="right"><span class="icon-caret-right"></span>发现用户列表</a></li>
     <li><a href="<%=path %>/manager/forword?path=user_found_black_list" target="right"><span class="icon-caret-right"></span>黑名单用户</a></li>

@@ -1,6 +1,7 @@
 package com.zhan.app.nearby.service;
 
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -395,13 +396,27 @@ public class ManagerService {
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<BaseUser> listConfirmAvatars(int pageSize, int pageIndex, Long user_id) {
+	public List<BaseUser> listConfirmAvatars(int pageSize, int pageIndex, Long user_id,int state) {
 		return (List<BaseUser>) ImagePathUtil
-				.completeAvatarsPath(userService.listConfirmAvatars(0, pageSize, pageIndex, user_id), false); // state=0为变动，1为
+				.completeAvatarsPath(userService.listConfirmAvatars(state, pageSize, pageIndex, user_id), false); // state=0为变动，1为
 	}
 
-	public int getCountOfConfirmAvatars(Long user_id) {
-		return userService.getCountOfConfirmAvatars(user_id);
+	@SuppressWarnings("unchecked")
+	public List<BaseUser> listAvatarsByUid(int pageSize, int pageIndex, Long user_id) {
+		if(user_id==null) {
+			return new ArrayList<>();
+		}
+		return (List<BaseUser>) ImagePathUtil
+				.completeAvatarsPath(userService.listAvatarsByUid( pageSize, pageIndex, user_id), false); // state=0为变动，1为
+	}
+	public int getCountOfConfirmAvatars(Long user_id,int state) {
+		return userService.getCountOfConfirmAvatars(user_id,state);
+	}
+	public int getCountOfUserAvatars(Long user_id) {
+		if(user_id==null) {
+			return 0;
+		}
+		return userService.getCountOfUserAvatars(user_id);
 	}
 
 	public void charge_vip(long user_id, int month, String mark) {

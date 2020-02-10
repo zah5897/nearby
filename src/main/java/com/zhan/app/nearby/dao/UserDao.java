@@ -246,7 +246,7 @@ public class UserDao extends BaseDao {
 
 	public int modify_info(long user_id, String nick_name, String birthday, String job, String height, String weight,
 			String signature, String my_tags, String interests, String animals, String musics, String weekday_todo,
-			String footsteps, String want_to_where, Integer birth_city_id, String contact,String newSex) {
+			String footsteps, String want_to_where, Integer birth_city_id, String contact, String newSex) {
 
 		String sql = "update t_user set ";
 		StringBuilder names = new StringBuilder();
@@ -254,18 +254,17 @@ public class UserDao extends BaseDao {
 		if (nick_name != null) {
 			names.append("nick_name=?");
 			values.add(nick_name);
-		} 
-		
-		
+		}
+
 		if (newSex != null) {
 			if (values.size() > 0) {
 				names.append(",sex=?");
 				values.add(newSex);
-			}else {
+			} else {
 				names.append("sex=?");
 				values.add(newSex);
 			}
-			
+
 		}
 
 		Date birthdayDate = DateTimeUtil.parseDate(birthday);
@@ -386,8 +385,8 @@ public class UserDao extends BaseDao {
 				+ " on u.user_id=fu.uid "
 				+ "where  (u.type=? or u.type=?) and   (fu.state is null or fu.state<>1)  and DATE_SUB(CURDATE(), INTERVAL 15 DAY) <= date(create_time) order by mli desc limit ?,?";
 
-		List<MeiLi> users = jdbcTemplate.query(sql,
-				new Object[] { Relationship.LIKE.ordinal(), UserType.OFFIEC.ordinal(),UserType.THRID_CHANNEL.ordinal(), (page - 1) * count, count },
+		List<MeiLi> users = jdbcTemplate.query(sql, new Object[] { Relationship.LIKE.ordinal(),
+				UserType.OFFIEC.ordinal(), UserType.THRID_CHANNEL.ordinal(), (page - 1) * count, count },
 				new RowMapper<MeiLi>() {
 					@Override
 					public MeiLi mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -424,7 +423,8 @@ public class UserDao extends BaseDao {
 				+ "left join t_sys_city c on u.city_id=c.id   "
 				+ "where v.dayDiff >0 and  (u.type=? or u.type=?) order by v.start_time desc limit ?,?";
 		List<MeiLi> users = jdbcTemplate.query(sql,
-				new Object[] { UserType.OFFIEC.ordinal(),UserType.THRID_CHANNEL.ordinal(), (page - 1) * count, count }, new RowMapper<MeiLi>() {
+				new Object[] { UserType.OFFIEC.ordinal(), UserType.THRID_CHANNEL.ordinal(), (page - 1) * count, count },
+				new RowMapper<MeiLi>() {
 					@Override
 					public MeiLi mapRow(ResultSet rs, int rowNum) throws SQLException {
 						MeiLi m = new MeiLi();
@@ -793,6 +793,10 @@ public class UserDao extends BaseDao {
 		return jdbcTemplate.query("select *  from t_user_avatars where uid=" + user_id + " order by id desc limit 6",
 				new BeanPropertyRowMapper<Avatar>(Avatar.class));
 	}
+	public List<Avatar> listNotCheckedAvatars(int count) {
+		return jdbcTemplate.query("select *  from t_user_avatars where state=0  order by id desc limit "+count,
+				new BeanPropertyRowMapper<Avatar>(Avatar.class));
+	}
 
 	public List<String> getUserAvatarsString(long user_id) {
 		return jdbcTemplate.queryForList("select avatar  from t_user_avatars where uid=" + user_id, String.class);
@@ -932,14 +936,33 @@ public class UserDao extends BaseDao {
 				});
 	}
 
-	public int getCountOfConfirmAvatars(Long user_id) {
-		if (user_id != null && user_id > 0)
-			return jdbcTemplate.queryForObject("select count(*) from t_user_avatars where state=0 and uid=" + user_id,
-					Integer.class);
-		else
-			return jdbcTemplate.queryForObject("select count(*) from t_user_avatars where state=0", Integer.class);
+	public List<BaseUser> listAvatarsByUid(int pageSize, int pageIndex, long user_id) {
+		String sql = "select v.id, u.user_id,u.nick_name,v.avatar from t_user_avatars v left join t_user u on v.uid=u.user_id where v.uid="
+				+ user_id + " order by v.id desc limit ?,?";
+		return jdbcTemplate.query(sql, new Object[] { (pageIndex - 1) * pageSize, pageSize },
+				new BeanPropertyRowMapper<BaseUser>(BaseUser.class) {
+			@Override
+			public BaseUser mapRow(ResultSet rs, int rowNumber) throws SQLException {
+				BaseUser user = super.mapRow(rs, rowNumber);
+				user.setContact(String.valueOf(rs.getInt("id")));
+				return user;
+			}
+		});
 	}
 
+	public int getCountOfConfirmAvatars(Long user_id,int state) {
+		if (user_id != null && user_id > 0)
+			return jdbcTemplate.queryForObject("select count(*) from t_user_avatars where state="+state+" and uid=" + user_id,
+					Integer.class);
+		else
+			return jdbcTemplate.queryForObject("select count(*) from t_user_avatars where state="+state, Integer.class);
+	}
+
+	public int getCountOfUserAvatars(long user_id) {
+			return jdbcTemplate.queryForObject("select count(*) from t_user_avatars where  uid=" + user_id,
+					Integer.class);
+	}
+	
 	public List<String> checkRegistIP(int limitCount) {
 		List<String> list = jdbcTemplate.queryForList(
 				"select ip from (select count(*) as count,ip from t_user group by ip) d where d.count>=? and d.ip is not null",
@@ -1075,29 +1098,30 @@ public class UserDao extends BaseDao {
 //		return jdbcTemplate.query(sql, new Object[] { sex, days, count },
 //				new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
 //	}
-	
-	//获取当前需要匹配的男性账号总数
+
+	// 获取当前需要匹配的男性账号总数
 	public int getNeedMatchManCount(int days) {
-		String sql="select count(*)  from t_user u  where u.sex=1 and (u.type=1 or u.type=3) and u.user_id not in (select uid from t_user_match where  to_days(match_time) = to_days(now()))  and  DATE_SUB(CURDATE(), INTERVAL ? DAY) <= date(u.last_login_time)";
-	    return jdbcTemplate.queryForObject(sql,new Object[] {days}, Integer.class);
+		String sql = "select count(*)  from t_user u  where u.sex=1 and (u.type=1 or u.type=3) and u.user_id not in (select uid from t_user_match where  to_days(match_time) = to_days(now()))  and  DATE_SUB(CURDATE(), INTERVAL ? DAY) <= date(u.last_login_time)";
+		return jdbcTemplate.queryForObject(sql, new Object[] { days }, Integer.class);
 	}
-	//获取今天没做匹配的男性账号
-	public List<BaseUser> getActiveManToMatch( int days, int count,int startIndex) {
-			String sql="select u.user_id,u.nick_name,u.type,u.last_login_time ,u.sex ,u.avatar from t_user u "
-					+ " where u.sex=1 and (u.type=1 or u.type=3)"
-					+ " and u.user_id not in (select uid from t_user_match where  to_days(match_time) = to_days(now())) "
-					+ " and  DATE_SUB(CURDATE(), INTERVAL ? DAY) <= date(u.last_login_time) order by u.last_login_time desc limit ?,?";
-			return jdbcTemplate.query(sql, new Object[] {days,startIndex, count },
-					new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+
+	// 获取今天没做匹配的男性账号
+	public List<BaseUser> getActiveManToMatch(int days, int count, int startIndex) {
+		String sql = "select u.user_id,u.nick_name,u.type,u.last_login_time ,u.sex ,u.avatar from t_user u "
+				+ " where u.sex=1 and (u.type=1 or u.type=3)"
+				+ " and u.user_id not in (select uid from t_user_match where  to_days(match_time) = to_days(now())) "
+				+ " and  DATE_SUB(CURDATE(), INTERVAL ? DAY) <= date(u.last_login_time) order by u.last_login_time desc limit ?,?";
+		return jdbcTemplate.query(sql, new Object[] { days, startIndex, count },
+				new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
 	}
-	//获取被匹配的女性账号
+
+	// 获取被匹配的女性账号
 	public List<BaseUser> getActiveWomenUserNotDoMatch(int count) {
-			String sql="select u.user_id,u.nick_name,u.type,u.last_login_time ,u.sex ,u.avatar from t_user u "
-					+ " where u.sex=0 and (u.type=1 or u.type=3)"
-					+ " and u.user_id not in (select target_uid from t_user_match where  to_days(match_time) = to_days(now())) "
-					+ " order by u.last_login_time desc limit ?";
-			return jdbcTemplate.query(sql, new Object[] {count },
-					new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+		String sql = "select u.user_id,u.nick_name,u.type,u.last_login_time ,u.sex ,u.avatar from t_user u "
+				+ " where u.sex=0 and (u.type=1 or u.type=3)"
+				+ " and u.user_id not in (select target_uid from t_user_match where  to_days(match_time) = to_days(now())) "
+				+ " order by u.last_login_time desc limit ?";
+		return jdbcTemplate.query(sql, new Object[] { count }, new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
 	}
 
 	public void addDeviceToken(long user_id, String device_token) {
@@ -1128,31 +1152,42 @@ public class UserDao extends BaseDao {
 	public int updateAvatarIsFace(long userId, int isFace) {
 		return jdbcTemplate.update("update t_user set isFace=? where user_id=?", new Object[] { isFace, userId });
 	}
+	public int updateAvatarState(int id, int state) {
+		return jdbcTemplate.update("update t_user_avatar set state=? where id=?", new Object[] { state, id });
+	}
 
 	public void clearUserMatchData() {
 		jdbcTemplate.update("delete  from t_user_match where DATE_SUB(CURDATE(), INTERVAL 7 DAY) <= date(match_time)");
 	}
 
 	public int updateUserBirthCity(long user_id, int city_id) {
-		String sql="update t_user set birth_city_id=? where user_id=?";
-		return jdbcTemplate.update(sql,new Object[] {city_id,user_id});
+		String sql = "update t_user set birth_city_id=? where user_id=?";
+		return jdbcTemplate.update(sql, new Object[] { city_id, user_id });
 	}
 
 	public int getSexModifyTimes(long uid) {
-		  int exist=jdbcTemplate.queryForObject("select count(*) from t_sex_modify_history where uid="+uid, Integer.class);
-		 if(exist==1) {
-			 return jdbcTemplate.queryForObject("select modify_times from t_sex_modify_history where uid="+uid,Integer.class);
-		 }else {
-			 return -1;
-		 }
+		int exist = jdbcTemplate.queryForObject("select count(*) from t_sex_modify_history where uid=" + uid,
+				Integer.class);
+		if (exist == 1) {
+			return jdbcTemplate.queryForObject("select modify_times from t_sex_modify_history where uid=" + uid,
+					Integer.class);
+		} else {
+			return -1;
+		}
 	}
 
 	public void updateModifySexTimes(long user_id) {
-		int times=getSexModifyTimes(user_id);
-		if(times>0) {
-			jdbcTemplate.update("update t_sex_modify_history set modify_times=?,last_modify_time=? where uid=?",new Object[] {times+1,new Date(),user_id});
-		}else {
-			jdbcTemplate.update("insert ignore into  t_sex_modify_history (uid,modify_times,last_modify_time) values(?,?,?)",new Object[] {user_id,1,new Date()});
+		int times = getSexModifyTimes(user_id);
+		if (times > 0) {
+			jdbcTemplate.update("update t_sex_modify_history set modify_times=?,last_modify_time=? where uid=?",
+					new Object[] { times + 1, new Date(), user_id });
+		} else {
+			jdbcTemplate.update(
+					"insert ignore into  t_sex_modify_history (uid,modify_times,last_modify_time) values(?,?,?)",
+					new Object[] { user_id, 1, new Date() });
 		}
 	}
+	
+	
+	
 }

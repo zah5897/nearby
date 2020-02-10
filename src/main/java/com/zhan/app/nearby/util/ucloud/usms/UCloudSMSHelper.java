@@ -1,9 +1,11 @@
-package com.zhan.app.nearby.util;
+package com.zhan.app.nearby.util.ucloud.usms;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import com.zhan.app.nearby.util.JSONUtil;
+import com.zhan.app.nearby.util.PropertiesUtil;
 import com.zhan.app.nearby.util.ucloud.usms.client.DefaultUSMSClient;
 import com.zhan.app.nearby.util.ucloud.usms.client.USMSClient;
 import com.zhan.app.nearby.util.ucloud.usms.model.SendUSMSMessageParam;

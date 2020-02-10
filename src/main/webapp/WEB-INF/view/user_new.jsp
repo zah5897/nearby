@@ -230,7 +230,7 @@
 			   
 			  
 			  if(pageData.avatar&&pageData.avatar.indexOf('illegal.jpg')==-1){
-				  toAdd+="<a id="+user_id+" class='button border-yellow' href='javascript:void(0)'	onclick='return edit_avatar_state("+user_id+")'><span class='icon-edit'></span>头像违法</a>";
+				  toAdd+="<a id="+user_id+" class='button border-yellow' href='javascript:void(0)'	onclick='return edit_avatar_state("+user_id+")'><span class='icon-edit'></span>头像违规</a>";
 			  }
 			  
 			  

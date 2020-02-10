@@ -72,25 +72,31 @@ public class VideoController {
 	@ApiOperation(httpMethod = "POST", value = "获取当前账号的短视频列表") // swagger 当前接口注解
 	@ApiImplicitParams({ @ApiImplicitParam(name = "user_id", value = "用户id", required = true, paramType = "query"),
 			@ApiImplicitParam(name = "token", value = "用户登录token", required = true, paramType = "query"),
-			@ApiImplicitParam(name = "page", value = "page", required = true, paramType = "query"),
+			@ApiImplicitParam(name = "last_id", value = "上一页最后一条的id值", required = true, paramType = "query"),
 			@ApiImplicitParam(name = "count", value = "count", required = true, paramType = "query") })
-	public ModelMap mine(long user_id, String token, int page, int count) {
+	public ModelMap mine(long user_id, String token, String last_id, int count) {
 		if (!userService.checkLogin(user_id, token)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
-		List<Video> list = videoService.mine(user_id, page, count);
-		return ResultUtil.getResultOKMap().addAttribute("data", list).addAttribute("hasMore", list.size() == count);
+		List<Video> list = videoService.mine(user_id, last_id, count);
+		if(!list.isEmpty()) {
+			last_id=list.get(list.size()-1).getId();
+		}
+		return ResultUtil.getResultOKMap().addAttribute("data", list).addAttribute("hasMore", list.size() == count).addAttribute("last_id", last_id);
 	}
 
 	@RequestMapping("list")
 	@ApiOperation(httpMethod = "POST", value = "获取他人短视频列表") // swagger 当前接口注解
 	@ApiImplicitParams({
 			@ApiImplicitParam(name = "target_user_id", value = "对应用户id", required = true, paramType = "query"),
-			@ApiImplicitParam(name = "page", value = "page", required = true, paramType = "query"),
+			@ApiImplicitParam(name = "last_id", value = "上一页最后一条的id值", required = true, paramType = "query"),
 			@ApiImplicitParam(name = "count", value = "count", required = true, paramType = "query") })
-	public ModelMap list(long target_user_id, int page, int count) {
-		List<Video> list = videoService.list(target_user_id, page, count);
-		return ResultUtil.getResultOKMap().addAttribute("data", list).addAttribute("hasMore", list.size() == count);
+	public ModelMap list(long target_user_id, String last_id, int count) {
+		List<Video> list = videoService.list(target_user_id, last_id, count);
+		if(!list.isEmpty()) {
+			last_id=list.get(list.size()-1).getId();
+		}
+		return ResultUtil.getResultOKMap().addAttribute("data", list).addAttribute("hasMore", list.size() == count).addAttribute("last_id", last_id);
 	}
 
 	

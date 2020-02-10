@@ -25,13 +25,13 @@ public class VideoService {
 		videoDao.insert(video);
 	}
 
-	public List<Video> mine(long user_id, int page, int count) {
-		List<Video> list = videoDao.mine(user_id, page, count);
+	public List<Video> mine(long user_id, String last_id, int count) {
+		List<Video> list = videoDao.mine(user_id, last_id, count);
 		ImagePathUtil.completeVideosPath(list);
 		return list;
 	}
-	public List<Video> list(long user_id, int page, int count) {
-		List<Video> list = videoDao.mine(user_id, page, count);
+	public List<Video> list(long user_id, String last_id, int count) {
+		List<Video> list = videoDao.mine(user_id, last_id, count);
 		ImagePathUtil.completeVideosPath(list);
 		return list;
 	}

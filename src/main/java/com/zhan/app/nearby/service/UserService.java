@@ -860,10 +860,15 @@ public class UserService {
 	}
 
 	@Transactional
-	public void editAvatarState(int id) {
-		long uid = userDao.editAvatarState(id, AvatarIMGStatus.ILLEGAL.ordinal());
-		userDao.removeFromFoundUserList(uid);
-		bottleService.clearIllegalMeetBottle(uid);
+	public void editAvatarState(int id,int state) {
+		if(state==AvatarIMGStatus.ILLEGAL.ordinal()) {
+			long uid = userDao.editAvatarState(id, AvatarIMGStatus.ILLEGAL.ordinal());
+			userDao.removeFromFoundUserList(uid);
+			bottleService.clearIllegalMeetBottle(uid);
+		}else {
+			userDao.updateAvatarState(id, state);
+		}
+		
 	}
 
 	@Transactional

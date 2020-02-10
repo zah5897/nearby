@@ -889,8 +889,8 @@ public class WebManagerController {
 	}
 
 	@RequestMapping(value = "/edit_avatar_state")
-	public @ResponseBody ModelMap edit_avatar_state(int id) {
-		managerService.editAvatarState(id);
+	public @ResponseBody ModelMap edit_avatar_state(int id,int state) {
+		managerService.editAvatarState(id,state);
 		return ResultUtil.getResultOKMap();
 	}
 	

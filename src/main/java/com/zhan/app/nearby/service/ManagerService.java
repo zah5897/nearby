@@ -378,8 +378,8 @@ public class ManagerService {
 		return mainService.addSpreadUser(uid);
 	}
 
-	public void editAvatarState(int id) {
-		userService.editAvatarState(id);
+	public void editAvatarState(int id,int state) {
+		userService.editAvatarState(id,state);
 	}
 
 	public void editAvatarStateByUserId(long uid) {

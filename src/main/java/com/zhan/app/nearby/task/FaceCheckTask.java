@@ -63,7 +63,7 @@ public class FaceCheckTask {
 			if ("forbid".equals(result)) {
 				userService.editAvatarStateToIllegal(v.getUid(),name);
 			}else if("pass".equals(result)){ 
-				userService.updateAvatarState(v.getId(), AvatarIMGStatus.AICHECK_PASS.ordinal()); //通过
+				userService.updateAvatarState(v.getId(), AvatarIMGStatus.CHECK_PASS.ordinal()); //通过
 			}else {
 				userService.updateAvatarState(v.getId(), AvatarIMGStatus.NEED_RECHECK.ordinal()); //需要人工复审
 			}

@@ -112,7 +112,7 @@
 			if (currentPageIndex == index) {
 				return false;
 			}
-			$.post("<%=path%>/manager/list_confirm_avatars",{'pageIndex':index,'pageSize':pageSize,'state':3,'user_id':user_id},function(result){
+			$.post("<%=path%>/manager/list_confirm_avatars",{'pageIndex':index,'pageSize':pageSize,'state':2,'user_id':user_id},function(result){
 				 var json=JSON.parse(result);
 				 
 			        if(json.code==0){
@@ -187,19 +187,7 @@
 		}
 		
 		function edit_avatar_state(id){
-			$.post("<%=path%>/manager/edit_avatar_state",{'id':id,'state':1},function(result){
-				 var json=JSON.parse(result);
-			        if(json.code==0){
-			        	parent.toast("操作成功！");
-			        	 $("#"+user_id).hide();
-			        	 $("#img_"+user_id).hide();
-			        }else{
-			        	parent.toast("操作失败！");
-			        }
-		    });
-		}
-		function edit_avatar_state_pass(id){
-			$.post("<%=path%>/manager/edit_avatar_state",{'id':id,'state':2},function(result){
+			$.post("<%=path%>/manager/edit_avatar_state",{'id':id},function(result){
 				 var json=JSON.parse(result);
 			        if(json.code==0){
 			        	parent.toast("操作成功！");
@@ -258,7 +246,6 @@
 			  toAdd+="<td><div class='button-group'>";
 			  if(pageData.avatar&&pageData.avatar.indexOf('illegal.jpg')==-1){
 				  toAdd+="<a id="+user_id+" class='button border-yellow' href='javascript:void(0)'	onclick='return edit_avatar_state("+index+")'><span class='icon-edit'></span>头像违法</a>";
-				  toAdd+="<a id="+user_id+" class='button border-yellow' href='javascript:void(0)'	onclick='return edit_avatar_state_pass("+index+")'><span class='icon-edit'></span>审核通过</a>";
 			  }
 			  
 			  toAdd+="</div></td></tr>";

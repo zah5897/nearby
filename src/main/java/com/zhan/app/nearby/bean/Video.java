@@ -8,10 +8,9 @@ import com.zhan.app.nearby.annotation.ColumnType;
 import com.zhan.app.nearby.bean.user.BaseUser;
 
 import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 @ApiModel(description= "短视频对象")
 public class Video {
-	private String id;
+	private long id;
 	@JsonIgnore
 	private long uid;
 	
@@ -19,12 +18,12 @@ public class Video {
 	private String video_name;
 	@JsonIgnore
 	private String thumb_img_name;
-	
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm", locale = "zh", timezone = "GMT+8")
 	private Date create_time;
 	@ColumnType
 	private long create_time_v2;
-	private int duration;
+	
+	private float duration;
 	@ColumnType
 	private String thumb_url;
 	@ColumnType
@@ -33,6 +32,7 @@ public class Video {
 	private String title;
 	
 	
+	private int type; //0 普通视频 ，1头像视频 ，2动态视频
 	private int comment_count;
 	
 	private int praise_count;
@@ -41,6 +41,9 @@ public class Video {
 	private int share_count;
 	
 	private int store_count;
+	
+	@ColumnType
+	private BaseUser user;
 	
 	public int getComment_count() {
 		return comment_count;
@@ -73,12 +76,13 @@ public class Video {
 		this.title = title;
 	}
 
-	private BaseUser sender;
-	public BaseUser getSender() {
-		return sender;
+	
+	 
+	public float getDuration() {
+		return duration;
 	}
-	public void setSender(BaseUser sender) {
-		this.sender = sender;
+	public void setDuration(float duration) {
+		this.duration = duration;
 	}
 	public String getUrl() {
 		return url;
@@ -101,37 +105,22 @@ public class Video {
 
 	public void setCreate_time(Date create_time) {
 		this.create_time = create_time;
-		if (create_time != null) {
-			this.create_time_v2 = create_time.getTime() / 1000;
+		if(create_time!=null) {
+			create_time_v2=create_time.getTime()/1000;
 		}
 	}
+ 
 
-	public long getCreate_time_v2() {
-		return create_time_v2;
-	}
-
-	public void setCreate_time_v2(long create_time_v2) {
-		this.create_time_v2 = create_time_v2;
-	}
-
-	public int getDuration() {
-		return duration;
-	}
-
-	public void setDuration(int duration) {
-		this.duration = duration;
-	}
-
-	public String getId() {
-		return id;
-	}
-
-	public void setId(String id) {
-		this.id = id;
-	}
+ 
 
 	 
 
+	public long getId() {
+		return id;
+	}
+	public void setId(long id) {
+		this.id = id;
+	}
 	public String getVideo_name() {
 		return video_name;
 	}
@@ -144,6 +133,9 @@ public class Video {
 		return thumb_img_name;
 	}
 
+	public long getCreate_time_v2() {
+		return create_time_v2;
+	}
 	public void setThumb_img_name(String thumb_img_name) {
 		this.thumb_img_name = thumb_img_name;
 	}
@@ -154,6 +146,18 @@ public class Video {
 
 	public void setThumb_url(String thumb_url) {
 		this.thumb_url = thumb_url;
+	}
+	public BaseUser getUser() {
+		return user;
+	}
+	public void setUser(BaseUser user) {
+		this.user = user;
+	}
+	public int getType() {
+		return type;
+	}
+	public void setType(int type) {
+		this.type = type;
 	}
 
 }

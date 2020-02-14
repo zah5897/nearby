@@ -48,8 +48,8 @@ public class TimerTask {
 		UserCacheService userCacheService = SpringContextUtil.getBean("userCacheService");
 		userCacheService.clearCacheCount();
 		// 删除匹配的用户记录
-		UserService userService = SpringContextUtil.getBean("userService");
-		userService.clearUserMatchData();
+//		UserService userService = SpringContextUtil.getBean("userService");
+//		userService.clearUserMatchData();
 	}
 
 	@Scheduled(cron = "0 10 0 * * ?") // 每天0：10分执行

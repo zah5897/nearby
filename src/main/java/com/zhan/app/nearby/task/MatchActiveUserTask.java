@@ -51,7 +51,7 @@ public class MatchActiveUserTask {
 		if ("0".equals(curUser.getSex())) {
 			sex = 1;
 		}
-		List<BaseUser> users = userService.get2daysLoginUser(curUser.getUser_id(),sex, 90, 1);
+		List<BaseUser> users = userService.get2daysLoginUser(curUser.getUser_id(), sex, 90, 1);
 		ImagePathUtil.completeAvatarPath(curUser, true);
 		for (BaseUser u : users) {
 			String msg = Main.getRandomMsg();
@@ -60,9 +60,10 @@ public class MatchActiveUserTask {
 			HX_SessionUtil.matchCopyDraw(ImagePathUtil.completeAvatarPath(u, true), curUser.getUser_id(), msg);
 		}
 	}
+
 	@Async
 	public void matchActiveUsers() {
 		userService.matchActiveUsers();
 	}
- 
+
 }

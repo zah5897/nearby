@@ -24,6 +24,8 @@ import com.zhan.app.nearby.comm.PushMsgType;
 import com.zhan.app.nearby.dao.UserDao;
 import com.zhan.app.nearby.dao.UserDynamicDao;
 import com.zhan.app.nearby.exception.ERROR;
+import com.zhan.app.nearby.task.HXAsyncTask;
+import com.zhan.app.nearby.util.HX_SessionUtil;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.ImageSaveUtils;
 import com.zhan.app.nearby.util.ResultUtil;
@@ -37,6 +39,12 @@ public class UserDynamicService {
 	private UserDynamicDao userDynamicDao;
 	@Resource
 	private UserDao userDao;
+	
+	
+	
+	@Autowired
+	private HXAsyncTask hxTask;
+	
 	@Transactional
 	public long insertDynamic(UserDynamic dynamic) {
 		long id = userDynamicDao.insertDynamic(dynamic);
@@ -53,13 +61,7 @@ public class UserDynamicService {
 		if (result > 0) {
 			if (praise) {
 				long user_id = userDynamicDao.getUserIdByDynamicId(dynamic_id);
-				Map<String, String> ext = new HashMap<String, String>();
-				ext.put("dynamic_id", String.valueOf(dynamic_id));
-
-				String msg = "有人赞了你的图片！";
-				ext.put("msg", msg);
-				Main.sendTxtMessage(Main.SYS, new String[] { String.valueOf(user_id) }, msg, ext,
-						PushMsgType.TYPE_RECEIVE_PRAISE);
+				hxTask.pushPraise(user_id,dynamic_id);
 			}
 		}
 		return result;
@@ -87,15 +89,7 @@ public class UserDynamicService {
 		if (id > 0) {
 			userDynamicDao.updateCommentCount(comment.getDynamic_id());
 			long user_id = userDynamicDao.getUserIdByDynamicId(comment.getDynamic_id());
-
-			Map<String, String> ext = new HashMap<String, String>();
-			ext.put("comment_id", String.valueOf(comment.getId()));
-			ext.put("dynamic_id", String.valueOf(comment.getDynamic_id()));
-			String user_id_str = String.valueOf(user_id);
-
-			String msg = "有人评论了你的图片，快去看看！";
-			ext.put("msg", msg);
-			Main.sendTxtMessage(Main.SYS, new String[] { user_id_str }, msg, ext, PushMsgType.TYPE_RECEIVE_COMMENT);
+			hxTask.pushComment(user_id, comment);
 		}
 		return id;
 	}

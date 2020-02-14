@@ -385,9 +385,9 @@ public class UserController {
 	@ApiImplicitParams({ @ApiImplicitParam(name = "aid", value = "aid", required = true, paramType = "query"),
 			@ApiImplicitParam(name = "city_id", value = "city_id", paramType = "query"),
 			@ApiImplicitParam(name = "_ua", value = "_ua", required = true, paramType = "query"),
-			@ApiImplicitParam(name = "channel", value = "channel", required = true, paramType = "query"), })
+			@ApiImplicitParam(name = "login_channel", value = "login_channel", required = true, paramType = "query"), })
 	public ModelMap login_thrid_channel(HttpServletRequest request, LoginUser user, String aid, Integer city_id,
-			String _ua, String login_channel, String image_names, String city_name, String province_name) {
+			String _ua, String login_channel,String image_names, String city_name, String province_name) {
 
 		if (TextUtils.isEmpty(user.getOpenid())) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "此为第三方账号登录，openid不能为空");
@@ -397,8 +397,15 @@ public class UserController {
 		} else {
 			user.set_ua(decode(_ua));
 		}
-		user.setOpenid(login_channel + "#" + user.getOpenid());
-		user.setToken(UUID.randomUUID().toString());
+		if (TextUtils.isEmpty(login_channel)&&user.getUser_id()>0){
+			String openid=userService.getOpenIdByUid(user.getUser_id());
+			if(!openid.endsWith(user.getOpenid())) {
+				return ResultUtil.getResultMap(ERROR.ERR_PARAM,"user_id对应的openid和本次openid不符");
+			}
+			user.setOpenid(openid);
+		}else {
+			user.setOpenid(login_channel+"#"+user.getOpenid());
+		}
 		if (userService.getUserCountByOpenid(user.getOpenid()) >= 1) {
 			return userService.doLogin(user, user.get_ua(), aid, getDefaultCityId());
 		}
@@ -406,15 +413,12 @@ public class UserController {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "昵称不能为空");
 		}
 		user.setIp(IPUtil.getIpAddress(request));
-
+		user.setToken(UUID.randomUUID().toString());
 		user.setAvatar(image_names);
-
 //		user.setNick_name(BottleKeyWordUtil.filterContent(user.getNick_name()));
-
 		if (user.getBirth_city_id() == 0 && city_id != null) {
 			user.setBirth_city_id(city_id);
 		}
-
 		user.setType((short) UserType.THRID_CHANNEL.ordinal());
 		user.setLast_login_time(new Date());
 		user.setCreate_time(new Date());
@@ -928,18 +932,18 @@ public class UserController {
 		if (!userService.checkLogin(user_id, token)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
-		
+
 		BaseUser user = userService.getBasicUser(user_id);
-		String newSex=null;
-		if (!TextUtils.isEmpty(sex)&&("0".equals(sex)||"1".equals(sex))) {
-            if(!sex.equals(user.getSex())) {
-            	boolean canModify=userService.canModifySex(user_id);
-            	if(!canModify) {
-            	   return ResultUtil.getResultMap(ERROR.ERR_MODIFY_SEX_LIMIT);
-            	}else {
-            		newSex=sex;
-            	}
-            }
+		String newSex = null;
+		if (!TextUtils.isEmpty(sex) && ("0".equals(sex) || "1".equals(sex))) {
+			if (!sex.equals(user.getSex())) {
+				boolean canModify = userService.canModifySex(user_id);
+				if (!canModify) {
+					return ResultUtil.getResultMap(ERROR.ERR_MODIFY_SEX_LIMIT);
+				} else {
+					newSex = sex;
+				}
+			}
 		}
 
 		boolean isNick_modify = false;
@@ -954,7 +958,7 @@ public class UserController {
 		}
 		userService.modify_info(user_id, nick_name, birthday, jobs, height, weight, signature, my_tags, interest,
 				favourite_animal, favourite_music, weekday_todo, footsteps, want_to_where, isNick_modify, birth_city_id,
-				contact,newSex);
+				contact, newSex);
 		userService.updateModifySexTimes(user_id);
 		return userService.getUserCenterData(token, aid, user_id, user_id);
 	}
@@ -1168,15 +1172,19 @@ public class UserController {
 
 	@RequestMapping("online_list")
 	public ModelMap online_list(Integer page, Integer count) {
+
 		if (page == null || page < 0) {
 			page = 1;
 		}
 		if (count == null || count <= 0) {
 			count = 10;
 		}
+		
 		List<LoginUser> users = userService.getOnlineUsers(page, count);
 		return ResultUtil.getResultOKMap().addAttribute("users", users).addAttribute("hasMore", users.size() == count);
+	
 	}
+	 
 
 	@RequestMapping("follow")
 	public ModelMap follow(long user_id, String token, long target_id) {

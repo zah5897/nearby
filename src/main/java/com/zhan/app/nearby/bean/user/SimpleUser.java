@@ -24,10 +24,13 @@ public class SimpleUser extends BaseUser {
 
 	private String weight;// 体重
 	private String height;// 身高
-
-	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", locale = "zh", timezone = "GMT+8")
+	
+	@JsonFormat(pattern = "yyyy-MM-dd", locale = "zh", timezone = "GMT+8")
 	private Date last_login_time;
 
+	@ColumnType // 不用插入数据库字段
+	private long last_login_time_v2;
+	
 	// 区分国外用户
 	@JsonIgnore
 	private String zh_cn;
@@ -77,6 +80,9 @@ public class SimpleUser extends BaseUser {
 
 	public void setLast_login_time(Date last_login_time) {
 		this.last_login_time = last_login_time;
+		if(last_login_time!=null) {
+			last_login_time_v2=last_login_time.getTime()/1000;
+		}
 	}
 
 
@@ -105,4 +111,7 @@ public class SimpleUser extends BaseUser {
 		this.openid = openid;
 	}
 
+	public long getLast_login_time_v2() {
+		return last_login_time_v2;
+	}
 }

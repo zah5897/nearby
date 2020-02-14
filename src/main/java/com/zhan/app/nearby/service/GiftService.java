@@ -10,6 +10,7 @@ import javax.annotation.Resource;
 
 import org.apache.http.util.TextUtils;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
@@ -20,12 +21,15 @@ import com.zhan.app.nearby.bean.Gift;
 import com.zhan.app.nearby.bean.GiftOwn;
 import com.zhan.app.nearby.bean.MeiLi;
 import com.zhan.app.nearby.bean.user.BaseUser;
+import com.zhan.app.nearby.bean.user.BaseVipUser;
 import com.zhan.app.nearby.cache.InfoCacheService;
 import com.zhan.app.nearby.cache.UserCacheService;
 import com.zhan.app.nearby.comm.ExchangeState;
 import com.zhan.app.nearby.comm.PushMsgType;
 import com.zhan.app.nearby.dao.GiftDao;
 import com.zhan.app.nearby.exception.ERROR;
+import com.zhan.app.nearby.task.HXAsyncTask;
+import com.zhan.app.nearby.util.HX_SessionUtil;
 import com.zhan.app.nearby.util.HttpService;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.JSONUtil;
@@ -43,12 +47,18 @@ public class GiftService {
 
 	@Resource
 	private UserService userService;
+	@Autowired
+	private VipService vipService;
 
 	@Resource
 	private InfoCacheService infoCacheService;
 	@Resource
 	private UserCacheService userCacheService;
 
+	
+	@Autowired
+	private HXAsyncTask hxTask;
+	
 	@Transactional
 	public ModelMap save(Gift gift) {
 		if (gift.getId() > 0) {
@@ -107,21 +117,9 @@ public class GiftService {
 			int i = giftDao.addOwn(to_user_id, gift_id, user_id, count);
 			giftDao.addGiftCoins(to_user_id, gift_coins);
 			if (i == 1) {
-				// 通知对方收到某某的礼物
-				Map<String, String> ext = new HashMap<String, String>();
-				ext = new HashMap<String, String>();
-				// ext.put("nickname", with_user.getNick_name());
-				// ext.put("avatar", with_user.getAvatar());
-				// ext.put("origin_avatar", with_user.getOrigin_avatar());
-				// ext.put("description", "");
-				String desc = "赠送了一个礼物给你";
 				BaseUser u = userService.getBasicUser(user_id);
-
 				infoCacheService.clear(InfoCacheService.GIFT_SEND_NOTICE);
-
-				// Main.sendCmdMessage("sys", users, ext);
-				Main.sendTxtMessage(Main.SYS, new String[] { String.valueOf(to_user_id) }, u.getNick_name() + desc, ext,
-						PushMsgType.TYPE_RECEIVE_GIFT);
+				hxTask.pushGift(u.getNick_name(),to_user_id);
 				Map<String, Object> result = HttpService.queryUserCoins(user_id, aid);
 				return result;
 			} else {
@@ -137,7 +135,12 @@ public class GiftService {
 	}
 
 	public List<GiftOwn> loadGiftGiveList(int page, int count) {
-		return giftDao.loadGiftNotice(page, count);
+		 List<GiftOwn>  noGiftOwns= giftDao.loadGiftNotice(page, count);
+		 for(GiftOwn gift:noGiftOwns) {
+			 gift.getSender().setVip(vipService.isVip(gift.getSender().getUser_id()));
+			 gift.getReceiver().setVip(vipService.isVip(gift.getReceiver().getUser_id()));
+		 }
+		 return noGiftOwns;
 	}
 
 	/**
@@ -213,9 +216,9 @@ public class GiftService {
 
 		owns = giftDao.getGifNotice(user_id, page, count);
 		for (GiftOwn own : owns) {
-			own.setSender(userService.getBasicUser(own.getGive_uid()));
+			own.setSender(userService.getBaseVipUser(own.getGive_uid()));
 			ImagePathUtil.completeAvatarPath(own.getSender(), true);
-			BaseUser me = userService.getBasicUser(user_id);
+			BaseVipUser me = userService.getBaseVipUser(user_id);
 			ImagePathUtil.completeAvatarPath(me, true);
 			own.setReceiver(me);
 			ImagePathUtil.completeGiftPath(own, true);
@@ -281,8 +284,7 @@ public class GiftService {
 			return ResultUtil.getResultOKMap().addAttribute("validate_code", code);
 		}
 		ModelMap data = ResultUtil.getResultOKMap();
-		HashMap<String, Object> result = SMSHelper.smsExchangeCode(mobile, code);
-		boolean smsOK = SMSHelper.isSuccess(result);
+		boolean smsOK = SMSHelper.smsExchangeCode(mobile, code);
 		if (smsOK) {
 			userCacheService.cacheExchageValidateCode(mobile, code, code_type);
 			data.put("validate_code", code);

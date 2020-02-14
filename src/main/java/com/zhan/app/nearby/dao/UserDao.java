@@ -896,7 +896,7 @@ public class UserDao extends BaseDao {
 	}
 
 	public List<LoginUser> getOnlineUsers(int page, int count) {
-		String sql = "select u.user_id,u.nick_name,u.avatar,u.last_login_time from t_user_online l left join t_user u on l.uid=u.user_id order by l.check_time desc limit ?,?";
+		String sql = "select u.user_id,u.nick_name,u.avatar,u.last_login_time from t_user_online l inner join t_user u on l.uid=u.user_id order by l.check_time desc limit ?,?";
 		return jdbcTemplate.query(sql, new Object[] { (page - 1) * count, count },
 				new BeanPropertyRowMapper<LoginUser>(LoginUser.class));
 	}
@@ -1109,7 +1109,7 @@ public class UserDao extends BaseDao {
 	}
 
 	// 获取今天没做匹配的男性账号
-	public List<BaseUser> getActiveManToMatch(int days, int count, int startIndex) {
+	public List<BaseUser> getActiveManToMatch(int days,  int startIndex,int count) {
 		String sql = "select u.user_id,u.nick_name,u.type,u.last_login_time ,u.sex ,u.avatar from t_user u "
 				+ " where u.sex=1 and (u.type=1 or u.type=3)"
 				+ " and u.user_id not in (select uid from t_user_match where  to_days(match_time) = to_days(now())) "
@@ -1123,10 +1123,18 @@ public class UserDao extends BaseDao {
 		String sql = "select u.user_id,u.nick_name,u.type,u.last_login_time ,u.sex ,u.avatar from t_user u "
 				+ " where u.sex=0 and (u.type=1 or u.type=3)"
 				+ " and u.user_id not in (select target_uid from t_user_match where  to_days(match_time) = to_days(now())) "
-				+ " order by u.last_login_time desc limit ?";
+				+ " order by rand() limit ?";
 		return jdbcTemplate.query(sql, new Object[] { count }, new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
 	}
 
+	public List<Long> getActiveWomenUserNotDoMatchUids(int count) {
+		String sql = "select u.user_id from t_user u "
+				+ " where u.sex=0 and (u.type=1 or u.type=3)"
+				+ " and u.user_id not in (select target_uid from t_user_match where  to_days(match_time) = to_days(now())) "
+				+ " order by u.last_login_time desc limit ?";
+		return jdbcTemplate.queryForList(sql, new Object[] { count }, Long.class);
+	}
+	
 	public void addDeviceToken(long user_id, String device_token) {
 		String sql = "insert into t_user_device_token values (?, ?)";
 		try {
@@ -1189,6 +1197,10 @@ public class UserDao extends BaseDao {
 					"insert ignore into  t_sex_modify_history (uid,modify_times,last_modify_time) values(?,?,?)",
 					new Object[] { user_id, 1, new Date() });
 		}
+	}
+
+	public String getOpenIdByUid(long user_id) {
+		return jdbcTemplate.queryForObject("select openid from t_user where user_id="+user_id, String.class);
 	}
 	
 	

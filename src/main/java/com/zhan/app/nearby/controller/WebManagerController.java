@@ -370,15 +370,6 @@ public class WebManagerController {
 		return ResultUtil.getResultOKMap();
 	}
 
-	@RequestMapping(value = "/send_msg_to_all")
-	public @ResponseBody ModelMap send_msg_to_all(String msg, String type) {
-		if (TextUtils.isEmpty(msg)) {
-			return ResultUtil.getResultMap(ERROR.ERR_PARAM);
-		}
-		managerService.sendMsgToAll(msg, type);
-		return ResultUtil.getResultOKMap();
-	}
-
 	// 获取新增用户
 	@RequestMapping(value = "/list_new_user")
 	public @ResponseBody ModelMap list_new_user(int pageIndex, int pageSize, int type) {

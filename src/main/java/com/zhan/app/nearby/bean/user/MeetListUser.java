@@ -6,7 +6,7 @@ import java.util.Date;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 @SuppressWarnings("serial")
-public class MeetListUser extends BaseUser {
+public class MeetListUser extends BaseVipUser {
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm", locale = "zh", timezone = "GMT+8")
 	private Date create_time;
 

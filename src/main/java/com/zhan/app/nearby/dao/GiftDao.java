@@ -18,6 +18,7 @@ import com.zhan.app.nearby.bean.Gift;
 import com.zhan.app.nearby.bean.GiftOwn;
 import com.zhan.app.nearby.bean.MeiLi;
 import com.zhan.app.nearby.bean.user.BaseUser;
+import com.zhan.app.nearby.bean.user.BaseVipUser;
 import com.zhan.app.nearby.bean.user.LocationUser;
 import com.zhan.app.nearby.comm.Relationship;
 import com.zhan.app.nearby.comm.UserType;
@@ -118,14 +119,14 @@ public class GiftDao extends BaseDao {
 				own.setPrice(rs.getInt("price"));
 				own.setOld_price(rs.getInt("old_price"));
 
-				BaseUser receiver = new BaseUser();
+				BaseVipUser receiver = new BaseVipUser();
 				receiver.setUser_id(rs.getLong("user_id"));
 				receiver.setNick_name(rs.getString("re_name"));
 				receiver.setAvatar(rs.getString("re_avatar"));
 				ImagePathUtil.completeAvatarPath(receiver, true);
 				own.setReceiver(receiver);
 
-				BaseUser sender = new BaseUser();
+				BaseVipUser sender = new BaseVipUser();
 				sender.setUser_id(rs.getLong("from_uid"));
 				sender.setNick_name(rs.getString("se_name"));
 				sender.setAvatar(rs.getString("se_avatar"));

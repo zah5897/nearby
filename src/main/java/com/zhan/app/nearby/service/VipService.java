@@ -136,4 +136,8 @@ public class VipService {
 			return ids.get(0);
 		}
 	}
+	
+	public boolean isVip(long user_id) {
+		return vipDao.isVip(user_id);
+	}
 }

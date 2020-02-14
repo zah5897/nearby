@@ -7,6 +7,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.zhan.app.nearby.annotation.ColumnType;
 import com.zhan.app.nearby.bean.user.BaseUser;
+import com.zhan.app.nearby.bean.user.BaseVipUser;
 
 @SuppressWarnings("serial")
 public class GiftOwn extends Gift {
@@ -16,15 +17,15 @@ public class GiftOwn extends Gift {
 	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	@JsonFormat(pattern = "yyyy-MM-dd  HH:mm:ss", locale = "zh", timezone = "GMT+8")
 	private Date give_time;
-	
+
 	@ColumnType
 	private long give_time_v2;
-	
+
 	@ColumnType
-	private BaseUser receiver;
+	private BaseVipUser receiver;
 	@ColumnType
-	private BaseUser sender;
-	
+	private BaseVipUser sender;
+
 	public long getUser_id() {
 		return user_id;
 	}
@@ -55,31 +56,32 @@ public class GiftOwn extends Gift {
 
 	public void setGive_time(Date give_time) {
 		this.give_time = give_time;
-		this.give_time_v2=give_time.getTime()/1000;
+		this.give_time_v2 = give_time.getTime() / 1000;
 	}
 
-	public BaseUser getReceiver() {
+	public BaseVipUser getReceiver() {
 		return receiver;
 	}
 
-	public void setReceiver(BaseUser receiver) {
+	public void setReceiver(BaseVipUser receiver) {
 		this.receiver = receiver;
 	}
 
-	public BaseUser getSender() {
+	public BaseVipUser getSender() {
 		return sender;
 	}
 
-	public void setSender(BaseUser sender) {
+	public void setSender(BaseVipUser sender) {
 		this.sender = sender;
 	}
 
-	 @Override
+	@Override
 	public boolean equals(Object obj) {
-		 GiftOwn g=(GiftOwn) obj;
-		 return g.getId()==this.getId();
+		GiftOwn g = (GiftOwn) obj;
+		return g.getId() == this.getId();
 	}
-public long getGive_time_v2() {
-	return give_time_v2;
-}
+
+	public long getGive_time_v2() {
+		return give_time_v2;
+	}
 }

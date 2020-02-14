@@ -9,6 +9,7 @@ import java.util.Random;
 
 import javax.annotation.Resource;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.ModelMap;
 
@@ -33,6 +34,7 @@ import com.zhan.app.nearby.dao.UserDao;
 import com.zhan.app.nearby.dao.UserDynamicDao;
 import com.zhan.app.nearby.dao.VipDao;
 import com.zhan.app.nearby.exception.ERROR;
+import com.zhan.app.nearby.task.HXAsyncTask;
 import com.zhan.app.nearby.util.HX_SessionUtil;
 import com.zhan.app.nearby.util.HttpService;
 import com.zhan.app.nearby.util.ImagePathUtil;
@@ -65,6 +67,10 @@ public class MainService {
 	UserService userService;
 	@Resource
 	UserCacheService userCacheService;
+	
+	
+	@Autowired
+	private HXAsyncTask hxTask;
 
 	public ModelMap found_users(Long user_id, Integer page_size, Integer gender) {
 		int realCount;
@@ -211,7 +217,7 @@ public class MainService {
 								withUser.getUser_id(), "");
 						int count = userDao.isLikeMe(user_id, with_user);
 						if (count > 0) { // 对方喜欢我了，这个时候我也喜欢对方了，需要互相发消息
-							HX_SessionUtil.makeChatSession(user, withUser);
+							hxTask.makeChatSession(user, withUser);
 						}
 					}
 				}
@@ -494,8 +500,7 @@ public class MainService {
 //			// 已经在一分钟内发过，还没过期
 //		}
 		ModelMap data = ResultUtil.getResultOKMap();
-		HashMap<String, Object> result = SMSHelper.smsExchangeCode(mobile, code);
-		boolean smsOK = SMSHelper.isSuccess(result);
+		boolean smsOK = SMSHelper.smsExchangeCode(mobile, code);
 		if (smsOK) {
 			userCacheService.cacheRegistValidateCode(mobile, code, code_type);
 			data.put("validate_code", code);
@@ -567,7 +572,7 @@ public class MainService {
 		if (report != null) {
 			if (!isIgnore) {
 				if (report.getType() == 0) {
-					Main.disconnectUser(String.valueOf(report.getTarget_id()));
+					hxTask.disconnectUser(String.valueOf(report.getTarget_id()));
 					userDao.updateAccountState(report.getTarget_id(), AccountStateType.LOCK.ordinal());
 				} else {
 					userDynamicDao.delete(report.getUser_id(), report.getTarget_id());

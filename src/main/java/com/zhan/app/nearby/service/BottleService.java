@@ -8,6 +8,8 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
@@ -31,11 +33,13 @@ import com.zhan.app.nearby.comm.DynamicMsgType;
 import com.zhan.app.nearby.comm.FoundUserRelationship;
 import com.zhan.app.nearby.comm.PushMsgType;
 import com.zhan.app.nearby.comm.Relationship;
+import com.zhan.app.nearby.controller.UserController;
 import com.zhan.app.nearby.dao.BottleDao;
 import com.zhan.app.nearby.dao.UserDao;
 import com.zhan.app.nearby.dao.VipDao;
 import com.zhan.app.nearby.exception.AppException;
 import com.zhan.app.nearby.exception.ERROR;
+import com.zhan.app.nearby.task.HXAsyncTask;
 import com.zhan.app.nearby.util.BottleKeyWordUtil;
 import com.zhan.app.nearby.util.HX_SessionUtil;
 import com.zhan.app.nearby.util.ImagePathUtil;
@@ -47,7 +51,7 @@ import com.zhan.app.nearby.util.TextUtils;
 @Service
 
 public class BottleService {
-
+	private static Logger log = Logger.getLogger(BottleService.class);
 	public static final int LIMIT_COUNT = 5;
 
 	@Resource
@@ -66,6 +70,9 @@ public class BottleService {
 
 	@Resource
 	private UserCacheService userCacheService;
+	
+	@Autowired
+	private HXAsyncTask hxTask;
 
 	public Bottle getBottleFromPool(long user_id) {
 
@@ -383,7 +390,7 @@ public class BottleService {
 					}
 					// 概率
 					if (RandomCodeUtil.randomPercentOK(percent)) {
-						HX_SessionUtil.makeChatSession(u1, u2, bid);
+						hxTask.makeChatSession(u1, u2, bid);
 					}
 				} catch (Exception e) {
 				}
@@ -418,7 +425,7 @@ public class BottleService {
 		// to_user_id, content);
 		BaseUser user = userDao.getBaseUser(user_id);
 		BaseUser to_user = userDao.getBaseUser(to_user_id);
-		HX_SessionUtil.makeChatSessionSingle(user, to_user, content);
+		hxTask.makeChatSessionSingle(user, to_user, content);
 		return ResultUtil.getResultOKMap();
 	}
 
@@ -432,6 +439,7 @@ public class BottleService {
 			for (Map<?, ?> u_b : idList) {
 				long withUserID = Long.parseLong(u_b.get("uid").toString());
 				long bottleID = Long.parseLong(u_b.get("bottle_id").toString());
+				
 				// 判断瓶子是否存在，不存在的话要新建
 				if (bottleID < 1) {
 					List<Long> ids = bottleDao.getMeetBottleIDByUser(withUserID);
@@ -449,6 +457,7 @@ public class BottleService {
 				userDao.updateRelationship(user_id, withUserID, Relationship.LIKE);
 				if (bottleID > 0) {
 					dynamicMsgService.insertActionMsg(DynamicMsgType.TYPE_MEET, user_id, bottleID, withUserID, "");
+					hxTask.pushLike(withUserID);
 				}
 
 				// BaseUser u = userDao.getBaseUser(user_id);
@@ -475,12 +484,17 @@ public class BottleService {
 
 		if (bottle.getType() != BottleType.RED_PACKAGE.ordinal()) {
 			Map<String, String> ext = new HashMap<String, String>();
-			ext.put("nickname", user.getNick_name());
+			String nickName=user.getNick_name();
+			if(nickName==null||TextUtils.isEmpty(nickName.trim())) {
+				log.error("user_id="+user_id+",该用户nickname为空，请注意查看");
+			}else {
+				nickName="匿名";
+			}
+			ext.put("nickname", nickName);
 			ext.put("avatar", user.getAvatar());
 			ext.put("origin_avatar", user.getOrigin_avatar());
 			ext.put("bottle_id", String.valueOf(bottle_id));
-			Main.sendTxtMessage(String.valueOf(user.getUser_id()), new String[] { String.valueOf(target) }, msg, ext,
-					PushMsgType.TYPE_NEW_CONVERSATION);
+			hxTask.sendReplayBottle(user,target,msg,ext,PushMsgType.TYPE_NEW_CONVERSATION);
 		}
 
 		if (bottle.getType() == BottleType.DRAW_GUESS.ordinal()) {
@@ -539,13 +553,7 @@ public class BottleService {
 	}
 
 	private void getRedPackageSendMsg(BaseUser user, long bottle_id, long target, int coin) {
-		Map<String, String> ext = new HashMap<String, String>();
-		ext.put("nickname", user.getNick_name());
-		ext.put("avatar", user.getAvatar());
-		ext.put("origin_avatar", user.getOrigin_avatar());
-		ext.put("bottle_id", String.valueOf(bottle_id));
-		Main.sendTxtMessage(String.valueOf(user.getUser_id()), new String[] { String.valueOf(target) },
-				user.getNick_name() + "领取了你的扇贝", ext, PushMsgType.TYPE_NEW_CONVERSATION);
+		hxTask.getRedPackageSendMsg(user, bottle_id, target, coin);
 	}
 
 	@Transactional
@@ -606,7 +614,7 @@ public class BottleService {
 		BaseUser u1 = userDao.getBaseUserNoToken(user_id);
 		BaseUser u2 = userDao.getBaseUserNoToken(target);
 		long meet_bottle_id = bottleDao.getMeetBottleByUserId(target);
-		HX_SessionUtil.makeChatSession(u1, u2, meet_bottle_id);
+		hxTask.makeChatSession(u1, u2, meet_bottle_id);
 		return ResultUtil.getResultOKMap().addAttribute("user", u2);
 	}
 

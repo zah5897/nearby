@@ -52,6 +52,7 @@ import com.zhan.app.nearby.exception.AppException;
 import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.task.CommAsyncTask;
 import com.zhan.app.nearby.task.FaceCheckTask;
+import com.zhan.app.nearby.task.HXAsyncTask;
 import com.zhan.app.nearby.task.MatchActiveUserTask;
 import com.zhan.app.nearby.util.AESUtil;
 import com.zhan.app.nearby.util.AddressUtil;
@@ -98,10 +99,17 @@ public class UserService {
 	@Autowired
 	private CommAsyncTask commAsyncTask;
 
+	
+	@Autowired
+	private HXAsyncTask hxTask;
+	
 	public BaseUser getBasicUser(long id) {
 		return userDao.getBaseUser(id);
 	}
 
+	public BaseVipUser getBaseVipUser(long id) {
+		return userDao.getBaseVipUser(id);
+	}
 	public BaseUser findBaseUserByMobile(String mobile) {
 		return userDao.findBaseUserByMobile(mobile);
 	}
@@ -212,7 +220,7 @@ public class UserService {
 			Map<String, String> ext = new HashMap<String, String>();
 			String msg = userCacheService.getWelcome();
 			ext.put("msg", msg);
-			Main.sendTxtMessage(Main.SYS, new String[] { String.valueOf(user_id) }, msg, ext, PushMsgType.TYPE_WELCOME);
+			hxTask.sendWelcome(new String[] { String.valueOf(user_id) }, msg, ext, PushMsgType.TYPE_WELCOME);
 		}
 	}
 
@@ -244,6 +252,7 @@ public class UserService {
 			return null;
 		}
 	}
+
 	public void deleteAvatar(int id) {
 		userDao.deleteAvatar(id);
 	}
@@ -781,39 +790,11 @@ public class UserService {
 	}
 
 	public void registHXNoException(BaseUser user) {
-		try {
-			String id = String.valueOf(user.getUser_id());
-			String password = MD5Util.getMd5_16(id);
-			Object resutl = Main.registUser(id, password, user.getNick_name());
-			if (resutl != null) {
-				if (resutl instanceof ResponseWrapper) {
-					ResponseWrapper response = (ResponseWrapper) resutl;
-					if (response.getResponseStatus() != 200) {
-						System.out.println("鐜俊regist exception");
-					}
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		hxTask.registHXUser(user);
 	}
 
 	public void registHXThrowException(BaseUser user) {
-		try {
-			String id = String.valueOf(user.getUser_id());
-			String password = MD5Util.getMd5_16(id);
-			Object resutl = Main.registUser(id, password, user.getNick_name());
-			if (resutl != null) {
-				if (resutl instanceof ResponseWrapper) {
-					ResponseWrapper response = (ResponseWrapper) resutl;
-					if (response.getResponseStatus() != 200) {
-						throw new AppException(ERROR.ERR_SYS, new RuntimeException("鐜俊娉ㄥ唽澶辫触"));
-					}
-				}
-			}
-		} catch (Exception e) {
-			throw new AppException(ERROR.ERR_SYS, new RuntimeException("鐜俊娉ㄥ唽澶辫触"));
-		}
+		hxTask.registHXThrowException(user);
 	}
 
 	public int addSpecialUser(long uid) {
@@ -863,15 +844,15 @@ public class UserService {
 	}
 
 	@Transactional
-	public void editAvatarState(int id,int state) {
-		if(state==AvatarIMGStatus.ILLEGAL.ordinal()) {
+	public void editAvatarState(int id, int state) {
+		if (state == AvatarIMGStatus.ILLEGAL.ordinal()) {
 			long uid = userDao.editAvatarState(id, AvatarIMGStatus.ILLEGAL.ordinal());
 			userDao.removeFromFoundUserList(uid);
 			bottleService.clearIllegalMeetBottle(uid);
-		}else {
+		} else {
 			userDao.updateAvatarState(id, state);
 		}
-		
+
 	}
 
 	@Transactional
@@ -1029,16 +1010,19 @@ public class UserService {
 	public List<Avatar> listNotCheckedAvatars(int count) {
 		return userDao.listNotCheckedAvatars(count);
 	}
+
 	public List<BaseUser> listConfirmAvatars(int state, int pageSize, int pageIndex, Long user_id) {
 		return userDao.listConfirmAvatars(state, pageSize, pageIndex, user_id);
 	}
+
 	public List<BaseUser> listAvatarsByUid(int pageSize, int pageIndex, long user_id) {
 		return userDao.listAvatarsByUid(pageSize, pageIndex, user_id);
 	}
 
-	public int getCountOfConfirmAvatars(Long user_id,int state) {
-		return userDao.getCountOfConfirmAvatars(user_id,state);
+	public int getCountOfConfirmAvatars(Long user_id, int state) {
+		return userDao.getCountOfConfirmAvatars(user_id, state);
 	}
+
 	public int getCountOfUserAvatars(long user_id) {
 		return userDao.getCountOfUserAvatars(user_id);
 	}
@@ -1215,7 +1199,7 @@ public class UserService {
 	public void testLongTimeNoLogin(long user_id, long target_id) {
 		BaseUser i = userDao.getBaseUser(user_id);
 		BaseUser he = userDao.getBaseUser(target_id);
-		HX_SessionUtil.makeChatSession(i, he, 0);
+		hxTask.makeChatSession(i, he, 0);
 	}
 
 	/**
@@ -1236,7 +1220,7 @@ public class UserService {
 	public ModelMap testMakeSession(long f, long to) {
 		BaseUser fu = userDao.getBaseUser(f);
 		BaseUser toU = userDao.getBaseUser(to);
-		HX_SessionUtil.makeChatSession(fu, toU, 0);
+		hxTask.makeChatSession(fu, toU, 0);
 		return ResultUtil.getResultOKMap();
 	}
 
@@ -1343,6 +1327,7 @@ public class UserService {
 	public int updateAvatarState(int id, int state) {
 		return userDao.updateAvatarState(id, state);
 	}
+
 	public void editAvatarStateToIllegal(long user_id, String avatarName) {
 		userDao.editAvatarStateToIllegal(user_id, avatarName);
 		userDao.removeFromFoundUserList(user_id);
@@ -1364,7 +1349,7 @@ public class UserService {
 		return times <= 0;
 	}
 
-	public void matchActiveUsers() {
+	public boolean matchActiveUsers() {
 
 		Calendar c = Calendar.getInstance();
 		c.setTime(new Date());
@@ -1372,53 +1357,64 @@ public class UserService {
 		int hour = c.get(Calendar.HOUR_OF_DAY);
 		int minute = c.get(Calendar.MINUTE);
 		if (hour < 5) { // 5点开始执行
-			return;
+			return false;
 		}
 
 		int days = 90; // 3个月的内登录的男性账号
 		int count = userDao.getNeedMatchManCount(days);
 
-		int everyTimesCount = count / ((19 * 60) / 5); // 19小时，每5分钟执行一次
+		if (count == 0) {
 
+			return false;
+		}
+		int everyTimesCount = count / ((19 * 60) / 5); // 19小时，每5分钟执行一次
 		if (hour == 23) {// 当天的最后一次匹配
 			if (minute >= 55) {
 				everyTimesCount = count;
 			}
 		}
+
+		List<Long> womenUids = userDao.getActiveWomenUserNotDoMatchUids(count);
+		if (womenUids.isEmpty()) { //
+			return false;
+		}
 		
 		do {
-			int startIndex=new Random().nextInt(count);
-			List<BaseUser> mans = userDao.getActiveManToMatch(days,startIndex,1);
-			if(mans.isEmpty()) {
+			int startIndex = new Random().nextInt(count);
+			List<BaseUser> mans = userDao.getActiveManToMatch(days, startIndex, 1);
+			if (mans.isEmpty()) {
 				continue;
 			}
-			BaseUser man=mans.get(0);
-			List<BaseUser> women = userDao.getActiveWomenUserNotDoMatch(1);
-			if(women.isEmpty()) {
-				continue;
-			}
-			BaseUser woman=women.get(0);
+			BaseUser man = mans.get(0);
 			
+			int womanstartIndex = new Random().nextInt(womenUids.size());
+			BaseUser woman = userDao.getBaseUserNoToken(womenUids.get(womanstartIndex));
+			womenUids.remove(womanstartIndex);//移除，防止下次被重新拿到
+
 			String msg = Main.getRandomMsg();
 			ImagePathUtil.completeAvatarPath(woman, true);
 			ImagePathUtil.completeAvatarPath(man, true);
-			
+
 			saveMatchLog(man.getUser_id(), woman.getUser_id());
-			HX_SessionUtil.matchCopyDraw(woman, man.getUser_id(), msg);
-			HX_SessionUtil.matchCopyDraw(man, woman.getUser_id(), msg);
-			
+			hxTask.matchCopyDraw(woman, man.getUser_id(), msg);
+			hxTask.matchCopyDraw(man, woman.getUser_id(), msg);
+
 			everyTimesCount--;
 			count--;
-		}while(everyTimesCount>0);
+		} while (everyTimesCount > 0);
+		return true;
 	}
 
- 
 	public void clearUserMatchData() {
 		userDao.clearUserMatchData();
 	}
 
 	public void updateModifySexTimes(long user_id) {
 		userDao.updateModifySexTimes(user_id);
+	}
+
+	public String getOpenIdByUid(long user_id) {
+		return userDao.getOpenIdByUid(user_id);
 	}
 
 }

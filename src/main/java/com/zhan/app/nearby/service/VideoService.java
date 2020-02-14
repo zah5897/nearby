@@ -21,22 +21,23 @@ public class VideoService {
 	@Resource
 	private UserDao userDao;
 	public void save(Video video) {
-		video.setId(ObjectId.get().toString());
-		videoDao.insert(video);
+//		video.setId(ObjectId.get().toString());
+		long id=videoDao.insert(video);
+		video.setId(id);
 	}
 
-	public List<Video> mine(long user_id, String last_id, int count) {
+	public List<Video> mine(long user_id, Long last_id, int count) {
 		List<Video> list = videoDao.mine(user_id, last_id, count);
 		ImagePathUtil.completeVideosPath(list);
 		return list;
 	}
-	public List<Video> list(long user_id, String last_id, int count) {
+	public List<Video> list(long user_id, Long last_id, int count) {
 		List<Video> list = videoDao.mine(user_id, last_id, count);
 		ImagePathUtil.completeVideosPath(list);
 		return list;
 	}
-	public List<VideoComment> listComment(long user_id,String vid, int page, int count) {
-		List<VideoComment> list = videoDao.listComment(user_id,vid, page, count);
+	public List<VideoComment> listComment(long user_id,String vid, Integer last_id, int count) {
+		List<VideoComment> list = videoDao.listComment(user_id,vid, last_id, count);
 		return list;
 	}
 	public void comment(VideoComment comment) {

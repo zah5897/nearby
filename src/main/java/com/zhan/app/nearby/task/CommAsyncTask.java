@@ -10,6 +10,7 @@ import com.zhan.app.nearby.bean.City;
 import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.dao.CityDao;
+import com.zhan.app.nearby.service.DynamicMsgService;
 import com.zhan.app.nearby.service.UserDynamicService;
 import com.zhan.app.nearby.service.UserService;
 import com.zhan.app.nearby.util.AddressUtil;
@@ -91,6 +92,11 @@ public class CommAsyncTask {
 		}
 		UserService userService = SpringContextUtil.getBean("userService");
 		userService.updateUserBirthCity(user.getUser_id(), userLocation);
+	}
+	
+	@Async
+	public void clearMsg(DynamicMsgService service,long uid,long last_id) {
+		service.clearMsg(uid,last_id);
 	}
 
 }

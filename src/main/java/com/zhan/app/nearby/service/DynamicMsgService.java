@@ -1,10 +1,12 @@
 package com.zhan.app.nearby.service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Resource;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.ModelMap;
@@ -18,6 +20,8 @@ import com.zhan.app.nearby.comm.Relationship;
 import com.zhan.app.nearby.dao.DynamicMsgDao;
 import com.zhan.app.nearby.dao.UserDao;
 import com.zhan.app.nearby.exception.ERROR;
+import com.zhan.app.nearby.task.CommAsyncTask;
+import com.zhan.app.nearby.task.HXAsyncTask;
 import com.zhan.app.nearby.util.HX_SessionUtil;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.PushUtils;
@@ -34,6 +38,12 @@ public class DynamicMsgService {
 	@Resource
 	private RedisTemplate<String, String> redisTemplate;
 
+	@Autowired
+	private HXAsyncTask hxTask;
+	
+	@Autowired
+	private CommAsyncTask commAsyncTask;
+
 	/**
 	 * 
 	 * @param type
@@ -43,23 +53,18 @@ public class DynamicMsgService {
 	 * @param content
 	 * @return
 	 */
-	public long insertActionMsg(DynamicMsgType type, long by_user_id, long dynamic_id, long user_id, String content) {
-
-		// if (hasExistDyMsg(DynamicMsgType.TYPE_MEET, by_user_id, dynamic_id, user_id))
-		// {
-		// return 0;
-		// }
+	public long insertActionMsg(DynamicMsgType type, long by_user_id, long obj_id, long user_id, String content) {
 
 		DynamicMessage msg = new DynamicMessage();
 		msg.setUser_id(user_id);
 		msg.setBy_user_id(by_user_id);
-		msg.setDynamic_id(dynamic_id);
+		msg.setDynamic_id(obj_id);
 		msg.setType(type.ordinal());
 		msg.setContent(content);
 		msg.setCreate_time(new Date());
 		msg.setStatus(DynamicMsgStatus.DEFAULE.ordinal());
 		long id = dynamicMsgDao.insert(msg);
-		PushUtils.pushActionMsg(redisTemplate, id, type, user_id, dynamic_id);
+		PushUtils.pushActionMsg(redisTemplate, id, type, user_id, obj_id);
 		return id;
 	}
 
@@ -102,11 +107,11 @@ public class DynamicMsgService {
 			BaseUser me = userDao.getBaseUser(user_id);
 			BaseUser he = userDao.getBaseUser(msg.getBy_user_id());
 			if (msg.getType() == DynamicMsgType.TYPE_MEET.ordinal()) {
-				HX_SessionUtil.makeChatSession(me, he, msg.getDynamic_id());
+				hxTask.makeChatSession(me, he, msg.getDynamic_id());
 			} else if (msg.getType() == DynamicMsgType.TYPE_LIKE.ordinal()) {
-				HX_SessionUtil.makeChatSession(me, he, 0);
+				hxTask.makeChatSession(me, he, 0);
 			} else {
-				HX_SessionUtil.makeChatSession(me, he);
+				hxTask.makeChatSession(me, he);
 			}
 		}
 		return ResultUtil.getResultOKMap().addAttribute("id", msg_id);
@@ -127,8 +132,29 @@ public class DynamicMsgService {
 
 	}
 
+	public ModelMap getLoadUnreadMsg(long user_id, Long last_id, int count) {
+		ModelMap result = ResultUtil.getResultOKMap();
+		int unLoadCount = dynamicMsgDao.getUnLoadMsgCount(user_id, last_id);
+		List<DynamicMessage> msgs = dynamicMsgDao.getUnLoadMsg(user_id, last_id, count);
+		 
+		if(last_id!=null&&last_id>0) {
+			commAsyncTask.clearMsg(this,user_id, last_id);
+		}
+		result.addAttribute("msgs", msgs);
+		result.addAttribute("total_count", unLoadCount);
+
+		if(!msgs.isEmpty()) {
+			last_id=msgs.get(msgs.size()-1).getId();
+		}
+		return result.addAttribute("hasMore", msgs.size()==count).addAttribute("last_id", last_id);
+
+	}
+
 	public int clearMeetMsg(long user_id) {
 		return dynamicMsgDao.clearMeetMsg(user_id);
+	}
+	public void clearMsg(long user_id,long last_id) {
+		 dynamicMsgDao.clearMsg(user_id, last_id);
 	}
 
 	public int delMeetMsg(long user_id, long id) {

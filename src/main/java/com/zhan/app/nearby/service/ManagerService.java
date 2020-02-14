@@ -7,6 +7,7 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.ModelMap;
 
@@ -24,6 +25,7 @@ import com.zhan.app.nearby.comm.ExchangeState;
 import com.zhan.app.nearby.comm.FoundUserRelationship;
 import com.zhan.app.nearby.dao.ManagerDao;
 import com.zhan.app.nearby.dao.UserDao;
+import com.zhan.app.nearby.task.HXAsyncTask;
 import com.zhan.app.nearby.util.BottleKeyWordUtil;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.MD5Util;
@@ -52,6 +54,10 @@ public class ManagerService {
 	@Resource
 	private VipService vipService;
 
+	
+	@Autowired
+	private HXAsyncTask hxTask;
+	
 	public int getHomeFoundSelectedCount() {
 		return managerDao.getHomeFoundSelectedCount();
 	}
@@ -162,44 +168,7 @@ public class ManagerService {
 	public int editUserFromFound(long uid, int state) {
 		return managerDao.setUserFoundRelationshipState(uid, FoundUserRelationship.values()[state]);
 	}
-
-	public void sendMsgToAll(final String msg, final String type) {
-		new java.lang.Thread() {
-			public void run() {
-				int page_size = 20;
-				long last_id = 0;
-				while (true) {
-					List<Long> ids = userService.getAllUserIds(last_id, page_size);
-					if (ids == null) {
-						return;
-					}
-					if (ids.size() == page_size) {
-						String[] hxIds = new String[page_size];
-						for (int i = 0; i < page_size; i++) {
-							hxIds[i] = ids.get(i).toString();
-						}
-						last_id = ids.get(page_size - 1);
-						Main.sendTxtMessage(Main.SYS, hxIds, msg, null, type);
-					} else if (ids.size() > 0 && ids.size() < page_size) {
-						String[] hxIds = new String[ids.size()];
-						for (int i = 0; i < hxIds.length; i++) {
-							hxIds[i] = ids.get(i).toString();
-						}
-						Main.sendTxtMessage(Main.SYS, hxIds, msg, null, type);
-						break;
-					} else {
-						break;
-					}
-					try {
-						Thread.sleep(50);
-					} catch (InterruptedException e) {
-						log.error(e.getMessage());
-					}
-				}
-			}
-		}.start();
-	}
-
+	 
 	// 动态审核违规
 	public int updateDynamicState(long id, DynamicState state) {
 		return managerDao.updateDynamicState(id, state);
@@ -263,7 +232,7 @@ public class ManagerService {
 		if (ship == FoundUserRelationship.GONE) {
 			bottleService.clearPoolBottleByUserId(user_id);
 			userDynamicService.updateCommentStatus(user_id, ship);
-			Main.disconnect(String.valueOf(user_id));
+			hxTask.disconnect(String.valueOf(user_id));
 		}
 	}
 

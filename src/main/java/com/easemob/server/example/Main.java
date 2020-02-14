@@ -14,27 +14,27 @@ import com.easemob.server.example.comm.body.TextMessageBody;
 import com.easemob.server.example.comm.wrapper.BodyWrapper;
 import com.easemob.server.example.comm.wrapper.ResponseWrapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.zhan.app.nearby.comm.PushMsgType;
+import com.zhan.app.nearby.bean.user.BaseUser;
+import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.JSONUtil;
-import com.zhan.app.nearby.util.TextUtils;
 
 public class Main {
-	private static EasemobRestAPIFactory factory;
+	public static EasemobRestAPIFactory factory;
 	public static final String SYS = "admin";
-	private static String[] meet_msg = { "你好，很高兴遇见你", "你在吗？", "遇见你是缘分。", "你是我等待的那个朋友哦～", "瓶友，你好", "好久不见～", "亲爱的陌生人，你好！",
+	public static String[] meet_msg = { "你好，很高兴遇见你", "你在吗？", "遇见你是缘分。", "你是我等待的那个朋友哦～", "瓶友，你好", "好久不见～", "亲爱的陌生人，你好！",
 			"Hi,你在吗？", "Hello!我是你的瓶友", "很高兴成为网友～" };
-	private static void initFactory() {
+
+	public static void initFactory() {
 		if (factory == null) {
 			factory = ClientContext.getInstance().init(ClientContext.INIT_FROM_PROPERTIES).getAPIFactory();
 		}
 	}
 
-	
-   public static String  getRandomMsg(){
-	  int r= new Random().nextInt(meet_msg.length);
-	  return meet_msg[r];
-   }
-	
+	public static String getRandomMsg() {
+		int r = new Random().nextInt(meet_msg.length);
+		return meet_msg[r];
+	}
+
 	public static void main(String[] args) throws Exception {
 		// initFactory();
 		// IMUserAPI user = (IMUserAPI)
@@ -116,10 +116,7 @@ public class Main {
 
 		// boolean r = disconnectUser("41");
 		// System.out.println(r);
-		
-		
-		
-		
+
 //		Map<String, String> ext = new HashMap<String, String>();
 //		ext.put("nickname", "27");
 //		ext.put("avatar", "测试");
@@ -128,13 +125,12 @@ public class Main {
 //		Object obj=sendTxtMessage(String.valueOf(27), new String[] { String.valueOf(41) }, "测试", ext,
 //				PushMsgType.TYPE_NEW_CONVERSATION,"测试消息");
 //		System.out.println(obj.toString());
-		
+
 //		System.out.println(disconnect("112410"));
 
-		Object obj = Main.sendCmdMessage("admin", new String[] { String.valueOf(133258) }, new HashMap<>());
+		Object obj = Main.sendCmdMessage( new String[] { String.valueOf(133258) }, new HashMap<>());
 		System.out.println(obj);
-		
-		
+
 //		Map map=new HashMap<>();
 //		map.put("image_id", "0");
 //		Main.sendTxtMessage("admin", new String[] {"133258"},map);
@@ -175,56 +171,90 @@ public class Main {
 		return user.modifyIMUserNickNameWithAdminToken(userName, payload);
 	}
 
-	
-	public static Object sendTxtMessage(String from, String[] users, String msgTxt, Map<String, String> ext,
+	public static Object sendTxtMessageByAdmin(String[] users, String msgTxt, Map<String, String> ext,
 			String TYPE) {
-		return sendTxtMessage(from, users, msgTxt, ext, TYPE,null);
-	}
-	
-	public static Object sendTxtMessage(String from, String[] users, String msgTxt, Map<String, String> ext,
-			String TYPE,String alert) {
-
 		if (ext == null) {
 			ext = new HashMap<String, String>();
 		}
 		ext.put("send_by_admim", "admin");
+		String alert =  "系统消息:" + msgTxt;
+		Map<String, String> apns = new HashMap<String, String>();
+		apns.put("type", TYPE);
+		apns.put("msg", msgTxt);
+
+		apns.put("em_push_content", alert);
+		apns.put("em_push_name", "漂流瓶交友");
+		apns.put("extern", alert);
+		try {
+			ext.put("em_apns_ext", JSONUtil.writeValueAsString(apns));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		initFactory();
+		BodyWrapper payload = new TextMessageBody("users", users, SYS, ext, msgTxt);
+		SendMessageAPI message = (SendMessageAPI) factory.newInstance(EasemobRestAPIFactory.SEND_MESSAGE_CLASS);
+		return message.sendMessage(payload);
+	}
+	
+	public static Object sendTxtMessage(BaseUser fromUser, String[] users, String msgTxt, Map<String, String> ext,
+			String TYPE) {
+
+		if (ext == null) {
+			ext = new HashMap<String, String>();
+		}
+		ImagePathUtil.completeAvatarPath(fromUser, true);
+		
+		ext.put("nickname", fromUser.getNick_name());
+		ext.put("avatar", fromUser.getAvatar());
+		ext.put("origin_avatar", fromUser.getOrigin_avatar());
+		
+		
+		ext.put("send_by_admim", "admin");
+		String alert = fromUser.getNick_name() + ":" + msgTxt;
+		Map<String, String> apns = new HashMap<String, String>();
+		apns.put("type", TYPE);
+		apns.put("msg", msgTxt);
+
+		apns.put("em_push_content", alert);
+		apns.put("em_push_name", "漂流瓶交友");
+		apns.put("extern", alert);
+		try {
+			ext.put("em_apns_ext", JSONUtil.writeValueAsString(apns));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		initFactory();
+		BodyWrapper payload = new TextMessageBody("users", users, String.valueOf(fromUser.getUser_id()), ext, msgTxt);
+		SendMessageAPI message = (SendMessageAPI) factory.newInstance(EasemobRestAPIFactory.SEND_MESSAGE_CLASS);
+		return message.sendMessage(payload);
+	}
+
+	public static Object sendCmdMessage(String[] toUsers, Map<String, String> ext) {
+
+		if (ext == null) {
+			ext = new HashMap<String, String>();
+		}
+		ext.put("send_by_admim", SYS);
+
 		
 		
 		
 		Map<String, String> apns = new HashMap<String, String>();
-		apns.put("type", TYPE);
-		apns.put("msg", msgTxt);
-		if(!TextUtils.isEmpty(alert)) {
-			apns.put("em_push_content", alert);
-			apns.put("extern", alert);
-		}
+		apns.put("type", ext.get("type"));
+		apns.put("msg", ext.get("msg"));
+
+		apns.put("em_push_content", ext.get("msg"));
+		apns.put("em_push_name", "漂流瓶交友");
+		apns.put("extern", ext.get("msg"));
 		try {
 			ext.put("em_apns_ext", JSONUtil.writeValueAsString(apns));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		
-//		if(!TextUtils.isEmpty(alert)) {
-//			ext.put("em_apns_ext", alert);
-//		}
-		
 		
 		initFactory();
-
-		BodyWrapper payload = new TextMessageBody("users", users, from, ext, msgTxt);
-		SendMessageAPI message = (SendMessageAPI) factory.newInstance(EasemobRestAPIFactory.SEND_MESSAGE_CLASS);
-		return message.sendMessage(payload);
-	}
-
-	public static Object sendCmdMessage(String from, String[] users, Map<String, String> ext) {
-
-		if (ext == null) {
-			ext = new HashMap<String, String>();
-		}
-		ext.put("send_by_admim", "admin");
-
-		initFactory();
-		BodyWrapper payload = new CmdMessageBody("users", users, from, ext);
+		BodyWrapper payload = new CmdMessageBody("users", toUsers, SYS, ext);
 		SendMessageAPI message = (SendMessageAPI) factory.newInstance(EasemobRestAPIFactory.SEND_MESSAGE_CLASS);
 
 		return message.sendMessage(payload);
@@ -235,19 +265,18 @@ public class Main {
 		IMUserAPI user = (IMUserAPI) factory.newInstance(EasemobRestAPIFactory.USER_CLASS);
 		return user.addFriendSingle(user_id, friend_id);
 	}
-	
-	
+
 	/**
 	 * 强制用户下线
+	 * 
 	 * @param username
 	 * @return
 	 */
-	public static Object  disconnect(String username) {
+	public static Object disconnect(String username) {
 		initFactory();
 		IMUserAPI user = (IMUserAPI) factory.newInstance(EasemobRestAPIFactory.USER_CLASS);
 		return user.disconnectIMUser(username);
 //		org_name}/{app_name}/users/{username}/disconnect
 	}
-
 
 }

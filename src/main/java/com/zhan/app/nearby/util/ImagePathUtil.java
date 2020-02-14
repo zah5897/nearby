@@ -183,10 +183,10 @@ public class ImagePathUtil {
 		if(TextUtils.isEmpty(video.getVideo_name())) {
 			return;
 		}
+		video.setUrl(HOST_PROFIX_VIDEO+video.getVideo_name());
 		if(TextUtils.isEmpty(video.getThumb_img_name())) {
 			return;
 		}
-        video.setUrl(HOST_PROFIX_VIDEO+video.getVideo_name());
         video.setThumb_url(HOST_PROFIX_VIDEO_THUMB+video.getThumb_img_name());
 	}
 	

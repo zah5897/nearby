@@ -85,5 +85,8 @@ public class UCloudSMSHelper {
 	public static boolean smsExchangeCode(String mobile, String code) {
 		return sendSMS(mobile, "UTA19111243A287", code);
 	}
+	public static boolean smsComm(String mobile, String code) {
+		return sendSMS(mobile, "UTA2002137191A6", code);
+	}
 
 }

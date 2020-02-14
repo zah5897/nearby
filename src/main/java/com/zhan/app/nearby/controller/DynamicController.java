@@ -64,7 +64,7 @@ public class DynamicController {
 			long userId = userDynamicService.getUserIdByDynamicId(comment.getDynamic_id());
 			if (userId > 0) {
 				dynamicMsgService.insertActionMsg(DynamicMsgType.TYPE_COMMENT, comment.getUser_id(),
-						comment.getDynamic_id(), userId, comment.getContent());
+						id, userId, comment.getContent());
 			     
 			}
 		} else {

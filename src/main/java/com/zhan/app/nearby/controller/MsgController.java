@@ -18,8 +18,14 @@ import com.zhan.app.nearby.service.UserService;
 import com.zhan.app.nearby.util.ResultUtil;
 import com.zhan.app.nearby.util.TextUtils;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+
 @RestController
 @RequestMapping("/msg")
+@Api(value = "消息接口", description = "消息相关接口")
 public class MsgController {
 	private static Logger log = Logger.getLogger(MsgController.class);
 	@Resource
@@ -124,5 +130,17 @@ public class MsgController {
 	@RequestMapping("latest_msg_tip_v2")
 	public ModelMap latest_msg_tip_v2(long user_id) {
 		return dynamicMsgService.getMyDynamicMsg(user_id,true);
+	}
+	
+	@ApiOperation(httpMethod = "POST", value = "获取未读消息") // swagger 当前接口注解
+	@ApiImplicitParams({
+			@ApiImplicitParam(name = "user_id", value = "用户id", required = true, paramType = "query"),
+			@ApiImplicitParam(name = "token", value = "token", required = true, paramType = "query"),
+			@ApiImplicitParam(name = "last_id", value = "接口返回的最后一条消息的id,没有的话，不传即可", paramType = "query"),
+			@ApiImplicitParam(name = "count", value = "count", required = true, paramType = "query") })
+	
+	@RequestMapping("load_unread_msg")
+	public ModelMap load_unread_msg(long user_id,Long last_id,int count) {
+		return dynamicMsgService.getLoadUnreadMsg(user_id, last_id, count);
 	}
 }

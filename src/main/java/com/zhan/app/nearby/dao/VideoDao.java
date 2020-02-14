@@ -27,12 +27,12 @@ public class VideoDao extends BaseDao {
 	private JdbcTemplate jdbcTemplate;
 
 	// ---------------------------------------bottle-------------------------------------------------
-	public void insert(Video video) {
-		saveObjSimple(jdbcTemplate, TABLE_VIDEO, video);
+	public long insert(Video video) {
+		return saveObj(jdbcTemplate, TABLE_VIDEO, video);
 	}
 
-	public List<Video> mine(long user_id, String last_id, int count) {
-		if (TextUtils.isEmpty(last_id)) {
+	public List<Video> mine(long user_id, Long last_id, int count) {
+		if (last_id==null) {
 			String sql = "select v.* ,u.user_id,u.nick_name ,u.avatar,u.sex from " + TABLE_VIDEO
 					+ " v left join t_user u on v.uid=u.user_id where v.uid=?  order by v.id desc limit ?";
 			return jdbcTemplate.query(sql, new Object[] { user_id, count },
@@ -46,7 +46,7 @@ public class VideoDao extends BaseDao {
 							user.setAvatar(rs.getString("avatar"));
 							user.setSex(rs.getString("sex"));
 							ImagePathUtil.completeAvatarPath(user, true);
-							v.setSender(user);
+							v.setUser(user);
 							return v;
 						}
 					});
@@ -64,31 +64,52 @@ public class VideoDao extends BaseDao {
 							user.setAvatar(rs.getString("avatar"));
 							user.setSex(rs.getString("sex"));
 							ImagePathUtil.completeAvatarPath(user, true);
-							v.setSender(user);
+							v.setUser(user);
 							return v;
 						}
 					});
 		}
 	}
 
-	public List<VideoComment> listComment(long user_id, String vid, int page, int count) {
-		String sql = "select vc.*,u.nick_name,u.avatar,u.sex from " + TABLE_VIDEO_COMMENT
-				+ " vc left join t_user u on vc.uid=u.user_id where vc.video_id=? order by vc.id desc limit ?,?";
-		return jdbcTemplate.query(sql, new Object[] { vid, (page - 1) * count, count },
-				new BeanPropertyRowMapper<VideoComment>(VideoComment.class) {
-					@Override
-					public VideoComment mapRow(ResultSet rs, int rowNumber) throws SQLException {
-						VideoComment vc = super.mapRow(rs, rowNumber);
-						BaseUser user = new BaseUser();
-						user.setUser_id(rs.getLong("user_id"));
-						user.setNick_name(rs.getString("nick_name"));
-						user.setAvatar(rs.getString("avatar"));
-						user.setSex(rs.getString("sex"));
-						ImagePathUtil.completeAvatarPath(user, true);
-						vc.setUser(user);
-						return vc;
-					}
-				});
+	public List<VideoComment> listComment(long user_id, String vid, Integer last_id, int count) {
+		
+		if(last_id==null) {
+			String sql = "select vc.*,u.nick_name,u.avatar,u.sex from " + TABLE_VIDEO_COMMENT
+					+ " vc left join t_user u on vc.uid=u.user_id where vc.video_id=? order by vc.id desc limit ?";
+			return jdbcTemplate.query(sql, new Object[] { vid,count },
+					new BeanPropertyRowMapper<VideoComment>(VideoComment.class) {
+						@Override
+						public VideoComment mapRow(ResultSet rs, int rowNumber) throws SQLException {
+							VideoComment vc = super.mapRow(rs, rowNumber);
+							BaseUser user = new BaseUser();
+							user.setUser_id(rs.getLong("user_id"));
+							user.setNick_name(rs.getString("nick_name"));
+							user.setAvatar(rs.getString("avatar"));
+							user.setSex(rs.getString("sex"));
+							ImagePathUtil.completeAvatarPath(user, true);
+							vc.setUser(user);
+							return vc;
+						}
+					});
+		}else {
+			String sql = "select vc.*,u.nick_name,u.avatar,u.sex from " + TABLE_VIDEO_COMMENT
+					+ " vc left join t_user u on vc.uid=u.user_id where vc.video_id=?  and vc.id<? order by vc.id desc limit ?";
+			return jdbcTemplate.query(sql, new Object[] { vid, last_id, count },
+					new BeanPropertyRowMapper<VideoComment>(VideoComment.class) {
+						@Override
+						public VideoComment mapRow(ResultSet rs, int rowNumber) throws SQLException {
+							VideoComment vc = super.mapRow(rs, rowNumber);
+							BaseUser user = new BaseUser();
+							user.setUser_id(rs.getLong("user_id"));
+							user.setNick_name(rs.getString("nick_name"));
+							user.setAvatar(rs.getString("avatar"));
+							user.setSex(rs.getString("sex"));
+							ImagePathUtil.completeAvatarPath(user, true);
+							vc.setUser(user);
+							return vc;
+						}
+					});
+		}
 	}
 
 	public long insert(VideoComment videoComment) {

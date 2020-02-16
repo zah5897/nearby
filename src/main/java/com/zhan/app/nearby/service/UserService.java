@@ -98,6 +98,8 @@ public class UserService {
 	private FaceCheckTask faceCheckTask;
 	@Autowired
 	private CommAsyncTask commAsyncTask;
+	@Autowired
+	private HXAsyncTask hxAsyncTask;
 
 	
 	@Autowired
@@ -291,6 +293,9 @@ public class UserService {
 			String signature, String my_tags, String interests, String animals, String musics, String weekday_todo,
 			String footsteps, String want_to_where, boolean isNick_modify, Integer birth_city_id, String contact,
 			String newSex) {
+		if(isNick_modify) {
+			hxAsyncTask.updateHXNickName(user_id,nick_name);
+		}
 		return userDao.modify_info(user_id, nick_name, birthday, job, height, weight, signature, my_tags, interests,
 				animals, musics, weekday_todo, footsteps, want_to_where, birth_city_id, contact, newSex);
 	}

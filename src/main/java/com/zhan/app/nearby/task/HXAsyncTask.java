@@ -21,36 +21,36 @@ public class HXAsyncTask {
 
 	 
 	@Async
-	public static void makeChatSession(BaseUser user, BaseUser with_user, long bottle_id) {
+	public   void makeChatSession(BaseUser user, BaseUser with_user, long bottle_id) {
 		HX_SessionUtil.makeChatSession(user, with_user,bottle_id);
 	}
 
 	@Async
-	public static void makeChatSessionSingle(BaseUser user, BaseUser with_user, String expressMsg) {
+	public   void makeChatSessionSingle(BaseUser user, BaseUser with_user, String expressMsg) {
 		HX_SessionUtil.makeChatSessionSingle(user, with_user, expressMsg);
 	}
 	@Async
-	public static void makeChatSession(BaseUser user, BaseUser with_user) {
+	public   void makeChatSession(BaseUser user, BaseUser with_user) {
 		HX_SessionUtil.makeChatSession(user, with_user, 0);
 	}
 	@Async
-	public static void matchCopyDraw(BaseUser fromU, long toU, String msg) {
+	public   void matchCopyDraw(BaseUser fromU, long toU, String msg) {
 		HX_SessionUtil.matchCopyDraw(fromU, toU, msg);
 	}
 	@Async
-	public static void pushPraise(long toUid,long dynamic_id) {
+	public   void pushPraise(long toUid,long dynamic_id) {
 		HX_SessionUtil.pushPraise(toUid, dynamic_id);
 	}
 	@Async
-	public static void pushComment(long toUid,DynamicComment comment) {
+	public   void pushComment(long toUid,DynamicComment comment) {
 		HX_SessionUtil.pushComment(toUid, comment);
 	}
 	@Async
-	public static void pushLike(long toUid) {
+	public   void pushLike(long toUid) {
 		HX_SessionUtil.pushLike(toUid);
 	}
 	@Async
-	public static void pushGift(String from_nick_name,long to_user_id) {
+	public   void pushGift(String from_nick_name,long to_user_id) {
 		// 通知对方收到某某的礼物
 		HX_SessionUtil.pushGift(from_nick_name, to_user_id);
 	}
@@ -125,5 +125,9 @@ public class HXAsyncTask {
 	@Async
 	public void sendMessage(BaseUser user,long to, String msgTxt) {
 		Main.sendTxtMessage(user, new String[] {String.valueOf(to)}, msgTxt, null, PushMsgType.TYPE_NEW_CONVERSATION);
+	}
+
+	public void updateHXNickName(long user_id, String nick_name) {
+		Main.updateNickName(String.valueOf(user_id), nick_name);
 	}
 }

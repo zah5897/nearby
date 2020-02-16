@@ -8,7 +8,6 @@ import org.springframework.format.annotation.DateTimeFormat;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.zhan.app.nearby.annotation.ColumnType;
-import com.zhan.app.nearby.bean.property.MsgAttention;
 import com.zhan.app.nearby.bean.user.BaseUser;
 
 @SuppressWarnings("serial")
@@ -17,7 +16,6 @@ public class DynamicMessage implements Serializable{
 	@ColumnType
 	private long id;
 	@JsonIgnore
-	private long dynamic_id; //统制为自增id
 	private long obj_id; //
 	private String content;
 	@JsonIgnore
@@ -38,8 +36,6 @@ public class DynamicMessage implements Serializable{
 	private BaseUser user;
 	@ColumnType
 	private UserDynamic dynamic;
-	@ColumnType
-	private MsgAttention attention;
 
 	@ColumnType
 	private BaseUser from;
@@ -54,15 +50,6 @@ public class DynamicMessage implements Serializable{
 
 	public void setId(long id) {
 		this.id = id;
-	}
-
-	public long getDynamic_id() {
-		return dynamic_id;
-	}
-
-	public void setDynamic_id(long dynamic_id) {
-		this.dynamic_id = dynamic_id;
-		setObj_id(dynamic_id);
 	}
 
 	public long getUser_id() {
@@ -120,14 +107,6 @@ public class DynamicMessage implements Serializable{
 
 	public void setBy_user_id(long by_user_id) {
 		this.by_user_id = by_user_id;
-	}
-
-	public MsgAttention getAttention() {
-		return attention;
-	}
-
-	public void setAttention(MsgAttention attention) {
-		this.attention = attention;
 	}
 
 	public int getIsReadNum() {

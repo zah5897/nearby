@@ -7,7 +7,6 @@ import java.util.Date;
 import org.springframework.jdbc.core.RowMapper;
 
 import com.zhan.app.nearby.bean.DynamicMessage;
-import com.zhan.app.nearby.bean.property.MsgAttention;
 import com.zhan.app.nearby.bean.user.SimpleUser;
 import com.zhan.app.nearby.util.DateTimeUtil;
 
@@ -24,12 +23,9 @@ public class DynamicMsgMapper implements RowMapper<DynamicMessage> {
 		dynamicMsg.setType(rs.getInt("type"));
         int isRead=rs.getInt("isReadNum");
         dynamicMsg.setIsReadNum(isRead);
-		long dy_id = rs.getLong("dynamic_id");
-
-		dynamicMsg.setAttention(new MsgAttention());
-		dynamicMsg.getAttention().setId(dy_id);
-		dynamicMsg.getAttention().setType(dynamicMsg.getType());
-		dynamicMsg.setDynamic_id(dy_id);
+		long obj_id = rs.getLong("obj_id");
+		 
+		dynamicMsg.setObj_id(obj_id);
 
 		SimpleUser user = new SimpleUser();
 		user.setUser_id(rs.getLong("by_user_id"));

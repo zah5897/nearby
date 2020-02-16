@@ -1,6 +1,5 @@
 package com.zhan.app.nearby.service;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -58,7 +57,7 @@ public class DynamicMsgService {
 		DynamicMessage msg = new DynamicMessage();
 		msg.setUser_id(user_id);
 		msg.setBy_user_id(by_user_id);
-		msg.setDynamic_id(obj_id);
+		msg.setObj_id(obj_id);
 		msg.setType(type.ordinal());
 		msg.setContent(content);
 		msg.setCreate_time(new Date());
@@ -107,7 +106,7 @@ public class DynamicMsgService {
 			BaseUser me = userDao.getBaseUser(user_id);
 			BaseUser he = userDao.getBaseUser(msg.getBy_user_id());
 			if (msg.getType() == DynamicMsgType.TYPE_MEET.ordinal()) {
-				hxTask.makeChatSession(me, he, msg.getDynamic_id());
+				hxTask.makeChatSession(me, he, msg.getObj_id());
 			} else if (msg.getType() == DynamicMsgType.TYPE_LIKE.ordinal()) {
 				hxTask.makeChatSession(me, he, 0);
 			} else {

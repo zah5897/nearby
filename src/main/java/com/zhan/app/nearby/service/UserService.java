@@ -2,7 +2,6 @@ package com.zhan.app.nearby.service;
 
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -22,11 +21,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.easemob.server.example.Main;
-import com.easemob.server.example.comm.wrapper.ResponseWrapper;
-import com.fasterxml.jackson.databind.deser.Deserializers.Base;
 import com.zhan.app.nearby.bean.Avatar;
 import com.zhan.app.nearby.bean.City;
 import com.zhan.app.nearby.bean.Tag;
@@ -57,13 +53,10 @@ import com.zhan.app.nearby.task.MatchActiveUserTask;
 import com.zhan.app.nearby.util.AESUtil;
 import com.zhan.app.nearby.util.AddressUtil;
 import com.zhan.app.nearby.util.DateTimeUtil;
-import com.zhan.app.nearby.util.HX_SessionUtil;
 import com.zhan.app.nearby.util.HttpService;
 import com.zhan.app.nearby.util.IPUtil;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.ImageSaveUtils;
-import com.zhan.app.nearby.util.MD5Util;
-import com.zhan.app.nearby.util.RandomCodeUtil;
 import com.zhan.app.nearby.util.ResultUtil;
 import com.zhan.app.nearby.util.TextUtils;
 
@@ -98,8 +91,6 @@ public class UserService {
 	private FaceCheckTask faceCheckTask;
 	@Autowired
 	private CommAsyncTask commAsyncTask;
-	@Autowired
-	private HXAsyncTask hxAsyncTask;
 
 	
 	@Autowired
@@ -293,9 +284,6 @@ public class UserService {
 			String signature, String my_tags, String interests, String animals, String musics, String weekday_todo,
 			String footsteps, String want_to_where, boolean isNick_modify, Integer birth_city_id, String contact,
 			String newSex) {
-		if(isNick_modify) {
-			hxAsyncTask.updateHXNickName(user_id,nick_name);
-		}
 		return userDao.modify_info(user_id, nick_name, birthday, job, height, weight, signature, my_tags, interests,
 				animals, musics, weekday_todo, footsteps, want_to_where, birth_city_id, contact, newSex);
 	}

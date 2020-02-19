@@ -87,8 +87,13 @@ public class ManagerDao extends BaseDao {
 
 	// 修改动态的状态
 	public int updateDynamicState(long id, DynamicState state) {
-		String sql = "update  t_user_dynamic set state=? where id=? ";
-		return jdbcTemplate.update(sql, new Object[] { state.ordinal(), id });
+		if(state==DynamicState.T_ILLEGAL) {
+			String sql = "update  t_user_dynamic set state=?,local_image_name=? where id=? ";
+			return jdbcTemplate.update(sql, new Object[] { state.ordinal(),"illegal.jpg", id });
+		}else {
+			String sql = "update  t_user_dynamic set state=? where id=? ";
+			return jdbcTemplate.update(sql, new Object[] { state.ordinal(), id });
+		}
 	}
 
 	public int removeUserDynamic(long id) {

@@ -126,8 +126,5 @@ public class HXAsyncTask {
 	public void sendMessage(BaseUser user,long to, String msgTxt) {
 		Main.sendTxtMessage(user, new String[] {String.valueOf(to)}, msgTxt, null, PushMsgType.TYPE_NEW_CONVERSATION);
 	}
-
-	public void updateHXNickName(long user_id, String nick_name) {
-		Main.updateNickName(String.valueOf(user_id), nick_name);
-	}
+	 
 }

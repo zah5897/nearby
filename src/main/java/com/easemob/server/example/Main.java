@@ -128,12 +128,16 @@ public class Main {
 
 //		System.out.println(disconnect("112410"));
 
-		Object obj = Main.sendCmdMessage( new String[] { String.valueOf(133258) }, new HashMap<>());
-		System.out.println(obj);
+//		Object obj = Main.sendCmdMessage( new String[] { String.valueOf(133258) }, new HashMap<>());
+//		System.out.println(obj);
 
 //		Map map=new HashMap<>();
 //		map.put("image_id", "0");
 //		Main.sendTxtMessage("admin", new String[] {"133258"},map);
+		
+		updateNickName("686392", "佩奇2017");
+		String token=ClientContext.getInstance().getAuthToken();
+		System.out.println(token);
 	}
 
 	public static Object registUser(String userName, String password, String nickname) {
@@ -166,6 +170,7 @@ public class Main {
 		initFactory();
 
 		IMUserAPI user = (IMUserAPI) factory.newInstance(EasemobRestAPIFactory.USER_CLASS);
+		
 		Map<String, String> payload = new HashMap<String, String>();
 		payload.put("nickname", nickname);
 		return user.modifyIMUserNickNameWithAdminToken(userName, payload);

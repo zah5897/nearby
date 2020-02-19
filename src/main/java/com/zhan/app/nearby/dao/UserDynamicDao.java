@@ -60,18 +60,18 @@ public class UserDynamicDao extends BaseDao {
 		Object[] param = new Object[] { user_id,notIn, ImageStatus.SELECTED.ordinal(), lastID,user_id,Relationship.BLACK.ordinal(), page_size };
 		return jdbcTemplate.query(sql, param, new DynamicMapper());
 	}
-	public List<UserDynamic> getHomeFoundSelected(long user_id, long last_id, int page_size, City city) {
+	public List<UserDynamic> getHomeFoundSelected(long user_id, Long last_id, int page_size, City city) {
 		String sql = "select dy.*,"
 				+ " coalesce((select relationship from t_like_dynamic t_like where t_like.dynamic_id=dy.id and t_like.user_id=?), '0') as like_state ,"
 				+ " u.user_id , u.nick_name ,u.avatar,u.sex ,u.birthday ,u.type, v.vip_id " + "from " + TABLE_USER_DYNAMIC
 				+ " dy left join " + TABLE_HOME_FOUND_SELECTED + " hs " + " on dy.id=hs.dynamic_id "
 				+ " left join t_user u on  dy.user_id=u.user_id "
 				+ " left join t_user_vip v on dy.user_id=v.user_id "
-				+ " where hs.selected_state=? and dy.id<?   " + cityIn(city)
+				+ " where (hs.selected_state=?  or dy.user_id=? ) and dy.id<?   " + cityIn(city)
 				+ " and   dy.user_id not in(select with_user_id from t_user_relationship where user_id=? and relationship=?) order by dy.id desc limit ?";
 
-		long lastID = (last_id <= 0 ? Long.MAX_VALUE : last_id);
-		Object[] param = new Object[] { user_id, ImageStatus.SELECTED.ordinal(), lastID,user_id,Relationship.BLACK.ordinal(), page_size };
+		long lastID = (last_id ==null ? Long.MAX_VALUE : last_id);
+		Object[] param = new Object[] { user_id, ImageStatus.SELECTED.ordinal(),user_id, lastID,user_id,Relationship.BLACK.ordinal(), page_size };
 		return jdbcTemplate.query(sql, param, new DynamicMapper());
 //		} else {
 //			if (city != null) {
@@ -449,14 +449,5 @@ public class UserDynamicDao extends BaseDao {
 		String sql = "insert into t_send_flower (uid,dy_id,create_time,gift_id,count) values (?, ?,?,?,?)";
 		jdbcTemplate.update(sql, new Object[] { user_id, dynamic_id, new Date(), gif_id,count });
 	}
-	
-	public List<UserDynamic> getUserUnCheckedDynamic(long user_id) {
-			String sql = "select dy.*, '0' as like_state, v.vip_id ,"
-					+ " u.user_id , u.nick_name ,u.avatar,u.sex ,u.birthday ,u.type  from " + TABLE_USER_DYNAMIC
-					+ " dy left join t_user u on  dy.user_id=u.user_id "
-					+ " left join t_user_vip v on dy.user_id=v.user_id"
-					+ " where dy.user_id=? and dy.create_time>DATE_SUB(CURDATE(), INTERVAL 2 DAY) order by id desc limit 18";
-			return jdbcTemplate.query(sql, new Object[] {user_id}, new DynamicMapper());
-	}
-
+  
 }

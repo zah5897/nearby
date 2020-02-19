@@ -51,8 +51,7 @@ public class MainController {
 	 */
 	@RequestMapping("found")
 	public ModelMap found(Long user_id, Long last_id, Integer count, String lat, String lng, Integer city_id) {
-		ModelMap re = mainService.getHomeFoundSelected(user_id == null ? 0 : user_id, last_id, count, city_id);
-		return re;
+		return mainService.getHomeFoundSelected(user_id == null ? 0 : user_id, last_id, count, city_id);
 	}
 
 	@RequestMapping("reset_city")

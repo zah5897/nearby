@@ -15,7 +15,6 @@ public class DynamicMessage implements Serializable{
 	
 	@ColumnType
 	private long id;
-	@JsonIgnore
 	private long obj_id; //
 	private String content;
 	@JsonIgnore

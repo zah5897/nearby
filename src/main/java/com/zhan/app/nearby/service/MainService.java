@@ -67,8 +67,7 @@ public class MainService {
 	UserService userService;
 	@Resource
 	UserCacheService userCacheService;
-	
-	
+
 	@Autowired
 	private HXAsyncTask hxTask;
 
@@ -105,60 +104,18 @@ public class MainService {
 		return result;
 	}
 
-	public ModelMap getHomeFoundSelected(long user_id, Long last_id, Integer page_size, Integer city_id) {
-
-		int realCount;
-		if (page_size == null || page_size <= 0) {
-			realCount = 20;
-		} else {
-			realCount = page_size;
+	public ModelMap getHomeFoundSelected(long user_id, Long last_id, Integer count, Integer city_id) {
+		if (count == null) {
+			count = 20;
 		}
-		if (city_id == null || city_id < 0) {
-			city_id = 0;
+		City city = null;
+		if (city_id != null) {
+			city = cityService.getFullCity(city_id); // 获取城市
 		}
-
-		boolean firstPage = false;
-		if (last_id == null || last_id < 0) {
-			last_id = 0l;
-			firstPage = true;
-		}
-		City city = cityService.getFullCity(city_id); // 获取城市
-		List<UserDynamic> dynamics;
-		if (firstPage) {
-			List<UserDynamic> myUnCheckedDynamics = userDynamicDao.getUserUnCheckedDynamic(user_id);
-			if (myUnCheckedDynamics.size() == 0) {
-				dynamics = userDynamicDao.getHomeFoundSelected(user_id, last_id, realCount, city);
-			} else {
-				List<Long> ids = new ArrayList<>();
-				for (UserDynamic dy : myUnCheckedDynamics) {
-					ids.add(dy.getId());
-				}
-				dynamics = userDynamicDao.getHomeFoundSelected(user_id, last_id, realCount - myUnCheckedDynamics.size(),
-						city, ids);
-			}
-		} else {
-			dynamics = userDynamicDao.getHomeFoundSelected(user_id, last_id, realCount, city);
-		}
-
+		List<UserDynamic> dynamics = userDynamicDao.getHomeFoundSelected(user_id, last_id, count, city);
 		ModelMap result = ResultUtil.getResultOKMap();
-		if (dynamics == null || dynamics.size() < realCount) {
-			result.put("hasMore", false);
-			result.put("last_id", 0);
-			if (last_id <= 0 && dynamics.size() < realCount) {
-				List<UserDynamic> others = userDynamicDao.getHomeFoundSelectedRandom(user_id,
-						realCount - dynamics.size());
-				dynamics.addAll(others);
-			}
-		} else {
-			result.put("hasMore", true);
-			result.put("last_id", dynamics.get(realCount - 1).getId());
-		}
-
-		if (dynamics != null) {
-			for (UserDynamic dy : dynamics) {
-				ImagePathUtil.completeAvatarPath(dy.getUser(), true);
-			}
-		}
+		result.put("hasMore", dynamics.size()==count);
+		result.put("last_id", dynamics.get(dynamics.size() - 1).getId());
 		ImagePathUtil.completeDynamicsPath(dynamics, true);
 		result.put("images", dynamics);
 		return result;
@@ -378,7 +335,7 @@ public class MainService {
 		if (page == 1 && fix_user_id == null) {
 			users = systemDao.getTouTiaoUser(0, count);
 		} else if (page == 1 && fix_user_id != null) {
-			users = getAfterFixUsers(fix_user_id,count);
+			users = getAfterFixUsers(fix_user_id, count);
 		} else {
 			users = systemDao.loadMaxRateMeiLiRandom(fix_user_id, gender, count);
 		}

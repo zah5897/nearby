@@ -131,16 +131,17 @@ public class DynamicMsgService {
 
 	}
 
-	public ModelMap getLoadUnreadMsg(long user_id, Long last_id, int count) {
+	public ModelMap loadMsg(long user_id,String token, Long last_id, int count,boolean noMeet) {
 		ModelMap result = ResultUtil.getResultOKMap();
-		int unLoadCount = dynamicMsgDao.getUnLoadMsgCount(user_id, last_id);
-		List<DynamicMessage> msgs = dynamicMsgDao.getUnLoadMsg(user_id, last_id, count);
+	
+		List<DynamicMessage> msgs = dynamicMsgDao.loadMsg(user_id, last_id, count,noMeet);
 		 
-		if(last_id!=null&&last_id>0) {
-			commAsyncTask.clearMsg(this,user_id, last_id);
-		}
 		result.addAttribute("msgs", msgs);
-		result.addAttribute("total_count", unLoadCount);
+		
+		if(last_id==null) {
+			int unread_count = dynamicMsgDao.getUnReadMsgCount(user_id,noMeet);
+			result.addAttribute("unread_count", unread_count);
+		}
 
 		if(!msgs.isEmpty()) {
 			last_id=msgs.get(msgs.size()-1).getId();

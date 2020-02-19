@@ -896,7 +896,9 @@ public class UserDao extends BaseDao {
 	}
 
 	public List<LoginUser> getOnlineUsers(int page, int count) {
-		String sql = "select u.user_id,u.nick_name,u.avatar,u.last_login_time from t_user_online l inner join t_user u on l.uid=u.user_id order by l.check_time desc limit ?,?";
+		String sql = "select u.user_id,u.nick_name,u.avatar,u.last_login_time "
+				+ " from t_user_online l"
+				+ "  inner join t_user u on l.uid=u.user_id where u.isFace=1 order by l.check_time desc limit ?,?";
 		return jdbcTemplate.query(sql, new Object[] { (page - 1) * count, count },
 				new BeanPropertyRowMapper<LoginUser>(LoginUser.class));
 	}

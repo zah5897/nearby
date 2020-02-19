@@ -100,27 +100,39 @@ public class DynamicMsgDao extends BaseDao {
 
 	public List<DynamicMessage> getMyMeetLatest(long user_id) {
 		String sql = "select msg.* from  " + TABLE_DYNAMIC_MSG + " msg  "
-				+ " left join t_bottle b on msg.dynamic_id=b.id  "
+				+ " left join t_bottle b on msg.obj_id=b.id  "
 				+ " left join t_latest_tip_time la on msg.user_id=la.uid  "
 				+ " where msg.user_id=? and msg.type=? and msg.create_time>la.last_time order by msg.create_time";
 		return jdbcTemplate.query(sql, new Object[] { user_id, DynamicMsgType.TYPE_MEET.ordinal() },
 				new BeanPropertyRowMapper<DynamicMessage>(DynamicMessage.class));
 	}
 
-	public List<DynamicMessage> getUnLoadMsg(long user_id, Long last_id, int count) {
+	public List<DynamicMessage> loadMsg(long user_id, Long last_id, int count,boolean noMeet) {
 
 		if (last_id == null||last_id<1) {
 			last_id = Long.MAX_VALUE;
 		}
-		String sql = "select msg.*,u.nick_name,u.avatar,u.user_id ,u.sex,v.vip_id  from  " + TABLE_DYNAMIC_MSG + " msg "
-				+ " left join t_user u on msg.by_user_id=u.user_id  left join t_user_vip v on msg.user_id=v.user_id  where msg.user_id=? and msg.id<?  order by msg.id desc limit ?";
+		
+		String sql = "select msg.*,u.nick_name,u.avatar,u.user_id ,u.sex,v.vip_id "
+				+ "   from  " + TABLE_DYNAMIC_MSG + " msg "
+				+ " left join t_user u on msg.by_user_id=u.user_id "
+				+ "  left join t_user_vip v on msg.by_user_id=v.user_id  "
+				+ " where msg.user_id=? and msg.id<?  order by msg.id desc limit ?";
+		if(noMeet) {
+		  sql = "select msg.*,u.nick_name,u.avatar,u.user_id ,u.sex,v.vip_id "
+					+ "   from  " + TABLE_DYNAMIC_MSG + " msg "
+					+ " left join t_user u on msg.by_user_id=u.user_id "
+					+ "  left join t_user_vip v on msg.by_user_id=v.user_id  "
+					+ " where msg.user_id=? and msg.type<>"+DynamicMsgType.TYPE_MEET.ordinal()+" and msg.id<?  order by msg.id desc limit ?";
+		}
+		
 		return jdbcTemplate.query(sql, new Object[] { user_id, last_id, count },
 				new BeanPropertyRowMapper<DynamicMessage>(DynamicMessage.class) {
 			@Override
 			public DynamicMessage mapRow(ResultSet rs, int rowNumber) throws SQLException {
 				DynamicMessage msg= super.mapRow(rs, rowNumber);
 				BaseVipUser u = new BaseVipUser();
-				u.setUser_id(rs.getLong("user_id"));
+				u.setUser_id(rs.getLong("by_user_id"));
 				u.setNick_name(rs.getString("nick_name"));
 				u.setAvatar(rs.getString("avatar"));
 				u.setSex(rs.getString("sex"));
@@ -140,15 +152,15 @@ public class DynamicMsgDao extends BaseDao {
 		return jdbcTemplate.queryForObject(sql, Integer.class);
 	}
 
-	public int getUnLoadMsgCount(long user_id, Long last_id) {
-		if (last_id == null || last_id < 1) {
-			String sql = "select count(*) from  " + TABLE_DYNAMIC_MSG + " where user_id=" + user_id;
+	public int getUnReadMsgCount(long user_id,boolean noMeet) {
+		if(noMeet) {
+			String sql = "select count(*) from  " + TABLE_DYNAMIC_MSG + " where user_id=" + user_id+ " and isReadNum=0 and type<>"+DynamicMsgType.TYPE_MEET.ordinal();
 			return jdbcTemplate.queryForObject(sql, Integer.class);
-		} else {
-			String sql = "select count(*) from  " + TABLE_DYNAMIC_MSG + " where user_id=" + user_id + " and id<"
-					+ last_id;
+		}else {
+			String sql = "select count(*) from  " + TABLE_DYNAMIC_MSG + " where user_id=" + user_id+ " and isReadNum=0";
 			return jdbcTemplate.queryForObject(sql, Integer.class);
 		}
+			
 	}
 
 	public void clearMsg(long user_id, long last_id) {

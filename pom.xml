@@ -151,15 +151,6 @@
 			<version>1.9.2</version>
 		</dependency>
 
-		<!-- sms jar -->
-
-		<dependency>
-			<groupId>org.apache</groupId>
-			<artifactId>test</artifactId>
-			<version>1.0</version>
-			<scope>system</scope>
-			<systemPath>${basedir}/src/main/webapp/WEB-INF/lib/CCP_REST_SMS_SDK_JAVA_v2.6.3r.jar</systemPath>
-		</dependency>
 
 		<!-- 环信 -->
 

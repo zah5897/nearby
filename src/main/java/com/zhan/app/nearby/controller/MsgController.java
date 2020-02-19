@@ -45,7 +45,12 @@ public class MsgController {
 		mm.put("msg_id", msg_id);
 		return mm;
 	}
-
+	@ApiOperation(httpMethod = "POST", value = "标记当前消息为已读") // 
+	@ApiImplicitParams({
+			@ApiImplicitParam(name = "user_id", value = "用户id", required = true, paramType = "query"),
+			@ApiImplicitParam(name = "token", value = "token", required = true, paramType = "query"),
+			@ApiImplicitParam(name = "msg_ids", value = "消息ids,逗号分割", paramType = "query")
+			 })
 	@RequestMapping("update_state")
 	public ModelMap update_state(Long user_id, String msg_ids) {
 		if (user_id == null || TextUtils.isEmpty(msg_ids)) {
@@ -62,6 +67,7 @@ public class MsgController {
 		return ResultUtil.getResultOKMap();
 	}
 
+	
 	@RequestMapping("msg_list")
 	public ModelMap msg_list(Long user_id, Long last_id, Integer type) {
 		if (user_id == null || user_id < 1) {
@@ -132,15 +138,26 @@ public class MsgController {
 		return dynamicMsgService.getMyDynamicMsg(user_id,true);
 	}
 	
-	@ApiOperation(httpMethod = "POST", value = "获取未读消息") // swagger 当前接口注解
+	@ApiOperation(httpMethod = "POST", value = "获取当前账户的消息列表,排除邂逅瓶") // swagger 当前接口注解
 	@ApiImplicitParams({
 			@ApiImplicitParam(name = "user_id", value = "用户id", required = true, paramType = "query"),
 			@ApiImplicitParam(name = "token", value = "token", required = true, paramType = "query"),
-			@ApiImplicitParam(name = "last_id", value = "接口返回的最后一条消息的id,没有的话，不传即可", paramType = "query"),
+			@ApiImplicitParam(name = "last_id", value = "分页id", paramType = "query"),
 			@ApiImplicitParam(name = "count", value = "count", required = true, paramType = "query") })
 	
-	@RequestMapping("load_unread_msg")
-	public ModelMap load_unread_msg(long user_id,Long last_id,int count) {
-		return dynamicMsgService.getLoadUnreadMsg(user_id, last_id, count);
+	@RequestMapping("list")
+	public ModelMap list_no_meet(long user_id,String token,Long last_id,int count) {
+		return dynamicMsgService.loadMsg(user_id,token, last_id, count,true);
+	}
+	@ApiOperation(httpMethod = "POST", value = "获取当前账户的消息列表") // swagger 当前接口注解
+	@ApiImplicitParams({
+			@ApiImplicitParam(name = "user_id", value = "用户id", required = true, paramType = "query"),
+			@ApiImplicitParam(name = "token", value = "token", required = true, paramType = "query"),
+			@ApiImplicitParam(name = "last_id", value = "分页id", paramType = "query"),
+			@ApiImplicitParam(name = "count", value = "count", required = true, paramType = "query") })
+	
+	@RequestMapping("list_all")
+	public ModelMap list(long user_id,String token,Long last_id,int count,Integer all) {
+		return dynamicMsgService.loadMsg(user_id,token, last_id, count,false);
 	}
 }

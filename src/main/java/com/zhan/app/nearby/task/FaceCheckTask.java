@@ -31,10 +31,15 @@ public class FaceCheckTask {
 			return;
 		}
 		int faceCount = FaceCheckHelper.instance.checkFace(baseUser.getAvatar());
+		
+		UserService userService = SpringContextUtil.getBean("userService");
+		
 		if (faceCount > 0) {
-			UserService userService = SpringContextUtil.getBean("userService");
 			userService.updateAvatarIsFace(baseUser.getUser_id(), 1);
 			userService.addRecommendAndMeetBottle(baseUser.getUser_id());
+		}else {
+			userService.updateAvatarIsFace(baseUser.getUser_id(), 0);
+			userService.removeRecommendAndMeetBottle(baseUser.getUser_id());
 		}
 	}
 

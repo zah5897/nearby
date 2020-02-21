@@ -135,7 +135,7 @@ public class UserDao extends BaseDao {
 
 	public LocationUser findLocationUserByOpenid(String openid) {
 		List<LocationUser> list = jdbcTemplate.query(
-				"select user.* ,city.name as city_name from t_user user left join t_sys_city city on user.city_id=city.id where user.openid=?",
+				"select user.* ,city.name as city_name from t_user user left join t_sys_city city on user.city_id=city.id where user.openid like '%?%'",
 				new Object[] { openid }, new BeanPropertyRowMapper<LocationUser>(LocationUser.class));
 		if (list != null && list.size() > 0) {
 			return list.get(0);
@@ -202,7 +202,7 @@ public class UserDao extends BaseDao {
 	}
 
 	public int getUserCountByOpenId(String openid) {
-		int count = jdbcTemplate.queryForObject("select count(*) from t_user user where user.openid=?",
+		int count = jdbcTemplate.queryForObject("select count(*) from t_user user where user.openid like '%?%'",
 				new String[] { openid }, Integer.class);
 		return count;
 	}
@@ -994,6 +994,9 @@ public class UserDao extends BaseDao {
 					new Object[] { user_id, FoundUserRelationship.VISIBLE.ordinal(), new Date() });
 		}
 		return count;
+	}
+	public void removeFromFound(long user_id) {
+		jdbcTemplate.update("delete from  t_found_user_relationship where uid="+user_id);
 	}
 
 	public boolean isFollowed(long user_id, long target_id) {

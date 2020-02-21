@@ -175,9 +175,14 @@ public class UserService {
 				matchActiveUserTask.newRegistMatch(user);
 			}
 		}
-		faceCheckTask.doCheckFace(user);
+		doCheckIsFace(user);
 		commAsyncTask.getUserLocationByIP(user, user.getIp());
 		return id;
+	}
+	
+	
+	public void doCheckIsFace(BaseUser user) {
+		faceCheckTask.doCheckFace(user);
 	}
 
 	public int getUserCountByMobile(String mobile) {
@@ -1000,6 +1005,11 @@ public class UserService {
 		managerService.editUserMeetBottle(user_id, 1, "127.0.0.1", "admin");
 	}
 
+	public void removeRecommendAndMeetBottle(long user_id) {
+		userDao.removeFromFound(user_id);
+		managerService.editUserMeetBottle(user_id,0, "127.0.0.1", "admin"); //从邂逅瓶里面删除
+	}
+	
 	public List<Avatar> listNotCheckedAvatars(int count) {
 		return userDao.listNotCheckedAvatars(count);
 	}

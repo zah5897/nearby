@@ -397,21 +397,23 @@ public class UserController {
 		} else {
 			user.set_ua(decode(_ua));
 		}
-		if (TextUtils.isEmpty(login_channel)&&user.getUser_id()>0){
-			String openid=userService.getOpenIdByUid(user.getUser_id());
-			if(!openid.endsWith(user.getOpenid())) {
-				return ResultUtil.getResultMap(ERROR.ERR_PARAM,"user_id对应的openid和本次openid不符");
-			}
-			user.setOpenid(openid);
-		}else {
-			user.setOpenid(login_channel+"#"+user.getOpenid());
-		}
+//		if (TextUtils.isEmpty(login_channel)&&user.getUser_id()>0){
+//			String openid=userService.getOpenIdByUid(user.getUser_id());
+//			if(!openid.endsWith(user.getOpenid())) {
+//				return ResultUtil.getResultMap(ERROR.ERR_PARAM,"user_id对应的openid和本次openid不符");
+//			}
+//			user.setOpenid(openid);
+//		}else {
+//			user.setOpenid(login_channel+"#"+user.getOpenid());
+//		}
 		if (userService.getUserCountByOpenid(user.getOpenid()) >= 1) {
 			return userService.doLogin(user, user.get_ua(), aid, getDefaultCityId());
 		}
 		if (TextUtils.isTrimEmpty(user.getNick_name())) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "昵称不能为空");
 		}
+		
+		user.setOpenid(login_channel+"#"+user.getOpenid());
 		user.setIp(IPUtil.getIpAddress(request));
 		user.setToken(UUID.randomUUID().toString());
 		user.setAvatar(image_names);
@@ -829,6 +831,7 @@ public class UserController {
 		user.setAvatar(image_names);
 		userService.updateAvatar(user_id, image_names);
 		userService.saveAvatar(user_id, image_names);
+		userService.doCheckIsFace(user);
 		return userService.getUserCenterData("", aid, user_id, user_id);
 	}
 

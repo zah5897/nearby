@@ -8,7 +8,7 @@ import com.baidu.aip.face.AipFace;
 
 public enum FaceCheckHelper {
 	instance;
-	// ÉèÖÃAPPID/AK/SK
+	// ï¿½ï¿½ï¿½ï¿½APPID/AK/SK
 	public static final String APP_ID = "18370320";
 	public static final String API_KEY = "kcGfb64hdlrGgUBQP0W6CjU1";
 	public static final String SECRET_KEY = "xn8wsDgo2Mh5pKoyyT6agYZV2HoWBpxg";
@@ -32,10 +32,10 @@ public enum FaceCheckHelper {
 //		options.put("face_type", "LIVE");
 //		options.put("liveness_control", "LOW");
 
-//		String image = "È¡¾öÓÚimage_type²ÎÊý£¬´«ÈëBASE64×Ö·û´®»òURL×Ö·û´®»òFACE_TOKEN×Ö·û´®";
+//		String image = "È¡ï¿½ï¿½ï¿½ï¿½image_typeï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½BASE64ï¿½Ö·ï¿½ï¿½ï¿½ï¿½ï¿½URLï¿½Ö·ï¿½ï¿½ï¿½ï¿½ï¿½FACE_TOKENï¿½Ö·ï¿½ï¿½ï¿½";
 		String imageType = "URL";
 
-		// ÈËÁ³¼ì²â
+		// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		JSONObject res = client.detect(url, imageType, options);
 		JSONObject result=res.optJSONObject("result");
 		
@@ -47,7 +47,7 @@ public enum FaceCheckHelper {
 	}
 	
 	public static void main(String[] args) {
-		String url="https://upfile-drcn.platform.hicloud.com/FileServer/image/b.0070086000208130906.20181112160522.49093172523974616176334524613917.1000.D42DEF1EB9AE61196FF0CA47E2C19959B972736633965924702A50372135435A.jpg";
+		String url="http://nearby-avatar.cn-bj.ufileos.com/nearby/avatar/origin/6416FCA5-7C85-4045-BBE0-2E10429B3720.jpg";
 		FaceCheckHelper.instance.checkFace(url);
 	}
 }

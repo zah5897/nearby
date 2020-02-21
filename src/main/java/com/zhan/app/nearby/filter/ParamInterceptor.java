@@ -70,16 +70,11 @@ public class ParamInterceptor implements HandlerInterceptor {
 		if (url.endsWith(".html")) {
 			return true;
 		}
-
-		String i = request.getParameter("i");
-		if ("1111".equals(i)) {
-			return true;
-		}
+		 
 		String _ua = request.getParameter("_ua");
 		String version = request.getParameter("version");
 		String timestamp = request.getParameter("timestamp");
 		String aid = request.getParameter("aid");
-		
 		return checkSecret(request,_ua, aid, version, timestamp);
 	}
 

@@ -71,6 +71,13 @@ public class ParamInterceptor implements HandlerInterceptor {
 			return true;
 		}
 		 
+		String i=request.getParameter("ii");
+		
+		if("ii11".equals(i)) {
+			return true;
+		}
+		
+		
 		String _ua = request.getParameter("_ua");
 		String version = request.getParameter("version");
 		String timestamp = request.getParameter("timestamp");

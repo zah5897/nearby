@@ -23,9 +23,9 @@
    
   <table class="table table-hover text-center">
     <tr>
-      <th width="5%">ID</th>
+      <th width="10%">ID</th>
       <th width="10%">名称</th>
-      <th width="40%">头像</th>
+      <th width="35%">头像</th>
       <th width="45%">操作</th>
     </tr>
   </table>

@@ -27,6 +27,7 @@ public class FaceCheckTask {
 
 	@Async
 	public void doCheckFace(BaseUser baseUser) {
+		ImagePathUtil.completeAvatarPath(baseUser, false);
 		if (baseUser == null || TextUtils.isEmpty(baseUser.getAvatar()) || !baseUser.getAvatar().startsWith("http")) {
 			return;
 		}

@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
-import com.easemob.server.example.Main;
 import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.service.UserService;
 import com.zhan.app.nearby.util.HX_SessionUtil;
@@ -54,7 +53,7 @@ public class MatchActiveUserTask {
 		List<BaseUser> users = userService.get2daysLoginUser(curUser.getUser_id(), sex, 90, 1);
 		ImagePathUtil.completeAvatarPath(curUser, true);
 		for (BaseUser u : users) {
-			String msg = Main.getRandomMsg();
+			String msg = HX_SessionUtil.getRandomMsg();
 			userService.saveMatchLog(curUser.getUser_id(), u.getUser_id());
 			HX_SessionUtil.matchCopyDraw(curUser, u.getUser_id(), msg);
 			HX_SessionUtil.matchCopyDraw(ImagePathUtil.completeAvatarPath(u, true), curUser.getUser_id(), msg);

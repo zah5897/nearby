@@ -42,16 +42,15 @@
 			</div>
 			<table class="table table-hover text-center">
 				<tr>
-					<th width="5%">ID</th>
-					<th width="5%">自设备</th>
-					<th width="5%">发布者</th>
-					<th width="15%">图片</th>
+					<th width="8%">ID</th>
+					<th width="5%">设备</th>
+					<th width="8%">发布者</th>
+					<th width="10%">图片</th>
 					<th width="15%">内容</th>
-					<th width="5%">城市</th>
-					<th width="10%">时间</th>
-					<th width="5%">点赞数量</th>
-					<th width="5%">评论数量</th>
-					<th width="30%">操作</th>
+					<th width="8%">城市</th>
+					<th width="15%">时间</th>
+					<th width="10%">赞|评</th>
+					<th width="21%">操作</th>
 				</tr>
 				 
 				<tr id="bottom">
@@ -234,8 +233,7 @@
 			 var time=parent.dateFtt("yyyy-MM-dd hh:mm:ss",new Date(pageData["create_time_v2"]*1000));
 			 toAdd+="<td>"+time+"</td>";
 			 
-			 toAdd+="<td>"+pageData["praise_count"]+"</td>";
-			 toAdd+="<td>"+pageData["comment_count"]+"</td>";
+			 toAdd+="<td>"+pageData["praise_count"]+"|"+pageData["comment_count"]+"</td>";
 			 toAdd+="<td><div class='button-group'><a class='button border-red' href='javascript:void(0)'	onclick='return del("+pageData["id"]+")'><span class='icon-trash-o'></span>删除</a></div></td>";
 			 toAdd+="</tr>";
 			 tr.after(toAdd);

@@ -174,7 +174,7 @@ function getDeviceTxt(from){
 	 if(from==1){
 		 fromTxt="IOS"; 
 	 }else if(from==2){
-		 fromTxt="Android"; 
+		 fromTxt="AND"; 
 	 }else{
 		 fromTxt="Old"
 	 }

@@ -22,7 +22,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 
-import com.easemob.server.example.Main;
 import com.zhan.app.nearby.bean.Avatar;
 import com.zhan.app.nearby.bean.City;
 import com.zhan.app.nearby.bean.Tag;
@@ -53,6 +52,7 @@ import com.zhan.app.nearby.task.MatchActiveUserTask;
 import com.zhan.app.nearby.util.AESUtil;
 import com.zhan.app.nearby.util.AddressUtil;
 import com.zhan.app.nearby.util.DateTimeUtil;
+import com.zhan.app.nearby.util.HX_SessionUtil;
 import com.zhan.app.nearby.util.HttpService;
 import com.zhan.app.nearby.util.IPUtil;
 import com.zhan.app.nearby.util.ImagePathUtil;
@@ -393,9 +393,9 @@ public class UserService {
 			return ResultUtil.getResultMap(ERROR.ERR_FAILED, "瀵瑰簲ID涓嶅瓨鍦�");
 		}
 
-		user.setAge(DateTimeUtil.getAge(user.getBirthday()));
+		user.setAge(String.valueOf(DateTimeUtil.getAge(user.getBirthday())));
 
-		List<UserDynamic> dys = userDynamicService.getUserDynamic(user_id_for, 1, 5, true);
+		List<UserDynamic> dys = userDynamicService.getUserDynamic(user_id_for, 1, 5);
 		user.setImages(dys);
 		// //
 		// Map<String, Object> userJson = new HashMap<>();
@@ -458,7 +458,7 @@ public class UserService {
 			return ResultUtil.getResultMap(ERROR.ERR_FAILED, "瀵瑰簲ID涓嶅瓨鍦�");
 		}
 
-		user.setAge(DateTimeUtil.getAge(user.getBirthday()));
+		user.setAge(String.valueOf(DateTimeUtil.getAge(user.getBirthday())));
 
 		// //
 		// Map<String, Object> userJson = new HashMap<>();
@@ -928,29 +928,54 @@ public class UserService {
 
 			saveUserOnline(user_id);
 
-			ModelMap result = ResultUtil.getResultOKMap();
-			DetailUser user = userDao.getUserDetailInfo(user_id);
-			user.setToken(token);
-			ImagePathUtil.completeAvatarPath(user, true); // 琛ュ叏鍥剧墖閾炬帴鍦板潃
-
-			VipUser vip = loadUserVipInfo(aid, user.getUser_id());
-
-			if (vip != null && vip.getDayDiff() >= 0) {
-				user.setVip(true);
-				user.setIs_vip(true);
-			}
-
-			result.put("user", user);
-			result.put("all_coins", loadUserCoins(aid, user.getUser_id()));
-			result.put("vip", vip);
-			// 触发随机匹配会话
-			checkHowLongNotOpenApp(user);
-			return result;
+//			ModelMap result = ResultUtil.getResultOKMap();
+//			DetailUser user = userDao.getUserDetailInfo(user_id);
+//			user.setToken(token);
+//			ImagePathUtil.completeAvatarPath(user, true); // 琛ュ叏鍥剧墖閾炬帴鍦板潃
+//
+//			VipUser vip = loadUserVipInfo(aid, user.getUser_id());
+//
+//			if (vip != null && vip.getDayDiff() >= 0) {
+//				user.setVip(true);
+//				user.setIs_vip(true);
+//			}
+//
+//			result.put("user", user);
+//			result.put("all_coins", loadUserCoins(aid, user.getUser_id()));
+//			result.put("vip", vip);
+//			// 触发随机匹配会话
+//			checkHowLongNotOpenApp(user);
+//			return result;
+			
+			return getUserDetailResult(user_id,token,aid);
 		} else {
 			return ResultUtil.getResultMap(ERROR.ERR_FAILED, "鐧诲綍澶辫触");
 		}
 	}
 
+	
+	
+	public ModelMap getUserDetailResult(long user_id,String token,String aid) {
+		ModelMap result = ResultUtil.getResultOKMap();
+		DetailUser user = userDao.getUserDetailInfo(user_id);
+		user.setToken(token);
+		ImagePathUtil.completeAvatarPath(user, true); // 琛ュ叏鍥剧墖閾炬帴鍦板潃
+
+		VipUser vip = loadUserVipInfo(aid, user.getUser_id());
+
+		if (vip != null && vip.getDayDiff() >= 0) {
+			user.setVip(true);
+			user.setIs_vip(true);
+		}
+
+		result.put("user", user);
+		result.put("all_coins", loadUserCoins(aid, user.getUser_id()));
+		result.put("vip", vip);
+		// 触发随机匹配会话
+		checkHowLongNotOpenApp(user);
+		return result;
+	}
+	
 	public void saveUserOnline(long uid) {
 		try {
 			userDao.saveUserOnline(uid);
@@ -1301,7 +1326,7 @@ public class UserService {
 		saveUserOnline(user.getUser_id());
 		updateToken(user); // 鏇存柊token锛屽急鐧诲綍
 		user.set_ua(null);
-		user.setAge(DateTimeUtil.getAge(user.getBirthday()));
+		user.setAge(String.valueOf(DateTimeUtil.getAge(user.getBirthday())));
 		// userCacheService.cacheLoginToken(user); // 缂撳瓨token锛岀紦瑙ｆ鏌ョ櫥闄嗘煡璇�
 
 		ImagePathUtil.completeAvatarPath(user, true); // 琛ュ叏鍥剧墖閾炬帴鍦板潃
@@ -1319,6 +1344,7 @@ public class UserService {
 		result.put("user", user);
 		// result.put("all_coins", userService.loadUserCoins(aid, user.getUser_id()));
 		result.put("vip", vip);
+		result.put("isFirstLogin", false);
 		return result;
 
 	}
@@ -1394,7 +1420,7 @@ public class UserService {
 			BaseUser woman = userDao.getBaseUserNoToken(womenUids.get(womanstartIndex));
 			womenUids.remove(womanstartIndex);//移除，防止下次被重新拿到
 
-			String msg = Main.getRandomMsg();
+			String msg = HX_SessionUtil.getRandomMsg();
 			ImagePathUtil.completeAvatarPath(woman, true);
 			ImagePathUtil.completeAvatarPath(man, true);
 
@@ -1418,6 +1444,15 @@ public class UserService {
 
 	public String getOpenIdByUid(long user_id) {
 		return userDao.getOpenIdByUid(user_id);
+	}
+
+	public void updateBaseInfo(long user_id, String nick_name, String avatar,Date birthday, City city) {
+		userDao.updateBaseInfo(user_id,nick_name,avatar,birthday,city);
+		if(!TextUtils.isEmpty(avatar)) {
+			saveAvatar(user_id, avatar);
+			faceCheckTask.doCheckFace(getBaseUserNoToken(user_id));
+		}
+		
 	}
 
 }

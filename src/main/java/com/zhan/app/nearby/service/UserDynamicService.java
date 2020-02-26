@@ -1,8 +1,6 @@
 package com.zhan.app.nearby.service;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.annotation.Resource;
 
@@ -12,7 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 
-import com.easemob.server.example.Main;
 import com.zhan.app.nearby.bean.DynamicComment;
 import com.zhan.app.nearby.bean.Image;
 import com.zhan.app.nearby.bean.UserDynamic;
@@ -20,12 +17,10 @@ import com.zhan.app.nearby.bean.UserDynamicRelationShip;
 import com.zhan.app.nearby.comm.DynamicState;
 import com.zhan.app.nearby.comm.FoundUserRelationship;
 import com.zhan.app.nearby.comm.LikeDynamicState;
-import com.zhan.app.nearby.comm.PushMsgType;
 import com.zhan.app.nearby.dao.UserDao;
 import com.zhan.app.nearby.dao.UserDynamicDao;
 import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.task.HXAsyncTask;
-import com.zhan.app.nearby.util.HX_SessionUtil;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.ImageSaveUtils;
 import com.zhan.app.nearby.util.ResultUtil;
@@ -67,18 +62,15 @@ public class UserDynamicService {
 		return result;
 	}
 
-	public List<UserDynamic> getUserDynamic(long user_id, int page, int count, boolean filterBlock) {
-		List<UserDynamic> dynamics = userDynamicDao.getUserDynamic(user_id, page, count, filterBlock);
+	public List<UserDynamic> getUserDynamic(long user_id, int page, int count) {
+		List<UserDynamic> dynamics = userDynamicDao.getUserDynamic(user_id, page, count);
 		ImagePathUtil.completeDynamicsPath(dynamics, true);
 		return dynamics;
 	}
-
-	public List<UserDynamic> getUserDynamic(long user_id, int page, int count) {
-		return getUserDynamic(user_id, page, count, true);
-	}
+	 
 	//获取用户自身的动态
-	public List<UserDynamic> getUserSelfDynamic(long user_id, int page, int count) {
-		List<UserDynamic> dynamics= userDynamicDao.getUserDynamic(user_id, page, count);
+	public List<UserDynamic> getMyDynamic(long user_id, int page, int count) {
+		List<UserDynamic> dynamics= userDynamicDao.getMyDynamic(user_id, page, count);
 		ImagePathUtil.completeDynamicsPath(dynamics, true);
 		return dynamics;
 	}

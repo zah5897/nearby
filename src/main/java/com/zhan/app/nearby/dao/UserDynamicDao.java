@@ -174,27 +174,21 @@ public class UserDynamicDao extends BaseDao {
 		return jdbcTemplate.update(sql, new Object[] { dynamic_id, ImageStatus.SELECTED.ordinal() });
 	}
 
-	public List<UserDynamic> getUserDynamic(long user_id, int page, int count, boolean filterBlock) {
-		String sql = null;
-		if (filterBlock) {
+	public List<UserDynamic> getUserDynamic(long user_id, int page, int count) {
+		String 
 			sql = "select dy.*,coalesce(t_like.relationship, '0') as like_state,u.nick_name,u.avatar,u.sex,u.type,u.birthday from "
 					+ TABLE_USER_DYNAMIC
-					+ " dy left join t_like_dynamic t_like on dy.id=t_like.dynamic_id and dy.user_id=t_like.user_id left join t_user u on dy.user_id=u.user_id  where dy.state=? and dy.user_id=? and dy.state<>"
-					+ DynamicState.T_ILLEGAL.ordinal() + " order by dy.id desc limit ?,?";
-		} else {
-			sql = "select dy.*,coalesce(t_like.relationship, '0') as like_state,u.nick_name,u.avatar,u.sex,u.type,u.birthday from "
-					+ TABLE_USER_DYNAMIC
-					+ " dy left join t_like_dynamic t_like on dy.id=t_like.dynamic_id and dy.user_id=t_like.user_id left join t_user u on dy.user_id=u.user_id  where dy.state=? and  dy.user_id=? order by dy.id desc limit ?,?";
-		}
-
-		return jdbcTemplate.query(sql, new Object[] {DynamicState.T_FORMAL.ordinal(), user_id, (page - 1) * count, count }, new DynamicMapper());
+					+ " dy left join t_like_dynamic t_like on dy.id=t_like.dynamic_id and dy.user_id=t_like.user_id "
+					+ " left join t_user u on dy.user_id=u.user_id  where dy.state=? and dy.user_id=?  order by dy.id desc limit ?,?";
+			return jdbcTemplate.query(sql, new Object[] {DynamicState.T_FORMAL.ordinal(), user_id, (page - 1) * count, count }, new DynamicMapper());
 	}
 	
 	//获取自身的动态
-	public List<UserDynamic> getUserDynamic(long user_id, int page, int count) {
+	public List<UserDynamic> getMyDynamic(long user_id, int page, int count) {
 		String  sql = "select dy.*,coalesce(t_like.relationship, '0') as like_state,u.nick_name,u.avatar,u.sex,u.type,u.birthday from "
 					+ TABLE_USER_DYNAMIC
-					+ " dy left join t_like_dynamic t_like on dy.id=t_like.dynamic_id and dy.user_id=t_like.user_id left join t_user u on dy.user_id=u.user_id  where dy.state<>? and  dy.user_id=? order by dy.id desc limit ?,?";
+					+ " dy left join t_like_dynamic t_like on dy.id=t_like.dynamic_id and dy.user_id=t_like.user_id"
+					+ "  left join t_user u on dy.user_id=u.user_id  where dy.state<>? and  dy.user_id=? order by dy.id desc limit ?,?";
 
 		return jdbcTemplate.query(sql, new Object[] {DynamicState.T_ILLEGAL.ordinal(), user_id, (page - 1) * count, count }, new DynamicMapper());
 	}

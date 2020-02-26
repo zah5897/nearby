@@ -21,8 +21,6 @@ import com.zhan.app.nearby.util.JSONUtil;
 public class Main {
 	public static EasemobRestAPIFactory factory;
 	public static final String SYS = "admin";
-	public static String[] meet_msg = { "你好，很高兴遇见你", "你在吗？", "遇见你是缘分。", "你是我等待的那个朋友哦～", "瓶友，你好", "好久不见～", "亲爱的陌生人，你好！",
-			"Hi,你在吗？", "Hello!我是你的瓶友", "很高兴成为网友～" };
 
 	public static void initFactory() {
 		if (factory == null) {
@@ -30,10 +28,7 @@ public class Main {
 		}
 	}
 
-	public static String getRandomMsg() {
-		int r = new Random().nextInt(meet_msg.length);
-		return meet_msg[r];
-	}
+	
 
 	public static void main(String[] args) throws Exception {
 		// initFactory();
@@ -134,8 +129,8 @@ public class Main {
 //		Map map=new HashMap<>();
 //		map.put("image_id", "0");
 //		Main.sendTxtMessage("admin", new String[] {"133258"},map);
-		
-		updateNickName("686392", "佩奇2017");
+		//disconnectUser("1");
+		initFactory();
 		String token=ClientContext.getInstance().getAuthToken();
 		System.out.println(token);
 	}

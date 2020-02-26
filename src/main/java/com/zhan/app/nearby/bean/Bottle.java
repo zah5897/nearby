@@ -35,6 +35,8 @@ public class Bottle implements Serializable{
 
 	private int state = 0;
 	
+	private String channel; //手机端渠道信息
+	
 	
 	//我画你猜 答案
 	private String answer;
@@ -183,6 +185,14 @@ public class Bottle implements Serializable{
 
 	public void setRed_package_coin_rest(int red_package_coin_rest) {
 		this.red_package_coin_rest = red_package_coin_rest;
+	}
+
+	public String getChannel() {
+		return channel;
+	}
+
+	public void setChannel(String channel) {
+		this.channel = channel;
 	}
 	
 	 

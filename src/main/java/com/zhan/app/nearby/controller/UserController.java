@@ -276,7 +276,7 @@ public class UserController {
 		userService.saveAvatar(id, user.getAvatar());
 		ModelMap result = ResultUtil.getResultOKMap();
 		user.setUser_id(id);
-		user.setAge(DateTimeUtil.getAge(user.getBirthday()));
+		user.setAge(String.valueOf(DateTimeUtil.getAge(user.getBirthday())));
 		ImagePathUtil.completeAvatarPath(user, true); // 补全图片链接地址
 		if (city_id != null) {
 			City city = cityService.getFullCity(city_id);
@@ -387,7 +387,7 @@ public class UserController {
 			@ApiImplicitParam(name = "_ua", value = "_ua", required = true, paramType = "query"),
 			@ApiImplicitParam(name = "login_channel", value = "login_channel", required = true, paramType = "query"), })
 	public ModelMap login_thrid_channel(HttpServletRequest request, LoginUser user, String aid, Integer city_id,
-			String _ua, String login_channel,String image_names, String city_name, String province_name) {
+			String _ua, String login_channel, String image_names, String city_name, String province_name) {
 
 		if (TextUtils.isEmpty(user.getOpenid())) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "此为第三方账号登录，openid不能为空");
@@ -413,7 +413,11 @@ public class UserController {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "昵称不能为空");
 		}
 		
-		user.setOpenid(login_channel+"#"+user.getOpenid());
+		if(!"0".equals(user.getSex())&&!"1".equals(user.getSex())) {
+			user.setSex("0");
+		}
+		
+		user.setOpenid(login_channel + "#" + user.getOpenid());
 		user.setIp(IPUtil.getIpAddress(request));
 		user.setToken(UUID.randomUUID().toString());
 		user.setAvatar(image_names);
@@ -424,8 +428,8 @@ public class UserController {
 		user.setType((short) UserType.THRID_CHANNEL.ordinal());
 		user.setLast_login_time(new Date());
 		user.setCreate_time(new Date());
-		
-		if(user.getBirthday()==null) {
+
+		if (user.getBirthday() == null) {
 			user.setBirthday(DateTimeUtil.parseDate("2002-01-01"));
 		}
 		long id = userService.insertUserThridChannel(user, false);
@@ -444,6 +448,7 @@ public class UserController {
 		}
 		user.setAvatars(userService.getUserAvatars(user.getUser_id()));
 		result.put("user", user);
+		result.put("isFirstLogin", true);
 
 		// 触发随机匹配会话
 		userService.checkHowLongNotOpenApp(user);
@@ -835,6 +840,44 @@ public class UserController {
 		return userService.getUserCenterData("", aid, user_id, user_id);
 	}
 
+	/**
+	 * 修改用户基本信息
+	 * 
+	 * @param multipartRequest
+	 * @param user_id          要修改的用户id
+	 * @param token            token
+	 * @return
+	 */
+	@RequestMapping("update_base_info")
+
+	@ApiOperation(httpMethod = "POST", value = "修改用户基本信息") //
+	@ApiImplicitParams({ @ApiImplicitParam(name = "user_id", value = "用户id", required = true, paramType = "query"),
+			@ApiImplicitParam(name = "token", value = "用户登录token", required = true, paramType = "query"),
+			@ApiImplicitParam(name = "nick_name", value = "昵称", paramType = "query"),
+			@ApiImplicitParam(name = "avatar", value = "头像文件名称", paramType = "query"),
+			@ApiImplicitParam(name = "birthday", value = "生日", paramType = "query"),
+			@ApiImplicitParam(name = "city_id", value = "城市id", paramType = "query") })
+
+	public ModelMap update_base_info(long user_id, String token, String nick_name, String avatar, String birthday,
+			Integer city_id,String aid) {
+		if (!userService.checkLogin(user_id, token)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		Date birthdayDate = DateTimeUtil.parseDate(birthday);
+		if(birthdayDate!=null) {
+			int age = Integer.parseInt(DateTimeUtil.getAge(birthdayDate));
+			if (age < 18) {
+				return ResultUtil.getResultMap(ERROR.ERR_FAILED, "年龄必须大于18周岁");
+			}
+		}
+		City city = null;
+		if (city_id != null) {
+			city = cityService.getSimpleCity(city_id);
+		}
+		userService.updateBaseInfo(user_id, nick_name, avatar, birthdayDate, city);
+		return userService.getUserDetailResult(user_id, token, aid);
+	}
+
 	@RequestMapping("upload_avatars")
 	public ModelMap upload_avatars(DefaultMultipartHttpServletRequest multipartRequest, long user_id, String aid,
 			String token) {
@@ -1000,7 +1043,7 @@ public class UserController {
 		ModelMap result = ResultUtil.getResultOKMap();
 		List<UserDynamic> dynamics;
 		if (user_id == user_id_for) {
-			dynamics = userDynamicService.getUserSelfDynamic(user_id_for, page, count);
+			dynamics = userDynamicService.getMyDynamic(user_id_for, page, count);
 		} else {
 			dynamics = userDynamicService.getUserDynamic(user_id_for, page, count);
 		}
@@ -1182,12 +1225,11 @@ public class UserController {
 		if (count == null || count <= 0) {
 			count = 10;
 		}
-		
+
 		List<LoginUser> users = userService.getOnlineUsers(page, count);
 		return ResultUtil.getResultOKMap().addAttribute("users", users).addAttribute("hasMore", users.size() == count);
-	
+
 	}
-	 
 
 	@RequestMapping("follow")
 	public ModelMap follow(long user_id, String token, long target_id) {

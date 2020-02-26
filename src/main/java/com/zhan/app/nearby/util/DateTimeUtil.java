@@ -48,7 +48,7 @@ public class DateTimeUtil {
 
 	public static String getAge(Date birthday) {
 		if (birthday == null) {
-			return null;
+			return "-1";
 		}
 		Calendar c = Calendar.getInstance();
 		c.setTime(birthday);
@@ -57,7 +57,7 @@ public class DateTimeUtil {
 		int nowYear = c.get(Calendar.YEAR);
 
 		if (birthdayYear > nowYear) {
-			return null;
+			return "-1";
 		}
 		return String.valueOf(nowYear - birthdayYear);
 	}

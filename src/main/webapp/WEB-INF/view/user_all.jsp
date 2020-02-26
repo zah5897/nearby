@@ -56,13 +56,13 @@
 			
 			<table class="table table-hover text-center">
 				<tr>
-					<th width="5%">ID</th>
-					<th width="5%">注册自</th>
-					<th width="5%">昵称</th>
+					<th width="10%">ID</th>
+					<th width="5%">设备</th>
+					<th width="8%">昵称</th>
 					<th width="10%">头像</th>
 					<th width="5%">性别</th>
 					<th width="5%">类型</th>
-					<th width="30%">操作</th>
+					<th width="57%">操作</th>
 				</tr>
 				<tr id="bottom">
 					<td colspan="8">
@@ -295,16 +295,18 @@
 			 var type=pageData["type"];
 			 var typeStr;
 			 if(type==0){
-				 typeStr="游客用户" 
+				 typeStr="游客" 
 			 }else if(type==1){
-				 typeStr="正式用户" 
+				 typeStr="正式" 
+			 }else if(type==3){
+				 typeStr="第三方" 
 			 }else{
-				 typeStr="非正式用户" 
+				 typeStr="非正式" 
 			 }
 			 toAdd+="<td>"+typeStr+"</td>";
 			 //操作单元格
 			  toAdd+="<td><div class='button-group'>";
-			  toAdd+="<a class='button border-main' id='meet_"+user_id+"' href='javascript:void(0)'	onclick='return add_to_meet_bottle("+user_id+")'><span class='icon-edit'></span>加入邂逅瓶待选区</a>";
+			  toAdd+="<a class='button border-main' id='meet_"+user_id+"' href='javascript:void(0)'	onclick='return add_to_meet_bottle("+user_id+")'><span class='icon-edit'></span>加入邂逅瓶待选</a>";
 			  toAdd+="<a class='button border-main' href='javascript:void(0)' id='found_"+user_id+"'	onclick='return add_to_found_user("+user_id+")'><span class='icon-edit'></span>添加到发现用户</a>";
 		
 			  toAdd+="<a class='button border-yellow' id='bleac_"+user_id+"' href='javascript:void(0)'	onclick='return add_to_found_black_list("+user_id+")'><span class='icon-edit'></span>加入黑名单</a>";

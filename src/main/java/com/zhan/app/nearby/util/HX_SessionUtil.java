@@ -2,14 +2,44 @@ package com.zhan.app.nearby.util;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 import com.easemob.server.example.Main;
 import com.zhan.app.nearby.bean.DynamicComment;
 import com.zhan.app.nearby.bean.user.BaseUser;
-import com.zhan.app.nearby.cache.InfoCacheService;
 import com.zhan.app.nearby.comm.PushMsgType;
 
+
+
 public class HX_SessionUtil {
+
+	public static String[] meet_msg = { "你好，很高兴遇见你",
+			"你在吗？",
+			"遇见你是缘分。",
+			"你是我等待的那个朋友哦～",
+			"瓶友，你好",
+			"好久不见～",
+			"亲爱，你好！",
+			"Hi,你在吗？",
+			"Hello!我在这",
+			"很高兴成为网友～",
+			"春风十里，不如见你",
+			"亲，在线等你～",
+			"比心！你在吗？",
+			"你就是我等的人",
+			"等你好久了",
+			"在线的话，回我下",
+			"在？聊一聊",
+			"在茫茫大海中找到你，想和你聊天",
+			"在的话，回复1",
+			"不做朋友，做网友？",
+			"很开心，你也在！" };
+	
+	public static String getRandomMsg() {
+		int r = new Random().nextInt(meet_msg.length);
+		return meet_msg[r];
+	}
+	
 	public static void makeChatSession(BaseUser user, BaseUser with_user, long bottle_id) {
 		ImagePathUtil.completeAvatarPath(with_user, true);
 		ImagePathUtil.completeAvatarPath(user, true);
@@ -22,7 +52,7 @@ public class HX_SessionUtil {
 			ext.put("bottle_id", String.valueOf(bottle_id));
 		}
 
-		String msg = Main.getRandomMsg();
+		String msg = getRandomMsg();
 		Main.sendTxtMessage(user, new String[] { String.valueOf(with_user.getUser_id()) },
 				msg, ext, PushMsgType.TYPE_NEW_CONVERSATION);
 		// 发送给自己

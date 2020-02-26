@@ -38,7 +38,7 @@
 			
 			<table class="table table-hover text-center">
 				<tr>
-					<th width="5%">ID</th>
+					<th width="10%">ID</th>
 					<th width="8%">昵称</th>
 					<th width="12%">头像</th>
 					<th width="5%">性别</th>
@@ -203,11 +203,13 @@
 			 var type=pageData["type"];
 			 var typeStr;
 			 if(type==0){
-				 typeStr="游客用户" 
+				 typeStr="游客" 
 			 }else if(type==1){
-				 typeStr="正式用户" 
+				 typeStr="正式" 
+			 }else if(type==3){
+				 typeStr="第三方" 
 			 }else{
-				 typeStr="非正式用户" 
+				 typeStr="非正式" 
 			 }
 			 toAdd+="<td>"+typeStr+"</td>";
 			 

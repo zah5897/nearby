@@ -30,6 +30,7 @@ import com.zhan.app.nearby.comm.AvatarIMGStatus;
 import com.zhan.app.nearby.comm.FoundUserRelationship;
 import com.zhan.app.nearby.comm.Relationship;
 import com.zhan.app.nearby.comm.UserType;
+import com.zhan.app.nearby.service.UserService;
 import com.zhan.app.nearby.util.DateTimeUtil;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.ImageSaveUtils;
@@ -135,8 +136,8 @@ public class UserDao extends BaseDao {
 
 	public LocationUser findLocationUserByOpenid(String openid) {
 		List<LocationUser> list = jdbcTemplate.query(
-				"select user.* ,city.name as city_name from t_user user left join t_sys_city city on user.city_id=city.id where user.openid like '%?%'",
-				new Object[] { openid }, new BeanPropertyRowMapper<LocationUser>(LocationUser.class));
+				"select user.* ,city.name as city_name from t_user user left join t_sys_city city on user.city_id=city.id where user.openid like ?",
+				new Object[] { "%"+openid+"%" }, new BeanPropertyRowMapper<LocationUser>(LocationUser.class));
 		if (list != null && list.size() > 0) {
 			return list.get(0);
 		} else {
@@ -202,8 +203,8 @@ public class UserDao extends BaseDao {
 	}
 
 	public int getUserCountByOpenId(String openid) {
-		int count = jdbcTemplate.queryForObject("select count(*) from t_user user where user.openid like '%?%'",
-				new String[] { openid }, Integer.class);
+		int count = jdbcTemplate.queryForObject("select count(*) from t_user user where user.openid like ?",
+				new String[] { "%"+openid+"%" }, Integer.class);
 		return count;
 	}
 
@@ -896,7 +897,7 @@ public class UserDao extends BaseDao {
 	}
 
 	public List<LoginUser> getOnlineUsers(int page, int count) {
-		String sql = "select u.user_id,u.nick_name,u.avatar,u.last_login_time "
+		String sql = "select u.user_id,u.nick_name,u.avatar,u.last_login_time ,u.sex "
 				+ " from t_user_online l"
 				+ "  inner join t_user u on l.uid=u.user_id where u.isFace=1 order by l.check_time desc limit ?,?";
 		return jdbcTemplate.query(sql, new Object[] { (page - 1) * count, count },
@@ -1207,6 +1208,38 @@ public class UserDao extends BaseDao {
 	public String getOpenIdByUid(long user_id) {
 		return jdbcTemplate.queryForObject("select openid from t_user where user_id="+user_id, String.class);
 	}
+
+	public void updateBaseInfo(long user_id, String nick_name, String avatar, Date birthday, City city) {
+		
+		StringBuilder sb=new StringBuilder("update t_user set ");
+		
+		List<Object> params=new ArrayList<Object>();
+		if(!TextUtils.isEmpty(nick_name)) {
+			sb.append(" nick_name=?,");
+			params.add(nick_name);
+		}
+		if(!TextUtils.isEmpty(avatar)) {
+			sb.append(" avatar=?,");
+			params.add(avatar);
+		}
+		if(birthday!=null) {
+			sb.append(" birthday=?,");
+			params.add(birthday);
+		}
+		if(city!=null) {
+			sb.append(" birth_city_id=?,");
+			params.add(city.getId());
+		}
+		CharSequence chars= sb.subSequence(0, sb.length()-1);
+		sb.setLength(0);
+		sb.append(chars);
+		sb.append(" where user_id=?");
+		
+		params.add(user_id);
+		Object[] paramsObjs=params.toArray();
+		jdbcTemplate.update(sb.toString(),paramsObjs);
+	}
+	 
 	
 	
 	

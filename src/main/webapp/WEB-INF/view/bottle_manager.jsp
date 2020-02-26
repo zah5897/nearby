@@ -195,13 +195,14 @@ td {
 			 
 			 
 			 var from=pageData['_from'];
+			 var channel=pageData['channel'];
 			 var txtFrom;
 			 if(from==1){
-				 txtFrom="IOS";
+				 txtFrom="IOS-"+channel;
 			 }else if(from==2){
-				 txtFrom="Android";
+				 txtFrom="Android-"+channel;
 			 }else{
-				 txtFrom="Old";
+				 txtFrom="Old-"+channel;
 			 }
 			 
 			 toAdd+="<td>"+txtFrom+"</td>";
@@ -230,6 +231,8 @@ td {
 				 typeStr="语音弹幕瓶子";
 			 }else if(type==6){
 				 typeStr="我画你猜瓶子";
+			 }else if(type==7){
+				 typeStr="红包瓶子";
 			 }
 			 
 			 toAdd+="<td>"+typeStr+"</td>";
@@ -243,11 +246,11 @@ td {
 			 
 			 var state=pageData["state"];
 			 
-			 var stateStr="正常状态";
+			 var stateStr="正常";
 			 if(state==1){
-				 stateStr="黑名单状态";
+				 stateStr="黑名单";
 			 }else if(state==2){
-				 stateStr="苹果审核状态"
+				 stateStr="ios"
 			 }
 			 
 			 toAdd+="<td>"+stateStr+"</td>";

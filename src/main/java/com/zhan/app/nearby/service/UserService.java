@@ -195,13 +195,13 @@ public class UserService {
 
 	@Transactional
 	public int updateToken(BaseUser user) {
-		// 鏇存柊鐧婚檰鏃堕棿
+		// 更新登陆时间
 		return userDao.updateToken(user.getUser_id(), user.getToken(), new Date());
 	}
 
 	@Transactional
 	public int updateToken(BaseUser user, String device_token) {
-		// 鏇存柊鐧婚檰鏃堕棿
+		// 更新登陆时间
 		return userDao.updateToken(user.getUser_id(), user.getToken(), new Date(), device_token);
 	}
 
@@ -278,7 +278,7 @@ public class UserService {
 				user.setBirth_city(cityService.getSimpleCity(user.getBirth_city_id()));
 			}
 
-			ImagePathUtil.completeAvatarPath(user, true); // 琛ュ叏鍥剧墖閾炬帴鍦板潃
+			ImagePathUtil.completeAvatarPath(user, true); // 补全图片链接地址
 			user.hideSysInfo();
 		}
 		return user;
@@ -301,7 +301,7 @@ public class UserService {
 			addRecommendAndMeetBottle(user.getUser_id());
 			if (isNeedHX) {
 				registHXThrowException(user);
-				matchActiveUserTask.newRegistMatch(user); // 鍖归厤娲昏穬鐢ㄦ埛
+				matchActiveUserTask.newRegistMatch(user); // 匹配活跃用户
 			}
 
 		}
@@ -386,11 +386,11 @@ public class UserService {
 
 	public ModelMap getUserCenterData(String token, String aid, Long user_id_for, Long uid) {
 		if (user_id_for == null || user_id_for <= 0) {
-			return ResultUtil.getResultMap(ERROR.ERR_FAILED, "瀵瑰簲鐢ㄦ埛涓嶅瓨鍦�");
+			return ResultUtil.getResultMap(ERROR.ERR_FAILED, "对应用户不存在");
 		}
 		DetailUser user = userDao.getUserDetailInfo(user_id_for);
 		if (user == null) {
-			return ResultUtil.getResultMap(ERROR.ERR_FAILED, "瀵瑰簲ID涓嶅瓨鍦�");
+			return ResultUtil.getResultMap(ERROR.ERR_FAILED, "对应ID不存在");
 		}
 
 		user.setAge(String.valueOf(DateTimeUtil.getAge(user.getBirthday())));
@@ -421,7 +421,7 @@ public class UserService {
 
 		if (!TextUtils.isEmpty(user.getContact()) && uid != user_id_for) {
 			if (!userDao.hadGetContact(uid == null ? 0 : uid, user_id_for == null ? 0 : user_id_for)) {
-				user.setContact("鑺辫垂閲戝竵鏌ョ湅");
+				user.setContact("花费金币查看");
 			}
 		}
 
@@ -451,11 +451,11 @@ public class UserService {
 
 	public ModelMap getUserCenterDataV2(String token, String aid, Long user_id_for, Long uid) {
 		if (user_id_for == null || user_id_for <= 0) {
-			return ResultUtil.getResultMap(ERROR.ERR_FAILED, "瀵瑰簲鐢ㄦ埛涓嶅瓨鍦�");
+			return ResultUtil.getResultMap(ERROR.ERR_FAILED);
 		}
 		DetailUser user = userDao.getUserDetailInfo(user_id_for);
 		if (user == null) {
-			return ResultUtil.getResultMap(ERROR.ERR_FAILED, "瀵瑰簲ID涓嶅瓨鍦�");
+			return ResultUtil.getResultMap(ERROR.ERR_FAILED);
 		}
 
 		user.setAge(String.valueOf(DateTimeUtil.getAge(user.getBirthday())));
@@ -484,7 +484,7 @@ public class UserService {
 
 		if (!TextUtils.isEmpty(user.getContact()) && uid != user_id_for) {
 			if (!userDao.hadGetContact(uid == null ? 0 : uid, user_id_for == null ? 0 : user_id_for)) {
-				user.setContact("鑺辫垂閲戝竵鏌ョ湅");
+				user.setContact("花费金币查看");
 			}
 		}
 
@@ -821,7 +821,7 @@ public class UserService {
 				result.put("coins_checkin", checkINCoin);
 				return result;
 			} else {
-				return ResultUtil.getResultMap(ERROR.ERR_FAILED, "宸茬粡绛捐繃鍒�");
+				return ResultUtil.getResultMap(ERROR.ERR_FAILED, "已经签过到");
 			}
 		} else {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);

@@ -23,6 +23,7 @@ import com.zhan.app.nearby.comm.FoundUserRelationship;
 import com.zhan.app.nearby.comm.ImageStatus;
 import com.zhan.app.nearby.comm.UserType;
 import com.zhan.app.nearby.util.DateTimeUtil;
+import com.zhan.app.nearby.util.TextUtils;
 
 @Repository("managerDao")
 public class ManagerDao extends BaseDao {
@@ -49,7 +50,21 @@ public class ManagerDao extends BaseDao {
 
 	}
 
-	public List<UserDynamic> getUnSelected(int pageIndex, int pageSize) {
+	public List<UserDynamic> getUnSelected(int pageIndex, int pageSize,String nick_name) {
+		
+	 
+		if(!TextUtils.isEmpty(nick_name)) {
+
+			String sql = "select dynamic.*  ,user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday,user.type from "
+					+ TABLE_USER_DYNAMIC
+					+ " dynamic left join t_user user on  dynamic.user_id=user.user_id  where dynamic.id not in(select dynamic_id from "
+					+ TABLE_HOME_FOUND_SELECTED
+					+ " where selected_state=? or selected_state=? )  and dynamic.state=1  and dynamic.user_id in (select user_id from t_user where nick_name like ?) order by dynamic.id desc limit ?,?";
+			return jdbcTemplate.query(sql, new Object[] { ImageStatus.SELECTED.ordinal(), ImageStatus.IGNORE.ordinal(),"%"+nick_name+"%",
+					(pageIndex - 1) * pageSize, pageSize }, new DynamicMapper());
+		}
+		
+		
 		String sql = "select dynamic.*  ,user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday,user.type from "
 				+ TABLE_USER_DYNAMIC
 				+ " dynamic left join t_user user on  dynamic.user_id=user.user_id  where dynamic.id not in(select dynamic_id from "
@@ -67,12 +82,21 @@ public class ManagerDao extends BaseDao {
 	}
 
 	// 获取未选中的（前提为被审核通过的）
-	public int getUnSelectedCount() {
-		String sql = "select count(*) from " + TABLE_USER_DYNAMIC
-				+ " dynamic    where dynamic.id not in(select dynamic_id from " + TABLE_HOME_FOUND_SELECTED
-				+ " where selected_state=? or selected_state=?) and dynamic.state=1 ";
-		return jdbcTemplate.queryForObject(sql,
-				new Object[] { ImageStatus.SELECTED.ordinal(), ImageStatus.SELECTED.ordinal() }, Integer.class);
+	public int getUnSelectedCount(String nick_name) {
+		if(TextUtils.isEmpty(nick_name)) {
+			String sql = "select count(*) from " + TABLE_USER_DYNAMIC
+					+ " dynamic    where dynamic.id not in(select dynamic_id from " + TABLE_HOME_FOUND_SELECTED
+					+ " where selected_state=? or selected_state=?) and dynamic.state=1 ";
+			return jdbcTemplate.queryForObject(sql,
+					new Object[] { ImageStatus.SELECTED.ordinal(), ImageStatus.SELECTED.ordinal() }, Integer.class);
+		}else {
+			String sql = "select count(*) from " + TABLE_USER_DYNAMIC
+					+ " dynamic    where dynamic.id not in(select dynamic_id from " + TABLE_HOME_FOUND_SELECTED
+					+ " where selected_state=? or selected_state=?) and dynamic.state=1 and  dynamic.user_id in (select user_id from t_user where nick_name like ?)";
+			return jdbcTemplate.queryForObject(sql,
+					new Object[] { ImageStatus.SELECTED.ordinal(), ImageStatus.SELECTED.ordinal(),"%"+nick_name+"%" }, Integer.class);
+		}
+		
 	}
 
 	public int removeFromSelected(long id) {

@@ -31,8 +31,6 @@
 			<div class="padding border-bottom">
 				<ul class="search">
                    <li>
-			         <input type="text" placeholder="请输入用户id" name="user_id_input" class="input" style="width:250px; line-height:17px;display:inline-block" />
-                     <a href="javascript:void(0)" class="button border-main icon-search" onclick="doSearchById()" > 搜索</a>
                    </li> 
 				</ul>
 			</div>
@@ -77,7 +75,6 @@
 	     
 	    //前一页
 		function previous() {
-			alert('previous');
 			if(currentPageIndex>1){
 				page(currentPageIndex-1);
 			}
@@ -224,7 +221,7 @@
 			 
 			 var toAdd="<tr id='tr_"+index+"'>";
 			 
-			 toAdd+="<td><input type='checkbox' name='id[]' value='"+index+"' />"+index+"</td>";
+			 toAdd+="<td>"+index+"</td>";
 			 
 			 toAdd+="<td>"+user_id+"</td>";
 			 

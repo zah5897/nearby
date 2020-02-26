@@ -96,7 +96,7 @@ public class WebManagerController {
 	// 列出已经选择到首页的动态 返回json
 	@RequestMapping(value = "/selected_dynamic_list")
 	public @ResponseBody ModelMap selected_dynamic_list(int pageIndex) {
-		int pageCount = getPageCount(true);
+		int pageCount = getSelectedPageCount();
 		if (pageIndex == 0) {
 			pageIndex = 1;
 		} else if (pageIndex < 0) {
@@ -116,8 +116,8 @@ public class WebManagerController {
 
 	// 未选择出现在首页的列表
 	@RequestMapping(value = "/unselected_dynamic_list")
-	public @ResponseBody ModelMap unselected_dynamic_list(int pageIndex) {
-		int pageCount = getPageCount(false);
+	public @ResponseBody ModelMap unselected_dynamic_list(int pageIndex,String nick_name) {
+		int pageCount = getUnSelectPageCount(nick_name);
 		if (pageIndex == 0) {
 			pageIndex = 1;
 		} else if (pageIndex < 0) {
@@ -137,13 +137,17 @@ public class WebManagerController {
 		return reMap;
 	}
 
-	private int getPageCount(boolean isSelected) {
-		int count;
-		if (isSelected) {
-			count = managerService.getHomeFoundSelectedCount();
-		} else {
-			count = managerService.getUnSelectedCount();
+	private int getSelectedPageCount() {
+		int count = managerService.getHomeFoundSelectedCount();
+		int pageCount = count / 10;
+		if (count % 10 > 0) {
+			pageCount += 1;
 		}
+
+		return pageCount == 0 ? 1 : pageCount;
+	}
+	private int getUnSelectPageCount(String nick_name) {
+		int count = managerService.getUnSelectedCount(nick_name);
 		int pageCount = count / 10;
 		if (count % 10 > 0) {
 			pageCount += 1;
@@ -168,7 +172,7 @@ public class WebManagerController {
 		ModelMap r = ResultUtil.getResultOKMap();
 
 		List<UserDynamic> dys = managerService.getHomeFoundSelected(currentPage, 10);
-		r.put("pageCount", getPageCount(true));
+		r.put("pageCount", getSelectedPageCount());
 		if (dys != null && dys.size() > 0) {
 			UserDynamic dy = dys.get(dys.size() - 1);
 			ImagePathUtil.completeDynamicPath(dy, true);
@@ -194,7 +198,7 @@ public class WebManagerController {
 			managerService.removeFromSelected(id);
 		}
 		ModelMap r = ResultUtil.getResultOKMap();
-		r.put("pageCount", getPageCount(true));
+		r.put("pageCount", getSelectedPageCount());
 		List<UserDynamic> dys = managerService.getHomeFoundSelected(currentPage, 10);
 		if (dys != null && dys.size() > 0) {
 			ImagePathUtil.completeDynamicsPath(dys, true);
@@ -217,7 +221,7 @@ public class WebManagerController {
 	public @ResponseBody ModelMap add_to_selected(long id, int currentPage) {
 		managerService.addToSelected(id);
 		ModelMap r = ResultUtil.getResultOKMap();
-		r.put("pageCount", getPageCount(false));
+		r.put("pageCount", getUnSelectPageCount(null));
 
 		List<UserDynamic> dys = managerService.getUnSelected(currentPage, 10);
 		if (dys != null && dys.size() > 0) {
@@ -239,7 +243,7 @@ public class WebManagerController {
 	public @ResponseBody ModelMap ignore(long id, int currentPage) {
 		managerService.ignore(id);
 		ModelMap r = ResultUtil.getResultOKMap();
-		r.put("pageCount", getPageCount(false));
+		r.put("pageCount", getUnSelectPageCount(null));
 
 		List<UserDynamic> dys = managerService.getUnSelected(currentPage, 10);
 		if (dys != null && dys.size() > 0) {
@@ -285,7 +289,7 @@ public class WebManagerController {
 		//
 		// }
 
-		r.put("pageCount", getPageCount(false));
+		r.put("pageCount", getUnSelectPageCount(null));
 		List<UserDynamic> dys = managerService.getUnSelected(currentPage, 10);
 		if (dys != null && dys.size() > 0) {
 			ImagePathUtil.completeDynamicsPath(dys, true);
@@ -413,7 +417,7 @@ public class WebManagerController {
 	public @ResponseBody ModelMap dynamic_del(long id, int currentPage) {
 		managerService.removeUserDynamic(id);
 		ModelMap r = ResultUtil.getResultOKMap();
-		r.put("pageCount", getPageCount(false));
+		r.put("pageCount", getUnSelectPageCount(null));
 		List<UserDynamic> dys = managerService.getUnSelected(currentPage, 10);
 		if (dys != null && dys.size() > 0) {
 			UserDynamic dy = dys.get(dys.size() - 1);
@@ -434,7 +438,7 @@ public class WebManagerController {
 	public @ResponseBody ModelMap illegal_unselected(long id, int currentPage) {
 		managerService.updateDynamicState(id, DynamicState.T_ILLEGAL);
 		ModelMap r = ResultUtil.getResultOKMap();
-		r.put("pageCount", getPageCount(false));
+		r.put("pageCount", getUnSelectPageCount(null));
 		List<UserDynamic> dys = managerService.getUnSelected(currentPage, 10);
 		if (dys != null && dys.size() > 0) {
 			UserDynamic dy = dys.get(dys.size() - 1);
@@ -912,11 +916,11 @@ public class WebManagerController {
 	}
 	//获取需要審核的用戶头像
 		@RequestMapping(value = "/list_avatars_by_uid")
-		public @ResponseBody ModelMap list_avatars_by_uid(int pageSize, int pageIndex,Long user_id) {
+		public @ResponseBody ModelMap list_avatars_by_uid(int pageSize, int pageIndex,Long user_id,String nick_name) {
 			ModelMap r=ResultUtil.getResultOKMap();
-			r.addAttribute("users", managerService.listAvatarsByUid(pageSize,pageIndex,user_id));
+			r.addAttribute("users", managerService.listAvatarsByUid(pageSize,pageIndex,user_id,nick_name));
 			if (pageIndex == 1) {
-				int totalSize = managerService.getCountOfUserAvatars(user_id);
+				int totalSize = managerService.getCountOfUserAvatars(user_id,nick_name);
 				int pageCount = totalSize / pageSize;
 				if (totalSize % pageSize > 0) {
 					pageCount += 1;

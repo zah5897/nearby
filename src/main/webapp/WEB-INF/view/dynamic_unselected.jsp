@@ -36,6 +36,10 @@
 						<button type="button" id="add_batch" class="button border-yellow">
 							<span class="icon-plus-square-o"></span>批量添加
 						</button>
+						
+			             <input type="text" placeholder="请输入用户昵称" name="user_nick_name_input" class="input" style="width:150px; line-height:17px;display:inline-block" />
+                         <a href="javascript:void(0)" class="button border-main icon-search" onclick="doSearchById()" > 搜索</a>
+						
 					</li>
 				</ul>
 			</div>
@@ -68,6 +72,7 @@
 	    var currentPage = 0;
 	    var pageSize = 10;
 	    var pageCount = 100;
+	    var nickName;
 	    //默认加载第一页
 	    $(document).ready(function(){ 
 		     page(1);
@@ -88,12 +93,22 @@
 			page(currentPage+1)
 		}
 	    
+	    
+		 function doSearchById(){
+		    	var nick_name=$("[name='user_nick_name_input']").val().replace(/^\s+|\s+$/g,"");
+		    	
+		    	
+		    	nickName=nick_name;
+		    	currentPageIndex=0;
+		    	page(1);
+		    }
+	    
 	     //获取对应页面
 		function page(index) {
 			if (currentPage == index) {
 				return false;
 			}
-			$.post("<%=path%>/manager/unselected_dynamic_list",{'pageIndex':index},function(result){
+			$.post("<%=path%>/manager/unselected_dynamic_list",{'pageIndex':index,'nick_name':nickName},function(result){
 				 var json=JSON.parse(result);
 			        if(json.code==0){
 			        	$("table tr[id*='tr_'").each(function(i){

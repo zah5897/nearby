@@ -942,18 +942,33 @@ public class UserDao extends BaseDao {
 				});
 	}
 
-	public List<BaseUser> listAvatarsByUid(int pageSize, int pageIndex, long user_id) {
-		String sql = "select v.id, u.user_id,u.nick_name,v.avatar from t_user_avatars v left join t_user u on v.uid=u.user_id where v.uid="
-				+ user_id + " order by v.id desc limit ?,?";
-		return jdbcTemplate.query(sql, new Object[] { (pageIndex - 1) * pageSize, pageSize },
-				new BeanPropertyRowMapper<BaseUser>(BaseUser.class) {
-			@Override
-			public BaseUser mapRow(ResultSet rs, int rowNumber) throws SQLException {
-				BaseUser user = super.mapRow(rs, rowNumber);
-				user.setContact(String.valueOf(rs.getInt("id")));
-				return user;
-			}
-		});
+	public List<BaseUser> listAvatarsByUid(int pageSize, int pageIndex, Long user_id,String nickName) {
+		
+		
+		 if(user_id==null) {
+			 String sql = "select v.id, u.user_id,u.nick_name,v.avatar from t_user_avatars v left join t_user u on v.uid=u.user_id where u.nick_name like ? order by v.id desc limit ?,?";
+				return jdbcTemplate.query(sql, new Object[] {"%"+nickName+"%", (pageIndex - 1) * pageSize, pageSize },
+						new BeanPropertyRowMapper<BaseUser>(BaseUser.class) {
+					@Override
+					public BaseUser mapRow(ResultSet rs, int rowNumber) throws SQLException {
+						BaseUser user = super.mapRow(rs, rowNumber);
+						user.setContact(String.valueOf(rs.getInt("id")));
+						return user;
+					}
+				});
+		 }else {
+			 String sql = "select v.id, u.user_id,u.nick_name,v.avatar from t_user_avatars v left join t_user u on v.uid=u.user_id where v.uid="
+						+ user_id + " order by v.id desc limit ?,?";
+				return jdbcTemplate.query(sql, new Object[] { (pageIndex - 1) * pageSize, pageSize },
+						new BeanPropertyRowMapper<BaseUser>(BaseUser.class) {
+					@Override
+					public BaseUser mapRow(ResultSet rs, int rowNumber) throws SQLException {
+						BaseUser user = super.mapRow(rs, rowNumber);
+						user.setContact(String.valueOf(rs.getInt("id")));
+						return user;
+					}
+				});
+		 }
 	}
 
 	public int getCountOfConfirmAvatars(Long user_id,int state) {
@@ -964,9 +979,16 @@ public class UserDao extends BaseDao {
 			return jdbcTemplate.queryForObject("select count(*) from t_user_avatars where state="+state, Integer.class);
 	}
 
-	public int getCountOfUserAvatars(long user_id) {
+	public int getCountOfUserAvatars(Long user_id,String nickName) {
+		
+		if(user_id==null) {
+			return jdbcTemplate.queryForObject("select count(*) from t_user_avatars v left join t_user u on v.uid=u.user_id where  u.nick_name like ?",new String[] {"%"+nickName+"%"},
+					Integer.class);
+		}else {
 			return jdbcTemplate.queryForObject("select count(*) from t_user_avatars where  uid=" + user_id,
 					Integer.class);
+		}
+			
 	}
 	
 	public List<String> checkRegistIP(int limitCount) {

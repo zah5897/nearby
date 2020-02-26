@@ -31,7 +31,8 @@
 			<div class="padding border-bottom">
 				<ul class="search">
                    <li>
-			         <input type="text" placeholder="请输入用户id" name="user_id_input" class="input" style="width:250px; line-height:17px;display:inline-block" />
+			         <input type="text" placeholder="请输入用户id" name="user_id_input" class="input" style="width:150px; line-height:17px;display:inline-block" />
+			         <input type="text" placeholder="请输入用户昵称" name="user_nick_name_input" class="input" style="width:150px; line-height:17px;display:inline-block" />
                      <a href="javascript:void(0)" class="button border-main icon-search" onclick="doSearchById()" > 搜索</a>
                    </li> 
 				</ul>
@@ -67,7 +68,7 @@
 	    var pageSize = 10;
 	    var pageCount = 100;
 	    var type=-1;
-	    var keyword;
+	    var nickName;
 	    var user_id;
 	    //默认加载第一页
 	    $(document).ready(function(){ 
@@ -94,16 +95,11 @@
 	    }
 	    
 	    function doSearchById(){
-	    	var key=$("[name='user_id_input']").val().replace(/^\s+|\s+$/g,"");
-	    	if(user_id==''){
-	    		if(key==''){
-		    		return;
-		    	}
-	    	}
-	    	if(user_id==key){
-	    		return;
-	    	}
-	    	user_id=key;
+	    	var uid=$("[name='user_id_input']").val().replace(/^\s+|\s+$/g,"");
+	    	var nick_name=$("[name='user_nick_name_input']").val().replace(/^\s+|\s+$/g,"");
+	    	 
+	    	user_id=uid;
+	    	nickName=nick_name;
 	    	currentPageIndex=0;
 	    	page(1);
 	    }
@@ -112,7 +108,7 @@
 			if (currentPageIndex == index) {
 				return false;
 			}
-			$.post("<%=path%>/manager/list_avatars_by_uid",{'pageIndex':index,'pageSize':pageSize,'user_id':user_id},function(result){
+			$.post("<%=path%>/manager/list_avatars_by_uid",{'pageIndex':index,'pageSize':pageSize,'user_id':user_id,'nick_name':nickName},function(result){
 				 var json=JSON.parse(result);
 				 
 			        if(json.code==0){

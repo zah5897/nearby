@@ -92,12 +92,15 @@ public class ManagerService {
 		return userDynamicService.getDyanmicByState(pageIndex, pageSize, state);
 	}
 
-	public int getUnSelectedCount() {
-		return managerDao.getUnSelectedCount();
+	public int getUnSelectedCount(String nick_name) {
+		return managerDao.getUnSelectedCount(nick_name);
 	}
 
 	public List<UserDynamic> getUnSelected(int pageIndex, int pageSize) {
-		return managerDao.getUnSelected(pageIndex, pageSize);
+		return managerDao.getUnSelected(pageIndex, pageSize,null);
+	}
+	public List<UserDynamic> getUnSelected(int pageIndex, int pageSize,String nick_name) {
+		return managerDao.getUnSelected(pageIndex, pageSize,nick_name);
 	}
 
 	public int removeFromSelected(long id) {
@@ -371,21 +374,15 @@ public class ManagerService {
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<BaseUser> listAvatarsByUid(int pageSize, int pageIndex, Long user_id) {
-		if(user_id==null) {
-			return new ArrayList<>();
-		}
+	public List<BaseUser> listAvatarsByUid(int pageSize, int pageIndex, Long user_id,String nickName) {
 		return (List<BaseUser>) ImagePathUtil
-				.completeAvatarsPath(userService.listAvatarsByUid( pageSize, pageIndex, user_id), false); // state=0为变动，1为
+				.completeAvatarsPath(userService.listAvatarsByUid( pageSize, pageIndex, user_id,nickName), false); // state=0为变动，1为
 	}
 	public int getCountOfConfirmAvatars(Long user_id,int state) {
 		return userService.getCountOfConfirmAvatars(user_id,state);
 	}
-	public int getCountOfUserAvatars(Long user_id) {
-		if(user_id==null) {
-			return 0;
-		}
-		return userService.getCountOfUserAvatars(user_id);
+	public int getCountOfUserAvatars(Long user_id,String nickName) {
+		return userService.getCountOfUserAvatars(user_id,nickName);
 	}
 
 	public void charge_vip(long user_id, int month, String mark) {

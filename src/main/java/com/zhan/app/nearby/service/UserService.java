@@ -1043,16 +1043,16 @@ public class UserService {
 		return userDao.listConfirmAvatars(state, pageSize, pageIndex, user_id);
 	}
 
-	public List<BaseUser> listAvatarsByUid(int pageSize, int pageIndex, long user_id) {
-		return userDao.listAvatarsByUid(pageSize, pageIndex, user_id);
+	public List<BaseUser> listAvatarsByUid(int pageSize, int pageIndex, Long user_id,String nickName) {
+		return userDao.listAvatarsByUid(pageSize, pageIndex, user_id,nickName);
 	}
 
 	public int getCountOfConfirmAvatars(Long user_id, int state) {
 		return userDao.getCountOfConfirmAvatars(user_id, state);
 	}
 
-	public int getCountOfUserAvatars(long user_id) {
-		return userDao.getCountOfUserAvatars(user_id);
+	public int getCountOfUserAvatars(Long user_id,String nickName) {
+		return userDao.getCountOfUserAvatars(user_id,nickName);
 	}
 
 	public int getUserState(long uid) {

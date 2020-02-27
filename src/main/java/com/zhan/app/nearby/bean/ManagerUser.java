@@ -32,6 +32,15 @@ public class ManagerUser implements Serializable{
 	private short type = (short) UserType.OFFIEC.ordinal(); // 默认为正式用户
 
 	private int state;
+	private String channel;
+
+	public String getChannel() {
+		return channel;
+	}
+
+	public void setChannel(String channel) {
+		this.channel = channel;
+	}
 
 	public long getUser_id() {
 		return user_id;

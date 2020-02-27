@@ -96,10 +96,8 @@
 	    
 		 function doSearchById(){
 		    	var nick_name=$("[name='user_nick_name_input']").val().replace(/^\s+|\s+$/g,"");
-		    	
-		    	
 		    	nickName=nick_name;
-		    	currentPageIndex=0;
+		    	currentPage=0;
 		    	page(1);
 		    }
 	    

@@ -99,6 +99,7 @@ public class ManagerService {
 	public List<UserDynamic> getUnSelected(int pageIndex, int pageSize) {
 		return managerDao.getUnSelected(pageIndex, pageSize,null);
 	}
+	
 	public List<UserDynamic> getUnSelected(int pageIndex, int pageSize,String nick_name) {
 		return managerDao.getUnSelected(pageIndex, pageSize,nick_name);
 	}

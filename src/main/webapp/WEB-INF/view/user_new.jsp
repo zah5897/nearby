@@ -193,7 +193,7 @@
 			 toAdd+="<td><input type='checkbox' name='id[]' value='"+pageData["user_id"]+"' />"+pageData["user_id"]+"</td>";
 			 
 			 
-			 toAdd+="<td>"+parent.getDeviceTxt(pageData['_from'])+"</td>";
+			 toAdd+="<td>"+parent.getDeviceTxt(pageData['_from'])+"#"+pageData['channel']+"</td>";
 			 
 			 var nick_name=pageData.nick_name;
 			 nick_name=nick_name==undefined?"":nick_name;

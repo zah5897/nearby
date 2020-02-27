@@ -64,7 +64,7 @@ public class FaceCheckTask {
 		List<Avatar> avatars = userService.listNotCheckedAvatars(100);
 		for (Avatar v : avatars) {
 			String name = v.getAvatar();
-			if (TextUtils.isEmpty(name.trim())) {
+			if (name==null||TextUtils.isEmpty(name.trim())) {
 				userService.deleteAvatar(v.getId());
 				continue;
 			}

@@ -18,7 +18,6 @@ public class SimpkleUserMapper implements RowMapper<BaseUser> {
 		user.setUser_id(rs.getLong("user_id"));
 		user.setMobile(rs.getString("mobile"));
 		user.setPassword(rs.getString("password"));
-		user.setName(rs.getString("name"));
 		user.setNick_name(rs.getString("nick_name"));
 		user.setBirthday(rs.getTimestamp("birthday"));
 		user.setSex(rs.getString("sex"));

@@ -32,7 +32,6 @@ public class BaseUser implements Serializable {
 
 	@JsonIgnore
 	private String password;
-	private String name;
 	private String nick_name;
 	private String sex; // 0 女，1 男，2 未知
 
@@ -78,6 +77,16 @@ public class BaseUser implements Serializable {
 	private int my_follow_count;
 
 	private String age;
+	
+	private String channel;
+
+	public String getChannel() {
+		return channel;
+	}
+
+	public void setChannel(String channel) {
+		this.channel = channel;
+	}
 
 	public void setAge(String age) {
 		this.age = age;
@@ -118,15 +127,6 @@ public class BaseUser implements Serializable {
 
 	public void setPassword(String password) {
 		this.password = password;
-	}
-
-	@JsonIgnore
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
 	}
 
 	public String getNick_name() {

@@ -126,7 +126,7 @@ public class WebManagerController {
 			pageIndex = pageCount;
 		}
 
-		List<UserDynamic> dys = managerService.getUnSelected(pageIndex, 10);
+		List<UserDynamic> dys = managerService.getUnSelected(pageIndex, 10,nick_name);
 		if (dys != null && dys.size() > 0) {
 			ImagePathUtil.completeDynamicsPath(dys, true);
 		}

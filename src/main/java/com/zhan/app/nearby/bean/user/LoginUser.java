@@ -7,9 +7,4 @@ public class LoginUser extends LocationUser {
 	public String getToken() {
 		return super.getToken();
 	}
-
-	@Override
-	public String getName() {
-		return super.getName();
-	}
 }

@@ -1,11 +1,14 @@
 package com.zhan.app.nearby.bean;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.zhan.app.nearby.annotation.ColumnType;
+import javax.persistence.Table;
+import javax.persistence.Transient;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+@Table(name = "t_personal_info")
 public class PersonalInfo {
 	private long user_id;
-	@ColumnType
+	@Transient
 	@JsonIgnore
 	private String token;
 	private String personal_name;

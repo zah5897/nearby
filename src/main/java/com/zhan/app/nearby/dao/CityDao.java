@@ -9,35 +9,29 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import com.zhan.app.nearby.bean.City;
+import com.zhan.app.nearby.dao.base.BaseDao;
 
 @Repository("cityDao")
-public class CityDao extends BaseDao {
-	public static final String TABLE_NAME = "t_sys_city";
-	@Resource
-	private JdbcTemplate jdbcTemplate;
-
-	public void insert(City city) {
-		saveObj(jdbcTemplate, TABLE_NAME, city);
-	}
+public class CityDao extends BaseDao<City> {
 
 	public List<City> list() {
-		return jdbcTemplate.query("select *from " + TABLE_NAME + " pre ", new Object[] {},
+		return jdbcTemplate.query("select *from " + getTableName() + " pre ", new Object[] {},
 				new BeanPropertyRowMapper<City>(City.class));
 	}
 
 	public List<City> listByType(int type) {
-		return jdbcTemplate.query("select *from " + TABLE_NAME + " where type=? ", new Object[] { type },
+		return jdbcTemplate.query("select *from " + getTableName() + " where type=? ", new Object[] { type },
 				new BeanPropertyRowMapper<City>(City.class));
 	}
 
 	public List<City> listByParentId(int parent_id) {
-		return jdbcTemplate.query("select *from " + TABLE_NAME + " where parent_id=? ", new Object[] { parent_id },
+		return jdbcTemplate.query("select *from " + getTableName() + " where parent_id=? ", new Object[] { parent_id },
 				new BeanPropertyRowMapper<City>(City.class));
 	}
 
 	public City getCityById(int id) {
 		try {
-			List<City> cities = jdbcTemplate.query("select *from " + TABLE_NAME + " where id=? ", new Object[] { id },
+			List<City> cities = jdbcTemplate.query("select *from " + getTableName() + " where id=? ", new Object[] { id },
 					new BeanPropertyRowMapper<City>(City.class));
 			if (cities != null && cities.size() > 0) {
 				return cities.get(0);
@@ -49,12 +43,12 @@ public class CityDao extends BaseDao {
 	}
 
 	public int getChildCount(int id) {
-		return jdbcTemplate.queryForObject("select count(*) from " + TABLE_NAME + " where parent_id=? ",
+		return jdbcTemplate.queryForObject("select count(*) from " + getTableName() + " where parent_id=? ",
 				new Object[] { id }, Integer.class);
 	}
 
 	public void updateType(int id, int type) {
-		jdbcTemplate.update("update " + TABLE_NAME + " set type=? where id=? ", new Object[] { type, id });
+		jdbcTemplate.update("update " + getTableName() + " set type=? where id=? ", new Object[] { type, id });
 	}
 
 }

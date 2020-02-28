@@ -2,25 +2,31 @@ package com.zhan.app.nearby.bean;
 
 import java.util.Date;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.zhan.app.nearby.annotation.ColumnType;
-import com.zhan.app.nearby.bean.user.BaseUser;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Transient;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.zhan.app.nearby.bean.user.BaseUser;
+@Table(name = "t_video_comment")
 public class VideoComment {
-	@ColumnType
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
 	private String video_id;
 	private String content;
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm", locale = "zh", timezone = "GMT+8")
 	private Date create_time;
-	@ColumnType
+	@Transient
 	private long create_time_v2;
 	private int time_point;
 	private long uid;
 	
-	@ColumnType
+	@Transient
 	private Video video;
-	@ColumnType
+	@Transient
 	private BaseUser user;
 	public int getId() {
 		return id;

@@ -1,11 +1,14 @@
 package com.zhan.app.nearby.bean.user;
 
+import javax.persistence.Table;
+import javax.persistence.Transient;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.zhan.app.nearby.annotation.ColumnType;
 import com.zhan.app.nearby.bean.City;
 
 @SuppressWarnings("serial")
+@Table(name = "t_sys_user")
 public class LocationUser extends SimpleUser {
 
 	public LocationUser(long user_id) {
@@ -29,7 +32,7 @@ public class LocationUser extends SimpleUser {
 	@JsonIgnore
 	private String disc;
 
-	@ColumnType
+	@Transient
 	@JsonProperty("is_vip")
 	private boolean isVip;
 	public String getLat() {

@@ -132,28 +132,26 @@ public class UserService {
 	}
 
 	@Transactional
-	public long insertUser(LoginUser user, boolean isNeedHX) {
+	public void insertUser(LoginUser user, boolean isNeedHX) {
 		user.setCreate_time(new Date());
 		int count = userDao.getUserCountByMobile(user.getMobile());
 		if (count > 0) {
-			return -1l;
+			return;
 		}
 		user.setLast_login_time(new Date());
-		long id = (Long) userDao.insert(user);
-		user.setUser_id(id);
+		userDao.insert(user);
 
-		if (id > 0 && user.getType() == UserType.OFFIEC.ordinal()) {
+		if (user.getUser_id() > 0 && user.getType() == UserType.OFFIEC.ordinal()) {
 			if (user.getIsFace() == 1) {
-				addRecommendAndMeetBottle(id);
+				addRecommendAndMeetBottle(user.getUser_id());
 			}
 			saveUserOnline(user.getUser_id());
 			if (isNeedHX) {
 				registHXThrowException(user);
 				matchActiveUserTask.newRegistMatch(user);
 			}
-
 		}
-		return id;
+		return;
 	}
 
 	@Transactional
@@ -164,7 +162,8 @@ public class UserService {
 			return -1l;
 		}
 		user.setLast_login_time(new Date());
-		long id = (Long) userDao.insert(user);
+		userDao.insert(user);
+		long id = user.getUser_id();
 		user.setUser_id(id);
 
 		if (id > 0 && user.getType() == UserType.OFFIEC.ordinal()

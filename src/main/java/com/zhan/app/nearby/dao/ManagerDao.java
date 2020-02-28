@@ -6,10 +6,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
-import javax.annotation.Resource;
-
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
@@ -22,23 +19,21 @@ import com.zhan.app.nearby.comm.ExchangeState;
 import com.zhan.app.nearby.comm.FoundUserRelationship;
 import com.zhan.app.nearby.comm.ImageStatus;
 import com.zhan.app.nearby.comm.UserType;
+import com.zhan.app.nearby.dao.base.BaseDao;
 import com.zhan.app.nearby.util.DateTimeUtil;
 import com.zhan.app.nearby.util.TextUtils;
 
 @Repository("managerDao")
-public class ManagerDao extends BaseDao {
+public class ManagerDao extends BaseDao<ManagerUser> {
 	public static final String TABLE_USER_DYNAMIC = "t_user_dynamic";
 	public static final String TABLE_HOME_FOUND_SELECTED = "t_home_found_selected";
 	public static final String TABLE_DYNAMIC_COMMENT = "t_dynamic_comment";
 	public static final String TABLE_LIKE_DYNAMIC_STATE = "t_like_dynamic";
 	public static final String TABLE_TOPIC = "t_topic";
-	@Resource
-	private JdbcTemplate jdbcTemplate;
-	// private static Logger log = Logger.getLogger(ManagerDao.class);
 
-	public long insertDynamic(UserDynamic dyanmic) {
-		return saveObj(jdbcTemplate, TABLE_USER_DYNAMIC, dyanmic);
-	}
+//	public long insertDynamic(UserDynamic dyanmic) {
+//		return saveObj(jdbcTemplate, TABLE_USER_DYNAMIC, dyanmic);
+//	}
 
 	public List<UserDynamic> getHomeFoundSelected(int pageIndex, int pageSize) {
 		String sql = "select dynamic.*, user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday,user.type from "
@@ -151,9 +146,9 @@ public class ManagerDao extends BaseDao {
 		return 0;
 	}
 
-	public long insertTopic(Topic topic) {
-		return saveObj(jdbcTemplate, TABLE_TOPIC, topic);
-	}
+//	public long insertTopic(Topic topic) {
+//		return saveObj(jdbcTemplate, TABLE_TOPIC, topic);
+//	}
 
 	public List<Topic> loadTopic() {
 		return jdbcTemplate.query("select *from " + TABLE_TOPIC, new BeanPropertyRowMapper<Topic>(Topic.class));
@@ -173,7 +168,7 @@ public class ManagerDao extends BaseDao {
 				new Object[] { uid }, int.class);
 		if (count == 0) {
 			String[] columns = { "uid", "state" ,"action_time"};
-			return saveObj(jdbcTemplate, tableName, columns, new Object[]  { uid, FoundUserRelationship.GONE.ordinal() ,new Date()}) ;
+			return insertColumns(tableName, columns, new Object[]  { uid, FoundUserRelationship.GONE.ordinal() ,new Date()}) ;
 		} else {
 			return jdbcTemplate.update("update " + tableName + " set state=?,action_time where uid=?", new Object[] { FoundUserRelationship.GONE.ordinal(),new Date(),uid});
 		}

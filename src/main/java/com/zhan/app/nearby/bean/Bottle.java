@@ -4,33 +4,40 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+
 import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.zhan.app.nearby.annotation.ColumnType;
 import com.zhan.app.nearby.bean.user.BaseUser;
 
 @SuppressWarnings("serial")
+@Table(name = "t_bottle")
 public class Bottle implements Serializable{
-	@ColumnType
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
 	private String content;
 
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm", locale = "zh", timezone = "GMT+8")
 	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
 	private Date create_time;
-	@ColumnType
+	@Transient
 	private long create_time_v2;
 	private int type;
 
 	@JsonIgnore
 	private long user_id;
-	@ColumnType
+	@Transient
 	private BaseUser sender;
-	@ColumnType
+	@Transient
 	private List<BaseUser> scan_user_list;
-	@ColumnType
+	@Transient
 	private int view_nums;
 
 	private int state = 0;

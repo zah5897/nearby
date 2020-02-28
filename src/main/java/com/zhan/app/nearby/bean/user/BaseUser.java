@@ -4,16 +4,22 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+import org.springframework.data.annotation.Transient;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.zhan.app.nearby.annotation.ColumnType;
 import com.zhan.app.nearby.bean.Avatar;
 import com.zhan.app.nearby.comm.UserType;
 import com.zhan.app.nearby.util.TextUtils;
 
 @SuppressWarnings("serial")
+@Table(name = "t_sys_user")
 public class BaseUser implements Serializable {
 
 	public BaseUser(long user_id) {
@@ -25,7 +31,8 @@ public class BaseUser implements Serializable {
 
 	private int isFace = 0;
 
-	@ColumnType
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long user_id;
 	@JsonIgnore
 	private String mobile;
@@ -35,11 +42,11 @@ public class BaseUser implements Serializable {
 	private String nick_name;
 	private String sex; // 0 女，1 男，2 未知
 
-	@ColumnType // 忽略保存
+	@Transient // 忽略保存
 	private List<Avatar> avatars;
 
 	private String avatar;
-	@ColumnType // 忽略保存
+	@Transient // 忽略保存
 	private String origin_avatar;
 
 	// 区分游客和正式用户
@@ -65,15 +72,15 @@ public class BaseUser implements Serializable {
 	@JsonIgnore
 	private String ip;
 
-	@ColumnType // 忽略保存
+	@Transient // 忽略保存
 	private int _from = 0; // 1 ios ，2 android
 
-	@ColumnType // 忽略保存
+	@Transient // 忽略保存
 	private int has_followed;
 
-	@ColumnType // 忽略保存
+	@Transient // 忽略保存
 	private int fans_count;
-	@ColumnType // 忽略保存
+	@Transient // 忽略保存
 	private int my_follow_count;
 
 	private String age;

@@ -7,40 +7,31 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.Resource;
-
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import com.zhan.app.nearby.bean.GameScore;
 import com.zhan.app.nearby.bean.user.BaseUser;
+import com.zhan.app.nearby.dao.base.BaseDao;
 import com.zhan.app.nearby.util.ImagePathUtil;
 
 @Repository("gameDao")
-public class GameDao extends BaseDao {
-	public static final String TABLE_GAME_SCORE = "t_game_score";
-	@Resource
-	private JdbcTemplate jdbcTemplate;
+public class GameDao extends BaseDao<GameScore> {
 
-	// ---------------------------------------bottle-------------------------------------------------
-	public void insert(GameScore game) {
-		saveObjSimple(jdbcTemplate, TABLE_GAME_SCORE, game);
-	}
 
 	public boolean isExist(GameScore score) {
-		return jdbcTemplate.queryForObject("select count(*) from " + TABLE_GAME_SCORE + " where uid=? and gid=?",
+		return jdbcTemplate.queryForObject("select count(*) from " + getTableName() + " where uid=? and gid=?",
 				new Object[] { score.getUid(), score.getGid() }, Integer.class) > 0;
 	}
 
 	public int updateScore(GameScore score) {
-		return jdbcTemplate.update("update " + TABLE_GAME_SCORE + " set score=?,create_time=? where uid=? and gid=?",
+		return jdbcTemplate.update("update " + getTableName() + " set score=?,create_time=? where uid=? and gid=?",
 				new Object[] { score.getScore(), new Date(), score.getUid(), score.getGid() });
 	}
 
 	public List<GameScore> rankList(String gid, int start, int count) {
-		String sql = "select gs.*,u.nick_name,u.avatar,u.sex , (@rowNum:=@rowNum+1) AS rowNo from " + TABLE_GAME_SCORE
+		String sql = "select gs.*,u.nick_name,u.avatar,u.sex , (@rowNum:=@rowNum+1) AS rowNo from " + getTableName()
 				+ " gs inner join (select(@rowNum:=0)) b  left join t_user u on gs.uid=u.user_id where gs.gid=?   order by gs.score desc limit ?,?";
 		return jdbcTemplate.query(sql, new Object[] { gid, start, count },
 				new BeanPropertyRowMapper<GameScore>(GameScore.class) {

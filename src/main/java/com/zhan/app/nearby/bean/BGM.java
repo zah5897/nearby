@@ -3,12 +3,19 @@ package com.zhan.app.nearby.bean;
 import java.io.Serializable;
 import java.util.Date;
 
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.zhan.app.nearby.annotation.ColumnType;
 
 @SuppressWarnings("serial")
+@Table(name = "t_bgm")
 public class BGM implements Serializable{
-	@ColumnType
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
 	private String url;
 	private String name;

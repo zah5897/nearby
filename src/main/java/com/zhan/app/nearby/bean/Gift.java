@@ -2,11 +2,18 @@ package com.zhan.app.nearby.bean;
 
 import java.io.Serializable;
 
-import com.zhan.app.nearby.annotation.ColumnType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+
 
 @SuppressWarnings("serial")
+@Table(name = "t_gift")
 public class Gift implements Serializable{
-    @ColumnType
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
 	private String name;
 	private int price;
@@ -15,7 +22,7 @@ public class Gift implements Serializable{
 	private String description;
 	private String remark;
 
-	@ColumnType
+	@Transient
 	private String origin_image_url;
 	public long getId() {
 		return id;

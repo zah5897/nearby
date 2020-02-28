@@ -2,12 +2,14 @@ package com.zhan.app.nearby.bean.user;
 
 import java.util.Date;
 
+import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.zhan.app.nearby.annotation.ColumnType;
 
 @SuppressWarnings("serial")
+@Table(name = "t_sys_user")
 public class SimpleUser extends BaseUser {
 
 	public SimpleUser(long user_id) {
@@ -17,7 +19,7 @@ public class SimpleUser extends BaseUser {
 	public SimpleUser() {
 	}
 
-	@ColumnType // 不用插入数据库字段
+	@Transient // 不用插入数据库字段
 	private String age;
 	private String signature;
 
@@ -28,7 +30,7 @@ public class SimpleUser extends BaseUser {
 	@JsonFormat(pattern = "yyyy-MM-dd", locale = "zh", timezone = "GMT+8")
 	private Date last_login_time;
 
-	@ColumnType // 不用插入数据库字段
+	@Transient // 不用插入数据库字段
 	private long last_login_time_v2;
 	
 	// 区分国外用户

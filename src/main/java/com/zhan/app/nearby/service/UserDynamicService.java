@@ -34,18 +34,15 @@ public class UserDynamicService {
 	private UserDynamicDao userDynamicDao;
 	@Resource
 	private UserDao userDao;
-	
-	
-	
+
 	@Autowired
 	private HXAsyncTask hxTask;
-	
+
 	@Transactional
-	public long insertDynamic(UserDynamic dynamic) {
-		long id = userDynamicDao.insertDynamic(dynamic);
-		dynamic.setId(id);
-		return id;
+	public void insertDynamic(UserDynamic dynamic) {
+		userDynamicDao.insert(dynamic);
 	}
+
 	@Transactional
 	public void addHomeFoundSelected(long dynamic_id) {
 		userDynamicDao.addHomeFoundSelected(dynamic_id);
@@ -56,7 +53,7 @@ public class UserDynamicService {
 		if (result > 0) {
 			if (praise) {
 				long user_id = userDynamicDao.getUserIdByDynamicId(dynamic_id);
-				hxTask.pushPraise(user_id,dynamic_id);
+				hxTask.pushPraise(user_id, dynamic_id);
 			}
 		}
 		return result;
@@ -67,17 +64,18 @@ public class UserDynamicService {
 		ImagePathUtil.completeDynamicsPath(dynamics, true);
 		return dynamics;
 	}
-	 
-	//获取用户自身的动态
+
+	// 获取用户自身的动态
 	public List<UserDynamic> getMyDynamic(long user_id, int page, int count) {
-		List<UserDynamic> dynamics= userDynamicDao.getMyDynamic(user_id, page, count);
+		List<UserDynamic> dynamics = userDynamicDao.getMyDynamic(user_id, page, count);
 		ImagePathUtil.completeDynamicsPath(dynamics, true);
 		return dynamics;
 	}
-	
+
 	@Transactional
 	public long comment(DynamicComment comment) {
-		long id = userDynamicDao.comment(comment);
+		userDynamicDao.insertObject(comment);
+		long id = comment.getId();
 		if (id > 0) {
 			userDynamicDao.updateCommentCount(comment.getDynamic_id());
 			long user_id = userDynamicDao.getUserIdByDynamicId(comment.getDynamic_id());
@@ -111,7 +109,7 @@ public class UserDynamicService {
 			}
 			int likeState = userDynamicDao.getLikeState(user_id, dynamic_id);
 			dynamic.setLike_state(likeState);
-			dynamic.getUser().setHas_followed(userDao.isFollowed(user_id, dynamic.getUser().getUser_id())?1:0);
+			dynamic.getUser().setHas_followed(userDao.isFollowed(user_id, dynamic.getUser().getUser_id()) ? 1 : 0);
 		}
 		return dynamic;
 	}
@@ -135,6 +133,7 @@ public class UserDynamicService {
 		dynamicRelationShip.setRelationship(like.ordinal());
 		return userDynamicDao.updateLikeState(dynamicRelationShip);
 	}
+
 	@Transactional
 	public String delete(Long user_id, String dynamic_ids) {
 		String[] dy_ids = dynamic_ids.split(",");
@@ -195,12 +194,12 @@ public class UserDynamicService {
 	public List<DynamicComment> loadSubComm(long pid, long did, int count, long last_id) {
 		return userDynamicDao.loadSubComm(pid, did, count, last_id);
 	}
-	
-	
-	public List<UserDynamic> getDyanmicByState(int pageIndex, int pageSize, DynamicState state){
-	    return userDynamicDao.getDyanmicByState(pageIndex, pageSize, state);
-	    		
+
+	public List<UserDynamic> getDyanmicByState(int pageIndex, int pageSize, DynamicState state) {
+		return userDynamicDao.getDyanmicByState(pageIndex, pageSize, state);
+
 	}
+
 	public int updateDynamicState(long id, DynamicState state) {
 		return userDynamicDao.updateDynamicState(id, state);
 	}
@@ -208,23 +207,26 @@ public class UserDynamicService {
 	public int updateDynamicImgToIllegal(long id) {
 		return userDynamicDao.updateDynamicImgToIllegal(id);
 	}
+
 	public int getPageCountByState(int state) {
 		return userDynamicDao.getPageCountByState(state);
 	}
 
 	public void clearIllegalDynamic() {
-		List<UserDynamic> dys=userDynamicDao.getIllegalDyanmic();
-		for(UserDynamic dy:dys) {
+		List<UserDynamic> dys = userDynamicDao.getIllegalDyanmic();
+		for (UserDynamic dy : dys) {
 			ImageSaveUtils.removeUserImages(dy.getLocal_image_name());
 			userDynamicDao.updateDynamicImgToIllegal(dy.getId());
 		}
 	}
+
 	public boolean isDynamicExist(long id) {
-		return userDynamicDao.getDynamicCount(id)>0;
+		return userDynamicDao.getDynamicCount(id) > 0;
 	}
-	public void sendFlower(long user_id, long dynamic_id, int gif_id,int count) {
-		userDynamicDao.sendFlower(user_id,dynamic_id,gif_id,count);
-		userDynamicDao.addFlowerCount(dynamic_id,count);
+
+	public void sendFlower(long user_id, long dynamic_id, int gif_id, int count) {
+		userDynamicDao.sendFlower(user_id, dynamic_id, gif_id, count);
+		userDynamicDao.addFlowerCount(dynamic_id, count);
 	}
-	
+
 }

@@ -9,7 +9,6 @@ import javax.annotation.Resource;
 
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
@@ -17,47 +16,37 @@ import com.zhan.app.nearby.bean.Exchange;
 import com.zhan.app.nearby.bean.Gift;
 import com.zhan.app.nearby.bean.GiftOwn;
 import com.zhan.app.nearby.bean.MeiLi;
-import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.bean.user.BaseVipUser;
 import com.zhan.app.nearby.bean.user.LocationUser;
 import com.zhan.app.nearby.comm.Relationship;
 import com.zhan.app.nearby.comm.UserType;
+import com.zhan.app.nearby.dao.base.BaseDao;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.TextUtils;
 
 @Repository("giftDao")
-public class GiftDao extends BaseDao {
-
-	public static final String TABLE_NAME = "t_gift";
-	@Resource
-	private JdbcTemplate jdbcTemplate;
+public class GiftDao extends BaseDao<Gift> {
 	@Resource
 	private VipDao vipDao;
 
-	public long insert(Gift gift) {
-		long id = saveObj(jdbcTemplate, TABLE_NAME, gift);
-		gift.setId(id);
-		return id;
-	}
-
 	public List<Gift> listGifts() {
-		return jdbcTemplate.query("select *from " + TABLE_NAME + " order by price",
+		return jdbcTemplate.query("select *from " + getTableName() + " order by price",
 				new BeanPropertyRowMapper<Gift>(Gift.class));
 	}
 
 	public void delete(long id) {
-		jdbcTemplate.update("delete from " + TABLE_NAME + " where id=?", new Object[] { id });
+		jdbcTemplate.update("delete from " + getTableName() + " where id=?", new Object[] { id });
 	}
 
 	public void update(Gift gift) {
 		if (TextUtils.isEmpty(gift.getImage_url())) {
 			jdbcTemplate.update(
-					"update " + TABLE_NAME + " set name=?,price=?,old_price=?,description=?,remark=? where id=?",
+					"update " + getTableName() + " set name=?,price=?,old_price=?,description=?,remark=? where id=?",
 					new Object[] { gift.getName(), gift.getPrice(), gift.getOld_price(), gift.getDescription(),
 							gift.getRemark(), gift.getId() });
 		} else {
 			jdbcTemplate.update(
-					"update " + TABLE_NAME
+					"update " + getTableName()
 							+ " set name=?,price=?,old_price=?,image_url=?,description=?,remark=? where id=?",
 					new Object[] { gift.getName(), gift.getPrice(), gift.getOld_price(), gift.getImage_url(),
 							gift.getDescription(), gift.getRemark(), gift.getId() });
@@ -65,7 +54,7 @@ public class GiftDao extends BaseDao {
 	}
 
 	public Gift load(int gift_id) {
-		List<Gift> gifts = jdbcTemplate.query("select *from " + TABLE_NAME + " where id=?", new Object[] { gift_id },
+		List<Gift> gifts = jdbcTemplate.query("select *from " + getTableName() + " where id=?", new Object[] { gift_id },
 				new BeanPropertyRowMapper<Gift>(Gift.class));
 		if (gifts != null && gifts.size() > 0) {
 			return gifts.get(0);
@@ -265,7 +254,7 @@ public class GiftDao extends BaseDao {
 			Integer r = jdbcTemplate.queryForObject(sql, new Object[] { String.valueOf(user_id) }, Integer.class);
 			return r == null ? 0 : r;
 		} catch (Exception e) {
-			log.error(e.getMessage());
+			
 		}
 		return 0;
 	}
@@ -282,7 +271,6 @@ public class GiftDao extends BaseDao {
 						new Object[] { String.valueOf(user_id) });
 				newCoins = gift_coins + coins;
 			} catch (Exception e) {
-				log.error(e.getMessage());
 			}
 			updateGiftCoins(user_id, newCoins);
 			return newCoins;
@@ -315,7 +303,7 @@ public class GiftDao extends BaseDao {
 			jdbcTemplate.update("update  t_user_diamond set diamond=? where uid=?",
 					new Object[] { (exchange.getDiamond_count() + diamondCounts.get(0)), exchange.getUser_id() });
 		}
-		saveObjSimple(jdbcTemplate, "t_exchange_history", exchange);
+		insertObject(exchange);
 	}
 
 	public List<Exchange> loadExchangeDiamondHistory(long user_id, int i, int j) {

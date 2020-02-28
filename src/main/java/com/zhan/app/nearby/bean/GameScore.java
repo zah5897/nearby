@@ -3,24 +3,27 @@ package com.zhan.app.nearby.bean;
 import java.io.Serializable;
 import java.util.Date;
 
+import javax.persistence.Table;
+import javax.persistence.Transient;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.zhan.app.nearby.annotation.ColumnType;
 import com.zhan.app.nearby.bean.user.BaseUser;
 
 @SuppressWarnings("serial")
+@Table(name = "t_game_score")
 public class GameScore implements Serializable {
 	private int score;
 	private long uid;
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm", locale = "zh", timezone = "GMT+8")
 	private Date create_time;
 	private String gid;
-	@ColumnType
+	@Transient
 	private BaseUser user;
 	
-	@ColumnType
+	@Transient
 	private int position=-1;
 
-	@ColumnType
+	@Transient
 	private long create_time_v2;
 
 	public int getScore() {

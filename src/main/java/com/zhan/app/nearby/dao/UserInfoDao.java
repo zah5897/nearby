@@ -17,45 +17,19 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
-import com.zhan.app.nearby.bean.Image;
 import com.zhan.app.nearby.bean.mapper.FateUserMapper;
 import com.zhan.app.nearby.bean.mapper.FoundUserMapper;
 import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.bean.user.DetailUser;
 import com.zhan.app.nearby.comm.Relationship;
+import com.zhan.app.nearby.dao.base.BaseDao;
 import com.zhan.app.nearby.util.DateTimeUtil;
 
 @Repository("userInfoDao")
-public class UserInfoDao extends BaseDao {
+public class UserInfoDao extends BaseDao<BaseUser> {
 	public static final String TABLE_USER_IMAGES = "t_user_images";
-	@Resource
-	private JdbcTemplate jdbcTemplate;
 
-	public long svaeUserImage(long user_id, String imageName) {
-		try {
-			String sql = " insert into " + TABLE_USER_IMAGES + " ('user_id','name') values ( '" + user_id + "','"
-					+ imageName + "') ";
-			final String s = sql;
-			KeyHolder keyHolder = new GeneratedKeyHolder();
-			jdbcTemplate.update(new PreparedStatementCreator() {
-				public PreparedStatement createPreparedStatement(Connection conn) throws SQLException {
-					PreparedStatement ps = conn.prepareStatement(s, Statement.RETURN_GENERATED_KEYS);
-					return ps;
-				}
-
-			}, keyHolder);
-			return keyHolder.getKey().longValue();
-		} catch (Exception e) {
-			log.error(e.getMessage());
-			return -1;
-		}
-
-	}
-
-	public long saveImage(Image image) {
-		return saveObj(jdbcTemplate, TABLE_USER_IMAGES, image);
-	}
-
+ 
 	public int modify_info(long user_id, String nick_name, String birthday, String job, String height, String weight,
 			String signature, String my_tags, String interests, String animals, String musics, String weekday_todo,
 			String footsteps, String want_to_where) {
@@ -132,17 +106,17 @@ public class UserInfoDao extends BaseDao {
 	}
 
 	//默认获取五条
-	public List<Image> getUserImages(long user_id) {
-		return jdbcTemplate.query(
-				"select *from " + TABLE_USER_IMAGES + " user where user_id=? order by id desc limit 5",
-				new Object[] { user_id }, new BeanPropertyRowMapper<Image>(Image.class));
-	}
-	//可分页
-	public List<Image> getUserImages(long user_id,long last_image_id,int count) {
-		return jdbcTemplate.query(
-				"select *from " + TABLE_USER_IMAGES + " user where user_id=? and id>? order by id desc limit ?",
-				new Object[] { user_id,last_image_id ,count}, new BeanPropertyRowMapper<Image>(Image.class));
-	}
+//	public List<Image> getUserImages(long user_id) {
+//		return jdbcTemplate.query(
+//				"select *from " + TABLE_USER_IMAGES + " user where user_id=? order by id desc limit 5",
+//				new Object[] { user_id }, new BeanPropertyRowMapper<Image>(Image.class));
+//	}
+//	//可分页
+//	public List<Image> getUserImages(long user_id,long last_image_id,int count) {
+//		return jdbcTemplate.query(
+//				"select *from " + TABLE_USER_IMAGES + " user where user_id=? and id>? order by id desc limit ?",
+//				new Object[] { user_id,last_image_id ,count}, new BeanPropertyRowMapper<Image>(Image.class));
+//	}
 
 	public int deleteImage(long user_id, long id) {
 		return jdbcTemplate.update("delete from " + TABLE_USER_IMAGES + " where user_id=? and id=?",

@@ -1,14 +1,17 @@
 package com.zhan.app.nearby.bean.user;
 
+import javax.persistence.Table;
+import javax.persistence.Transient;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.zhan.app.nearby.annotation.ColumnType;
 import com.zhan.app.nearby.bean.City;
 
 @SuppressWarnings("serial")
+@Table(name = "t_sys_user")
 public class BaseVipUser extends BaseUser {
 
-	@ColumnType
+	@Transient
 	@JsonProperty("is_vip")
 	private boolean isVip;
 	

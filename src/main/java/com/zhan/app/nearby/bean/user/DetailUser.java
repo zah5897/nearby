@@ -5,14 +5,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.Table;
+import javax.persistence.Transient;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.zhan.app.nearby.annotation.ColumnType;
 import com.zhan.app.nearby.bean.Tag;
 import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.util.DateTimeUtil;
 
 @SuppressWarnings("serial")
+@Table(name = "t_sys_user")
 public class DetailUser extends LocationUser {
 	public DetailUser(long user_id) {
 		super(user_id);
@@ -21,20 +24,20 @@ public class DetailUser extends LocationUser {
 	public DetailUser() {
 	}
 
-	@ColumnType // 忽略保存
+	@Transient // 忽略保存
 	private List<UserDynamic> images;
 	// 数据库中以逗号分割，json不序列号
 	// @JsonIgnore
 	@JsonIgnore
 	private String job_ids;
-	@ColumnType // 忽略保存
+	@Transient // 忽略保存
 	private List<Tag> jobs;
 
 	// @JsonIgnore
 	@JsonIgnore
 	private String my_tag_ids;
 
-	@ColumnType // 忽略保存
+	@Transient // 忽略保存
 	public List<UserDynamic> getImages() {
 		return images;
 	}
@@ -48,39 +51,39 @@ public class DetailUser extends LocationUser {
 	// @JsonIgnore
 	@JsonIgnore
 	private String interest_ids;
-	@ColumnType // 忽略保存
+	@Transient // 忽略保存
 	// @JsonIgnore
 	private List<Tag> interest;
 
 	// @JsonIgnore
 	@JsonIgnore
 	private String animal_ids;
-	@ColumnType // 忽略保存
+	@Transient // 忽略保存
 	// @JsonIgnore
 	private List<Tag> favourite_animal;
 
 	// @JsonIgnore
 	@JsonIgnore
 	private String music_ids;
-	@ColumnType // 忽略保存
+	@Transient // 忽略保存
 	// @JsonIgnore
 	private List<Tag> favourite_music;
 	// @JsonIgnore
 	private String weekday_todo_ids;
-	@ColumnType // 忽略保存
+	@Transient // 忽略保存
 
 	// @JsonIgnore
 	private List<Tag> weekday_todo;
 
     @JsonIgnore
 	private String footstep_ids;
-	@ColumnType // 忽略保存
+    @Transient // 忽略保存
 
 	// @JsonIgnore
 	private List<Tag> footsteps;
 	private String want_to_where;
 	
-	@ColumnType
+	@Transient
 	@JsonProperty("is_vip")
 	private boolean is_vip;
 

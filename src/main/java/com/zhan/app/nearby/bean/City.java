@@ -3,14 +3,24 @@ package com.zhan.app.nearby.bean;
 import java.io.Serializable;
 import java.util.List;
 
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @SuppressWarnings("serial")
+@Table(name = "t_sys_city")
 public class City implements Serializable{
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
 	private String name;
  	@JsonIgnore
 	private int parent_id;
+ 	@Transient
 	private List<City> children;
 	private int type;
 

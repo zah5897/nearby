@@ -4,16 +4,23 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+
 import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.zhan.app.nearby.annotation.ColumnType;
 import com.zhan.app.nearby.bean.user.BaseVipUser;
 
 @SuppressWarnings("serial")
+@Table(name = "t_dynamic_comment")
 public class DynamicComment implements Serializable{
-	@ColumnType
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
 	@JsonIgnore
 	private long user_id;
@@ -25,15 +32,15 @@ public class DynamicComment implements Serializable{
 	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	@JsonFormat(pattern = "yyyy-MM-dd", locale = "zh", timezone = "GMT+8")
 	private Date comment_time;
-	@ColumnType
+	@Transient
 	private long comment_time_v2;
-	@ColumnType
+	@Transient
 	private BaseVipUser user;
 	
 	@JsonIgnore //上层评论
 	private long pid;
 	
-	@ColumnType
+	@Transient
 	private List<DynamicComment> sub_comm;
 	
 	//评论状态

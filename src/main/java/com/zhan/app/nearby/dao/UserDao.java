@@ -30,6 +30,7 @@ import com.zhan.app.nearby.comm.AvatarIMGStatus;
 import com.zhan.app.nearby.comm.FoundUserRelationship;
 import com.zhan.app.nearby.comm.Relationship;
 import com.zhan.app.nearby.comm.UserType;
+import com.zhan.app.nearby.dao.base.BaseDao;
 import com.zhan.app.nearby.service.UserService;
 import com.zhan.app.nearby.util.DateTimeUtil;
 import com.zhan.app.nearby.util.ImagePathUtil;
@@ -38,22 +39,9 @@ import com.zhan.app.nearby.util.SQLUtil;
 import com.zhan.app.nearby.util.TextUtils;
 
 @Repository
-public class UserDao extends BaseDao {
+public class UserDao extends BaseDao<BaseUser> {
 	@Resource
 	private JdbcTemplate jdbcTemplate;
-
-	// public int update(String nickName, String info, short sex, String avater,
-	// long id) {
-	// return jdbcTemplate.update("update t_user set
-	// nick_name=?,info=?,sex=?,avatar=? where user_id=?",
-	// new Object[] { nickName, info, sex, avater, id });
-	// }
-
-	// public List<?> getList() {
-	// List<User> list = jdbcTemplate.query("select *from t_user user", new
-	// SimpkleUserMapper());
-	// return list;
-	// }
 	/**
 	 * 鏍规嵁绫诲瀷鑾峰彇鐢ㄦ埛
 	 * 
@@ -185,11 +173,6 @@ public class UserDao extends BaseDao {
 		} else {
 			return null;
 		}
-	}
-
-	public Serializable insert(BaseUser user) {
-		user.setCreate_time(new Date());
-		return saveObj(jdbcTemplate, "t_user", user);
 	}
 
 	public void delete(long id) {

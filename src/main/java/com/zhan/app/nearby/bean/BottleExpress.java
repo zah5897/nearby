@@ -3,12 +3,15 @@ package com.zhan.app.nearby.bean;
 import java.io.Serializable;
 import java.util.Date;
 
+import javax.persistence.Table;
+
 /**
  * t_user_express 
  * @author zah
  *
  */
 @SuppressWarnings("serial")
+@Table(name = "t_user_express")
 public class BottleExpress implements Serializable{
    
 	private long uid;

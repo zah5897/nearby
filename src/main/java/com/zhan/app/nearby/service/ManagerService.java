@@ -33,8 +33,6 @@ import com.zhan.app.nearby.util.MD5Util;
 @Service
 public class ManagerService {
 
-	private static Logger log = Logger.getLogger(ManagerService.class);
-
 	@Resource
 	private ManagerDao managerDao;
 	@Resource
@@ -132,10 +130,8 @@ public class ManagerService {
 		return userCacheService.getWelcome();
 	}
 
-	public long addTopic(Topic topic) {
-		long id = managerDao.insertTopic(topic);
-		topic.setId(id);
-		return id;
+	public void addTopic(Topic topic) {
+		managerDao.insertObject(topic);
 	}
 
 	public List<Topic> loadTopic() {

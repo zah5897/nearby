@@ -3,21 +3,22 @@ package com.zhan.app.nearby.bean;
 import java.io.Serializable;
 import java.util.Date;
 
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+
 import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.zhan.app.nearby.annotation.ColumnType;
 import com.zhan.app.nearby.bean.user.BaseUser;
-
+@Table(name = "t_user_dynamic")
 public class UserDynamic implements Serializable {
-	/**
-	 * 
-	 */
-	@ColumnType
-	private static final long serialVersionUID = 1L;
 
-	@ColumnType
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id; // 主键
 
 	@JsonIgnore
@@ -35,22 +36,22 @@ public class UserDynamic implements Serializable {
 	@JsonFormat(pattern = "yyyy-MM-dd", locale = "zh", timezone = "GMT+8")
 	private Date create_time;
 
-	@ColumnType
+	@Transient
 	private long create_time_v2;
 	
 	@JsonIgnore
 	private String local_image_name;
 
-	@ColumnType
+	@Transient
 	private String thumb; // 无关数据库，主要json展示 缩略图
-	@ColumnType
+	@Transient
 	private String origin; // 无关数据库，主要json展示 原始图
 
 	private int praise_count;
 	private String can_comment = "1";
 
 	private int browser_count;
-	@ColumnType // 客户端组合数据
+	@Transient // 客户端组合数据
 	private int like_state;
 
 	@JsonIgnore
@@ -61,7 +62,7 @@ public class UserDynamic implements Serializable {
 	// @JsonIgnore
 	@JsonIgnore
 	private int district_id;
-	@ColumnType
+	@Transient
 	private BaseUser user;
 
 	private long topic_id;

@@ -9,9 +9,10 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import com.zhan.app.nearby.bean.Tag;
+import com.zhan.app.nearby.dao.base.BaseDao;
 
 @Repository("tagDao")
-public class TagDao extends BaseDao {
+public class TagDao extends BaseDao<Tag> {
 	public static final String TABLE_USER_IMAGES = "t_sys_tag";
 	@Resource
 	private JdbcTemplate jdbcTemplate;

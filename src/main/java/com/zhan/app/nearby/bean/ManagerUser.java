@@ -5,7 +5,6 @@ import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.zhan.app.nearby.annotation.ColumnType;
 import com.zhan.app.nearby.comm.UserType;
 import com.zhan.app.nearby.util.TextUtils;
 
@@ -22,11 +21,9 @@ public class ManagerUser implements Serializable{
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", locale = "zh", timezone = "GMT+8")
 	private Date create_time;
 
-	@ColumnType
 	private long create_time_v2;
 	@JsonIgnore
 	private String _ua;
-	@ColumnType
 	private int _from;
 	// 区分游客和正式用户
 	private short type = (short) UserType.OFFIEC.ordinal(); // 默认为正式用户

@@ -3,17 +3,24 @@ package com.zhan.app.nearby.bean;
 import java.io.Serializable;
 import java.util.Date;
 
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+
 import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.zhan.app.nearby.annotation.ColumnType;
 import com.zhan.app.nearby.bean.user.BaseUser;
 
 @SuppressWarnings("serial")
+@Table(name = "t_dynamic_msg")
 public class DynamicMessage implements Serializable{
 	
-	@ColumnType
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
 	private long obj_id; //
 	private String content;
@@ -27,19 +34,19 @@ public class DynamicMessage implements Serializable{
 	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
 	private Date create_time;
 	
-	@ColumnType
+	@Transient
 	private long create_time_v2;
 	
 	private int isReadNum;
-	@ColumnType
+	@Transient
 	private BaseUser user;
-	@ColumnType
+	@Transient
 	private UserDynamic dynamic;
 
-	@ColumnType
+	@Transient
 	private BaseUser from;
 	
-	@ColumnType
+	@Transient
 	private Object obj;
 	
 	private int status;

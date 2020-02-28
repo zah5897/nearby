@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 
-import com.easemob.server.example.Main;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.zhan.app.nearby.bean.Bottle;
 import com.zhan.app.nearby.bean.BottleExpress;
@@ -33,7 +32,6 @@ import com.zhan.app.nearby.comm.DynamicMsgType;
 import com.zhan.app.nearby.comm.FoundUserRelationship;
 import com.zhan.app.nearby.comm.PushMsgType;
 import com.zhan.app.nearby.comm.Relationship;
-import com.zhan.app.nearby.controller.UserController;
 import com.zhan.app.nearby.dao.BottleDao;
 import com.zhan.app.nearby.dao.UserDao;
 import com.zhan.app.nearby.dao.VipDao;
@@ -41,7 +39,6 @@ import com.zhan.app.nearby.exception.AppException;
 import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.task.HXAsyncTask;
 import com.zhan.app.nearby.util.BottleKeyWordUtil;
-import com.zhan.app.nearby.util.HX_SessionUtil;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.JSONUtil;
 import com.zhan.app.nearby.util.RandomCodeUtil;
@@ -419,7 +416,7 @@ public class BottleService {
 		express.setTo_uid(to_user_id);
 		express.setContent(content);
 		express.setCreate_time(new Date());
-		bottleDao.insertExpress(express);
+		bottleDao.insertObject(express);
 
 		// dynamicMsgService.insertActionMsg(DynamicMsgType.TYPE_EXPRESS, user_id, -1,
 		// to_user_id, content);
@@ -652,7 +649,7 @@ public class BottleService {
 		reward.setCreate_time(new Date());
 		reward.setUid(uid);
 		reward.setReward(b.getReward());
-		bottleDao.insertReward(reward);
+		bottleDao.insertObject(reward);
 	}
 
 	@Transactional

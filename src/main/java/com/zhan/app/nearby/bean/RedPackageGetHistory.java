@@ -3,25 +3,32 @@ package com.zhan.app.nearby.bean;
 import java.io.Serializable;
 import java.util.Date;
 
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.zhan.app.nearby.annotation.ColumnType;
 import com.zhan.app.nearby.bean.user.BaseUser;
 
 @SuppressWarnings("serial")
+@Table(name = "t_redpackage_get_history")
 public class RedPackageGetHistory implements Serializable {
-	@ColumnType
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
 	private long bid;
 	private long uid;
 	private int red_package_coin_get;
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm", locale = "zh", timezone = "GMT+8")
 	private Date create_time;
-	@ColumnType
+	@Transient
 	private long create_time_v2;
 
 	@JsonIgnore
-	@ColumnType
+	@Transient
 	private BaseUser user;
 
 	public int getId() {

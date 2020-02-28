@@ -2,14 +2,22 @@ package com.zhan.app.nearby.bean;
 
 import java.util.Date;
 
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.zhan.app.nearby.annotation.ColumnType;
 import com.zhan.app.nearby.bean.user.BaseUser;
 
 import io.swagger.annotations.ApiModel;
 @ApiModel(description= "短视频对象")
+@Table(name = "t_short_video")
 public class Video {
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
 	@JsonIgnore
 	private long uid;
@@ -20,13 +28,13 @@ public class Video {
 	private String thumb_img_name;
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm", locale = "zh", timezone = "GMT+8")
 	private Date create_time;
-	@ColumnType
+	@Transient
 	private long create_time_v2;
 	
 	private float duration;
-	@ColumnType
+	@Transient
 	private String thumb_url;
-	@ColumnType
+	@Transient
 	private String url;
 	
 	private String title;
@@ -42,7 +50,7 @@ public class Video {
 	
 	private int store_count;
 	
-	@ColumnType
+	@Transient
 	private BaseUser user;
 	
 	public int getComment_count() {

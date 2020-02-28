@@ -268,7 +268,8 @@ public class UserController {
 			} else {
 				user.set_ua(decode(_ua));
 			}
-			id = userService.insertUser(user, isNeedHx);
+			userService.insertUser(user, isNeedHx);
+			id = user.getUser_id();
 		}
 		if (id == -1l) {
 			return ResultUtil.getResultMap(ERROR.ERR_USER_EXIST, "该手机号码已经注册过");
@@ -354,7 +355,8 @@ public class UserController {
 			} else {
 				user.set_ua(decode(_ua));
 			}
-			id = userService.insertUser(user, isNeedHx);
+			userService.insertUser(user, isNeedHx);
+			id = user.getUser_id();
 		}
 		if (id == -1l) {
 			return ResultUtil.getResultMap(ERROR.ERR_USER_EXIST, "该手机号码已经注册过");
@@ -412,11 +414,11 @@ public class UserController {
 		if (TextUtils.isTrimEmpty(user.getNick_name())) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "昵称不能为空");
 		}
-		
-		if(!"0".equals(user.getSex())&&!"1".equals(user.getSex())) {
+
+		if (!"0".equals(user.getSex()) && !"1".equals(user.getSex())) {
 			user.setSex("0");
 		}
-		
+
 		user.setOpenid(login_channel + "#" + user.getOpenid());
 		user.setIp(IPUtil.getIpAddress(request));
 		user.setToken(UUID.randomUUID().toString());
@@ -519,7 +521,9 @@ public class UserController {
 		} else {
 			user.set_ua(decode(_ua));
 		}
-		long id = userService.insertUser(user, false);
+		
+		userService.insertUser(user, false);
+		long id = user.getUser_id();
 		if (id == -1l) {
 			return ResultUtil.getResultMap(ERROR.ERR_USER_EXIST, "该手机号码已经注册过");
 		}
@@ -859,12 +863,12 @@ public class UserController {
 			@ApiImplicitParam(name = "city_id", value = "城市id", paramType = "query") })
 
 	public ModelMap update_base_info(long user_id, String token, String nick_name, String avatar, String birthday,
-			Integer city_id,String aid) {
+			Integer city_id, String aid) {
 		if (!userService.checkLogin(user_id, token)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
 		Date birthdayDate = DateTimeUtil.parseDate(birthday);
-		if(birthdayDate!=null) {
+		if (birthdayDate != null) {
 			int age = Integer.parseInt(DateTimeUtil.getAge(birthdayDate));
 			if (age < 18) {
 				return ResultUtil.getResultMap(ERROR.ERR_FAILED, "年龄必须大于18周岁");
@@ -1097,8 +1101,7 @@ public class UserController {
 			user.setZh_cn(zh_cn);
 			user.setType((short) UserType.VISITOR.ordinal());
 			user.setCreate_time(new Date());
-			long user_id = userService.insertUser(user, false);
-			user.setUser_id(user_id);
+			userService.insertUser(user, false);
 		} else {
 			userService.updateVisitor(user.getUser_id(), aid, device_token, lat, lng, zh_cn);
 			user.setDevice_token(device_token);

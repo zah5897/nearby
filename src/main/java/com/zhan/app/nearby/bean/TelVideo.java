@@ -1,17 +1,19 @@
 package com.zhan.app.nearby.bean;
 
 import java.util.Date;
-import java.util.Set;
 
-import com.zhan.app.nearby.annotation.ColumnType;
+import javax.persistence.Table;
+import javax.persistence.Transient;
 
+
+@Table(name = "t_video")
 public class TelVideo {
 	private String id;
 	private long uid;
 	private String client_uuid;
 	private int type;// 0 start ,1 live, 2 stop
 	private Date create_time;
-	@ColumnType
+	@Transient
 	private long create_time_v2;
 	private int time_value;
 	private int state;   //0为未扣费记录，1为已扣费记录

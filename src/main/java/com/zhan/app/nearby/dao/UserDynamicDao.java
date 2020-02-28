@@ -25,20 +25,16 @@ import com.zhan.app.nearby.comm.FoundUserRelationship;
 import com.zhan.app.nearby.comm.ImageStatus;
 import com.zhan.app.nearby.comm.LikeDynamicState;
 import com.zhan.app.nearby.comm.Relationship;
+import com.zhan.app.nearby.dao.base.BaseDao;
 
 @Repository("userDynamicDao")
-public class UserDynamicDao extends BaseDao {
+public class UserDynamicDao extends BaseDao<UserDynamic> {
 	public static final String TABLE_USER_DYNAMIC = "t_user_dynamic";
 	public static final String TABLE_HOME_FOUND_SELECTED = "t_home_found_selected";
-	public static final String TABLE_DYNAMIC_COMMENT = "t_dynamic_comment";
 	public static final String TABLE_LIKE_DYNAMIC_STATE = "t_like_dynamic";
 	@Resource
 	private JdbcTemplate jdbcTemplate;
 	private static Logger log = Logger.getLogger(UserDynamicDao.class);
-
-	public long insertDynamic(UserDynamic dyanmic) {
-		return saveObj(jdbcTemplate, TABLE_USER_DYNAMIC, dyanmic);
-	}
 
 	public int getSelectedCityCount(int city_id) {
 		String sql = "select count(*) from " + TABLE_USER_DYNAMIC + " dynamic left join " + TABLE_HOME_FOUND_SELECTED
@@ -199,10 +195,6 @@ public class UserDynamicDao extends BaseDao {
 		return jdbcTemplate.query(sql, new BeanPropertyRowMapper<UserDynamic>(UserDynamic.class));
 	}
 
-	public long comment(DynamicComment comment) {
-		return saveObj(jdbcTemplate, TABLE_DYNAMIC_COMMENT, comment);
-	}
-
 	public DynamicComment loadComment(long dynamic_id, long comment_id) {
 
 		String atSql = "select cc.id as at_commtent_id,cc.content as at_content, cc.comment_time as at_comment_time,cc.user_id as at_u_id ,au.nick_name as at_nick_name ,au.avatar as at_avatar,au.sex as at_sex ,cc.comment_time as at_create_time ,atv.vip_id as at_vip_id "
@@ -276,7 +268,7 @@ public class UserDynamicDao extends BaseDao {
 		int count = jdbcTemplate.queryForObject(sql,
 				new Object[] { dynamicRelationShip.getUser_id(), dynamicRelationShip.getDynamic_id() }, Integer.class);
 		if (count == 0) {
-			saveObj(jdbcTemplate, TABLE_LIKE_DYNAMIC_STATE, dynamicRelationShip);
+			insertObject(dynamicRelationShip);
 			return 0;
 		} else {
 			return jdbcTemplate.update(
@@ -322,8 +314,7 @@ public class UserDynamicDao extends BaseDao {
 
 	// 获取用户发布的动态里面的图片
 	public List<Image> getUserImages(long user_id, long last_image_id, int count) {
-		return jdbcTemplate.query(
-				"select *from t_user_dynamic  where state=? and  user_id=? and local_image_name<>? and id<? order by id desc limit ?",
+		return jdbcTemplate.query("select id,local_image_name,from t_user_dynamic  where state=? and  user_id=? and local_image_name<>? and id<? order by id desc limit ?",
 				new Object[] {DynamicState.T_FORMAL.ordinal(), user_id, "", last_image_id, count }, new BeanPropertyRowMapper<Image>(Image.class));
 	}
 

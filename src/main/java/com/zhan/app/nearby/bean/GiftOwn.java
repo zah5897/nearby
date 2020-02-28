@@ -2,14 +2,17 @@ package com.zhan.app.nearby.bean;
 
 import java.util.Date;
 
+import javax.persistence.Table;
+import javax.persistence.Transient;
+
 import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.zhan.app.nearby.annotation.ColumnType;
 import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.bean.user.BaseVipUser;
 
 @SuppressWarnings("serial")
+@Table(name = "t_gift_own")
 public class GiftOwn extends Gift {
 	private long user_id;
 	private int count;
@@ -18,12 +21,12 @@ public class GiftOwn extends Gift {
 	@JsonFormat(pattern = "yyyy-MM-dd  HH:mm:ss", locale = "zh", timezone = "GMT+8")
 	private Date give_time;
 
-	@ColumnType
+	@Transient
 	private long give_time_v2;
 
-	@ColumnType
+	@Transient
 	private BaseVipUser receiver;
-	@ColumnType
+	@Transient
 	private BaseVipUser sender;
 
 	public long getUser_id() {

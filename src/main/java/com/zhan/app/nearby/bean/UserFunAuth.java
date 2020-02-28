@@ -2,11 +2,9 @@ package com.zhan.app.nearby.bean;
 
 import java.io.Serializable;
 
-import com.zhan.app.nearby.annotation.ColumnType;
 
 @SuppressWarnings("serial")
 public class UserFunAuth implements Serializable{
-	@ColumnType
 	private int id;
 	private String auth;
 

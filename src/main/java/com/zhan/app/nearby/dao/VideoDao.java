@@ -14,22 +14,17 @@ import org.springframework.stereotype.Repository;
 import com.zhan.app.nearby.bean.Video;
 import com.zhan.app.nearby.bean.VideoComment;
 import com.zhan.app.nearby.bean.user.BaseUser;
+import com.zhan.app.nearby.dao.base.BaseDao;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.TextUtils;
 
 @Repository("videoDao")
-public class VideoDao extends BaseDao {
+public class VideoDao extends BaseDao<Video> {
 	public static final String TABLE_VIDEO = "t_short_video";
 	public static final String TABLE_VIDEO_COMMENT = "t_video_comment";
 	public static final String TABLE_VIDEO_PRAISE_HISTORY = "t_video_praise_history";
 	public static final String TABLE_VIDEO_STORE_HISTORY = "t_video_store_history";
-	@Resource
-	private JdbcTemplate jdbcTemplate;
 
-	// ---------------------------------------bottle-------------------------------------------------
-	public long insert(Video video) {
-		return saveObj(jdbcTemplate, TABLE_VIDEO, video);
-	}
 
 	public List<Video> mine(long user_id, Long last_id, int count) {
 		if (last_id==null) {
@@ -110,10 +105,6 @@ public class VideoDao extends BaseDao {
 						}
 					});
 		}
-	}
-
-	public long insert(VideoComment videoComment) {
-		return saveObj(jdbcTemplate, TABLE_VIDEO_COMMENT, videoComment);
 	}
 
 	public void addCommentCount(String video_id) {

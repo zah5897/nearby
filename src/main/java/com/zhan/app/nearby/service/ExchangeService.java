@@ -56,7 +56,7 @@ public class ExchangeService {
 		pInfo.setMobile(mobile);
 		pInfo.setUser_id(user_id);
 		pInfo.setZhifubao_access_number(zhifubao);
-		return systemDao.savePersonalInfo(pInfo);
+		return systemDao.insertObject(pInfo);
 	}
 
 }

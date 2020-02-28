@@ -2,31 +2,18 @@ package com.zhan.app.nearby.dao;
 
 import java.util.List;
 
-import javax.annotation.Resource;
-
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import com.zhan.app.nearby.bean.Vip;
 import com.zhan.app.nearby.bean.VipUser;
+import com.zhan.app.nearby.dao.base.BaseDao;
 
 @Repository("vipDao")
-public class VipDao extends BaseDao {
+public class VipDao extends BaseDao<Vip> {
 	public static final String TABLE_NAME_VIP = "t_vip_data";
 	public static final String TABLE_NAME_VIP_USER = "t_user_vip";
-	@Resource
-	private JdbcTemplate jdbcTemplate;
-
-	public long insert(Vip vip) {
-		long id = saveObj(jdbcTemplate, TABLE_NAME_VIP, vip);
-		vip.setId(id);
-		return id;
-	}
-
-	public int insert(VipUser vipUser) {
-		return saveObjSimple(jdbcTemplate, TABLE_NAME_VIP_USER, vipUser);
-	}
+ 
 
 	public List<Vip> listVipData() {
 		return jdbcTemplate.query("select *from " + TABLE_NAME_VIP, new BeanPropertyRowMapper<Vip>(Vip.class));

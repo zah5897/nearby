@@ -3,11 +3,14 @@ package com.zhan.app.nearby.bean;
 import java.io.Serializable;
 import java.util.Date;
 
+import javax.persistence.Table;
+import javax.persistence.Transient;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.zhan.app.nearby.annotation.ColumnType;
 
 @SuppressWarnings("serial")
+@Table(name = "t_exchange_history")
 public class Exchange implements Serializable{
 	@JsonIgnore
 	private long user_id;
@@ -17,17 +20,17 @@ public class Exchange implements Serializable{
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm", locale = "zh", timezone = "GMT+8")
 	private Date create_time;
 	
-	@ColumnType
+	@Transient
 	private long create_time_v2;
 	
 	
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm", locale = "zh", timezone = "GMT+8")
 	private Date finish_time;
-	@ColumnType
+	@Transient
 	private long finish_time_v2;
 	private int state;
 	
-	@ColumnType
+	@Transient
 	private String desc;
 
 	public String getDesc() {

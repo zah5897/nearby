@@ -10,7 +10,6 @@ import javax.annotation.Resource;
 
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import com.zhan.app.nearby.bean.BGM;
@@ -21,13 +20,12 @@ import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.bean.user.BaseVipUser;
 import com.zhan.app.nearby.bean.user.LocationUser;
 import com.zhan.app.nearby.comm.ExchangeState;
+import com.zhan.app.nearby.dao.base.BaseDao;
 import com.zhan.app.nearby.util.DateTimeUtil;
 import com.zhan.app.nearby.util.TextUtils;
 
 @Repository("systemDao")
-public class SystemDao extends BaseDao {
-	@Resource
-	private JdbcTemplate jdbcTemplate;
+public class SystemDao extends BaseDao<Report> {
 	@Resource
 	private CityDao cityDao;
 
@@ -205,9 +203,9 @@ public class SystemDao extends BaseDao {
 //		return rateCount;
 //	}
 
-	public int savePersonalInfo(PersonalInfo personal) {
-		return saveObjSimple(jdbcTemplate, "t_personal_info", personal);
-	}
+//	public int savePersonalInfo(PersonalInfo personal) {
+//		return saveObjSimple(jdbcTemplate, "t_personal_info", personal);
+//	}
 
 	public PersonalInfo loadPersonalInfo(long user_id, String aid) {
 		List<PersonalInfo> personalInfos = jdbcTemplate.query("select *from t_personal_info where user_id=? and aid=?",
@@ -246,15 +244,6 @@ public class SystemDao extends BaseDao {
 	
 	public int deleteFromBlackIps(String ip) {
 		return jdbcTemplate.update("delete from t_black_ips where ip="+ip);
-	}
-	
-	
-	/**
-	 * 插入bgm
-	 * @param bmg
-	 */
-	public void insertBGM(BGM bmg) {
-		saveObjSimple(jdbcTemplate, "t_bgm", bmg);
 	}
 	
 

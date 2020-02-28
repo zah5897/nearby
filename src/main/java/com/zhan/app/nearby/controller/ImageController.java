@@ -100,8 +100,7 @@ public class ImageController {
 						dynamic.setState(DynamicState.T_CREATE.ordinal());
 						dynamic.setLocal_image_name(imagePath);
 						dynamic.setCreate_time(new Date());
-						long id = userDynamicService.insertDynamic(dynamic);
-						dynamic.setId(id);
+						 userDynamicService.insertDynamic(dynamic);
 						commAsyncTask.getDynamicLocation(IPUtil.getIpAddress(multipartRequest), dynamic, ios_addr);
 						// 预先放在首页推荐
 						// if (id > 0) {
@@ -110,7 +109,7 @@ public class ImageController {
 
 						ModelMap result = ResultUtil.getResultOKMap();
 
-						UserDynamic dy = userDynamicService.detail(id, user_id);
+						UserDynamic dy = userDynamicService.detail(dynamic.getId(), user_id);
 						if (dy != null) {
 							ImagePathUtil.completeDynamicPath(dy, true);
 							ImagePathUtil.completeAvatarPath(dy.getUser(), true);
@@ -168,8 +167,7 @@ public class ImageController {
 		dynamic.setState(DynamicState.T_CREATE.ordinal());
 		dynamic.setLocal_image_name(image_names);
 		dynamic.setCreate_time(new Date());
-		long id = userDynamicService.insertDynamic(dynamic);
-		dynamic.setId(id);
+	    userDynamicService.insertDynamic(dynamic);
 		commAsyncTask.getDynamicLocation(IPUtil.getIpAddress(request), dynamic, ios_addr);
 
 		ImagePathUtil.completeDynamicPath(dynamic,true);

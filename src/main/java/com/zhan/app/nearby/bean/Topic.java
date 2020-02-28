@@ -4,19 +4,26 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.zhan.app.nearby.annotation.ColumnType;
 
 @SuppressWarnings("serial")
+@Table(name = "t_topic")
 public class Topic implements Serializable{
-	@ColumnType
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
 	private String name;
 	private String icon;
-	@ColumnType
+	@Transient
 	private String icon_origin;
 	private String big_icon;
-	@ColumnType
+	@Transient
 	private String big_icon_origin;
 	private String description;
 	public String getDescription() {
@@ -28,7 +35,7 @@ public class Topic implements Serializable{
 	}
 
 	private Date create_time;
-    @ColumnType
+	@Transient
 	@JsonIgnore
 	private List<UserDynamic> dynamics;
 

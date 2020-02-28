@@ -78,7 +78,7 @@ public class VipService {
 			vipDao.delUserVip(vipUser.getUser_id());
 			vipUser.setStart_time(now);
 			vipUser.setEnd_time(DateTimeUtil.getVipEndDate(now, vip.getTerm_mount()));
-			vipDao.insert(vipUser);
+			vipDao.insertObject(vipUser);
 			return "success";
 		} else {
 			Date newEndDate = DateTimeUtil.getVipEndDate(userVip.getEnd_time(), vip.getTerm_mount());
@@ -102,7 +102,7 @@ public class VipService {
 			vipUser.setStart_time(now);
 			vipUser.setLast_order_no(DateTimeUtil.getOutTradeNo());
 			vipUser.setEnd_time(DateTimeUtil.getVipEndDate(now, month));
-			vipDao.insert(vipUser);
+			vipDao.insertObject(vipUser);
 			return "success";
 		} else {
 			Date newEndDate = DateTimeUtil.getVipEndDate(userVip.getEnd_time(), month);

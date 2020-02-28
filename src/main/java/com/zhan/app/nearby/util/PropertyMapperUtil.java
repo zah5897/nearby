@@ -5,26 +5,19 @@ import java.lang.reflect.Method;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import com.zhan.app.nearby.annotation.ColumnType;
-import com.zhan.app.nearby.annotation.Type;
-
 public class PropertyMapperUtil {
 
 	public static <T> Object prase(Class<T> clazz, ResultSet rs) {
 		// 获得对象属性
 		Field field[] = clazz.getDeclaredFields();
-		Object bean=null;
+		Object bean = null;
 		try {
 			bean = clazz.newInstance();
 		} catch (InstantiationException | IllegalAccessException e) {
 		}
 		for (Field f : field) {
 			f.setAccessible(true);
-			ColumnType ignore = f.getAnnotation(ColumnType.class);
-			if (ignore != null && ignore.value() == Type.QUERY_OBJECT) {
-			} else {
-			    invokeMethod(bean, f, rs);
-			}
+			invokeMethod(bean, f, rs);
 		}
 		return bean;
 	}
@@ -45,8 +38,8 @@ public class PropertyMapperUtil {
 			return " can't find 'get" + methodName + "' method";
 		} catch (NoSuchMethodException e) {
 			return " can't find 'get" + methodName + "' method";
-		} catch ( Exception e) {
-		} 
+		} catch (Exception e) {
+		}
 		return result;
 	}
 

@@ -2,15 +2,11 @@ package com.zhan.app.nearby.bean;
 
 import java.io.Serializable;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.zhan.app.nearby.annotation.ColumnType;
+import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+@Table(name = "t_like_dynamic")
 public class UserDynamicRelationShip implements Serializable {
-	/**
-	 * 
-	 */
-	@ColumnType
-	private static final long serialVersionUID = 1L;
 	@JsonIgnore
 	private long user_id;
 	private long dynamic_id;
@@ -40,8 +36,6 @@ public class UserDynamicRelationShip implements Serializable {
 		this.relationship = relationship;
 	}
 
-	public static long getSerialversionuid() {
-		return serialVersionUID;
-	}
+ 
 
 }

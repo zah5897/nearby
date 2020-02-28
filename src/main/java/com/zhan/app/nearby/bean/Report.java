@@ -3,13 +3,20 @@ package com.zhan.app.nearby.bean;
 import java.io.Serializable;
 import java.util.Date;
 
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.zhan.app.nearby.annotation.ColumnType;
 import com.zhan.app.nearby.bean.user.BaseUser;
 
 @SuppressWarnings("serial")
+@Table(name = "t_report_record")
 public class Report implements Serializable{
-	@ColumnType
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
 	private long user_id;
 	private long target_id;
@@ -18,18 +25,18 @@ public class Report implements Serializable{
 	private int type;
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", locale = "zh", timezone = "GMT+8")
 	private Date create_time;
-	@ColumnType
+	@Transient
 	private long create_time_v2;
 	
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", locale = "zh", timezone = "GMT+8")
 	private Date approval_time;
 	
-	@ColumnType
+	@Transient
 	private long approval_time_v2;
 	
 	
 	private int approval_result;
-	@ColumnType
+	@Transient
 	private BaseUser user;
 
 	public long getUser_id() {

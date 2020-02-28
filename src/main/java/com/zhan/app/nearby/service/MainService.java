@@ -2,7 +2,6 @@ package com.zhan.app.nearby.service;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -13,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.ModelMap;
 
-import com.easemob.server.example.Main;
 import com.zhan.app.nearby.bean.BGM;
 import com.zhan.app.nearby.bean.City;
 import com.zhan.app.nearby.bean.Exchange;
@@ -35,7 +33,6 @@ import com.zhan.app.nearby.dao.UserDynamicDao;
 import com.zhan.app.nearby.dao.VipDao;
 import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.task.HXAsyncTask;
-import com.zhan.app.nearby.util.HX_SessionUtil;
 import com.zhan.app.nearby.util.HttpService;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.RandomCodeUtil;
@@ -380,7 +377,7 @@ public class MainService {
 		if (info != null) {
 			return ResultUtil.getResultMap(ERROR.ERR_FAILED, "当前帐号已绑定身份证");
 		}
-		systemDao.savePersonalInfo(personal);
+		systemDao.insertObject(personal);
 		return ResultUtil.getResultOKMap().addAttribute("personal_info", personal);
 	}
 
@@ -545,7 +542,7 @@ public class MainService {
 			systemDao.updateBGM(bgm);
 			return;
 		}
-		systemDao.insertBGM(bgm);
+		systemDao.insertObject(bgm);
 	}
 
 	public List<BGM> loadBGM(Integer count, Integer test) {

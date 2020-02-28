@@ -9,11 +9,9 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import com.zhan.app.nearby.bean.Bottle;
-import com.zhan.app.nearby.bean.BottleExpress;
 import com.zhan.app.nearby.bean.RedPackageGetHistory;
 import com.zhan.app.nearby.bean.Reward;
 import com.zhan.app.nearby.bean.type.BottleType;
@@ -25,17 +23,13 @@ import com.zhan.app.nearby.comm.BottleAnswerState;
 import com.zhan.app.nearby.comm.BottleState;
 import com.zhan.app.nearby.comm.DynamicMsgType;
 import com.zhan.app.nearby.comm.MsgState;
+import com.zhan.app.nearby.dao.base.BaseDao;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.PropertyMapperUtil;
 
 @Repository("bottleDao")
-public class BottleDao extends BaseDao {
-	public static final String TABLE_BOTTLE = "t_bottle";
+public class BottleDao extends BaseDao<Bottle> {
 	public static final String TABLE_BOTTLE_POOL = "t_bottle_pool";
-	public static final String TABLE_BOTTLE_COMMENT = "t_bottle_comment";
-	@Resource
-	private JdbcTemplate jdbcTemplate;
-
 	@Resource
 	private VipDao vipDao;
 
@@ -46,26 +40,17 @@ public class BottleDao extends BaseDao {
 
 	public static final int BOTTLE_LIMIT_COUNT = 150;
 
-	// ---------------------------------------bottle-------------------------------------------------
-	public long insert(Bottle bottle) {
-		long id = saveObj(jdbcTemplate, TABLE_BOTTLE, bottle);
-		bottle.setId(id);
-		return id;
-	}
-
 	public Bottle getBottleById(long id) {
-		String sql = "select bottle.*,user.nick_name,user.sex,user.avatar from " + TABLE_BOTTLE
+		String sql = "select bottle.*,user.nick_name,user.sex,user.avatar from " + getTableName()
 				+ " bottle left join t_user user on bottle.user_id=user.user_id where bottle.id=?";
 		List<Bottle> bottles = jdbcTemplate.query(sql, new Object[] { id },
 				new BeanPropertyRowMapper<Bottle>(Bottle.class) {
-
 					@Override
 					public Bottle mapRow(ResultSet rs, int rowNumber) throws SQLException {
-						Bottle bottle = (Bottle) PropertyMapperUtil.prase(Bottle.class, rs);
+						Bottle bottle = super.mapRow(rs, rowNumber);
 						bottle.setSender(resultSetToUser(rs));
 						return bottle;
 					}
-
 				});
 		if (bottles.size() > 0) {
 			return bottles.get(0);
@@ -75,7 +60,7 @@ public class BottleDao extends BaseDao {
 	}
 
 	public Bottle getBottle(long id) {
-		String sql = "select * from " + TABLE_BOTTLE + " where id=?";
+		String sql = "select * from " + getTableName() + " where id=?";
 		List<Bottle> bottles = jdbcTemplate.query(sql, new Object[] { id },
 				getSimpleBottleMapper());
 		if (bottles.isEmpty()) {
@@ -85,7 +70,7 @@ public class BottleDao extends BaseDao {
 	}
 
 	public long getMeetBottleByUserId(long user_id) {
-		String sql = "select id from " + TABLE_BOTTLE + " where user_id=? and type=?";
+		String sql = "select id from " + getTableName() + " where user_id=? and type=?";
 		List<Long> bottles = jdbcTemplate.queryForList(sql, new Object[] { user_id, BottleType.MEET.ordinal() },
 				Long.class);
 		if (bottles.isEmpty()) {
@@ -95,7 +80,7 @@ public class BottleDao extends BaseDao {
 	}
 
 	public Bottle getBottleBySenderAndType(long user_id, int type) {
-		String sql = "select * from " + TABLE_BOTTLE + " where user_id=? and type=?";
+		String sql = "select * from " + getTableName() + " where user_id=? and type=?";
 		List<Bottle> ids = jdbcTemplate.query(sql, new Object[] { user_id, type },
 				getSimpleBottleMapper());
 		if (ids.isEmpty()) {
@@ -122,7 +107,7 @@ public class BottleDao extends BaseDao {
 
 					@Override
 					public Bottle mapRow(ResultSet rs, int rowNumber) throws SQLException {
-						Bottle bottle = (Bottle) PropertyMapperUtil.prase(Bottle.class, rs);
+						Bottle bottle = super.mapRow(rs, rowNumber);
 						bottle.setSender(resultSetToUser(rs));
 						return bottle;
 					}
@@ -412,7 +397,7 @@ public class BottleDao extends BaseDao {
 	public int delete(long user_id, long bottle_id) {
 		jdbcTemplate.update("delete from " + TABLE_BOTTLE_POOL + " where user_id=? and bottle_id=?",
 				new Object[] { user_id, bottle_id });
-		return jdbcTemplate.update("delete from " + TABLE_BOTTLE + " where user_id=? and id=?",
+		return jdbcTemplate.update("delete from " + getTableName() + " where user_id=? and id=?",
 				new Object[] { user_id, bottle_id });
 	}
 
@@ -484,15 +469,6 @@ public class BottleDao extends BaseDao {
 				new Object[] { user_id, BottleType.MEET.ordinal() }, Long.class);
 	}
 
-	public int insertExpress(BottleExpress express) {
-		return saveObjSimple(jdbcTemplate, "t_user_express", express);
-	}
-
-//	public int clearExpireBottle() {
-//		String sql = "delete from  t_bottle_pool where DATEDIFF(create_time,now()) <-1";
-//		return jdbcTemplate.update(sql);
-//	}
-
 	public int hasSend(String id) {
 		int count = jdbcTemplate.queryForObject("select count(*) from t_auto_text_bottle where id=?",
 				new String[] { id }, Integer.class);
@@ -534,8 +510,7 @@ public class BottleDao extends BaseDao {
 		return jdbcTemplate.query(sql, param, new BeanPropertyRowMapper<Bottle>(Bottle.class) {
 			@Override
 			public Bottle mapRow(ResultSet rs, int rowNumber) throws SQLException {
-				Bottle b = (Bottle) PropertyMapperUtil.prase(Bottle.class, rs);
-
+				Bottle b = super.mapRow(rs, rowNumber);
 				BaseUser u = new BaseUser();
 				u.setUser_id(rs.getLong("user_id"));
 				u.setNick_name(rs.getString("nick_name"));
@@ -563,7 +538,7 @@ public class BottleDao extends BaseDao {
 		return new BeanPropertyRowMapper<Bottle>(Bottle.class) {
 			@Override
 			public Bottle mapRow(ResultSet rs, int rowNumber) throws SQLException {
-				Bottle bottle = (Bottle) PropertyMapperUtil.prase(Bottle.class, rs);
+				Bottle bottle = super.mapRow(rs, rowNumber);
 				LocationUser user = new LocationUser();
 				user.setUser_id(rs.getLong("user_id"));
 				user.setNick_name(rs.getString("nick_name"));
@@ -647,10 +622,6 @@ public class BottleDao extends BaseDao {
 
 	public void updateAnswerState(long bottle_id, int ordinal) {
 		jdbcTemplate.update("update t_bottle set answer_state=? where id=?", new Object[] { ordinal, bottle_id });
-	}
-
-	public void insertReward(Reward reward) {
-		saveObjSimple(jdbcTemplate, "t_reward_history", reward);
 	}
 
 	public List<Reward> rewardHistoryGroup(long user_id) {

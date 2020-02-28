@@ -2,9 +2,11 @@ package com.zhan.app.nearby.bean;
 
 import java.io.Serializable;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.zhan.app.nearby.annotation.ColumnType;
+import javax.persistence.Table;
+import javax.persistence.Transient;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+@Table(name = "t_sys_tag")
 public class Tag implements Serializable {
 	/**
 	 * 
@@ -20,7 +22,7 @@ public class Tag implements Serializable {
 	public static final int TYPE_REPORT = 8;
 	// 系统主键 （不入库，不json序列化）
 	@JsonIgnore
-	@ColumnType
+	@Transient
 	private int sys_id;
 	private int id;
 	private String name;

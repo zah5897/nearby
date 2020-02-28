@@ -51,13 +51,13 @@ td {
 
 			<table class="table table-hover text-center">
 				<tr>
-					<th width="5%">ID</th>
-					<th width="5%">自设备</th>
-					<th width="5%">发送者</th>
+					<th width="8%">ID</th>
+					<th width="8%">设备</th>
+					<th width="8%">发送者</th>
 					<th width="10%">头像</th>
-					<th width="5%">瓶子类型</th>
-					<th width="10%">瓶子内容</th>
-					<th width="10%">发送时间</th>
+					<th width="5%">类型</th>
+					<th width="10%">内容</th>
+					<th width="10%">时间</th>
 					<th width="5%">状态</th>
 					<th width="30%">操作</th>
 				</tr>
@@ -196,13 +196,17 @@ td {
 			 
 			 var from=pageData['_from'];
 			 var channel=pageData['channel'];
+			
 			 var txtFrom;
 			 if(from==1){
-				 txtFrom="IOS-"+channel;
+				 if(!channel){
+					 channel="iPhone"; 
+				 }
+				 txtFrom="IOS#"+channel;
 			 }else if(from==2){
-				 txtFrom="Android-"+channel;
+				 txtFrom="AND#"+channel;
 			 }else{
-				 txtFrom="Old-"+channel;
+				 txtFrom="Old#"+channel;
 			 }
 			 
 			 toAdd+="<td>"+txtFrom+"</td>";
@@ -218,21 +222,21 @@ td {
 			 
 			 
 			 if(type==0){
-				 typeStr="文字瓶子";
+				 typeStr="文字";
 			 }else if(type==1){
-				 typeStr="图片瓶子";
+				 typeStr="图片";
 			 }else if(type==2){
-				 typeStr="语音瓶子";
+				 typeStr="语音";
 			 }else if(type==3){
-				 typeStr="邂逅瓶子";
+				 typeStr="邂逅";
 			 }else if(type==4){
-				 typeStr="文本弹幕瓶子";
+				 typeStr="文本弹幕";
 			 }else if(type==5){
-				 typeStr="语音弹幕瓶子";
+				 typeStr="语音弹幕";
 			 }else if(type==6){
-				 typeStr="我画你猜瓶子";
+				 typeStr="我画你猜";
 			 }else if(type==7){
-				 typeStr="红包瓶子";
+				 typeStr="红包";
 			 }
 			 
 			 toAdd+="<td>"+typeStr+"</td>";
@@ -248,7 +252,7 @@ td {
 			 
 			 var stateStr="正常";
 			 if(state==1){
-				 stateStr="黑名单";
+				 stateStr="黑屋 ";
 			 }else if(state==2){
 				 stateStr="ios"
 			 }
@@ -259,13 +263,13 @@ td {
 			  //操作单元格
 			  if(state==0){
 				 
-				  toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return changeBottleState("+id+",2)'><span class='icon-edit'></span>编辑为ios审核状态</a>";
-				  toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return changeBottleState("+id+",1)'><span class='icon-edit'></span>编辑为黑名单状态</a>";
+				  toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return changeBottleState("+id+",2)'><span class='icon-edit'></span>精选推荐</a>";
+				  toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return changeBottleState("+id+",1)'><span class='icon-edit'></span>关小黑屋</a>";
 			  }else  {
-				  toAdd+="<a class='button border-main' href='javascript:void(0)'	onclick='return changeBottleState("+id+",0)'><span class='icon-edit'></span>编辑为正常状态</a>";
+				  toAdd+="<a class='button border-main' href='javascript:void(0)'	onclick='return changeBottleState("+id+",0)'><span class='icon-edit'></span>恢复正常</a>";
 			  } 
 			  
-			  toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return add_to_found_black_list("+pageData["sender"]["user_id"]+",1)'><span class='icon-edit'></span>该用户添加到黑名单</a>";
+			  toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return add_to_found_black_list("+pageData["sender"]["user_id"]+",1)'><span class='icon-edit'></span>拉黑名单</a>";
 			  
 			  toAdd+="</div></td></tr>";
 			 tr.after(toAdd);

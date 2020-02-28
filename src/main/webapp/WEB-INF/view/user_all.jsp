@@ -278,7 +278,12 @@
 			 var toAdd="<tr id='tr_"+user_id+"'>";
 			 toAdd+="<td><input type='checkbox' name='id[]' value='"+pageData["user_id"]+"' />"+pageData["user_id"]+"</td>";
 			 
-			 toAdd+="<td>"+parent.getDeviceTxt(pageData['_from'])+"#"+pageData["channel"]+"</td>";
+			 
+			 var channel=pageData["channel"];
+			 if(!channel){
+				 channel="iPhone" 
+			 }
+			 toAdd+="<td>"+parent.getDeviceTxt(pageData['_from'])+"#"+channel+"</td>";
 			 
 			 var nick_name=pageData.nick_name;
 			 nick_name=nick_name==undefined?"":nick_name;

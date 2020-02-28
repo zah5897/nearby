@@ -20,8 +20,8 @@ import com.zhan.app.nearby.util.HttpClientUtils;
 import com.zhan.app.nearby.util.SpringContextUtil;
 import com.zhan.app.nearby.util.TextUtils;
 
-@Component
-@EnableScheduling
+//@Component
+//@EnableScheduling
 public class TimerTask {
 	@Autowired
 	private FaceCheckTask faceCheckTask;

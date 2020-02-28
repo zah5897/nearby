@@ -50,13 +50,13 @@
 			<table class="table table-hover text-center">
 				<tr>
 					<th width="10%">ID</th>
-					<th width="5%">设备</th>
+					<th width="10%">设备</th>
 					<th width="8%">昵称</th>
 					<th width="10%">头像</th>
 					<th width="3%">性别</th>
-		            <th width="3%">类型</th>
-		            <th width="8%">注册时间</th>
-					<th width="53%">操作</th>
+		            <th width="8%">类型</th>
+		            <th width="15%">注册时间</th>
+					<th width="36%">操作</th>
 				</tr>
 				<tr id="bottom">
 					<td colspan="8">
@@ -192,8 +192,11 @@
 			 var toAdd="<tr id='tr_"+user_id+"'>";
 			 toAdd+="<td><input type='checkbox' name='id[]' value='"+pageData["user_id"]+"' />"+pageData["user_id"]+"</td>";
 			 
-			 
-			 toAdd+="<td>"+parent.getDeviceTxt(pageData['_from'])+"#"+pageData['channel']+"</td>";
+			 var channel=pageData['channel'];
+			 if(!channel){
+				 channel="iPhone"
+			 }
+			 toAdd+="<td>"+parent.getDeviceTxt(pageData['_from'])+"#"+channel+"</td>";
 			 
 			 var nick_name=pageData.nick_name;
 			 nick_name=nick_name==undefined?"":nick_name;
@@ -225,10 +228,7 @@
 			  toAdd+="<td><div class='button-group'>";
 			  //操作单元格
 			  
-			  toAdd+="<a class='button border-main' href='javascript:void(0)'  id='meet_"+user_id+"'	onclick='return add_to_meet_bottle("+user_id+")'><span class='icon-edit'></span>加入邂逅瓶待选</a>";
-			  toAdd+="<a class='button border-main' href='javascript:void(0)'  id='found_"+user_id+"'	onclick='return add_to_found_user("+user_id+")'><span class='icon-edit'></span>添加到发现</a>";
 			  toAdd+="<a class='button border-yellow' href='javascript:void(0)'  id='found_black_"+user_id+"'	onclick='return add_to_found_black_list("+user_id+")'><span class='icon-edit'></span>加入黑名单</a>";
-			  
 			   
 			  
 			  if(pageData.avatar&&pageData.avatar.indexOf('illegal.jpg')==-1){

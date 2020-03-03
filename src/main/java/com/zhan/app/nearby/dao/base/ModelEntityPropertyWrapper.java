@@ -1,6 +1,7 @@
 package com.zhan.app.nearby.dao.base;
 
 
+import java.lang.reflect.Type;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
@@ -14,10 +15,10 @@ import com.zhan.app.nearby.dao.base.util.EntityPropertiesReflectUtil;
 
 public class ModelEntityPropertyWrapper {
     private Map<String, String> columnField;
-    private Map<String, Class<?>> fieldType;
+    private Map<String, Type> fieldType;
     private String tableName;
     private String idField;
-    private Class<?> idFieldType;
+    private Type idFieldType;
     private GeneratedValue generatedValue;
 
     public ModelEntityPropertyWrapper() {
@@ -88,11 +89,11 @@ public class ModelEntityPropertyWrapper {
         this.columnField = columnField;
     }
 
-    public void setFieldType(Map<String, Class<?>> fieldType) {
+    public void setFieldType(Map<String, Type> fieldType) {
         this.fieldType = fieldType;
     }
 
-    public Map<String, Class<?>> getFieldType() {
+    public Map<String, Type> getFieldType() {
         return fieldType;
     }
 
@@ -104,11 +105,11 @@ public class ModelEntityPropertyWrapper {
         this.tableName = tableName;
     }
 
-    public Class<?> getIdFieldType() {
+    public Type getIdFieldType() {
         return idFieldType;
     }
 
-    public void setIdFieldType(Class<?> idFieldType) {
+    public void setIdFieldType(Type idFieldType) {
         this.idFieldType = idFieldType;
     }
 
@@ -142,12 +143,15 @@ public class ModelEntityPropertyWrapper {
 //                    i++;
 //                    System.out.println(key);
 //                }
-                Class<?> fieldClass = fieldType.get(field);
+                Type fieldClass = fieldType.get(field);
                 try {
-                    if (fieldClass == Date.class) {
-                        EntityPropertiesReflectUtil.invokeSetMethod(o, field, new Object[]{rs.getTimestamp(key)}, fieldClass);
+                	
+                	Class<?> clazz=(Class<?>) fieldClass;
+                	 
+                    if (fieldClass.toString().equals( Date.class.toString())) {
+                        EntityPropertiesReflectUtil.invokeSetMethod(o, field, new Object[]{rs.getTimestamp(key)}, (Class<?>)fieldClass);
                     } else {
-                        EntityPropertiesReflectUtil.invokeSetMethod(o, field, new Object[]{rs.getObject(key, fieldClass)}, fieldClass);
+                        EntityPropertiesReflectUtil.invokeSetMethod(o, field, new Object[]{rs.getObject(key, clazz)}, clazz);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();

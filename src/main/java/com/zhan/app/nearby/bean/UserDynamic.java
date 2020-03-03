@@ -132,7 +132,9 @@ public class UserDynamic implements Serializable {
 
 	public void setCreate_time(Date create_time) {
 		this.create_time = create_time;
-		this.create_time_v2=create_time.getTime()/1000;
+		if(create_time!=null) {
+			this.create_time_v2=create_time.getTime()/1000;
+		}
 	}
 
 	public String getThumb() {

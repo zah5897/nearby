@@ -42,6 +42,12 @@ public class BottleKeyWordUtil {
 	
 	public static Set<String> loadFilterWords() throws IOException {
 		
+		if(isWindows()) {
+			Set<String> set= new HashSet<String>();
+			set.add("敏感词");
+			return set;
+		}
+		
 		String filePath = ImageSaveUtils.getFilterWordsFilePath();
 		
 		if (filePath != null) {
@@ -136,5 +142,7 @@ public class BottleKeyWordUtil {
 	public static void checkWordsExist(String word) {
 		textFilter.checkWordsExist(word);
 	}
-
+	public static boolean isWindows() {
+		return System.getProperty("os.name").toLowerCase().indexOf("win") >= 0;
+	}
 }

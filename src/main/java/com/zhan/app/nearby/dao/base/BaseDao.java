@@ -119,7 +119,7 @@ public class BaseDao<T> {
             }, keyHolder);
             long auto = keyHolder.getKey().longValue();
             try {
-                if (wrapper.getIdFieldType().getSimpleName().equals("int")) {
+                if (wrapper.getIdFieldType().toString().equals("int")) {
                     EntityPropertiesReflectUtil.invokeSetMethod(o, wrapper.getIdField(), new Object[]{(int) auto}, int.class);
                 } else {
                     EntityPropertiesReflectUtil.invokeSetMethod(o, wrapper.getIdField(), new Object[]{auto}, long.class);

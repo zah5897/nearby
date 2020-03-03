@@ -16,7 +16,6 @@ import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.service.MainService;
 import com.zhan.app.nearby.service.UserService;
 import com.zhan.app.nearby.task.HXAsyncTask;
-import com.zhan.app.nearby.task.MatchActiveUserTask;
 import com.zhan.app.nearby.util.BottleKeyWordUtil;
 import com.zhan.app.nearby.util.IPUtil;
 import com.zhan.app.nearby.util.ResultUtil;

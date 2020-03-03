@@ -292,4 +292,15 @@ public class SystemDao extends BaseDao<Report> {
 		String sql="SELECT (@i:=@i+1) i,uid FROM t_toutiao_user, (SELECT @i:=0) as i order by create_time desc ";
 		return jdbcTemplate.queryForList(sql);
 	}
+
+	public void insertBlackWord(String w) {
+		jdbcTemplate.update("insert ignore into t_black_words(word) values(?)",new Object[] {w});
+	}
+	public void delBlackWord(String w) {
+		jdbcTemplate.update("delete from t_black_words where word=?",new Object[] {w});
+	}
+
+	public List<String> loadBlackWords() {
+		return jdbcTemplate.queryForList("select *from t_black_words", String.class);		
+	}
 }

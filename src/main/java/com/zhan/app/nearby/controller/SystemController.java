@@ -112,9 +112,8 @@ public class SystemController {
 	}
 
 	@RequestMapping("test")
-	public ModelMap test(long from,long to,String msg) {
-		BaseUser user=userService.getBaseUserNoToken(from);
-		hxAsyncTask.sendMessage(user, to, msg);
+	public ModelMap test() {
 		return ResultUtil.getResultOKMap();
 	}
+	
 }

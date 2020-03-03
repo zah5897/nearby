@@ -111,7 +111,7 @@ public class MainService {
 		}
 		List<UserDynamic> dynamics = userDynamicDao.getHomeFoundSelected(user_id, last_id, count, city);
 		ModelMap result = ResultUtil.getResultOKMap();
-		result.put("hasMore", dynamics.size()==count);
+		result.put("hasMore", dynamics.size() == count);
 		result.put("last_id", dynamics.get(dynamics.size() - 1).getId());
 		ImagePathUtil.completeDynamicsPath(dynamics, true);
 		result.put("images", dynamics);
@@ -599,5 +599,20 @@ public class MainService {
 		} else {
 			return ResultUtil.getResultMap(ERROR.ERR_FAILED);
 		}
+	}
+
+	public List<String> loadBlackWords() {
+		return systemDao.loadBlackWords();
+	}
+
+	public void addBlackWord(String word) {
+		if (word == null || TextUtils.isEmpty(word.trim())) {
+			return;
+		}
+		systemDao.insertBlackWord(word);
+	}
+
+	public void removeBlackWord(String word) {
+		systemDao.delBlackWord(word);
 	}
 }

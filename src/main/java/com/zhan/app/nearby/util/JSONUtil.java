@@ -44,6 +44,7 @@ public class JSONUtil {
 			return jsonToMap(writeValueAsString(obj));
 		} catch (Exception e) {
 			log.error(e.getMessage());
+			e.printStackTrace();
 		}
 
 		return null;
@@ -54,6 +55,7 @@ public class JSONUtil {
 			return getMapper().writeValueAsString(object);
 		} catch (JsonProcessingException e) {
 			log.error(e.getMessage());
+			e.printStackTrace();
 		}
 		return "";
 	}
@@ -63,6 +65,7 @@ public class JSONUtil {
 			return getMapper().readValue(jsonStr, type);
 		} catch (Exception e) {
 			log.error(e.getMessage());
+			e.printStackTrace();
 		}
 		return null;
 	}
@@ -72,6 +75,7 @@ public class JSONUtil {
 			return getMapper().readValue(jsonStr, type);
 		} catch (Exception e) {
 			log.error(e.getMessage());
+			e.printStackTrace();
 		}
 		return null;
 	}

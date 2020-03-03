@@ -8,7 +8,6 @@ import org.springframework.jdbc.core.RowMapper;
 
 import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.bean.user.BaseVipUser;
-import com.zhan.app.nearby.bean.user.SimpleUser;
 import com.zhan.app.nearby.comm.LikeDynamicState;
 import com.zhan.app.nearby.util.DateTimeUtil;
 import com.zhan.app.nearby.util.ImagePathUtil;

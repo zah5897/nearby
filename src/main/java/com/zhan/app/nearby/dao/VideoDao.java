@@ -5,10 +5,7 @@ import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 
-import javax.annotation.Resource;
-
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import com.zhan.app.nearby.bean.Video;
@@ -16,7 +13,6 @@ import com.zhan.app.nearby.bean.VideoComment;
 import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.dao.base.BaseDao;
 import com.zhan.app.nearby.util.ImagePathUtil;
-import com.zhan.app.nearby.util.TextUtils;
 
 @Repository("videoDao")
 public class VideoDao extends BaseDao<Video> {

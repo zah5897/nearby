@@ -17,15 +17,14 @@ public class TopicDao extends BaseDao<Topic> {
 	@Resource
 	private JdbcTemplate jdbcTemplate;
 
- 
 	public List<Topic> list() {
 		return jdbcTemplate.query("select *from " + TABLE_NAME + " order by id desc ", new Object[] {},
-				new BeanPropertyRowMapper<Topic>(Topic.class));
+				getEntityMapper());
 	}
 
 	public Topic top() {
 		List<Topic> topics = jdbcTemplate.query("select *from " + TABLE_NAME + " order by id desc limit 1",
-				new Object[] {}, new BeanPropertyRowMapper<Topic>(Topic.class));
+				new Object[] {}, getEntityMapper());
 		if (topics != null && topics.size() > 0) {
 			return topics.get(0);
 		}
@@ -33,8 +32,8 @@ public class TopicDao extends BaseDao<Topic> {
 	}
 
 	public List<Topic> history(long current_topic_id) {
-		return jdbcTemplate.query("select *from " + TABLE_NAME + " where id<>? order by id desc ", new Object[] {current_topic_id},
-				new BeanPropertyRowMapper<Topic>(Topic.class));
+		return jdbcTemplate.query("select *from " + TABLE_NAME + " where id<>? order by id desc ",
+				new Object[] { current_topic_id },getEntityMapper());
 	}
 
 }

@@ -56,18 +56,18 @@ public class UserDao extends BaseDao<BaseUser> {
 			return jdbcTemplate.query(
 					"select *from t_user   where user_id=? and  type=? order by user_id desc limit ?,?",
 					new Object[] { user_id, type, (currentPage - 1) * pageSize, pageSize },
-					new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+					getEntityMapper());
 		}
 
 		if (TextUtils.isEmpty(keyword)) {
 			return jdbcTemplate.query("select *from t_user  where type=? order by user_id desc limit ?,?",
 					new Object[] { type, (currentPage - 1) * pageSize, pageSize },
-					new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+					getEntityMapper());
 		} else {
 			return jdbcTemplate.query(
 					"select *from t_user  where type=? and nick_name like ? order by user_id desc limit ?,?",
 					new Object[] { type, "%" + keyword + "%", (currentPage - 1) * pageSize, pageSize },
-					new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+					getEntityMapper());
 		}
 	}
 
@@ -83,23 +83,23 @@ public class UserDao extends BaseDao<BaseUser> {
 		if (user_id > 0) {
 			return jdbcTemplate.query("select *from t_user where user_id=? order by user_id desc limit ?,?",
 					new Object[] { user_id, (currentPage - 1) * pageSize, pageSize },
-					new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+					getEntityMapper());
 		}
 
 		if (TextUtils.isEmpty(keyword)) {
 			return jdbcTemplate.query("select *from t_user order by user_id desc limit ?,?",
 					new Object[] { (currentPage - 1) * pageSize, pageSize },
-					new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+					getEntityMapper());
 		} else {
 			return jdbcTemplate.query("select *from t_user where nick_name like ? order by user_id desc limit ?,?",
 					new Object[] { "%" + keyword + "%", (currentPage - 1) * pageSize, pageSize },
-					new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+					getEntityMapper());
 		}
 	}
 
 	public BaseUser findBaseUserByMobile(String mobile) {
 		List<BaseUser> list = jdbcTemplate.query("select  *   from t_user  where mobile=?", new Object[] { mobile },
-				new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+				getEntityMapper());
 		if (list != null && list.size() > 0) {
 			return list.get(0);
 		} else {
@@ -114,7 +114,7 @@ public class UserDao extends BaseDao<BaseUser> {
 	public LocationUser findLocationUserByMobile(String mobile) {
 		List<LocationUser> list = jdbcTemplate.query(
 				"select user.* ,city.name as city_name from t_user user left join t_sys_city city on user.city_id=city.id where user.mobile=?",
-				new Object[] { mobile }, new BeanPropertyRowMapper<LocationUser>(LocationUser.class));
+				new Object[] { mobile }, getEntityMapper(LocationUser.class));
 		if (list != null && list.size() > 0) {
 			return list.get(0);
 		} else {
@@ -125,7 +125,7 @@ public class UserDao extends BaseDao<BaseUser> {
 	public LocationUser findLocationUserByOpenid(String openid) {
 		List<LocationUser> list = jdbcTemplate.query(
 				"select user.* ,city.name as city_name from t_user user left join t_sys_city city on user.city_id=city.id where user.openid like ?",
-				new Object[] { "%"+openid+"%" }, new BeanPropertyRowMapper<LocationUser>(LocationUser.class));
+				new Object[] { "%"+openid+"%" }, getEntityMapper(LocationUser.class));
 		if (list != null && list.size() > 0) {
 			return list.get(0);
 		} else {
@@ -136,7 +136,7 @@ public class UserDao extends BaseDao<BaseUser> {
 	public LocationUser findLocationUserById(long user_id) {
 		List<LocationUser> list = jdbcTemplate.query(
 				"select user.* ,city.name as city_name from t_user user left join t_sys_city city on user.city_id=city.id where user.user_id=?",
-				new Object[] { user_id }, new BeanPropertyRowMapper<LocationUser>(LocationUser.class));
+				new Object[] { user_id }, getEntityMapper(LocationUser.class));
 		if (list != null && list.size() > 0) {
 			return list.get(0);
 		} else {
@@ -335,8 +335,8 @@ public class UserDao extends BaseDao<BaseUser> {
 	}
 
 	public List<Long> getAllUserIds(long last_id, int page) {
-		List<Long> ids = jdbcTemplate.query("select user_id from t_user where user_id>? order by user_id limit ?",
-				new Object[] { last_id, page }, new BeanPropertyRowMapper<Long>(Long.class));
+		List<Long> ids = jdbcTemplate.queryForList("select user_id from t_user where user_id>? order by user_id limit ?",
+				new Object[] { last_id, page }, Long.class);
 		return ids;
 	}
 
@@ -346,7 +346,7 @@ public class UserDao extends BaseDao<BaseUser> {
 
 		List<BaseUser> users = jdbcTemplate.query(sql,
 				new Object[] { FoundUserRelationship.VISIBLE.ordinal(), user_id, gender, realCount },
-				new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+				getEntityMapper());
 		return users;
 	}
 
@@ -444,7 +444,7 @@ public class UserDao extends BaseDao<BaseUser> {
 	public List<BaseUser> getRandomMeetBottleUser(int realCount) {
 		String sql = "select u.* from t_user_meet_bottle_recommend mb  left join t_user u on mb.uid=u.user_id order by  RAND() limit ?";
 		List<BaseUser> users = jdbcTemplate.query(sql, new Object[] { realCount },
-				new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+				getEntityMapper());
 		return users;
 	}
 
@@ -465,7 +465,7 @@ public class UserDao extends BaseDao<BaseUser> {
 	public BaseUser getBaseUser(long user_id) {
 		String sql = "select user_id,nick_name,sex,avatar,signature,birthday,token from t_user where user_id=?";
 		List<BaseUser> users = jdbcTemplate.query(sql, new Object[] { user_id },
-				new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+				getEntityMapper());
 		if (users.size() > 0) {
 			return users.get(0);
 		}
@@ -475,7 +475,7 @@ public class UserDao extends BaseDao<BaseUser> {
 	public BaseUser getBaseUserNoToken(long user_id) {
 		String sql = "select user_id,nick_name,sex,avatar,signature,birthday from t_user where user_id=?";
 		List<BaseUser> users = jdbcTemplate.query(sql, new Object[] { user_id },
-				new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+				getEntityMapper());
 		if (users.size() > 0) {
 			return users.get(0);
 		}
@@ -571,7 +571,7 @@ public class UserDao extends BaseDao<BaseUser> {
 	public List<BaseUser> getFoundUsersByState(int pageSize, int pageIndex, FoundUserRelationship ship) {
 		String sql = "select u.* from t_found_user_relationship bu left join t_user u on bu.uid=u.user_id  where bu.state=? order by bu.action_time desc limit ?,?";
 		return jdbcTemplate.query(sql, new Object[] { ship.ordinal(), (pageIndex - 1) * pageSize, pageSize },
-				new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+				getEntityMapper());
 	}
 
 	/**
@@ -602,7 +602,7 @@ public class UserDao extends BaseDao<BaseUser> {
 			return jdbcTemplate.query(
 					"select u.* from t_user_meet_bottle_recommend mb left join t_user u on mb.uid=u.user_id where u.nick_name like ? order by mb.uid desc limit ?,?",
 					new Object[] { "%" + keyword + "%", (pageIndex - 1) * pageSize, pageSize },
-					new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+					getEntityMapper());
 		}
 
 	}
@@ -639,7 +639,7 @@ public class UserDao extends BaseDao<BaseUser> {
 		String sql = "select u.user_id,u.nick_name,u.avatar,u.sex from t_user_relationship tur left join t_user u on tur.user_id= u.user_id where tur.with_user_id=? and  tur.relationship=? order by tur.create_time desc limit ?,?";
 		return jdbcTemplate.query(sql,
 				new Object[] { user_id, Relationship.LIKE.ordinal(), (page_index - 1) * count, count },
-				new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+				getEntityMapper());
 	}
 
 	/**
@@ -652,7 +652,7 @@ public class UserDao extends BaseDao<BaseUser> {
 		return jdbcTemplate.query(
 				"select u.user_id,u.nick_name,u.avatar,u.sex from t_user_relationship tur left join t_user u on tur.user_id= u.user_id where tur.with_user_id=? and  tur.relationship=? order by tur.create_time desc limit 1",
 				new Object[] { user_id, Relationship.LIKE.ordinal() },
-				new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+				getEntityMapper());
 	}
 
 	public int getUserCountByIDToken(long user_id, String token) {
@@ -696,7 +696,7 @@ public class UserDao extends BaseDao<BaseUser> {
 	public List<BaseUser> loadSpecialUsers(int pageIndex, int limit) {
 		String sql = "select u.user_id,u.nick_name,u.avatar,u.sex,u.type,u.birthday from t_special_user us left join t_user u on us.uid=u.user_id order by us.create_time desc limit ?,?";
 		List<BaseUser> users = jdbcTemplate.query(sql, new Object[] { (pageIndex - 1) * limit, limit },
-				new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+				getEntityMapper());
 		return users;
 	}
 
@@ -1083,14 +1083,14 @@ public class UserDao extends BaseDao<BaseUser> {
 		String sql = "select u.user_id,u.nick_name,u.avatar from t_user u " + "where u.type=1 " + "and u.sex=? "
 //				+ "and u.create_time <DATE_SUB(CURDATE(), INTERVAL 3 MONTH) " //鍘绘帀涓変釜鏈堢殑娉ㄥ唽闄愬埗
 				+ "and u.last_login_time > DATE_SUB(CURDATE(), INTERVAL 1 DAY) order by rand() limit ? ";
-		return jdbcTemplate.query(sql, new Object[] { sex, 1 }, new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+		return jdbcTemplate.query(sql, new Object[] { sex, 1 }, getEntityMapper());
 	}
 
 	// 鑾峰彇鏈�杩戜袱澶╃櫥闄嗙殑鐢ㄦ埛
 	public List<BaseUser> get2daysLoginUser(long uid, int sex, int day, int count) {
 		String sql = "select u.user_id,u.nick_name,u.avatar from t_user u  where u.user_id<>? and u.type=1  and u.sex=? and  DATE_SUB(CURDATE(), INTERVAL ? DAY) <= date(u.last_login_time) order by rand() limit ? ";
 		return jdbcTemplate.query(sql, new Object[] { uid, sex, day, count },
-				new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+				getEntityMapper());
 
 	}
 
@@ -1099,11 +1099,11 @@ public class UserDao extends BaseDao<BaseUser> {
 		if (withOutids == null) {
 			String sql = "select u.user_id,u.nick_name,u.avatar from t_user u  where u.user_id<>? and u.type=1  and u.sex=? and  DATE_SUB(CURDATE(), INTERVAL ? DAY) <= date(u.last_login_time) order by rand() limit ? ";
 			return jdbcTemplate.query(sql, new Object[] { uid, sex, day, count },
-					new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+					getEntityMapper());
 		} else {
 			String sql = "select u.user_id,u.nick_name,u.avatar from t_user u  where u.user_id<>? and u.type=1 and u.user_id not in (?) and u.sex=? and  DATE_SUB(CURDATE(), INTERVAL ? DAY) <= date(u.last_login_time) order by rand() limit ? ";
 			return jdbcTemplate.query(sql, new Object[] { uid, withOutids, sex, day, count },
-					new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+					getEntityMapper());
 		}
 	}
 
@@ -1126,7 +1126,7 @@ public class UserDao extends BaseDao<BaseUser> {
 				+ " and u.user_id not in (select uid from t_user_match where  to_days(match_time) = to_days(now())) "
 				+ " and  DATE_SUB(CURDATE(), INTERVAL ? DAY) <= date(u.last_login_time) order by u.last_login_time desc limit ?,?";
 		return jdbcTemplate.query(sql, new Object[] { days, startIndex, count },
-				new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+				getEntityMapper());
 	}
 
 	// 获取被匹配的女性账号
@@ -1135,7 +1135,7 @@ public class UserDao extends BaseDao<BaseUser> {
 				+ " where u.sex=0 and (u.type=1 or u.type=3)"
 				+ " and u.user_id not in (select target_uid from t_user_match where  to_days(match_time) = to_days(now())) "
 				+ " order by rand() limit ?";
-		return jdbcTemplate.query(sql, new Object[] { count }, new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+		return jdbcTemplate.query(sql, new Object[] { count }, getEntityMapper());
 	}
 
 	public List<Long> getActiveWomenUserNotDoMatchUids(int count) {

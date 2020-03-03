@@ -134,7 +134,8 @@ public class BaseDao<T> {
         }
     }
 
-    public BeanPropertyRowMapper getEntityMapper() {
+    @SuppressWarnings("rawtypes")
+	public BeanPropertyRowMapper getEntityMapper() {
         return getEntityMapper(actualType);
     }
 

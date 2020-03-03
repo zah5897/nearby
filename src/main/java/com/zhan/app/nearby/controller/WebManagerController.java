@@ -39,6 +39,8 @@ import com.zhan.app.nearby.util.MD5Util;
 import com.zhan.app.nearby.util.ResultUtil;
 import com.zhan.app.nearby.util.TextUtils;
 
+import cn.ucloud.common.http.Http;
+
 @Controller
 @RequestMapping("/manager")
 public class WebManagerController {
@@ -48,9 +50,7 @@ public class WebManagerController {
 
 	@RequestMapping(value = "/")
 	public ModelAndView index(HttpServletRequest request) {
-		HttpSession session = request.getSession();
-		Object obj = session.getAttribute("account");
-		if (obj != null) {
+		if (managerService.isLogin(request)) {
 			return new ModelAndView("index");
 		}
 		return new ModelAndView("login");
@@ -58,10 +58,7 @@ public class WebManagerController {
 
 	@RequestMapping(value = "/login", method = RequestMethod.POST)
 	public ModelAndView dologin(HttpServletRequest request, String name, String password) throws NoSuchAlgorithmException {
-
-		HttpSession session = request.getSession();
-		Object obj = session.getAttribute("account");
-		if (obj != null) {
+		if (managerService.isLogin(request)) {
 			return new ModelAndView("redirect:/manager/");
 		}
 		boolean mlr=managerService.mLogin(name, MD5Util.getMd5(password));
@@ -70,13 +67,15 @@ public class WebManagerController {
 			view.addObject("error", "登录失败，账号或密码错误");
 			return view;
 		}
-		session.setAttribute("account", name);
+		request.getSession().setAttribute("account", name);
 		return new ModelAndView("redirect:/manager/");
 	}
 
 	@RequestMapping(value = "/logout")
 	public ModelAndView logout(HttpServletRequest request) {
-
+		if (!managerService.isLogin(request)) {
+			return new ModelAndView("login");
+		}
 		HttpSession session = request.getSession();
 		session.removeAttribute("account");
 		return new ModelAndView("redirect:/manager/");
@@ -84,10 +83,7 @@ public class WebManagerController {
 
 	@RequestMapping(value = "/forword")
 	public ModelAndView forword(HttpServletRequest request,String path) {
-		
-		HttpSession session = request.getSession();
-		Object obj = session.getAttribute("account");
-		if (obj == null) {
+		if (!managerService.isLogin(request)) {
 			return new ModelAndView("redirect:/manager/");
 		}
 		return new ModelAndView(path);
@@ -95,7 +91,10 @@ public class WebManagerController {
 
 	// 列出已经选择到首页的动态 返回json
 	@RequestMapping(value = "/selected_dynamic_list")
-	public @ResponseBody ModelMap selected_dynamic_list(int pageIndex) {
+	public @ResponseBody ModelMap selected_dynamic_list(HttpServletRequest request,int pageIndex) {
+		if (!managerService.isLogin(request)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
 		int pageCount = getSelectedPageCount();
 		if (pageIndex == 0) {
 			pageIndex = 1;
@@ -116,7 +115,12 @@ public class WebManagerController {
 
 	// 未选择出现在首页的列表
 	@RequestMapping(value = "/unselected_dynamic_list")
-	public @ResponseBody ModelMap unselected_dynamic_list(int pageIndex,String nick_name) {
+	public @ResponseBody ModelMap unselected_dynamic_list(HttpServletRequest request,int pageIndex,String nick_name) {
+		
+		if (!managerService.isLogin(request)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		
 		int pageCount = getUnSelectPageCount(nick_name);
 		if (pageIndex == 0) {
 			pageIndex = 1;
@@ -167,7 +171,13 @@ public class WebManagerController {
 	}
 
 	@RequestMapping(value = "/remove_from_selected")
-	public @ResponseBody ModelMap remove_from_selected(long id, int currentPage) {
+	public @ResponseBody ModelMap remove_from_selected(HttpServletRequest request,long id, int currentPage) {
+		
+		if (!managerService.isLogin(request)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		
+		
 		managerService.removeFromSelected(id);
 		ModelMap r = ResultUtil.getResultOKMap();
 
@@ -186,8 +196,12 @@ public class WebManagerController {
 
 	// 删除多个
 	@RequestMapping(value = "/removes_from_selected")
-	public @ResponseBody ModelMap removes_from_selected(String ids, int currentPage) {
+	public @ResponseBody ModelMap removes_from_selected(HttpServletRequest request,String ids, int currentPage) {
 
+		if (!managerService.isLogin(request)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		
 		if (TextUtils.isEmpty(ids)) {
 			return ResultUtil.getResultMap(ERROR.ERR_FAILED);
 		}
@@ -218,7 +232,12 @@ public class WebManagerController {
 
 	// 添加到首页推荐
 	@RequestMapping(value = "/add_to_selected")
-	public @ResponseBody ModelMap add_to_selected(long id, int currentPage) {
+	public @ResponseBody ModelMap add_to_selected(HttpServletRequest request,long id, int currentPage) {
+		
+		if (!managerService.isLogin(request)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		
 		managerService.addToSelected(id);
 		ModelMap r = ResultUtil.getResultOKMap();
 		r.put("pageCount", getUnSelectPageCount(null));
@@ -240,7 +259,12 @@ public class WebManagerController {
 
 	// 忽略
 	@RequestMapping(value = "/ignore")
-	public @ResponseBody ModelMap ignore(long id, int currentPage) {
+	public @ResponseBody ModelMap ignore(HttpServletRequest request,long id, int currentPage) {
+		
+		if (!managerService.isLogin(request)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		
 		managerService.ignore(id);
 		ModelMap r = ResultUtil.getResultOKMap();
 		r.put("pageCount", getUnSelectPageCount(null));
@@ -262,8 +286,12 @@ public class WebManagerController {
 
 	// 添加多个到首页推荐
 	@RequestMapping(value = "/add_batch_to_selected")
-	public @ResponseBody ModelMap add_batch_to_selected(String ids, int currentPage) {
+	public @ResponseBody ModelMap add_batch_to_selected(HttpServletRequest request,String ids, int currentPage) {
 
+		if (!managerService.isLogin(request)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		
 		if (TextUtils.isEmpty(ids)) {
 			return ResultUtil.getResultMap(ERROR.ERR_FAILED);
 		}
@@ -308,14 +336,24 @@ public class WebManagerController {
 	}
 
 	@RequestMapping(value = "/get_welcome")
-	public @ResponseBody ModelMap get_welcome() {
+	public @ResponseBody ModelMap get_welcome(HttpServletRequest request) {
+
+		if (!managerService.isLogin(request)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		
 		ModelMap reMap = ResultUtil.getResultOKMap();
 		reMap.put("welcome", managerService.getWelcome());
 		return reMap;
 	}
 
 	@RequestMapping(value = "/set_welcome")
-	public @ResponseBody ModelMap set_welcome(String welcome) {
+	public @ResponseBody ModelMap set_welcome(HttpServletRequest request,String welcome) {
+		
+		if (!managerService.isLogin(request)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		
 		if (managerService.updateWelcome(welcome)) {
 			ModelMap result = ResultUtil.getResultOKMap();
 			result.put("welcome", welcome);
@@ -327,6 +365,11 @@ public class WebManagerController {
 
 	@RequestMapping(value = "/add_topic")
 	public @ResponseBody ModelMap add_topic(HttpServletRequest request, Topic topic) {
+		
+		if (!managerService.isLogin(request)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		
 		if (request instanceof DefaultMultipartHttpServletRequest) {
 			DefaultMultipartHttpServletRequest multipartRequest = (DefaultMultipartHttpServletRequest) request;
 			Iterator<String> iterator = multipartRequest.getFileNames();
@@ -362,21 +405,36 @@ public class WebManagerController {
 	}
 
 	@RequestMapping(value = "/load_topic")
-	public @ResponseBody ModelMap load_topic() {
+	public @ResponseBody ModelMap load_topic(HttpServletRequest request) {
+		
+		if (!managerService.isLogin(request)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		
 		List<Topic> topics = managerService.loadTopic();
 		ImagePathUtil.completeTopicImagePath(topics, true);
 		return ResultUtil.getResultOKMap().addAttribute("topics", topics);
 	}
 
 	@RequestMapping(value = "/del_topic")
-	public @ResponseBody ModelMap del_topic(long id) {
+	public @ResponseBody ModelMap del_topic(HttpServletRequest request,long id) {
+		
+		if (!managerService.isLogin(request)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		
 		managerService.delTopic(id);
 		return ResultUtil.getResultOKMap();
 	}
 
 	// 获取新增用户
 	@RequestMapping(value = "/list_new_user")
-	public @ResponseBody ModelMap list_new_user(int pageIndex, int pageSize, int type) {
+	public @ResponseBody ModelMap list_new_user(HttpServletRequest request,int pageIndex, int pageSize, int type) {
+		
+		if (!managerService.isLogin(request)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		
 		ModelMap reMap = ResultUtil.getResultOKMap();
 		if (pageIndex == 1) {
 			int count = managerService.newUserCount(type);
@@ -414,7 +472,12 @@ public class WebManagerController {
 	// }
 
 	@RequestMapping(value = "/dynamic_del")
-	public @ResponseBody ModelMap dynamic_del(long id, int currentPage) {
+	public @ResponseBody ModelMap dynamic_del(HttpServletRequest request,long id, int currentPage) {
+		
+		if (!managerService.isLogin(request)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		
 		managerService.removeUserDynamic(id);
 		ModelMap r = ResultUtil.getResultOKMap();
 		r.put("pageCount", getUnSelectPageCount(null));
@@ -435,7 +498,12 @@ public class WebManagerController {
 
 	// 未选中首页内执行违规操作
 	@RequestMapping(value = "/illegal_unselected")
-	public @ResponseBody ModelMap illegal_unselected(long id, int currentPage) {
+	public @ResponseBody ModelMap illegal_unselected(HttpServletRequest request,long id, int currentPage) {
+		
+		if (!managerService.isLogin(request)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		
 		managerService.updateDynamicState(id, DynamicState.T_ILLEGAL);
 		ModelMap r = ResultUtil.getResultOKMap();
 		r.put("pageCount", getUnSelectPageCount(null));
@@ -455,7 +523,13 @@ public class WebManagerController {
 
 	// 动态违规接口
 	@RequestMapping(value = "/dy_illegal")
-	public @ResponseBody ModelMap dy_illegal(long id, int currentPage) {
+	public @ResponseBody ModelMap dy_illegal(HttpServletRequest request,long id, int currentPage) {
+		
+		
+		if (!managerService.isLogin(request)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		
 		managerService.updateDynamicState(id, DynamicState.T_ILLEGAL);
 		ModelMap r = ResultUtil.getResultOKMap();
 
@@ -474,7 +548,13 @@ public class WebManagerController {
 
 	// 根据状态列出动态
 	@RequestMapping(value = "/list_dynamic_by_state")
-	public @ResponseBody ModelMap list_dynamic_by_state(int pageIndex, int state) {
+	public @ResponseBody ModelMap list_dynamic_by_state(HttpServletRequest request,int pageIndex, int state) {
+		
+		
+		if (!managerService.isLogin(request)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		
 		int pageCount = getPageCountByState(state);
 		if (pageIndex == 0) {
 			pageIndex = 1;
@@ -495,8 +575,13 @@ public class WebManagerController {
 
 	// 批量审核通过
 	@RequestMapping(value = "/verify_batch")
-	public @ResponseBody ModelMap verify_batch(String ids, int currentPage) {
+	public @ResponseBody ModelMap verify_batch(HttpServletRequest request,String ids, int currentPage) {
 
+		
+		if (!managerService.isLogin(request)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		
 		if (TextUtils.isEmpty(ids)) {
 			return ResultUtil.getResultMap(ERROR.ERR_FAILED);
 		}
@@ -528,8 +613,13 @@ public class WebManagerController {
 
 	// 批量审核通过
 	@RequestMapping(value = "/verify_batch_singl")
-	public @ResponseBody ModelMap verify_batch_singl(long id, int currentPage) {
+	public @ResponseBody ModelMap verify_batch_singl(HttpServletRequest request,long id, int currentPage) {
 
+		
+		if (!managerService.isLogin(request)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		
 		managerService.updateDynamicState(id, DynamicState.T_FORMAL);
 		ModelMap r = ResultUtil.getResultOKMap();
 		r.put("pageCount", getPageCountByState(DynamicState.T_CREATE.ordinal()));
@@ -547,8 +637,13 @@ public class WebManagerController {
 
 	// 删除违规动态（多个）
 	@RequestMapping(value = "/removes_illegal_dynamics")
-	public @ResponseBody ModelMap removes_illegal_dynamics(String ids, int currentPage) {
+	public @ResponseBody ModelMap removes_illegal_dynamics(HttpServletRequest request,String ids, int currentPage) {
 
+
+		if (!managerService.isLogin(request)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		
 		if (TextUtils.isEmpty(ids)) {
 			return ResultUtil.getResultMap(ERROR.ERR_FAILED);
 		}
@@ -580,7 +675,13 @@ public class WebManagerController {
 
 	// 删除违规动态（单个）
 	@RequestMapping(value = "/removes_illegal_dynamic")
-	public @ResponseBody ModelMap removes_illegal_dynamic(long id, int currentPage) {
+	public @ResponseBody ModelMap removes_illegal_dynamic(HttpServletRequest request,long id, int currentPage) {
+		
+		
+		if (!managerService.isLogin(request)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		
 		managerService.removeDyanmicByState(id, DynamicState.T_ILLEGAL);
 		ModelMap r = ResultUtil.getResultOKMap();
 
@@ -599,7 +700,13 @@ public class WebManagerController {
 
 	// 违规动态恢复到待审核区
 	@RequestMapping(value = "/backToCheck")
-	public @ResponseBody ModelMap backToCheck(long id, int currentPage) {
+	public @ResponseBody ModelMap backToCheck(HttpServletRequest request,long id, int currentPage) {
+		
+		
+		if (!managerService.isLogin(request)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		
 		managerService.updateDynamicState(id, DynamicState.T_CREATE);
 		ModelMap r = ResultUtil.getResultOKMap();
 
@@ -618,7 +725,12 @@ public class WebManagerController {
 
 	// 获取所有用户
 	@RequestMapping(value = "/list_user_all")
-	public @ResponseBody ModelMap list_user_all(int pageSize, int pageIndex, int type, String keyword, Long user_id) {
+	public @ResponseBody ModelMap list_user_all(HttpServletRequest request,int pageSize, int pageIndex, int type, String keyword, Long user_id) {
+		
+		if (!managerService.isLogin(request)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		
 		ModelMap r = ResultUtil.getResultOKMap();
 		List<BaseUser> users = managerService.getAllUser(pageSize, pageIndex, type, keyword, user_id);
 
@@ -641,7 +753,12 @@ public class WebManagerController {
 
 	// 获取所有发现用户黑名单
 	@RequestMapping(value = "/list_user_found")
-	public @ResponseBody ModelMap list_user_found_by_state(int pageSize, int pageIndex, int state) {
+	public @ResponseBody ModelMap list_user_found_by_state(HttpServletRequest request,int pageSize, int pageIndex, int state) {
+		
+		if (!managerService.isLogin(request)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		
 		ModelMap r = ResultUtil.getResultOKMap();
 		FoundUserRelationship ship = FoundUserRelationship.values()[state];
 		List<BaseUser> users = managerService.getFoundUsersByState(pageSize, pageIndex, ship);
@@ -665,7 +782,12 @@ public class WebManagerController {
 
 	// 获取所有用户
 	@RequestMapping(value = "/list_user_meet_bottle_recommend")
-	public @ResponseBody ModelMap list_user_meet_bottle_recommend(int pageSize, int pageIndex, String keyword) {
+	public @ResponseBody ModelMap list_user_meet_bottle_recommend(HttpServletRequest request,int pageSize, int pageIndex, String keyword) {
+		
+		if (!managerService.isLogin(request)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		
 		ModelMap r = ResultUtil.getResultOKMap();
 		List<BaseUser> users = managerService.getAllMeetBottleRecommendUser(pageSize, pageIndex, keyword);
 
@@ -688,41 +810,61 @@ public class WebManagerController {
 
 	// 添加到发现用户黑名单
 	@RequestMapping(value = "/edit_user_found_state")
-	public @ResponseBody ModelMap addToUserFoundBlack(long user_id, int fun, Integer pageSize, Integer pageIndex,
+	public @ResponseBody ModelMap addToUserFoundBlack(HttpServletRequest request,long user_id, int fun, Integer pageSize, Integer pageIndex,
 			int state) {
+		
+		if (!managerService.isLogin(request)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		
 		FoundUserRelationship ship = FoundUserRelationship.values()[state];
 		managerService.editUserFoundState(user_id, ship);
 		if (fun == 0) {
-			return list_user_found_by_state(pageSize, pageIndex, state);
+			return list_user_found_by_state(request,pageSize, pageIndex, state);
 		}
 		return ResultUtil.getResultOKMap();
 	}
 
 	// 添加到发现用户黑名单
 	@RequestMapping(value = "/remove_user_found_state")
-	public @ResponseBody ModelMap remove_user_found_state(long user_id, Integer pageSize, Integer pageIndex,
+	public @ResponseBody ModelMap remove_user_found_state(HttpServletRequest request,long user_id, Integer pageSize, Integer pageIndex,
 			int state) {
+		
+		if (!managerService.isLogin(request)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		
 		managerService.removeUserFoundState(user_id);
-		return list_user_found_by_state(pageSize, pageIndex, state);
+		return list_user_found_by_state(request,pageSize, pageIndex, state);
 	}
 
 	// 添加到邂逅瓶待选
 	@RequestMapping(value = "/edit_user_meet_bottle_recomend")
 	public @ResponseBody ModelMap addToUserMeetBottle(HttpServletRequest request,long user_id, int fun, Integer pageSize, Integer pageIndex,
 			String keyword) {
+		
+		if (!managerService.isLogin(request)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		
 		HttpSession session = request.getSession();
 		Object obj = session.getAttribute("account");
 		
 		managerService.editUserMeetBottle(user_id, fun,IPUtil.getIpAddress(request),obj==null?"null":obj.toString());
 		if (fun == 0) {
-			return list_user_meet_bottle_recommend(pageSize, pageIndex, keyword);
+			return list_user_meet_bottle_recommend(request,pageSize, pageIndex, keyword);
 		}
 		return ResultUtil.getResultOKMap();
 	}
 
 	// 获取提现申请记录
 	@RequestMapping(value = "/list_exchange_history")
-	public @ResponseBody ModelMap list_exchange_history(int pageSize, int pageIndex, int type) {
+	public @ResponseBody ModelMap list_exchange_history(HttpServletRequest request,int pageSize, int pageIndex, int type) {
+
+		if (!managerService.isLogin(request)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		
 		ModelMap r = ResultUtil.getResultOKMap();
 		List<Object> exchanges = managerService.getExchangeHistory(pageSize, pageIndex, type);
 		if (pageIndex == 1) {
@@ -742,15 +884,27 @@ public class WebManagerController {
 	}
 
 	@RequestMapping(value = "/exchange_handle")
-	public @ResponseBody ModelMap exchange_handle(int id, boolean agreeOrReject, int pageSize, int pageIndex,
+	public @ResponseBody ModelMap exchange_handle(HttpServletRequest request,int id, boolean agreeOrReject, int pageSize, int pageIndex,
 			int type) {
+		
+		
+		if (!managerService.isLogin(request)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		
 		managerService.handleExchange(id, agreeOrReject);
-		return list_exchange_history(pageSize, pageIndex, type);
+		return list_exchange_history(request,pageSize, pageIndex, type);
 	}
 
 	// 获取提现申请记录
 	@RequestMapping(value = "/list_report_history")
-	public @ResponseBody ModelMap list_report_history(int type, int pageSize, int pageIndex) {
+	public @ResponseBody ModelMap list_report_history(HttpServletRequest request,int type, int pageSize, int pageIndex) {
+		
+		
+		if (!managerService.isLogin(request)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		
 		ModelMap r = ResultUtil.getResultOKMap();
 		List<Report> exchanges = managerService.getReports(type, pageSize, pageIndex);
 		if (pageIndex == 1) {
@@ -771,13 +925,25 @@ public class WebManagerController {
 
 	// 获取提现申请记录
 	@RequestMapping(value = "/handleReport")
-	public @ResponseBody ModelMap handleReport(int id, int type, int pageSize, int pageIndex, Boolean isIgnore) {
+	public @ResponseBody ModelMap handleReport(HttpServletRequest request,int id, int type, int pageSize, int pageIndex, Boolean isIgnore) {
+		
+
+		if (!managerService.isLogin(request)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		
+		
 		managerService.handleReport(id, isIgnore == null ? false : isIgnore);
-		return list_report_history(type, pageSize, pageIndex);
+		return list_report_history(request,type, pageSize, pageIndex);
 	}
 
 	@RequestMapping(value = "/list_bottle")
-	public @ResponseBody ModelMap list_bottle(int type, int pageSize, int pageIndex, Long bottle_id) {
+	public @ResponseBody ModelMap list_bottle(HttpServletRequest request,int type, int pageSize, int pageIndex, Long bottle_id) {
+		
+		if (!managerService.isLogin(request)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		
 		ModelMap r = ResultUtil.getResultOKMap();
 		List<Bottle> exchanges = managerService.listBottleByState(type, pageSize, pageIndex, bottle_id);
 
@@ -807,16 +973,26 @@ public class WebManagerController {
 
 	// 获取提现申请记录
 	@RequestMapping(value = "/changeBottleState")
-	public @ResponseBody ModelMap changeBottleState(int id, int type, int pageSize, int pageIndex, int to_state,
+	public @ResponseBody ModelMap changeBottleState(HttpServletRequest request,int id, int type, int pageSize, int pageIndex, int to_state,
 			Long bottle_id) {
+		
+		if (!managerService.isLogin(request)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		
 		managerService.changeBottleState(id, to_state);
-		return list_bottle(type, pageSize, pageIndex, bottle_id);
+		return list_bottle(request,type, pageSize, pageIndex, bottle_id);
 	}
 
 	// 获取提现申请记录
 	@RequestMapping(value = "/filter_key_word")
 	public @ResponseBody ModelMap bottle_txt_key_word(int type, HttpServletRequest request) {
 
+		
+		if (!managerService.isLogin(request)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		
 		if (type == 0) {
 			if(ImageSaveUtils.getFilterWordsFilePath()!=null) {
 				return ResultUtil.getResultOKMap().addAttribute("download_path",ImagePathUtil.getFilterWordsPath());
@@ -850,12 +1026,23 @@ public class WebManagerController {
 
 	// 获取提现申请记录
 	@RequestMapping(value = "/list_spread_user")
-	public @ResponseBody ModelMap list_spread_user() {
+	public @ResponseBody ModelMap list_spread_user(HttpServletRequest request) {
+		
+		if (!managerService.isLogin(request)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		
 		return managerService.getSpecialUsers(1, 1000);
 	}
 
 	@RequestMapping(value = "/add_spread_user")
-	public @ResponseBody ModelMap add_spread_user(long uid) {
+	public @ResponseBody ModelMap add_spread_user(HttpServletRequest request,long uid) {
+		
+		
+		if (!managerService.isLogin(request)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		
 		int count = managerService.addSpreadUser(uid);
 		if (count == 1) {
 			return managerService.getSpecialUsers(1, 1000);
@@ -874,7 +1061,13 @@ public class WebManagerController {
 	}
 
 	@RequestMapping(value = "/del_spread_user")
-	public @ResponseBody ModelMap del_spread_user(long uid) {
+	public @ResponseBody ModelMap del_spread_user(HttpServletRequest request,long uid) {
+		
+		
+		
+		if (!managerService.isLogin(request)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
 		int count = managerService.delSpecialUser(uid);
 		if (count == 1) {
 			return managerService.getSpecialUsers(1, 1000);
@@ -884,20 +1077,36 @@ public class WebManagerController {
 	}
 
 	@RequestMapping(value = "/edit_avatar_state")
-	public @ResponseBody ModelMap edit_avatar_state(int id,int state) {
+	public @ResponseBody ModelMap edit_avatar_state(HttpServletRequest request,int id,int state) {
+		
+		if (!managerService.isLogin(request)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		
 		managerService.editAvatarState(id,state);
 		return ResultUtil.getResultOKMap();
 	}
 	
 	@RequestMapping(value = "/edit_avatar_state_by_user_id")
-	public @ResponseBody ModelMap edit_avatar_state_by_user_id(long user_id) {
+	public @ResponseBody ModelMap edit_avatar_state_by_user_id(HttpServletRequest request,long user_id) {
+		
+		if (!managerService.isLogin(request)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		
 		managerService.editAvatarStateByUserId(user_id);
 		return ResultUtil.getResultOKMap();
 	}
 	
 	//获取需要審核的用戶头像
 	@RequestMapping(value = "/list_confirm_avatars")
-	public @ResponseBody ModelMap list_confirm_avatars(int pageSize, int pageIndex,Long user_id,int state) {
+	public @ResponseBody ModelMap list_confirm_avatars(HttpServletRequest request,int pageSize, int pageIndex,Long user_id,int state) {
+		
+		
+		if (!managerService.isLogin(request)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		
 		ModelMap r=ResultUtil.getResultOKMap();
 		r.addAttribute("users", managerService.listConfirmAvatars(pageSize,pageIndex,user_id,state));
 		if (pageIndex == 1) {
@@ -916,7 +1125,13 @@ public class WebManagerController {
 	}
 	//获取需要審核的用戶头像
 		@RequestMapping(value = "/list_avatars_by_uid")
-		public @ResponseBody ModelMap list_avatars_by_uid(int pageSize, int pageIndex,Long user_id,String nick_name) {
+		public @ResponseBody ModelMap list_avatars_by_uid(HttpServletRequest request,int pageSize, int pageIndex,Long user_id,String nick_name) {
+			
+			
+			if (!managerService.isLogin(request)) {
+				return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+			}
+			
 			ModelMap r=ResultUtil.getResultOKMap();
 			r.addAttribute("users", managerService.listAvatarsByUid(pageSize,pageIndex,user_id,nick_name));
 			if (pageIndex == 1) {
@@ -935,14 +1150,26 @@ public class WebManagerController {
 		}
 	//充值会员
 	@RequestMapping(value = "/charge_vip")
-	public @ResponseBody ModelMap charge_vip(long user_id,int month,String mark) {
+	public @ResponseBody ModelMap charge_vip(HttpServletRequest request,long user_id,int month,String mark) {
+		
+		
+		if (!managerService.isLogin(request)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		
 		managerService.charge_vip(user_id,month,mark);
 		return ResultUtil.getResultOKMap();
 	}
 	
 	//充值会员
 		@RequestMapping(value = "/charge_coin")
-		public @ResponseBody Object charge_coin(long user_id,int coin,String mark) {
+		public @ResponseBody Object charge_coin(HttpServletRequest request,long user_id,int coin,String mark) {
+			
+			
+			if (!managerService.isLogin(request)) {
+				return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+			}
+			
 			return managerService.charge_coin(user_id,coin,mark);
 		}
 		
@@ -952,7 +1179,8 @@ public class WebManagerController {
 		
 		HttpSession session = request.getSession();
 		Object obj = session.getAttribute("account");
-		if(obj==null) {
+		
+		if (!managerService.isLogin(request)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
 		

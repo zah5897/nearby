@@ -5,9 +5,7 @@ import java.util.Map;
 import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
 
 import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.cache.UserCacheService;
@@ -20,8 +18,12 @@ import com.zhan.app.nearby.util.HttpClientUtils;
 import com.zhan.app.nearby.util.SpringContextUtil;
 import com.zhan.app.nearby.util.TextUtils;
 
+import net.javacrumbs.shedlock.core.SchedulerLock;
+import net.javacrumbs.shedlock.spring.annotation.EnableSchedulerLock;
+
 //@Component
 //@EnableScheduling
+//@EnableSchedulerLock(defaultLockAtMostFor = "PT30S")
 public class TimerTask {
 	@Autowired
 	private FaceCheckTask faceCheckTask;
@@ -30,6 +32,7 @@ public class TimerTask {
 
 	// @Scheduled(cron = "0 0 0/1 * * ?") // 每小時
 	@Scheduled(cron = "0 0/5 * * * ?") // 每5分钟执行一次
+	@SchedulerLock(name = "injectMeetBottle", lockAtLeastFor = 280000) //持有4.5分钟，防止其他节点执行
 	public void injectMeetBottle() {
 		UserDao userDao = SpringContextUtil.getBean("userDao");
 		List<BaseUser> users = userDao.getRandomMeetBottleUser(10);
@@ -44,6 +47,7 @@ public class TimerTask {
 	}
 
 	@Scheduled(cron = "0 59 23 * * ?") // 每天23：59分执行
+	@SchedulerLock(name = "meiliRateTask", lockAtLeastFor = 7200000) //持有2小时，防止其他节点执行
 	public void meiliRateTask() {
 		UserCacheService userCacheService = SpringContextUtil.getBean("userCacheService");
 		userCacheService.clearCacheCount();
@@ -53,6 +57,7 @@ public class TimerTask {
 	}
 
 	@Scheduled(cron = "0 10 0 * * ?") // 每天0：10分执行
+	@SchedulerLock(name = "clearExpireVip", lockAtLeastFor = 7200000) //持有2小时，防止其他节点执行
 	public void clearExpireVip() {
 		VipService vipService = SpringContextUtil.getBean("vipService");
 		vipService.clearExpireVip();
@@ -65,6 +70,7 @@ public class TimerTask {
 	}
 
 	@Scheduled(cron = "0 0 0/2 * * ?") // 每2小时执行一次
+	@SchedulerLock(name = "injectTextBottle", lockAtLeastFor = 6900000) //持有110分钟，防止其他节点执行
 	public void injectTextBottle() {
 		BottleService bottleService = SpringContextUtil.getBean("bottleService");
 		bottleService.refreshPool();
@@ -94,17 +100,20 @@ public class TimerTask {
 	}
 
 	@Scheduled(cron = "0 0/20 * * * ?") // 每20分钟执行一次
+	@SchedulerLock(name = "checkUserOnline", lockAtLeastFor = 600000) //持有10分钟，防止其他节点执行
 	public void checkUserOnline() {
 		UserService userService = SpringContextUtil.getBean("userService");
 		userService.removeTimeoutOnlineUsers(4);
 	}
 
 	@Scheduled(cron = "0 0/5 * * * ?") // 每10分钟执行一次
+	@SchedulerLock(name = "doCheckImg", lockAtLeastFor = 240000) //持有4分钟，防止其他节点执行
 	public void doCheckImg() { // 自动审核待审核的图片
 		faceCheckTask.doCheckImg();
 	}
 
 	@Scheduled(cron = "0 0/5 * * * ?") // 每10分钟执行一次
+	@SchedulerLock(name = "doMatchActiveUser", lockAtLeastFor = 240000) //持有4分钟，防止其他节点执行
 	public void doMatchActiveUser() { //
 		matchActiveUserTask.matchActiveUsers();
 	}

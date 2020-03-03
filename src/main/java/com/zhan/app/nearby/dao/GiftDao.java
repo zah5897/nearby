@@ -31,7 +31,7 @@ public class GiftDao extends BaseDao<Gift> {
 
 	public List<Gift> listGifts() {
 		return jdbcTemplate.query("select *from " + getTableName() + " order by price",
-				new BeanPropertyRowMapper<Gift>(Gift.class));
+				getEntityMapper());
 	}
 
 	public void delete(long id) {
@@ -55,7 +55,7 @@ public class GiftDao extends BaseDao<Gift> {
 
 	public Gift load(int gift_id) {
 		List<Gift> gifts = jdbcTemplate.query("select *from " + getTableName() + " where id=?", new Object[] { gift_id },
-				new BeanPropertyRowMapper<Gift>(Gift.class));
+				getEntityMapper());
 		if (gifts != null && gifts.size() > 0) {
 			return gifts.get(0);
 		}

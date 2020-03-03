@@ -29,7 +29,6 @@ import com.zhan.app.nearby.util.DateTimeUtil;
 public class UserInfoDao extends BaseDao<BaseUser> {
 	public static final String TABLE_USER_IMAGES = "t_user_images";
 
- 
 	public int modify_info(long user_id, String nick_name, String birthday, String job, String height, String weight,
 			String signature, String my_tags, String interests, String animals, String musics, String weekday_todo,
 			String footsteps, String want_to_where) {
@@ -96,8 +95,8 @@ public class UserInfoDao extends BaseDao<BaseUser> {
 	}
 
 	public DetailUser getUserInfo(long user_id) {
-		List<DetailUser> list = jdbcTemplate.query("select *from t_user user where user.user_id=?", new Object[] { user_id },
-				new BeanPropertyRowMapper<DetailUser>(DetailUser.class));
+		List<DetailUser> list = jdbcTemplate.query("select *from t_user user where user.user_id=?",
+				new Object[] { user_id }, getEntityMapper(DetailUser.class));
 		if (list != null && list.size() > 0) {
 			return list.get(0);
 		} else {
@@ -105,7 +104,7 @@ public class UserInfoDao extends BaseDao<BaseUser> {
 		}
 	}
 
-	//默认获取五条
+	// 默认获取五条
 //	public List<Image> getUserImages(long user_id) {
 //		return jdbcTemplate.query(
 //				"select *from " + TABLE_USER_IMAGES + " user where user_id=? order by id desc limit 5",
@@ -123,12 +122,12 @@ public class UserInfoDao extends BaseDao<BaseUser> {
 				new Object[] { user_id, id });
 	}
 
-	public List<DetailUser> getRandUsers(long user_id,String lat, String lng, int count) {
+	public List<DetailUser> getRandUsers(long user_id, String lat, String lng, int count) {
 		String disc = " ROUND(6378.138*2*ASIN(SQRT(POW(SIN((?*PI()/180-lat*PI()/180)/2),2)+COS(?*PI()/180)*COS(lat*PI()/180)*POW(SIN((?*PI()/180-lng*PI()/180)/2),2)))*1000) AS juli";
 		return jdbcTemplate.query(
 				"select user_id,avatar, nick_name,type,birthday,job_ids,lat,lng,interest_ids, " + disc
 						+ " from t_user where user_id<>? order by rand() limit ?",
-				new Object[] { lat, lat, lng,user_id, count }, new FoundUserMapper());
+				new Object[] { lat, lat, lng, user_id, count }, new FoundUserMapper());
 
 	}
 
@@ -141,39 +140,38 @@ public class UserInfoDao extends BaseDao<BaseUser> {
 	}
 
 	public List<BaseUser> getLikeMeUsers(long user_id, long last_user_id, int page_size) {
-		return jdbcTemplate.query("select user.user_id,user.nick_name,user.avatar,user.sex  from t_user user right join t_relationship rp on user.user_id=rp.user_id where rp.with_user_id=? and relationship=? and user.user_id>? order by user.user_id  limit ?", new Object[] { user_id, Relationship.LIKE.ordinal(), last_user_id, page_size }, new FateUserMapper());
-	}
-	
-	public List<BaseUser> getOnlyLikeMeUsers(long user_id, long last_user_id, int page_size) {
-		return jdbcTemplate.query("select user.user_id,user.nick_name,user.avatar,user.sex  "
-				+ "from t_user user,"
-				+ "t_relationship onlyLm "
-				+ "where onlyLm.with_user_id=? and "
-				+ "user.user_id=onlyLm.user_id  and  "
-				+ "onlyLm.relationship=? and "
-				+ "onlyLm.user_id not in (select with_user_id from  t_relationship where user_id=? and relationship=?) and "
-				+ "user.user_id>? "
-				+ "order by user.user_id  limit ?", new Object[] { user_id, Relationship.LIKE.ordinal(),user_id,Relationship.LIKE.ordinal(), last_user_id, page_size }, new FateUserMapper());
-	}
-	public List<BaseUser> getLikeEachUsers(long user_id, long last_user_id, int page_size) {
-		
-		String sql="select friend.user_id ,user.nick_name ,user.avatar,user.sex,user.type "
-				+ "from t_relationship me,"
-				+ "t_relationship friend ,"
-				+ "t_user user "
-				+ "where me.user_id=friend.with_user_id "
-				+ "and me.with_user_id=friend.user_id "
-				+ "and me.relationship=? "
-				+ "and me.with_user_id=user.user_id "
-				+ "and me.with_user_id>? and me.user_id=? order by me.with_user_id limit ?";
-		
-		return jdbcTemplate.query(sql, new Object[] { Relationship.LIKE.ordinal(),last_user_id,user_id, page_size }, new FateUserMapper());
+		return jdbcTemplate.query(
+				"select user.user_id,user.nick_name,user.avatar,user.sex  from t_user user right join t_relationship rp on user.user_id=rp.user_id where rp.with_user_id=? and relationship=? and user.user_id>? order by user.user_id  limit ?",
+				new Object[] { user_id, Relationship.LIKE.ordinal(), last_user_id, page_size }, new FateUserMapper());
 	}
 
-	
-	
-	public int isLikeMe(long user_id, long with_user_id){
-		return jdbcTemplate.queryForObject("select count(*) from t_relationship where user_id=? and with_user_id=? and relationship=?",   new Object[] {with_user_id,user_id,Relationship.LIKE.ordinal()}, Integer.class);
+	public List<BaseUser> getOnlyLikeMeUsers(long user_id, long last_user_id, int page_size) {
+		return jdbcTemplate.query("select user.user_id,user.nick_name,user.avatar,user.sex  " + "from t_user user,"
+				+ "t_relationship onlyLm " + "where onlyLm.with_user_id=? and " + "user.user_id=onlyLm.user_id  and  "
+				+ "onlyLm.relationship=? and "
+				+ "onlyLm.user_id not in (select with_user_id from  t_relationship where user_id=? and relationship=?) and "
+				+ "user.user_id>? " + "order by user.user_id  limit ?",
+				new Object[] { user_id, Relationship.LIKE.ordinal(), user_id, Relationship.LIKE.ordinal(), last_user_id,
+						page_size },
+				new FateUserMapper());
 	}
-	
+
+	public List<BaseUser> getLikeEachUsers(long user_id, long last_user_id, int page_size) {
+
+		String sql = "select friend.user_id ,user.nick_name ,user.avatar,user.sex,user.type "
+				+ "from t_relationship me," + "t_relationship friend ," + "t_user user "
+				+ "where me.user_id=friend.with_user_id " + "and me.with_user_id=friend.user_id "
+				+ "and me.relationship=? " + "and me.with_user_id=user.user_id "
+				+ "and me.with_user_id>? and me.user_id=? order by me.with_user_id limit ?";
+
+		return jdbcTemplate.query(sql, new Object[] { Relationship.LIKE.ordinal(), last_user_id, user_id, page_size },
+				new FateUserMapper());
+	}
+
+	public int isLikeMe(long user_id, long with_user_id) {
+		return jdbcTemplate.queryForObject(
+				"select count(*) from t_relationship where user_id=? and with_user_id=? and relationship=?",
+				new Object[] { with_user_id, user_id, Relationship.LIKE.ordinal() }, Integer.class);
+	}
+
 }

@@ -278,9 +278,9 @@ public class ManagerDao extends BaseDao<ManagerUser> {
 				ex.put("nick_name", rs.getString("nick_name"));
 
 				ex.put("diamond_count", rs.getInt("diamond_count"));
-				ex.put("create_time", DateTimeUtil.parse(rs.getTimestamp("create_time")));
+				ex.put("create_time", DateTimeUtil.format(rs.getTimestamp("create_time")));
 				ex.put("rmb_fen", rs.getInt("rmb_fen"));
-				ex.put("finish_time", DateTimeUtil.parse(rs.getTimestamp("finish_time")));
+				ex.put("finish_time", DateTimeUtil.format(rs.getTimestamp("finish_time")));
 				ex.put("state", rs.getInt("state"));
 				ex.put("personal_name", rs.getString("personal_name"));
 				ex.put("zhifubao_access_number", rs.getString("zhifubao_access_number"));

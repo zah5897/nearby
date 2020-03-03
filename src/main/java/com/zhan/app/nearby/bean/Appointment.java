@@ -11,6 +11,7 @@ import javax.persistence.Transient;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.zhan.app.nearby.bean.user.BaseUser;
 
 /**
@@ -26,11 +27,11 @@ public class Appointment {
 	private int id;
 	private long uid;
 	private String description;
-	@JsonFormat(pattern = "yyyy-MM-dd", locale = "zh", timezone = "GMT+8")
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", locale = "zh", timezone = "GMT+8")
 	private Date create_time; // 该约会创建实际那
 	
-	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
-	@JsonFormat(pattern = "yyyy-MM-dd", locale = "zh", timezone = "GMT+8")
+	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", locale = "zh", timezone = "GMT+8")
 	private Date appointment_time; // 该约会创建实际那
 	private int status; // 该条约会状态
 
@@ -38,6 +39,7 @@ public class Appointment {
 	
 	private String addr;
 	
+	@JsonIgnore
 	private int city_id;
 	
 	private String image;
@@ -138,6 +140,14 @@ public class Appointment {
 
 	public void setPublisher(BaseUser publisher) {
 		this.publisher = publisher;
+	}
+
+	public Date getAppointment_time() {
+		return appointment_time;
+	}
+
+	public void setAppointment_time(Date appointment_time) {
+		this.appointment_time = appointment_time;
 	}
 
 }

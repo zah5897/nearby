@@ -2,21 +2,20 @@ package com.zhan.app.nearby.dao;
 
 import java.util.List;
 
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.stereotype.Repository;
 
 import com.zhan.app.nearby.bean.Vip;
 import com.zhan.app.nearby.bean.VipUser;
 import com.zhan.app.nearby.dao.base.BaseDao;
 
+@SuppressWarnings("unchecked")
 @Repository("vipDao")
 public class VipDao extends BaseDao<Vip> {
 	public static final String TABLE_NAME_VIP = "t_vip_data";
 	public static final String TABLE_NAME_VIP_USER = "t_user_vip";
- 
 
 	public List<Vip> listVipData() {
-		return jdbcTemplate.query("select *from " + TABLE_NAME_VIP, new BeanPropertyRowMapper<Vip>(Vip.class));
+		return jdbcTemplate.query("select *from " + TABLE_NAME_VIP, getEntityMapper());
 	}
 
 	public void delete(long id) {
@@ -34,7 +33,7 @@ public class VipDao extends BaseDao<Vip> {
 
 	public Vip load(int id) {
 		List<Vip> gifts = jdbcTemplate.query("select *from " + TABLE_NAME_VIP + " where id=?", new Object[] { id },
-				new BeanPropertyRowMapper<Vip>(Vip.class));
+				getEntityMapper());
 		if (gifts != null && gifts.size() > 0) {
 			return gifts.get(0);
 		}
@@ -43,10 +42,9 @@ public class VipDao extends BaseDao<Vip> {
 
 	// -------------user vip--------------
 	public VipUser loadUserVip(long user_id) {
-		List<VipUser> vipUsers = jdbcTemplate.query(
-				"select vip.*,TIMESTAMPDIFF(DAY,now(),vip.end_time) as dayDiff from " + TABLE_NAME_VIP_USER
-						+ " vip where vip.user_id=?",
-				new Object[] { user_id }, new BeanPropertyRowMapper<VipUser>(VipUser.class));
+		List<VipUser> vipUsers = jdbcTemplate
+				.query("select vip.*,TIMESTAMPDIFF(DAY,now(),vip.end_time) as dayDiff from " + TABLE_NAME_VIP_USER
+						+ " vip where vip.user_id=?", new Object[] { user_id }, getEntityMapper(VipUser.class));
 		if (vipUsers != null && vipUsers.size() > 0) {
 			return vipUsers.get(0);
 		}
@@ -73,11 +71,13 @@ public class VipDao extends BaseDao<Vip> {
 	}
 
 	public List<VipUser> loadExpireVip() {
-		String sql = "select vip.* from " + TABLE_NAME_VIP_USER + " vip where TIMESTAMPDIFF(DAY,now(),vip.end_time) < 0";
-		return jdbcTemplate.query( sql, new BeanPropertyRowMapper<VipUser>(VipUser.class));
+		String sql = "select vip.* from " + TABLE_NAME_VIP_USER
+				+ " vip where TIMESTAMPDIFF(DAY,now(),vip.end_time) < 0";
+		return jdbcTemplate.query(sql, getEntityMapper(VipUser.class));
 	}
 
 	public List<Integer> getVipIdByMonth(int month) {
-		return jdbcTemplate.queryForList("select id from "+TABLE_NAME_VIP +" where term_mount="+month, Integer.class);
+		return jdbcTemplate.queryForList("select id from " + TABLE_NAME_VIP + " where term_mount=" + month,
+				Integer.class);
 	}
 }

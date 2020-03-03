@@ -68,13 +68,13 @@ public class SystemDao extends BaseDao<Report> {
 		} else {
 			String sql = "select *from t_report_record where type=? order by create_time desc limit ?,?";
 			return jdbcTemplate.query(sql, new Object[] { type, (page - 1) * count, count },
-					new BeanPropertyRowMapper<Report>(Report.class));
+					getEntityMapper());
 		}
 	}
 
 	public Report getReport(int id) {
 		List<Report> list = jdbcTemplate.query("select *from t_report_record where id=?", new Object[] { id },
-				new BeanPropertyRowMapper<Report>(Report.class));
+				getEntityMapper());
 		if (list.size() > 0) {
 			return list.get(0);
 		} else {
@@ -90,7 +90,7 @@ public class SystemDao extends BaseDao<Report> {
 	public List<Report> listManagerReport(int approval_type, int page, int count) {
 		String sql = "select *from t_report_record where approval_result=? order by create_time desc limit ?,?";
 		return jdbcTemplate.query(sql, new Object[] { approval_type, (page - 1) * count, count },
-				new BeanPropertyRowMapper<Report>(Report.class));
+				getEntityMapper());
 	}
 
 	public int getReportSizeByApproval(int appro) {
@@ -165,7 +165,7 @@ public class SystemDao extends BaseDao<Report> {
 					.query(sql,
 							new Object[] { ignoreUserId == null ? 0 : ignoreUserId, "", gender,
 									(page_index - 1) * limit, limit },
-							new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+							getEntityMapper(BaseUser.class));
 		}
 
 	}

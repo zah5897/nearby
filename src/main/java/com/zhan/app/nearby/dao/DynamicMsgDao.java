@@ -54,7 +54,7 @@ public class DynamicMsgDao extends BaseDao<DynamicMessage> {
 	public DynamicMessage loadMsg(long msg_id) {
 		String sql = "select * from " + getTableName() + "  where id=?";
 		List<DynamicMessage> msgs = jdbcTemplate.query(sql, new Object[] { msg_id },
-				new BeanPropertyRowMapper<DynamicMessage>(DynamicMessage.class));
+				getEntityMapper());
 		if (msgs != null && msgs.size() > 0) {
 			return msgs.get(0);
 		}
@@ -98,7 +98,7 @@ public class DynamicMsgDao extends BaseDao<DynamicMessage> {
 				+ " left join t_latest_tip_time la on msg.user_id=la.uid  "
 				+ " where msg.user_id=? and msg.type=? and msg.create_time>la.last_time order by msg.create_time";
 		return jdbcTemplate.query(sql, new Object[] { user_id, DynamicMsgType.TYPE_MEET.ordinal() },
-				new BeanPropertyRowMapper<DynamicMessage>(DynamicMessage.class));
+				getEntityMapper());
 	}
 
 	public List<DynamicMessage> loadMsg(long user_id, Long last_id, int count,boolean noMeet) {
@@ -168,7 +168,7 @@ public class DynamicMsgDao extends BaseDao<DynamicMessage> {
 				+ " left join t_latest_praise_tip_time la on msg.user_id=la.uid "
 				+ "  where msg.user_id=? and msg.type=? and msg.create_time>la.last_time order by msg.create_time";
 		return jdbcTemplate.query(sql, new Object[] { user_id, DynamicMsgType.TYPE_PRAISE.ordinal() },
-				new BeanPropertyRowMapper<DynamicMessage>(DynamicMessage.class));
+				getEntityMapper());
 	}
 
 	public List<DynamicMessage> getPraseMsg(long user_id, Long last_id, int count, int type) {
@@ -184,7 +184,7 @@ public class DynamicMsgDao extends BaseDao<DynamicMessage> {
 				+ " left join t_user_dynamic d on msg.dynamic_id=d.id  "
 				+ "  where msg.user_id=? and msg.type=? and msg.id<?   order by msg.id desc limit ?";
 		return jdbcTemplate.query(sql, new Object[] { user_id, DynamicMsgType.TYPE_PRAISE.ordinal(), last_id, count },
-				new BeanPropertyRowMapper<DynamicMessage>(DynamicMessage.class));
+				getEntityMapper());
 	}
 
 //	public List<DynamicMessage> getPraseMsg (long user_id) {

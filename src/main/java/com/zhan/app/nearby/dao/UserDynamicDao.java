@@ -35,7 +35,7 @@ public class UserDynamicDao extends BaseDao<UserDynamic> {
 	@Resource
 	private JdbcTemplate jdbcTemplate;
 	private static Logger log = Logger.getLogger(UserDynamicDao.class);
-
+	private static DynamicMapper dynamicMapper=new DynamicMapper();
 	public int getSelectedCityCount(int city_id) {
 		String sql = "select count(*) from " + TABLE_USER_DYNAMIC + " dynamic left join " + TABLE_HOME_FOUND_SELECTED
 				+ " selected on dynamic.id=selected.dynamic_id  where selected.selected_state=?   and (dynamic.city_id=? or  dynamic.district_id=?)";
@@ -54,7 +54,7 @@ public class UserDynamicDao extends BaseDao<UserDynamic> {
 
 		long lastID = (last_id <= 0 ? Long.MAX_VALUE : last_id);
 		Object[] param = new Object[] { user_id,notIn, ImageStatus.SELECTED.ordinal(), lastID,user_id,Relationship.BLACK.ordinal(), page_size };
-		return jdbcTemplate.query(sql, param, new DynamicMapper());
+		return jdbcTemplate.query(sql, param, dynamicMapper);
 	}
 	public List<UserDynamic> getHomeFoundSelected(long user_id, Long last_id, int page_size, City city) {
 		String sql = "select dy.*,"
@@ -68,31 +68,8 @@ public class UserDynamicDao extends BaseDao<UserDynamic> {
 
 		long lastID = (last_id ==null ? Long.MAX_VALUE : last_id);
 		Object[] param = new Object[] { user_id, ImageStatus.SELECTED.ordinal(),user_id, lastID,user_id,Relationship.BLACK.ordinal(), page_size };
-		return jdbcTemplate.query(sql, param, new DynamicMapper());
-//		} else {
-//			if (city != null) {
-//				sql = "select dynamic.* ,"
-//						+ "user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday,user.type from "
-//						+ TABLE_USER_DYNAMIC + " dynamic left join " + TABLE_HOME_FOUND_SELECTED
-//						+ " selected on dynamic.id=selected.dynamic_id left join t_user user on  dynamic.user_id=user.user_id "
-//						+ "where selected.selected_state=? and dynamic.id<? and " + cityIn(city)
-//						+ " order by dynamic.id desc limit ?";
-//
-//				param = new Object[] { ImageStatus.SELECTED.ordinal(), last_id <= 0 ? Long.MAX_VALUE : last_id,
-//						city.getId(), page_size };
-//			} else {
-//				sql = "select dynamic.* ,"
-//						+ "user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday,user.type from "
-//						+ TABLE_USER_DYNAMIC + " dynamic left join " + TABLE_HOME_FOUND_SELECTED
-//						+ " selected on dynamic.id=selected.dynamic_id left join t_user user on  dynamic.user_id=user.user_id "
-//						+ "where selected.selected_state=? and dynamic.id<?  order by dynamic.id desc limit ?";
-//
-//				param = new Object[] { ImageStatus.SELECTED.ordinal(), last_id <= 0 ? Long.MAX_VALUE : last_id,
-//						page_size };
-//			}
-//
-//			return jdbcTemplate.query(sql, param, new DynamicMapper());
-//		}
+		return jdbcTemplate.query(sql, param, dynamicMapper);
+ 
 	}
 
 	public void addFlowerCount(long dy_id,int count) {
@@ -128,7 +105,7 @@ public class UserDynamicDao extends BaseDao<UserDynamic> {
 				+ "where selected.selected_state=? and dynamic.user_id<>? and dynamic.user_id not in(select with_user_id from t_user_relationship where user_id=? and relationship=?)   order by RAND() limit ?";
 
 		Object[] param = new Object[] { user_id, ImageStatus.SELECTED.ordinal(), user_id,user_id, Relationship.BLACK.ordinal(),	size };
-		return jdbcTemplate.query(sql, param, new DynamicMapper());
+		return jdbcTemplate.query(sql, param, dynamicMapper);
 	}
 
 	public List<UserDynamic> getSelectedDynamicByTopic(long topic_id, ImageStatus status, long last_id, int page_size) {
@@ -138,7 +115,7 @@ public class UserDynamicDao extends BaseDao<UserDynamic> {
 				+ " selected on dynamic.id=selected.dynamic_id left join t_user user on  dynamic.user_id=user.user_id where selected.selected_state=? and dynamic.id<? and dynamic.topic_id=? order by dynamic.id desc limit ?";
 		return jdbcTemplate.query(sql,
 				new Object[] { status.ordinal(), last_id <= 0 ? Long.MAX_VALUE : last_id, topic_id, page_size },
-				new DynamicMapper());
+				dynamicMapper);
 	}
 
 //	private String fiflterBlock() {
@@ -176,7 +153,7 @@ public class UserDynamicDao extends BaseDao<UserDynamic> {
 					+ TABLE_USER_DYNAMIC
 					+ " dy left join t_like_dynamic t_like on dy.id=t_like.dynamic_id and dy.user_id=t_like.user_id "
 					+ " left join t_user u on dy.user_id=u.user_id  where dy.state=? and dy.user_id=?  order by dy.id desc limit ?,?";
-			return jdbcTemplate.query(sql, new Object[] {DynamicState.T_FORMAL.ordinal(), user_id, (page - 1) * count, count }, new DynamicMapper());
+			return jdbcTemplate.query(sql, new Object[] {DynamicState.T_FORMAL.ordinal(), user_id, (page - 1) * count, count }, dynamicMapper);
 	}
 	
 	//获取自身的动态
@@ -186,7 +163,7 @@ public class UserDynamicDao extends BaseDao<UserDynamic> {
 					+ " dy left join t_like_dynamic t_like on dy.id=t_like.dynamic_id and dy.user_id=t_like.user_id"
 					+ "  left join t_user u on dy.user_id=u.user_id  where dy.state<>? and  dy.user_id=? order by dy.id desc limit ?,?";
 
-		return jdbcTemplate.query(sql, new Object[] {DynamicState.T_ILLEGAL.ordinal(), user_id, (page - 1) * count, count }, new DynamicMapper());
+		return jdbcTemplate.query(sql, new Object[] {DynamicState.T_ILLEGAL.ordinal(), user_id, (page - 1) * count, count }, dynamicMapper);
 	}
 	
 
@@ -225,7 +202,7 @@ public class UserDynamicDao extends BaseDao<UserDynamic> {
 					+ TABLE_USER_DYNAMIC + " dy left join t_user user on dy.user_id=user.user_id "
 					+ " left join t_user_vip v on dy.user_id=v.user_id "		
 					+ " where dy.id=?";
-			return jdbcTemplate.queryForObject(sql, new Object[] { dynamic_id }, new DynamicMapper());
+			return jdbcTemplate.queryForObject(sql, new Object[] { dynamic_id },dynamicMapper);
 		} catch (Exception e) {
 			return null;
 		}
@@ -338,7 +315,7 @@ public class UserDynamicDao extends BaseDao<UserDynamic> {
 				+ "where  d.state=? and  f.uid=? and  d.id<? and f.target_id not in (select with_user_id from t_user_relationship where user_id=? and relationship=?) "
 				+ "  order by d.id desc limit ?";
 		Object[] param = new Object[] {  user_id, DynamicState.T_FORMAL.ordinal(),user_id, last_id, user_id, Relationship.BLACK.ordinal(), count };
-		return jdbcTemplate.query(sql, param, new DynamicMapper());
+		return jdbcTemplate.query(sql, param, dynamicMapper);
 	}
 
 	public List<UserDynamic> getDyanmicByState(int pageIndex, int pageSize, DynamicState state) {
@@ -346,7 +323,7 @@ public class UserDynamicDao extends BaseDao<UserDynamic> {
 				+ TABLE_USER_DYNAMIC
 				+ " dynamic  left join t_user user on  dynamic.user_id=user.user_id  where dynamic.state=?   order by dynamic.id desc limit ?,?";
 		return jdbcTemplate.query(sql, new Object[] { state.ordinal(), (pageIndex - 1) * pageSize, pageSize },
-				new DynamicMapper());
+				dynamicMapper);
 
 	}
 

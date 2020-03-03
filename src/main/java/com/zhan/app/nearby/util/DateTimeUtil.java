@@ -22,12 +22,17 @@ public class DateTimeUtil {
 		return year + "_" + month + "_" + day;
 	}
 
-	public static String parse(Date result) {
+	public static String format(Date result) {
 		if(result==null) {
 			return null;
 		}
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		return sdf.format(result);
+	}
+	
+	public static Date parse(String timeStr) throws ParseException {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		return sdf.parse(timeStr);
 	}
 
 	public static String parseBirthday(Date result) {

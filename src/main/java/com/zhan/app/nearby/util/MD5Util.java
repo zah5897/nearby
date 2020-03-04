@@ -104,10 +104,8 @@ public class MD5Util {
 //	}
 	
 	public static void main(String[] args) {
-		String str="avatar=https://c-ssl.duitang.com/uploads/item/201410/16/20141016202155_5ycRZ.thumb.1400_0.jpeg&out_id=1562573406518HIY&secret_key=b1aeb79c8ad6af7b8316081882124058&username=d1345131366";
-//		String str="avatar=default.jpg&out_id=1562573406518HIY&secret_key=b1aeb79c8ad6af7b8316081882124058&username=d1345131366";
 		try {
-			System.out.println(getMd5(str));
+			System.out.println(getMd5("123456"));
 		} catch (NoSuchAlgorithmException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

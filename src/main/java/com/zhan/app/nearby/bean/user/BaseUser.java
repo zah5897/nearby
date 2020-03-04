@@ -19,7 +19,7 @@ import com.zhan.app.nearby.comm.UserType;
 import com.zhan.app.nearby.util.TextUtils;
 
 @SuppressWarnings("serial")
-@Table(name = "t_sys_user")
+@Table(name = "t_user")
 public class BaseUser implements Serializable {
 
 	public BaseUser(long user_id) {

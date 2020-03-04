@@ -87,7 +87,9 @@ public class AppointmentController {
 		List<Appointment> apps = appointmentService.list(user_id, last_id, count);
 		ImagePathUtil.completePath(apps);
 		boolean hasMore = apps.size() == count;
-		last_id = apps.get(apps.size() - 1).getId();
+		if(!apps.isEmpty()) {
+			last_id = apps.get(apps.size() - 1).getId();
+		}
 		return ResultUtil.getResultOKMap().addAttribute("data", apps).addAttribute("hasMore", hasMore)
 				.addAttribute("last_id", last_id);
 	}

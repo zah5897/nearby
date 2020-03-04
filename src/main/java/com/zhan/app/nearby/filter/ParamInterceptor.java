@@ -28,13 +28,11 @@ public class ParamInterceptor implements HandlerInterceptor {
 
 		String url = request.getRequestURI();
 
-		if (IPUtil.doBlackIPFilter(request)) {
-			return false;
-		}
-		if (url.contains("nearby/manager")) {
-			String ip = IPUtil.getIpAddress(request);
-			return managerService.isAllowed(ip);
-		}
+//		if (IPUtil.doBlackIPFilter(request)) {
+//			return false;
+//		}
+		
+		
 		if (url.contains("nearby/exchange")) {
 			return true;
 		}
@@ -77,7 +75,6 @@ public class ParamInterceptor implements HandlerInterceptor {
 			return true;
 		}
 		
-		
 		String _ua = request.getParameter("_ua");
 		String version = request.getParameter("version");
 		String timestamp = request.getParameter("timestamp");
@@ -93,7 +90,6 @@ public class ParamInterceptor implements HandlerInterceptor {
 		if(url.contains("nearby/v2/")) {
 			return true;
 		}
-		System.out.println(url);
 		return true;
 	}
 	@SuppressWarnings("deprecation")

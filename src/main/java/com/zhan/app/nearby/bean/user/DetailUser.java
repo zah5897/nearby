@@ -15,7 +15,7 @@ import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.util.DateTimeUtil;
 
 @SuppressWarnings("serial")
-@Table(name = "t_sys_user")
+@Table(name = "t_user")
 public class DetailUser extends LocationUser {
 	public DetailUser(long user_id) {
 		super(user_id);

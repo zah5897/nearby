@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.zhan.app.nearby.bean.City;
 
 @SuppressWarnings("serial")
-@Table(name = "t_sys_user")
+@Table(name = "t_user")
 public class BaseVipUser extends BaseUser {
 
 	@Transient

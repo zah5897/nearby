@@ -27,8 +27,11 @@ public class UserCacheService {
 	public static final String PERFIX_U_SMS_COUNT = "user_sms_count";
 	public static final String PERFIX_U_EXCHAGE_COUNT = "user_exchage_count";
 	public static final String PERFIX_U_BIND_ZHIFUBAO = "user_bind_zhifubao";
+
+	public static final String MANAGER_AUTH_DATA = "manager_auth_data_";
+
 	@Resource
-	protected RedisTemplate<String, Serializable> redisTemplate;
+	protected RedisTemplate<String, Object> redisTemplate;
 
 	private String welcome;
 
@@ -205,7 +208,7 @@ public class UserCacheService {
 
 	public boolean validateBindZhiFuBaoCode(String mobile, String code) {
 		try {
-			Object codeObj=redisTemplate.opsForHash().get(PERFIX_U_BIND_ZHIFUBAO, mobile);
+			Object codeObj = redisTemplate.opsForHash().get(PERFIX_U_BIND_ZHIFUBAO, mobile);
 			if (codeObj == null) {
 				return false;
 			}
@@ -224,26 +227,63 @@ public class UserCacheService {
 		return redisTemplate.opsForValue().get("test");
 	}
 
-	
 	public void addTodayMobileSmsCount(String mobile) {
 		int count = getUserCodeCacheCount(mobile);
 		redisTemplate.opsForHash().put(PERFIX_U_SMS_COUNT, mobile, String.valueOf(count + 1));
 	}
+
+	public void putManagerAuthData(String ip, String name) {
+		String key = MANAGER_AUTH_DATA + ip;
+		if (redisTemplate.hasKey(key)) {
+			redisTemplate.expire(key, 20, TimeUnit.MINUTES);
+		} else {
+			redisTemplate.opsForValue().set(key, name, 10, TimeUnit.MINUTES); // 设置30分钟过期
+		}
+	}
+
+	public boolean validateManagerAuthDataActive(String ip) {
+		String key = MANAGER_AUTH_DATA + ip;
+		if (redisTemplate.hasKey(key)) {
+			Long expire = redisTemplate.boundHashOps(key).getExpire();
+			if (expire != null && expire > 10) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public String getManagerAuthName(String ip) {
+		String key = MANAGER_AUTH_DATA + ip;
+		Object obj = redisTemplate.opsForValue().get(key);
+		if (obj != null) {
+			return obj.toString();
+		} else {
+			return null;
+		}
+	}
+
+	public void removeManagerAuthData(String ip) {
+		String key = MANAGER_AUTH_DATA + ip;
+		redisTemplate.delete(key);
+	}
+
+	/**
+	 * 上锁 将键值对设定一个指定的时间timeout.
+	 *
+	 * @param key
+	 * @param timeout 键值对缓存的时间，单位是秒
+	 * @return 设置成功返回true，否则返回false
+	 */
+	public boolean tryLock(String key, Object value, long timeout) {
+		if(redisTemplate.hasKey(key)&&redisTemplate.boundHashOps(key).getExpire()>0) {
+              return false;			
+		}else {
+			redisTemplate.opsForValue().set(key, value, timeout, TimeUnit.SECONDS);
+			return true;
+		}
+	}
 	
-//	public void setBottleKeyWord(String keywords) {
-//		redisTemplate.opsForValue().set(PERFIX_BOTTLE_KEY_WORD, keywords);
-//	}
-
-//	public String getBottleKeyWord() {
-//		Object obj = redisTemplate.opsForValue().get(PERFIX_BOTTLE_KEY_WORD);
-//		if (obj != null) {
-//			return obj.toString();
-//		}
-//		return "";
-//	}
-
-//	public void saveOnline(long uid) {
-//		redisTemplate.opsForList().rightPush(PERFIX_U_ONLINE, String.valueOf(uid));
-//	}
-
+	public Object getLockIP(String key) {
+		return redisTemplate.opsForValue().get(key);
+	}
 }

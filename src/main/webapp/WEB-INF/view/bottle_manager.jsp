@@ -53,13 +53,13 @@ td {
 				<tr>
 					<th width="8%">ID</th>
 					<th width="8%">设备</th>
-					<th width="8%">发送者</th>
+					<th width="13%">发送者</th>
 					<th width="10%">头像</th>
 					<th width="5%">类型</th>
 					<th width="10%">内容</th>
 					<th width="10%">时间</th>
 					<th width="5%">状态</th>
-					<th width="30%">操作</th>
+					<th width="25%">操作</th>
 				</tr>
 				<tr id="bottom">
 					<td colspan="8">
@@ -213,8 +213,9 @@ td {
 			 
 			 
 			 var nick_name=pageData.sender.nick_name;
+			 var uid=pageData.sender.user_id;
 			 nick_name=nick_name==undefined?"":nick_name;
-			 toAdd+="<td>"+nick_name+"</td>";
+			 toAdd+="<td>"+uid+"|"+nick_name+"</td>";
 			 toAdd+="<td><img  src='"+pageData.sender.avatar+"' alt='"+pageData.sender.origin_avatar+"'  height='50'/></td>";
 			 //类型
 			 var type=pageData["type"];

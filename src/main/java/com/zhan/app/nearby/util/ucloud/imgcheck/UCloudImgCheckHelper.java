@@ -117,7 +117,6 @@ public enum UCloudImgCheckHelper {
 			
 			Map<String, Object> Porn=(Map<String, Object>) Result.get("Porn"); //涉黄结果 ，Terror涉恐结果，Politician摄政结果
 			String Suggestion=Porn.get("Suggestion").toString(); // pass-放行， forbid-封禁， check-人工审核
-			System.out.println(Suggestion); 
 			return Suggestion;
 		} catch (Exception e) {
 			e.printStackTrace();

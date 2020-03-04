@@ -100,4 +100,21 @@ public class IPUtil {
 		return cityName;
 	}
 
+	private static String localIP;
+
+	public static String getLocalAddr() {
+		if (localIP != null) {
+			return localIP;
+		}
+		InetAddress addr = null;
+		try {
+			addr = InetAddress.getLocalHost();
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		}
+		localIP = addr.getHostAddress();
+		return localIP;
+
+	}
+
 }

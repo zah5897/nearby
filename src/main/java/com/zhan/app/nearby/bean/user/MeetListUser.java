@@ -7,7 +7,7 @@ import javax.persistence.Table;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 @SuppressWarnings("serial")
-@Table(name = "t_sys_user")
+@Table(name = "t_user")
 public class MeetListUser extends BaseVipUser {
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm", locale = "zh", timezone = "GMT+8")
 	private Date create_time;

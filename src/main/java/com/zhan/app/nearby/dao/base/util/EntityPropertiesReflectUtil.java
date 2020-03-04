@@ -3,7 +3,7 @@ package com.zhan.app.nearby.dao.base.util;
 import org.springframework.util.StringUtils;
 
 import com.zhan.app.nearby.dao.base.ModelEntityPropertyWrapper;
-
+import org.springframework.data.annotation.Transient;
 import javax.persistence.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -73,6 +73,12 @@ public class EntityPropertiesReflectUtil {
 			if (ignore != null) {
 				continue;
 			}
+			
+			javax.persistence.Transient ig = f.getAnnotation(javax.persistence.Transient.class);
+			if (ig != null) {
+				continue;
+			}
+			
 
 			Type type = f.getGenericType();
 			String typeString=type.toString();

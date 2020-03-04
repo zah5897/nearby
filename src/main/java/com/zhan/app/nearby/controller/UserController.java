@@ -1320,7 +1320,10 @@ public class UserController {
 	public ModelMap getProperty() {
 		return ResultUtil.getResultOKMap().addAttribute("percent", userService.getPercent());
 	}
-
+	@RequestMapping("simple_info/{uid}")
+	public ModelMap getUserSimpleInfo(@PathVariable long uid) {
+		return ResultUtil.getResultOKMap().addAttribute("user", ImagePathUtil.completeAvatarPath(userService.getBaseUserNoToken(uid),true));
+	}
 	@RequestMapping("m")
 	public ModelMap m(long f, long to) {
 		return userService.testMakeSession(f, to);

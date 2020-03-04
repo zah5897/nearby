@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @SuppressWarnings("serial")
-@Table(name = "t_sys_user")
+@Table(name = "t_user")
 public class SimpleUser extends BaseUser {
 
 	public SimpleUser(long user_id) {

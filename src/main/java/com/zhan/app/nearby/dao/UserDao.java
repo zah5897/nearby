@@ -909,9 +909,9 @@ public class UserDao extends BaseDao<BaseUser> {
 
 	// 鏍规嵁鐘舵�佽幏鍙栧鏍哥殑澶村儚鍒楄〃
 	public List<BaseUser> listConfirmAvatars(int state, int pageSize, int pageIndex, Long user_id) {
-		String sql = "select v.id, u.user_id,u.nick_name,v.avatar from t_user_avatars v left join t_user u on v.uid=u.user_id where v.state=? order by v.id desc limit ?,?";
+		String sql = "select v.id, u.user_id,u.nick_name,u.sex,v.avatar from t_user_avatars v left join t_user u on v.uid=u.user_id where v.state=? order by v.id desc limit ?,?";
 		if (user_id != null && user_id > 0) {
-			sql = "select v.id, u.user_id,u.nick_name,v.avatar from t_user_avatars v left join t_user u on v.uid=u.user_id where v.uid="
+			sql = "select v.id, u.user_id,u.nick_name,u.sex,v.avatar from t_user_avatars v left join t_user u on v.uid=u.user_id where v.uid="
 					+ user_id + " and  v.state=? order by v.id desc limit ?,?";
 		}
 		return jdbcTemplate.query(sql, new Object[] { state, (pageIndex - 1) * pageSize, pageSize },

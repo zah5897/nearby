@@ -1,20 +1,15 @@
 package com.zhan.app.nearby.service;
 
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 
-import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.servlet.ModelAndView;
 
-import com.easemob.server.example.Main;
 import com.zhan.app.nearby.bean.Bottle;
 import com.zhan.app.nearby.bean.ManagerUser;
 import com.zhan.app.nearby.bean.Report;
@@ -30,6 +25,7 @@ import com.zhan.app.nearby.dao.ManagerDao;
 import com.zhan.app.nearby.dao.UserDao;
 import com.zhan.app.nearby.task.HXAsyncTask;
 import com.zhan.app.nearby.util.BottleKeyWordUtil;
+import com.zhan.app.nearby.util.IPUtil;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.MD5Util;
 
@@ -54,12 +50,6 @@ public class ManagerService {
 	private UserDynamicService userDynamicService;
 	@Resource
 	private VipService vipService;
-
-	public boolean isLogin(HttpServletRequest request) {
-		HttpSession session = request.getSession();
-		Object obj = session.getAttribute("account");
-        return obj!=null;
-	}
 	
 	@Autowired
 	private HXAsyncTask hxTask;
@@ -68,23 +58,27 @@ public class ManagerService {
 		return managerDao.getHomeFoundSelectedCount();
 	}
 
-	public boolean mLogin(String name, String pwd) {
+	public boolean mLogin(HttpServletRequest request,String name, String pwd) {
 		Integer i = managerDao.queryM(name, pwd);
 		if (i > 0) {
+			String ip=IPUtil.getIpAddress(request);
+			userCacheService.putManagerAuthData(ip,name);
 			return true;
 		}
 		return false;
 	}
-
-	public boolean isAllowed(String ip) {
-		return true;
-//		Integer i = managerDao.queryAllowed(ip);
-//		if (i > 0) {
-//			return true;
-//		}
-//		return false;
+	public boolean isLogin(HttpServletRequest request) {
+		String ip=IPUtil.getIpAddress(request);
+		return userCacheService.validateManagerAuthDataActive(ip);
 	}
-
+    public void logout(HttpServletRequest request) {
+    	String ip=IPUtil.getIpAddress(request);
+		userCacheService.removeManagerAuthData(ip);
+	}
+	public String getManagerAuthName(HttpServletRequest request) {
+		String ip=IPUtil.getIpAddress(request);
+		return userCacheService.getManagerAuthName(ip);
+	}
 	public int getPageCountByState(int state) {
 		return userDynamicService.getPageCountByState(state);
 	}
@@ -407,4 +401,8 @@ public class ManagerService {
 	public void change_pwd(String name, String pwd) throws NoSuchAlgorithmException {
 		managerDao.updateMPwd(name, MD5Util.getMd5(pwd));
 	}
+
+
+
+	
 }

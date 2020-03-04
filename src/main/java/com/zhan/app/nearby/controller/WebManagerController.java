@@ -7,7 +7,6 @@ import java.util.List;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
@@ -40,7 +39,6 @@ import com.zhan.app.nearby.util.MD5Util;
 import com.zhan.app.nearby.util.ResultUtil;
 import com.zhan.app.nearby.util.TextUtils;
 
-import cn.ucloud.common.http.Http;
 
 @Controller
 @RequestMapping("/manager")
@@ -65,13 +63,12 @@ public class WebManagerController {
 		if (managerService.isLogin(request)) {
 			return new ModelAndView("redirect:/manager/");
 		}
-		boolean mlr = managerService.mLogin(name, MD5Util.getMd5(password));
+		boolean mlr = managerService.mLogin(request,name, MD5Util.getMd5(password));
 		if (!mlr) {
 			ModelAndView view = new ModelAndView("login");
 			view.addObject("error", "登录失败，账号或密码错误");
 			return view;
 		}
-		request.getSession().setAttribute("account", name);
 		return new ModelAndView("redirect:/manager/");
 	}
 
@@ -80,8 +77,7 @@ public class WebManagerController {
 		if (!managerService.isLogin(request)) {
 			return new ModelAndView("login");
 		}
-		HttpSession session = request.getSession();
-		session.removeAttribute("account");
+		managerService.logout(request);
 		return new ModelAndView("redirect:/manager/");
 	}
 
@@ -842,16 +838,12 @@ public class WebManagerController {
 	@RequestMapping(value = "/edit_user_meet_bottle_recomend")
 	public @ResponseBody ModelMap addToUserMeetBottle(HttpServletRequest request, long user_id, int fun,
 			Integer pageSize, Integer pageIndex, String keyword) {
-
 		if (!managerService.isLogin(request)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
-
-		HttpSession session = request.getSession();
-		Object obj = session.getAttribute("account");
-
+        String managerName=managerService.getManagerAuthName(request);
 		managerService.editUserMeetBottle(user_id, fun, IPUtil.getIpAddress(request),
-				obj == null ? "null" : obj.toString());
+				managerName == null ? "null" : managerName);
 		if (fun == 0) {
 			return list_user_meet_bottle_recommend(request, pageSize, pageIndex, keyword);
 		}
@@ -1174,17 +1166,17 @@ public class WebManagerController {
 	public @ResponseBody ModelMap modify_pwd(HttpServletRequest request, String old_pwd, String new_pwd,
 			String confirm_pwd) throws NoSuchAlgorithmException {
 
-		HttpSession session = request.getSession();
-		Object obj = session.getAttribute("account");
+		 String currentManagerName=managerService.getManagerAuthName(request);
 
-		if (!managerService.isLogin(request)) {
+		if (currentManagerName==null||!managerService.isLogin(request)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
 
 		if (TextUtils.isEmpty(old_pwd)) {
 			return ResultUtil.getResultMap(ERROR.ERR_FAILED, "旧密码不能为空");
 		}
-		boolean r = managerService.mLogin(obj.toString(), MD5Util.getMd5(old_pwd));
+		
+		boolean r = managerService.mLogin(request,currentManagerName, MD5Util.getMd5(old_pwd));
 		if (!r) {
 			return ResultUtil.getResultMap(ERROR.ERR_FAILED, "旧密码不正确");
 		}
@@ -1196,7 +1188,7 @@ public class WebManagerController {
 		if (!new_pwd.equals(confirm_pwd)) {
 			return ResultUtil.getResultMap(ERROR.ERR_FAILED, "新密码两次不一致");
 		}
-		managerService.change_pwd(obj.toString(), new_pwd);
+		managerService.change_pwd(currentManagerName, new_pwd);
 		return ResultUtil.getResultOKMap();
 	}
 

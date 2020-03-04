@@ -524,7 +524,7 @@ public class UserController {
 		
 		userService.insertUser(user, false);
 		long id = user.getUser_id();
-		if (id == -1l) {
+		if (id < 1) {
 			return ResultUtil.getResultMap(ERROR.ERR_USER_EXIST, "该手机号码已经注册过");
 		}
 		userService.saveAvatar(id, user.getAvatar());

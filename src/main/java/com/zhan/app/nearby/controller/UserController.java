@@ -1265,7 +1265,7 @@ public class UserController {
 	}
 
 	@RequestMapping("follow/{uid}")
-	public ModelMap my_follow(@PathVariable long uid, long user_id, String token, Integer page, Integer count)
+	public ModelMap my_follow(@PathVariable long uid, Integer page, Integer count)
 			throws Exception {
 		return userService.followUsers(uid, false, page, count);
 	}

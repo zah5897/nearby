@@ -484,7 +484,6 @@ public class BottleService {
 			String nickName=user.getNick_name();
 			if(nickName==null||TextUtils.isEmpty(nickName.trim())) {
 				log.error("user_id="+user_id+",该用户nickname为空，请注意查看");
-			}else {
 				nickName="匿名";
 			}
 			ext.put("nickname", nickName);

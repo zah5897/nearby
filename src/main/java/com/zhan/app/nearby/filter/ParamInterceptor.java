@@ -90,7 +90,7 @@ public class ParamInterceptor implements HandlerInterceptor {
 		if(url.contains("nearby/v2/")) {
 			return true;
 		}
-		return true;
+		return false;
 	}
 	@SuppressWarnings("deprecation")
 	private boolean checkSecret(HttpServletRequest request,String _ua, String aid, String version, String timestamp) throws NoSuchAlgorithmException {

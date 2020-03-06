@@ -35,7 +35,7 @@ public class Appointment {
 	private Date appointment_time; // 该约会创建实际那
 	private int status; // 该条约会状态
 
-	private String theme; // 主题
+	private int theme_id; // 主题
 	
 	private String addr;
 	
@@ -48,6 +48,9 @@ public class Appointment {
 	private BaseUser publisher; //发布者
 	@Transient
 	private City city; //所在城市
+	
+	@Transient
+	private AppointmentTheme theme; //所在城市
 
 	public int getId() {
 		return id;
@@ -76,11 +79,21 @@ public class Appointment {
 		this.description = description;
 	}
 
-	public String getTheme() {
+ 
+
+	public int getTheme_id() {
+		return theme_id;
+	}
+
+	public void setTheme_id(int theme_id) {
+		this.theme_id = theme_id;
+	}
+
+	public AppointmentTheme getTheme() {
 		return theme;
 	}
 
-	public void setTheme(String theme) {
+	public void setTheme(AppointmentTheme theme) {
 		this.theme = theme;
 	}
 

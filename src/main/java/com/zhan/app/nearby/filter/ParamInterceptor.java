@@ -36,6 +36,9 @@ public class ParamInterceptor implements HandlerInterceptor {
 		if (url.contains("nearby/exchange")) {
 			return true;
 		}
+		if (url.contains("nearby/manager/")) {
+			return true;
+		}
 		if (url.contains("nearby/js")) {
 			return true;
 		}

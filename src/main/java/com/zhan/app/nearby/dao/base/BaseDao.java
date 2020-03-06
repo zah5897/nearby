@@ -126,12 +126,11 @@ public class BaseDao<T> {
 					EntityPropertiesReflectUtil.invokeSetMethod(o, wrapper.getIdField(), new Object[] { auto },
 							long.class);
 				}
+				return 1;
 			} catch (Exception e) {
-				logger.error(sql);
-				logger.error(e.getMessage());
-				return 0;
+				throw new RuntimeException();
 			}
-			return 0;
+			
 		} else {
 			return jdbcTemplate.update(sql);
 		}

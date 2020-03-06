@@ -39,22 +39,18 @@ public class AppointmentController {
 	@ApiImplicitParams({ @ApiImplicitParam(name = "user_id", value = "用户id", required = true, paramType = "query"),
 			@ApiImplicitParam(name = "token", value = "用户登录token", required = true, paramType = "query"),
 			@ApiImplicitParam(name = "description", value = "约会描述", paramType = "query"),
-			@ApiImplicitParam(name = "theme", value = "主题", paramType = "query", dataType = "Integer"),
+			@ApiImplicitParam(name = "theme_id", value = "主题id", paramType = "query", dataType = "Integer"),
 			@ApiImplicitParam(name = "city_id", value = "约会城市id", paramType = "query"),
 			@ApiImplicitParam(name = "appointment_time", value = "约会的具体时间，yyyy-MM-dd hh:mm:ss", paramType = "query"),
 			@ApiImplicitParam(name = "addr", value = "约会地址", paramType = "query"),
 			@ApiImplicitParam(name = "ii", value = "零时参数，忽略", paramType = "query"),
 			@ApiImplicitParam(name = "image", value = "图片", paramType = "query") })
-	public ModelMap publish(long user_id, String token, String description, String theme, Integer city_id,
+	public ModelMap publish(long user_id, String token, String description, int theme_id, Integer city_id,
 			String appointment_time, String addr, String image) {
 		if (!userService.checkLogin(user_id, token)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
-
-		if (TextUtils.isEmpty(theme)) {
-			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "主题不能为空");
-		}
-
+ 
 		if (TextUtils.isEmpty(appointment_time)) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "约会时间不能为空");
 		}
@@ -62,7 +58,7 @@ public class AppointmentController {
 		Appointment appointment = new Appointment();
 		appointment.setUid(user_id);
 		appointment.setDescription(description);
-		appointment.setTheme(theme);
+		appointment.setTheme_id(theme_id);
 		appointment.setAddr(addr);
 		try {
 			appointment.setAppointment_time(DateTimeUtil.parse(appointment_time));
@@ -106,5 +102,9 @@ public class AppointmentController {
 		appointmentService.del(user_id, id);
 		return ResultUtil.getResultOKMap();
 	}
-
+	@RequestMapping("load_theme_data")
+	@ApiOperation(httpMethod = "POST", value = "获取约会主题") // swagger 当前接口注解
+	public ModelMap load_theme_data() {
+		return ResultUtil.getResultOKMap().addAttribute("themes", appointmentService.listTheme());
+	}
 }

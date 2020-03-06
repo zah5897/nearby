@@ -164,7 +164,6 @@ public class UserService {
 		user.setLast_login_time(new Date());
 		userDao.insert(user);
 		long id = user.getUser_id();
-		user.setUser_id(id);
 
 		if (id > 0 && user.getType() == UserType.OFFIEC.ordinal()
 				|| user.getType() == UserType.THRID_CHANNEL.ordinal()) {

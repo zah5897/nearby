@@ -8,6 +8,7 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.stereotype.Repository;
 
 import com.zhan.app.nearby.bean.Appointment;
+import com.zhan.app.nearby.bean.AppointmentTheme;
 import com.zhan.app.nearby.bean.City;
 import com.zhan.app.nearby.bean.user.LocationUser;
 import com.zhan.app.nearby.dao.base.BaseDao;
@@ -20,9 +21,12 @@ public class AppointmentDao extends BaseDao<Appointment> {
 	public List<Appointment> queryAll(long user_id, Integer last_id, int count) {
 		last_id = (last_id == null ? Integer.MAX_VALUE : last_id);
 
-		String sql = "select a.*,u.user_id,u.nick_name,u.sex,u.lat,u.lng,c.name as city_name,u.city_id as user_city_id,uc.name as user_city_name from "
+		String sql = "select a.*,u.user_id,u.nick_name,u.sex,u.lat,u.lng,c.name as city_name,u.city_id as user_city_id,uc.name as user_city_name,th.id as tid,th.name as thname  from "
 				+ getTableName()
-				+ " a left join t_user u on a.uid=u.user_id left join t_sys_city c on a.city_id=c.id left join t_sys_city uc on u.city_id=uc.id   where a.id<? order by a.id desc limit ?";
+				+ " a left join t_user u on a.uid=u.user_id "
+				+ "left join t_sys_city c on a.city_id=c.id "
+				+ "left join t_sys_city uc on u.city_id=uc.id "
+				+ "left join t_appointment_theme th on a.theme_id=th.id   where a.id<? order by a.id desc limit ?";
 		return jdbcTemplate.query(sql, new Object[] { last_id, count }, appointmentMapper);
 	}
 
@@ -43,6 +47,13 @@ public class AppointmentDao extends BaseDao<Appointment> {
 			user.setLng(rs.getString("lng"));
 			ImagePathUtil.completeAvatarPath(user, true);
 
+			
+		    AppointmentTheme theme=new AppointmentTheme();
+		    theme.setId(rs.getInt("tid"));
+		    theme.setName(rs.getString("thname"));
+		    app.setTheme(theme);
+		    
+			
 			String city_name = rs.getString("city_name");
 			if (!TextUtils.isEmpty(city_name)) {
 				City city = new City();
@@ -58,8 +69,16 @@ public class AppointmentDao extends BaseDao<Appointment> {
 				city.setName(user_city_name);
 				user.setCity(city);
 			}
+			
+			
+			
+			
 			app.setPublisher(user);
 			return app;
 		}
 	};
+
+	public List<AppointmentTheme> listTheme() {
+		return jdbcTemplate.query("select *from t_appointment_theme", new BeanPropertyRowMapper<AppointmentTheme>(AppointmentTheme.class));
+	}
 }

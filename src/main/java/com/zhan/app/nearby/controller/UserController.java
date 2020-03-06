@@ -435,8 +435,8 @@ public class UserController {
 			user.setBirthday(DateTimeUtil.parseDate("2002-01-01"));
 		}
 		long id = userService.insertUserThridChannel(user, false);
-		if (id == -1l) {
-			return ResultUtil.getResultMap(ERROR.ERR_USER_EXIST, "该第三方账号登录信息已存在");
+		if (id<1) {
+			return ResultUtil.getResultMap(ERROR.ERR_FAILED, "注册失败");
 		}
 		ModelMap result = ResultUtil.getResultOKMap();
 		user.setUser_id(id);

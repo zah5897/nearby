@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.zhan.app.nearby.bean.Appointment;
+import com.zhan.app.nearby.bean.AppointmentTheme;
 import com.zhan.app.nearby.dao.AppointmentDao;
 
 @Service
@@ -26,6 +27,11 @@ public class AppointmentService {
 
 	public int del(long user_id, Integer id) {
 		return appointmentDao.deleteById(user_id,id);
+	}
+
+	public List<AppointmentTheme> listTheme() {
+		
+		return appointmentDao.listTheme();
 	}
  
 }

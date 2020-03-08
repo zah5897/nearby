@@ -26,6 +26,7 @@ public class Appointment {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
+	@JsonIgnore
 	private long uid;
 	private String description;
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", locale = "zh", timezone = "GMT+8")
@@ -35,8 +36,10 @@ public class Appointment {
 	@JsonFormat(pattern = "yyyy-MM-dd", locale = "zh", timezone = "GMT+8")
 	private Date appointment_time; // 该约会创建实际那
 	private int time_stage;
+	
 	private int status; // 该条约会状态
-
+	
+	@JsonIgnore
 	private int theme_id; // 主题
 	
 	private String street;
@@ -45,12 +48,12 @@ public class Appointment {
 	private int city_id;
 	@JsonIgnore
 	private String image;
-	
+	@JsonIgnore
 	private String channel;
 	private String lat,lng;
 
 	@Transient
-	private BaseUser publisher; //发布者
+	private BaseUser user; //发布者
 	@Transient
 	private City city; //所在城市
 	
@@ -187,6 +190,14 @@ public class Appointment {
 
 	 
 
+	public BaseUser getUser() {
+		return user;
+	}
+
+	public void setUser(BaseUser user) {
+		this.user = user;
+	}
+
 	public List<String> getImages() {
 		return images;
 	}
@@ -194,14 +205,7 @@ public class Appointment {
 	public void setImages(List<String> images) {
 		this.images = images;
 	}
-
-	public BaseUser getPublisher() {
-		return publisher;
-	}
-
-	public void setPublisher(BaseUser publisher) {
-		this.publisher = publisher;
-	}
+ 
 
 	public Date getAppointment_time() {
 		return appointment_time;

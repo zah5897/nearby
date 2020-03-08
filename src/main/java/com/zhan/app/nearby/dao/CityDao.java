@@ -15,8 +15,7 @@ import com.zhan.app.nearby.dao.base.BaseDao;
 public class CityDao extends BaseDao<City> {
 
 	public List<City> list() {
-		return jdbcTemplate.query("select *from " + getTableName() + " pre ", new Object[] {},
-				getEntityMapper());
+		return jdbcTemplate.query("select *from " + getTableName() + " pre ", new Object[] {}, getEntityMapper());
 	}
 
 	public List<City> listByType(int type) {
@@ -31,13 +30,22 @@ public class CityDao extends BaseDao<City> {
 
 	public City getCityById(int id) {
 		try {
-			List<City> cities = jdbcTemplate.query("select *from " + getTableName() + " where id=? ", new Object[] { id },
-					getEntityMapper());
+			List<City> cities = jdbcTemplate.query("select *from " + getTableName() + " where id=? ",
+					new Object[] { id }, getEntityMapper());
 			if (cities != null && cities.size() > 0) {
 				return cities.get(0);
 			}
 		} catch (Exception e) {
 
+		}
+		return null;
+	}
+
+	public City getCityByName(String name) {
+		List<City> cities = jdbcTemplate.query("select *from " + getTableName() + " where name like ? ",
+				new Object[] { "%" + name + "%" }, getEntityMapper());
+		if (!cities.isEmpty()) {
+			return cities.get(0);
 		}
 		return null;
 	}

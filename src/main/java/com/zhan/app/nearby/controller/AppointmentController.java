@@ -50,7 +50,7 @@ public class AppointmentController {
 			@ApiImplicitParam(name = "lng", value = "经度", paramType = "query"),
 			@ApiImplicitParam(name = "image_names", value = "图片(多张用逗号隔开))", paramType = "query") })
 	public ModelMap publish(long user_id, String token, String description, int theme_id, Integer city_id,
-			String appointment_time, String Street,String ios_addr,String image_names,String channel,String lat,String lng) {
+			String appointment_time,int time_stage, String Street,String ios_addr,String image_names,String channel,String lat,String lng) {
 		if (!userService.checkLogin(user_id, token)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
@@ -62,6 +62,7 @@ public class AppointmentController {
 		Appointment appointment = new Appointment();
 		appointment.setUid(user_id);
 		appointment.setDescription(description);
+		appointment.setTime_stage(time_stage);
 		appointment.setTheme_id(theme_id);
 		appointment.setStreet(Street);
 		appointment.setChannel(channel);
@@ -75,7 +76,7 @@ public class AppointmentController {
 			appointment.setCity_id(city_id);
 		}
 		appointment.setImage(image_names);
-		appointmentService.save(appointment);
+		appointmentService.save(appointment,ios_addr);
 		ImagePathUtil.completePath(appointment);
 		return ResultUtil.getResultOKMap().addAttribute("dating", appointment);
 	}
@@ -83,9 +84,15 @@ public class AppointmentController {
 	@RequestMapping("list")
 	@ApiOperation(httpMethod = "POST", value = "获取最新的约会列表") // swagger 当前接口注解
 	@ApiImplicitParams({ @ApiImplicitParam(name = "last_id", value = "分页id", dataType = "Integer", paramType = "query"),
-			@ApiImplicitParam(name = "count", value = "主题", paramType = "query", dataType = "Integer") })
-	public ModelMap list(long user_id, Integer last_id, int count) {
-		List<Appointment> apps = appointmentService.list(user_id, last_id, count);
+			@ApiImplicitParam(name = "count", value = "每页数量", paramType = "query", dataType = "Integer"),
+			@ApiImplicitParam(name = "theme_id", value = "主题id", paramType = "query", dataType = "Integer"),
+			@ApiImplicitParam(name = "appointment_time", value = "约会时间", paramType = "query"),
+			@ApiImplicitParam(name = "ii", value = "test", paramType = "query"),
+			@ApiImplicitParam(name = "keyword", value = "关键字搜索（描述和street里面的关键字）)", paramType = "query"),
+			@ApiImplicitParam(name = "city_id", value = "约会城市", paramType = "query", dataType = "Integer"),
+	@ApiImplicitParam(name = "time_stage", value = "时间段", paramType = "query", dataType = "Integer")})
+	public ModelMap list(long user_id, Integer last_id, int count,Integer theme_id,Integer time_stage,String appointment_time,Integer city_id,String keyword ) {
+		List<Appointment> apps = appointmentService.list(user_id, last_id, count,theme_id,time_stage,appointment_time,city_id, keyword);
 		ImagePathUtil.completePath(apps);
 		boolean hasMore = apps.size() == count;
 		if(!apps.isEmpty()) {
@@ -99,7 +106,7 @@ public class AppointmentController {
 	@RequestMapping("mine")
 	@ApiOperation(httpMethod = "POST", value = "获取本人发布的约会信息") // swagger 当前接口注解
 	@ApiImplicitParams({ @ApiImplicitParam(name = "last_id", value = "分页id", dataType = "Integer", paramType = "query"),
-			@ApiImplicitParam(name = "count", value = "主题", paramType = "query", dataType = "Integer") })
+			@ApiImplicitParam(name = "count", value = "每页数量", paramType = "query", dataType = "Integer") })
 	public ModelMap mine(long user_id, Integer last_id, int count) {
 		List<Appointment> apps = appointmentService.mine(user_id, last_id, count);
 		ImagePathUtil.completePath(apps);

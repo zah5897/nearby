@@ -135,7 +135,10 @@ public class CityService {
 			}
 
 		}
+	}
 
+	public City getCityByName(String city) {
+		return cityDao.getCityByName(city);
 	}
 
 }

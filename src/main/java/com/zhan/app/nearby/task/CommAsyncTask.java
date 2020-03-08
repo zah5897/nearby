@@ -65,7 +65,7 @@ public class CommAsyncTask {
 		UserDynamicService userDynamicService = ((UserDynamicService) SpringContextUtil.getBean("userDynamicService"));
 		userDynamicService.updateAddress(dynamic);
 	}
-
+	
 	@Async
 	public void getUserLocationByIP(BaseUser user, String ip) {
 
@@ -80,16 +80,13 @@ public class CommAsyncTask {
 		City userLocation = null;
 		if (!TextUtils.isEmpty(address[1])) {
 			CityDao cityDao = ((CityDao) SpringContextUtil.getBean("cityDao"));
-			List<City> provincesAll = cityDao.list();
-			if (provincesAll != null) {
-				for (City c : provincesAll) {
-					if (address[1].contains(c.getName())) {
-						userLocation = c;
-						break;
-					}
-				}
-			}
+			userLocation=cityDao.getCityByName(address[1]);
 		}
+		
+		if(userLocation==null) {
+			return;
+		}
+		
 		UserService userService = SpringContextUtil.getBean("userService");
 		userService.updateUserBirthCity(user.getUser_id(), userLocation);
 	}

@@ -2,6 +2,7 @@ package com.zhan.app.nearby.dao;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -20,55 +21,90 @@ import com.zhan.app.nearby.util.TextUtils;
 @Repository("appointmentDao")
 public class AppointmentDao extends BaseDao<Appointment> {
 
-	public List<Appointment> queryAll(long user_id, Integer last_id, int count) {
+	public List<Appointment> queryAll(long user_id, Integer last_id, int count, Integer theme_id, Integer time_stage,
+			String appointment_time, Integer city_id,String keyword) {
 		last_id = (last_id == null ? Integer.MAX_VALUE : last_id);
 
-		String sql = "select a.*,u.user_id,u.nick_name,u.sex,u.birthday,u.lat,u.lng,c.name as city_name,u.city_id as user_city_id,uc.name as user_city_name,th.id as tid,th.name as thname  from "
-				+ getTableName()
-				+ " a left join t_user u on a.uid=u.user_id "
+		List<Object> params = new ArrayList<Object>();
+
+		StringBuilder sql =new StringBuilder("select a.*,u.user_id,u.nick_name,u.sex,u.avatar,u.birthday,u.lat,u.lng,c.name as city_name,th.id as tid,th.name as thname  from "
+				+ getTableName() + " a left join t_user u on a.uid=u.user_id "
 				+ "left join t_sys_city c on a.city_id=c.id "
-				+ "left join t_sys_city uc on u.city_id=uc.id "
-				+ "left join t_appointment_theme th on a.theme_id=th.id   where ((a.uid=? and a.status=?) or a.status=?) and   a.id<? order by a.id desc limit ?";
-		return jdbcTemplate.query(sql, new Object[] {user_id, AppointmentStatus.CREATE.ordinal(),AppointmentStatus.CHECKED.ordinal(),last_id, count }, appointmentMapper);
+				+ "left join t_appointment_theme th on a.theme_id=th.id   where ((a.uid=? and a.status=?) or a.status=?) ");
+
+		params.add(user_id);
+		params.add(AppointmentStatus.CREATE.ordinal());
+		params.add(AppointmentStatus.CHECKED.ordinal());
+		
+		if(theme_id!=null) {
+			sql.append(" and a.theme_id=? ");
+			params.add(theme_id);
+		}
+		
+		if(time_stage!=null) {
+			sql.append(" and a.time_stage=? ");
+			params.add(time_stage);
+		}
+		
+		
+		if(appointment_time!=null) {
+			sql.append(" and date(a.appointment_time)=?  ");
+			params.add(appointment_time);
+		}
+		if(city_id!=null) {
+			sql.append(" and a.city_id=?  ");
+			params.add(city_id);
+		}
+		
+		if(keyword!=null&&!TextUtils.isEmpty(keyword.trim())) {
+			sql.append(" and (a.description like ? or a.street like ?) ");
+			params.add("%"+keyword+"%");
+			params.add("%"+keyword+"%");
+		}
+		
+		sql.append(" and a.id<? order by a.id desc limit ?");
+		params.add(last_id);
+		params.add(count);
+		
+		return jdbcTemplate.query(sql.toString(), params.toArray(), appointmentMapper);
 	}
+
 	public List<Appointment> queryMine(long user_id, Integer last_id, int count) {
 		last_id = (last_id == null ? Integer.MAX_VALUE : last_id);
 
-		String sql = "select a.*,u.user_id,u.nick_name,u.sex,u.lat,u.lng,u.birthday,c.name as city_name,u.city_id as user_city_id,uc.name as user_city_name,th.id as tid,th.name as thname  from "
-				+ getTableName()
-				+ " a left join t_user u on a.uid=u.user_id "
+		String sql = "select a.*,u.user_id,u.nick_name,u.sex,u.avatar,u.lat,u.lng,u.birthday,c.name as city_name,th.id as tid,th.name as thname  from "
+				+ getTableName() + " a left join t_user u on a.uid=u.user_id "
 				+ "left join t_sys_city c on a.city_id=c.id "
-				+ "left join t_sys_city uc on u.city_id=uc.id "
 				+ "left join t_appointment_theme th on a.theme_id=th.id   where a.uid=? and  a.id<? order by a.id desc limit ?";
-		return jdbcTemplate.query(sql, new Object[] { user_id,last_id, count }, appointmentMapper);
+		return jdbcTemplate.query(sql, new Object[] { user_id, last_id, count }, appointmentMapper);
 	}
-	public List<Appointment> queryAllToCheck(int status,int page, int count) {
-		String sql = "select a.*,u.user_id,u.nick_name,u.sex,u.lat,u.lng,u.birthday,c.name as city_name,u.city_id as user_city_id,uc.name as user_city_name,th.id as tid,th.name as thname  from "
-				+ getTableName()
-				+ " a left join t_user u on a.uid=u.user_id "
+
+	public List<Appointment> queryAllToCheck(int status, int page, int count) {
+		String sql = "select a.*,u.user_id,u.nick_name,u.sex,u.avatar,u.lat,u.lng,u.birthday,c.name as city_name,th.id as tid,th.name as thname  from "
+				+ getTableName() + " a left join t_user u on a.uid=u.user_id "
 				+ "left join t_sys_city c on a.city_id=c.id "
-				+ "left join t_sys_city uc on u.city_id=uc.id "
 				+ "left join t_appointment_theme th on a.theme_id=th.id where a.status=? order by a.id desc limit ?,?";
-		return jdbcTemplate.query(sql, new Object[] {status, (page-1)*count, count }, appointmentMapper);
+		return jdbcTemplate.query(sql, new Object[] { status, (page - 1) * count, count }, appointmentMapper);
 	}
-	
 
 	public int deleteById(long user_id, Integer id) {
 		return jdbcTemplate.update("delete from " + getTableName() + " where uid=" + user_id + " and id=" + id);
 	}
 
-	
 	public List<AppointmentTheme> listTheme() {
-		return jdbcTemplate.query("select *from t_appointment_theme", new BeanPropertyRowMapper<AppointmentTheme>(AppointmentTheme.class));
+		return jdbcTemplate.query("select *from t_appointment_theme",
+				new BeanPropertyRowMapper<AppointmentTheme>(AppointmentTheme.class));
 	}
 
 	public int getCheckCount(int status) {
-		return jdbcTemplate.queryForObject("select count(*) from "+getTableName()+" where status="+status, Integer.class);
+		return jdbcTemplate.queryForObject("select count(*) from " + getTableName() + " where status=" + status,
+				Integer.class);
 	}
+
 	public void changeStatus(int id, int newStatus) {
-		jdbcTemplate.update("update "+getTableName()+" set status=? where id=?",new Object[] {newStatus,id});
+		jdbcTemplate.update("update " + getTableName() + " set status=? where id=?", new Object[] { newStatus, id });
 	}
-	
+
 	private static BeanPropertyRowMapper<Appointment> appointmentMapper = new BeanPropertyRowMapper<Appointment>(
 			Appointment.class) {
 		@Override
@@ -77,6 +113,7 @@ public class AppointmentDao extends BaseDao<Appointment> {
 			LocationUser user = new LocationUser();
 			user.setUser_id(rs.getLong("user_id"));
 			user.setNick_name(rs.getString("nick_name"));
+			user.setAvatar(rs.getString("avatar"));
 			user.setSex(rs.getString("sex"));
 			user.setLat(rs.getString("lat"));
 			user.setLng(rs.getString("lng"));
@@ -84,13 +121,11 @@ public class AppointmentDao extends BaseDao<Appointment> {
 			user.setAge(DateTimeUtil.getAge(user.getBirthday()));
 			ImagePathUtil.completeAvatarPath(user, true);
 
-			
-		    AppointmentTheme theme=new AppointmentTheme();
-		    theme.setId(rs.getInt("tid"));
-		    theme.setName(rs.getString("thname"));
-		    app.setTheme(theme);
-		    
-			
+			AppointmentTheme theme = new AppointmentTheme();
+			theme.setId(rs.getInt("tid"));
+			theme.setName(rs.getString("thname"));
+			app.setTheme(theme);
+
 			String city_name = rs.getString("city_name");
 			if (!TextUtils.isEmpty(city_name)) {
 				City city = new City();
@@ -98,23 +133,10 @@ public class AppointmentDao extends BaseDao<Appointment> {
 				city.setName(city_name);
 				app.setCity(city);
 			}
-			
-			String user_city_name = rs.getString("user_city_name");
-			if (!TextUtils.isEmpty(user_city_name)) {
-				City city = new City();
-				city.setId(rs.getInt("user_city_id"));
-				city.setName(user_city_name);
-				user.setCity(city);
-			}
-			
-			
-			
-			
-			app.setPublisher(user);
+
+			app.setUser(user);
 			return app;
 		}
 	};
-
-	
 
 }

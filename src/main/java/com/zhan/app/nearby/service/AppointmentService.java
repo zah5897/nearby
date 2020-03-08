@@ -24,7 +24,11 @@ public class AppointmentService {
 	public List<Appointment> list(long user_id, Integer last_id, int count) {
 		return appointmentDao.queryAll(user_id,last_id,count);
 	}
-
+	public List<Appointment> mine(long user_id, Integer last_id, int count) {
+		return appointmentDao.queryAll(user_id,last_id,count);
+	}
+	
+	
 	public int del(long user_id, Integer id) {
 		return appointmentDao.deleteById(user_id,id);
 	}
@@ -32,6 +36,18 @@ public class AppointmentService {
 	public List<AppointmentTheme> listTheme() {
 		
 		return appointmentDao.listTheme();
+	}
+	
+	
+	public List<Appointment> listToCheck(int status,int page,int count) {
+		return appointmentDao.queryAllToCheck(status,page,count);
+	}
+	public int getCheckCount(int status) {
+		return appointmentDao.getCheckCount(status);
+	}
+
+	public void changeStatus(int id, int newStatus) {
+		appointmentDao.changeStatus(id,newStatus);
 	}
  
 }

@@ -1,5 +1,6 @@
 package com.zhan.app.nearby.util;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.zhan.app.nearby.bean.Appointment;
@@ -90,14 +91,22 @@ public class ImagePathUtil {
 		if (appointment == null) {
 			return;
 		}
-		if (TextUtils.isEmpty(appointment.getImage())) {
+		String image_names=appointment.getImage();
+		if (TextUtils.isEmpty(image_names)) {
 			return;
 		}
-		if (appointment.getImage().startsWith("http")) {
-			return;
+		image_names.replace("，", ",");
+		String[] names=image_names.split(",");
+		List<String> images=new ArrayList<String>();
+		for(String name:names) {
+			if (name.startsWith("http")) {
+				images.add(name);
+			}else {
+				String path = HOST_PROFIX_APPOINTMENT_IMG + name;
+				images.add(path);
+			}
 		}
-		String path = HOST_PROFIX_APPOINTMENT_IMG + appointment.getImage();
-		appointment.setImage(path);
+		appointment.setImages(images);
 	}
 	
 	public static void completePath(List<Appointment> appointments) {

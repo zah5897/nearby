@@ -1,6 +1,7 @@
 package com.zhan.app.nearby.bean;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -30,19 +31,23 @@ public class Appointment {
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", locale = "zh", timezone = "GMT+8")
 	private Date create_time; // 该约会创建实际那
 	
-	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", locale = "zh", timezone = "GMT+8")
+	@DateTimeFormat(pattern = "yyyy-MM-dd")
+	@JsonFormat(pattern = "yyyy-MM-dd", locale = "zh", timezone = "GMT+8")
 	private Date appointment_time; // 该约会创建实际那
+	private int time_stage;
 	private int status; // 该条约会状态
 
 	private int theme_id; // 主题
 	
-	private String addr;
+	private String street;
 	
 	@JsonIgnore
 	private int city_id;
-	
+	@JsonIgnore
 	private String image;
+	
+	private String channel;
+	private String lat,lng;
 
 	@Transient
 	private BaseUser publisher; //发布者
@@ -52,6 +57,9 @@ public class Appointment {
 	@Transient
 	private AppointmentTheme theme; //所在城市
 
+	@Transient
+	private List<String>  images;
+	
 	public int getId() {
 		return id;
 	}
@@ -70,6 +78,14 @@ public class Appointment {
 
  
  
+
+	public int getTime_stage() {
+		return time_stage;
+	}
+
+	public void setTime_stage(int time_stage) {
+		this.time_stage = time_stage;
+	}
 
 	public String getDescription() {
 		return description;
@@ -93,16 +109,40 @@ public class Appointment {
 		return theme;
 	}
 
+	public String getChannel() {
+		return channel;
+	}
+
+	public String getLat() {
+		return lat;
+	}
+
+	public void setLat(String lat) {
+		this.lat = lat;
+	}
+
+	public String getLng() {
+		return lng;
+	}
+
+	public void setLng(String lng) {
+		this.lng = lng;
+	}
+
+	public void setChannel(String channel) {
+		this.channel = channel;
+	}
+
 	public void setTheme(AppointmentTheme theme) {
 		this.theme = theme;
 	}
 
-	public String getAddr() {
-		return addr;
+	public String getStreet() {
+		return street;
 	}
 
-	public void setAddr(String addr) {
-		this.addr = addr;
+	public void setStreet(String street) {
+		this.street = street;
 	}
 
 	public int getCity_id() {
@@ -146,6 +186,14 @@ public class Appointment {
 	}
 
 	 
+
+	public List<String> getImages() {
+		return images;
+	}
+
+	public void setImages(List<String> images) {
+		this.images = images;
+	}
 
 	public BaseUser getPublisher() {
 		return publisher;

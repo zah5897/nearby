@@ -1191,5 +1191,22 @@ public class WebManagerController {
 		managerService.change_pwd(currentManagerName, new_pwd);
 		return ResultUtil.getResultOKMap();
 	}
+	
+	@RequestMapping(value = "/appointment_list")
+	public @ResponseBody ModelMap appointment_list(HttpServletRequest request,int status, int page,int count) throws NoSuchAlgorithmException {
+		if (!managerService.isLogin(request)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		return managerService.loadAppointMents(status, page, count);
+	}
+	
+	@RequestMapping(value = "/changeAppointMentStatus")
+	public @ResponseBody ModelMap changeAppointMentStatus(HttpServletRequest request,int id,int status, int page,int count,int to_state) throws NoSuchAlgorithmException {
+		if (!managerService.isLogin(request)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		return managerService.changeAppointMentsStatus(id, status, page, count, to_state);
+	}
+	
 
 }

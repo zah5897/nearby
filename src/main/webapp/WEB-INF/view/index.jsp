@@ -57,7 +57,14 @@
    <h2><span class="icon-user"></span>会员管理</h2>
    <ul>
     <li><a href="<%=path %>/manager/forword?path=vip_manager" target="right"><span class="icon-caret-right"></span>会员类型</a></li>
-  </ul>   
+  </ul>  
+  
+   <h2><span class="icon-user"></span>约会管理</h2>
+   <ul>
+    <li><a href="<%=path %>/manager/forword?path=appointment_check" target="right"><span class="icon-caret-right"></span>约会审核</a></li>
+  </ul>  
+  
+   
    <h2><span class="icon-user"></span>金币管理</h2>
    <ul>
     <li><a href="<%=path %>/manager/forword?path=rule_manager" target="right"><span class="icon-caret-right"></span>金币购买规则项</a></li>

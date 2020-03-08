@@ -9,6 +9,8 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.zhan.app.nearby.bean.Bottle;
 import com.zhan.app.nearby.bean.ManagerUser;
@@ -23,11 +25,13 @@ import com.zhan.app.nearby.comm.ExchangeState;
 import com.zhan.app.nearby.comm.FoundUserRelationship;
 import com.zhan.app.nearby.dao.ManagerDao;
 import com.zhan.app.nearby.dao.UserDao;
+import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.task.HXAsyncTask;
 import com.zhan.app.nearby.util.BottleKeyWordUtil;
 import com.zhan.app.nearby.util.IPUtil;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.MD5Util;
+import com.zhan.app.nearby.util.ResultUtil;
 
 @Service
 public class ManagerService {
@@ -50,35 +54,42 @@ public class ManagerService {
 	private UserDynamicService userDynamicService;
 	@Resource
 	private VipService vipService;
-	
+
+	@Autowired
+	private AppointmentService appointmentService;
+
 	@Autowired
 	private HXAsyncTask hxTask;
-	
+
 	public int getHomeFoundSelectedCount() {
 		return managerDao.getHomeFoundSelectedCount();
 	}
 
-	public boolean mLogin(HttpServletRequest request,String name, String pwd) {
+	public boolean mLogin(HttpServletRequest request, String name, String pwd) {
 		Integer i = managerDao.queryM(name, pwd);
 		if (i > 0) {
-			String ip=IPUtil.getIpAddress(request);
-			userCacheService.putManagerAuthData(ip,name);
+			String ip = IPUtil.getIpAddress(request);
+			userCacheService.putManagerAuthData(ip, name);
 			return true;
 		}
 		return false;
 	}
+
 	public boolean isLogin(HttpServletRequest request) {
-		String ip=IPUtil.getIpAddress(request);
+		String ip = IPUtil.getIpAddress(request);
 		return userCacheService.validateManagerAuthDataActive(ip);
 	}
-    public void logout(HttpServletRequest request) {
-    	String ip=IPUtil.getIpAddress(request);
+
+	public void logout(HttpServletRequest request) {
+		String ip = IPUtil.getIpAddress(request);
 		userCacheService.removeManagerAuthData(ip);
 	}
+
 	public String getManagerAuthName(HttpServletRequest request) {
-		String ip=IPUtil.getIpAddress(request);
+		String ip = IPUtil.getIpAddress(request);
 		return userCacheService.getManagerAuthName(ip);
 	}
+
 	public int getPageCountByState(int state) {
 		return userDynamicService.getPageCountByState(state);
 	}
@@ -97,11 +108,11 @@ public class ManagerService {
 	}
 
 	public List<UserDynamic> getUnSelected(int pageIndex, int pageSize) {
-		return managerDao.getUnSelected(pageIndex, pageSize,null);
+		return managerDao.getUnSelected(pageIndex, pageSize, null);
 	}
-	
-	public List<UserDynamic> getUnSelected(int pageIndex, int pageSize,String nick_name) {
-		return managerDao.getUnSelected(pageIndex, pageSize,nick_name);
+
+	public List<UserDynamic> getUnSelected(int pageIndex, int pageSize, String nick_name) {
+		return managerDao.getUnSelected(pageIndex, pageSize, nick_name);
 	}
 
 	public int removeFromSelected(long id) {
@@ -170,7 +181,7 @@ public class ManagerService {
 	public int editUserFromFound(long uid, int state) {
 		return managerDao.setUserFoundRelationshipState(uid, FoundUserRelationship.values()[state]);
 	}
-	 
+
 	// 动态审核违规
 	public int updateDynamicState(long id, DynamicState state) {
 		return managerDao.updateDynamicState(id, state);
@@ -349,8 +360,8 @@ public class ManagerService {
 		return mainService.addSpreadUser(uid);
 	}
 
-	public void editAvatarState(int id,int state) {
-		userService.editAvatarState(id,state);
+	public void editAvatarState(int id, int state) {
+		userService.editAvatarState(id, state);
 	}
 
 	public void editAvatarStateByUserId(long uid) {
@@ -367,21 +378,23 @@ public class ManagerService {
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<BaseUser> listConfirmAvatars(int pageSize, int pageIndex, Long user_id,int state) {
+	public List<BaseUser> listConfirmAvatars(int pageSize, int pageIndex, Long user_id, int state) {
 		return (List<BaseUser>) ImagePathUtil
 				.completeAvatarsPath(userService.listConfirmAvatars(state, pageSize, pageIndex, user_id), false); // state=0为变动，1为
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<BaseUser> listAvatarsByUid(int pageSize, int pageIndex, Long user_id,String nickName) {
+	public List<BaseUser> listAvatarsByUid(int pageSize, int pageIndex, Long user_id, String nickName) {
 		return (List<BaseUser>) ImagePathUtil
-				.completeAvatarsPath(userService.listAvatarsByUid( pageSize, pageIndex, user_id,nickName), false); // state=0为变动，1为
+				.completeAvatarsPath(userService.listAvatarsByUid(pageSize, pageIndex, user_id, nickName), false); // state=0为变动，1为
 	}
-	public int getCountOfConfirmAvatars(Long user_id,int state) {
-		return userService.getCountOfConfirmAvatars(user_id,state);
+
+	public int getCountOfConfirmAvatars(Long user_id, int state) {
+		return userService.getCountOfConfirmAvatars(user_id, state);
 	}
-	public int getCountOfUserAvatars(Long user_id,String nickName) {
-		return userService.getCountOfUserAvatars(user_id,nickName);
+
+	public int getCountOfUserAvatars(Long user_id, String nickName) {
+		return userService.getCountOfUserAvatars(user_id, nickName);
 	}
 
 	public void charge_vip(long user_id, int month, String mark) {
@@ -402,7 +415,45 @@ public class ManagerService {
 		managerDao.updateMPwd(name, MD5Util.getMd5(pwd));
 	}
 
+	public ModelMap loadAppointMents(int status, int page, int count) {
 
+		ModelMap r = ResultUtil.getResultOKMap();
+		if (page == 1) {
+			int totalSize = appointmentService.getCheckCount(status);
+			int pageCount = totalSize / count;
+			if (totalSize % count > 0) {
+				pageCount += 1;
+			}
+			if (pageCount == 0) {
+				pageCount = 1;
+			}
+			r.put("pageCount", pageCount);
+		}
+		r.put("currentPageIndex", page);
 
-	
+		r.addAttribute("data", appointmentService.listToCheck(status, page, count));
+		return r;
+	}
+
+	public ModelMap changeAppointMentsStatus(int id, int status, int page, int count, int newStatus) {
+
+		appointmentService.changeStatus(id, newStatus);
+		ModelMap r = ResultUtil.getResultOKMap();
+		if (page == 1) {
+			int totalSize = appointmentService.getCheckCount(status);
+			int pageCount = totalSize / count;
+			if (totalSize % count > 0) {
+				pageCount += 1;
+			}
+			if (pageCount == 0) {
+				pageCount = 1;
+			}
+			r.put("pageCount", pageCount);
+		}
+		r.put("currentPageIndex", page);
+
+		r.addAttribute("data", appointmentService.listToCheck(status, page, count));
+		return r;
+	}
+
 }

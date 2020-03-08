@@ -34,7 +34,10 @@ public class DateTimeUtil {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		return sdf.parse(timeStr);
 	}
-
+	public static Date parse(String timeStr,String pattern) throws ParseException {
+		SimpleDateFormat sdf = new SimpleDateFormat(pattern);
+		return sdf.parse(timeStr);
+	}
 	public static String parseBirthday(Date result) {
 		if (result == null) {
 			return new String();

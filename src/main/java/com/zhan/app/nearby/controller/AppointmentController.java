@@ -41,12 +41,16 @@ public class AppointmentController {
 			@ApiImplicitParam(name = "description", value = "约会描述", paramType = "query"),
 			@ApiImplicitParam(name = "theme_id", value = "主题id", paramType = "query", dataType = "Integer"),
 			@ApiImplicitParam(name = "city_id", value = "约会城市id", paramType = "query"),
-			@ApiImplicitParam(name = "appointment_time", value = "约会的具体时间，yyyy-MM-dd hh:mm:ss", paramType = "query"),
-			@ApiImplicitParam(name = "addr", value = "约会地址", paramType = "query"),
-			@ApiImplicitParam(name = "ii", value = "零时参数，忽略", paramType = "query"),
-			@ApiImplicitParam(name = "image", value = "图片", paramType = "query") })
+			@ApiImplicitParam(name = "appointment_time", value = "约会的具体时间，yyyy-MM-dd", paramType = "query"),
+			@ApiImplicitParam(name = "time_stage", value = "时间段，上午=1，下午=2，晚上=3，", paramType = "query" ,dataType = "Integer"),
+			@ApiImplicitParam(name = "Street", value = "街道信息", paramType = "query"),
+			@ApiImplicitParam(name = "ios_addr", value = "ios定位信息", paramType = "query"),
+			@ApiImplicitParam(name = "channel", value = "发布渠道", paramType = "query"),
+			@ApiImplicitParam(name = "lat", value = "纬度", paramType = "query"),
+			@ApiImplicitParam(name = "lng", value = "经度", paramType = "query"),
+			@ApiImplicitParam(name = "image_names", value = "图片(多张用逗号隔开))", paramType = "query") })
 	public ModelMap publish(long user_id, String token, String description, int theme_id, Integer city_id,
-			String appointment_time, String addr, String image) {
+			String appointment_time, String Street,String ios_addr,String image_names,String channel,String lat,String lng) {
 		if (!userService.checkLogin(user_id, token)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
@@ -59,9 +63,10 @@ public class AppointmentController {
 		appointment.setUid(user_id);
 		appointment.setDescription(description);
 		appointment.setTheme_id(theme_id);
-		appointment.setAddr(addr);
+		appointment.setStreet(Street);
+		appointment.setChannel(channel);
 		try {
-			appointment.setAppointment_time(DateTimeUtil.parse(appointment_time));
+			appointment.setAppointment_time(DateTimeUtil.parse(appointment_time,"yyyy-MM-dd"));
 		} catch (ParseException e) {
 			e.printStackTrace();
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "约会时间参数格式错误");
@@ -69,10 +74,10 @@ public class AppointmentController {
 		if (city_id != null) {
 			appointment.setCity_id(city_id);
 		}
-		appointment.setImage(image);
+		appointment.setImage(image_names);
 		appointmentService.save(appointment);
 		ImagePathUtil.completePath(appointment);
-		return ResultUtil.getResultOKMap().addAttribute("data", appointment);
+		return ResultUtil.getResultOKMap().addAttribute("dating", appointment);
 	}
 
 	@RequestMapping("list")
@@ -86,10 +91,27 @@ public class AppointmentController {
 		if(!apps.isEmpty()) {
 			last_id = apps.get(apps.size() - 1).getId();
 		}
-		return ResultUtil.getResultOKMap().addAttribute("data", apps).addAttribute("hasMore", hasMore)
+		return ResultUtil.getResultOKMap().addAttribute("dating", apps).addAttribute("hasMore", hasMore)
 				.addAttribute("last_id", last_id);
 	}
 
+	
+	@RequestMapping("mine")
+	@ApiOperation(httpMethod = "POST", value = "获取本人发布的约会信息") // swagger 当前接口注解
+	@ApiImplicitParams({ @ApiImplicitParam(name = "last_id", value = "分页id", dataType = "Integer", paramType = "query"),
+			@ApiImplicitParam(name = "count", value = "主题", paramType = "query", dataType = "Integer") })
+	public ModelMap mine(long user_id, Integer last_id, int count) {
+		List<Appointment> apps = appointmentService.mine(user_id, last_id, count);
+		ImagePathUtil.completePath(apps);
+		boolean hasMore = apps.size() == count;
+		if(!apps.isEmpty()) {
+			last_id = apps.get(apps.size() - 1).getId();
+		}
+		return ResultUtil.getResultOKMap().addAttribute("dating", apps).addAttribute("hasMore", hasMore)
+				.addAttribute("last_id", last_id);
+	}
+	
+	
 	@RequestMapping("del")
 	@ApiOperation(httpMethod = "POST", value = "删除约会信息") // swagger 当前接口注解
 	@ApiImplicitParams({ @ApiImplicitParam(name = "user_id", value = "用户id", required = true, paramType = "query"),

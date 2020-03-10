@@ -45,12 +45,13 @@ public class AppointmentController {
 			@ApiImplicitParam(name = "time_stage", value = "时间段，上午=1，下午=2，晚上=3，", paramType = "query" ,dataType = "Integer"),
 			@ApiImplicitParam(name = "Street", value = "街道信息", paramType = "query"),
 			@ApiImplicitParam(name = "ios_addr", value = "ios定位信息", paramType = "query"),
+			@ApiImplicitParam(name = "android_addr", value = "android定位信息", paramType = "query"),
 			@ApiImplicitParam(name = "channel", value = "发布渠道", paramType = "query"),
 			@ApiImplicitParam(name = "lat", value = "纬度", paramType = "query"),
 			@ApiImplicitParam(name = "lng", value = "经度", paramType = "query"),
 			@ApiImplicitParam(name = "image_names", value = "图片(多张用逗号隔开))", paramType = "query") })
 	public ModelMap publish(long user_id, String token, String description, int theme_id, Integer city_id,
-			String appointment_time,int time_stage, String Street,String ios_addr,String image_names,String channel,String lat,String lng) {
+			String appointment_time,int time_stage, String Street,String ios_addr,String image_names,String channel,String lat,String lng,String android_addr) {
 		if (!userService.checkLogin(user_id, token)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
@@ -76,7 +77,7 @@ public class AppointmentController {
 			appointment.setCity_id(city_id);
 		}
 		appointment.setImage(image_names);
-		appointmentService.save(appointment,ios_addr);
+		appointmentService.save(appointment,ios_addr,android_addr);
 		ImagePathUtil.completePath(appointment);
 		return ResultUtil.getResultOKMap().addAttribute("dating", appointment);
 	}

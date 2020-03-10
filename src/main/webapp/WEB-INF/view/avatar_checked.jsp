@@ -208,7 +208,17 @@
 			        }
 		    });
 		}
-		 
+		function add_to_meet_bottle(user_id){
+			$.post("<%=path%>/manager/edit_user_meet_bottle_recomend",{'user_id':user_id,'fun':1},function(result){
+				 var json=JSON.parse(result);
+				 if(json.code==0){
+			        	parent.toast("操作成功！");
+			        	$("#meet_"+user_id).hide();
+			        }else{
+			        	parent.toast("操作失败！");
+			        }
+		    });
+		}
 		 
 	  //
       function reviewTableTr(pageData,tr) {
@@ -256,6 +266,7 @@
 			 //操作单元格
 			  toAdd+="<td><div class='button-group'>";
 			  if(pageData.avatar&&pageData.avatar.indexOf('illegal.jpg')==-1){
+				  toAdd+="<a class='button border-main' href='javascript:void(0)'  id='meet_"+user_id+"'	onclick='return add_to_meet_bottle("+user_id+")'><span class='icon-edit'></span>加入邂逅瓶</a>";
 				  toAdd+="<a id="+user_id+" class='button border-yellow' href='javascript:void(0)'	onclick='return edit_avatar_state("+index+")'><span class='icon-edit'></span>头像违法</a>";
 				  toAdd+="<a id="+user_id+" class='button border-yellow' href='javascript:void(0)'	onclick='return edit_avatar_state_pass("+index+")'><span class='icon-edit'></span>审核通过</a>";
 			  }

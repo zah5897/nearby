@@ -311,8 +311,8 @@
 			 toAdd+="<td>"+typeStr+"</td>";
 			 //操作单元格
 			  toAdd+="<td><div class='button-group'>";
-			  toAdd+="<a class='button border-main' id='meet_"+user_id+"' href='javascript:void(0)'	onclick='return add_to_meet_bottle("+user_id+")'><span class='icon-edit'></span>加入邂逅瓶待选</a>";
-			  toAdd+="<a class='button border-main' href='javascript:void(0)' id='found_"+user_id+"'	onclick='return add_to_found_user("+user_id+")'><span class='icon-edit'></span>添加到发现用户</a>";
+			  toAdd+="<a class='button border-main' id='meet_"+user_id+"' href='javascript:void(0)'	onclick='return add_to_meet_bottle("+user_id+")'><span class='icon-edit'></span>加入邂逅瓶</a>";
+			  toAdd+="<a class='button border-main' href='javascript:void(0)' id='found_"+user_id+"'	onclick='return add_to_found_user("+user_id+")'><span class='icon-edit'></span>添加到发现</a>";
 		
 			  toAdd+="<a class='button border-yellow' id='bleac_"+user_id+"' href='javascript:void(0)'	onclick='return add_to_found_black_list("+user_id+")'><span class='icon-edit'></span>加入黑名单</a>";
 			  

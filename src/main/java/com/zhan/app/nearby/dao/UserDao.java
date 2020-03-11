@@ -1244,8 +1244,9 @@ public class UserDao extends BaseDao<BaseUser> {
 		Object[] paramsObjs=params.toArray();
 		jdbcTemplate.update(sb.toString(),paramsObjs);
 	}
-	 
-	
-	
+
+	public void getUnlockCount(long user_id, long target_uid) {
+		String sql="select count(*) from t_user_unlock where uid=? and target_uid=?";
+	}
 	
 }

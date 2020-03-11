@@ -73,8 +73,13 @@ public class ParamInterceptor implements HandlerInterceptor {
 		}
 		 
 		String i=request.getParameter("ii");
+		String f=request.getParameter("f");
 		
 		if("ii11".equals(i)) {
+			return true;
+		}
+		
+		if("pay".equals(f)) {
 			return true;
 		}
 		

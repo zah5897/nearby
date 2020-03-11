@@ -6,12 +6,14 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.ui.ModelMap;
 
 import com.zhan.app.nearby.bean.Appointment;
 import com.zhan.app.nearby.bean.AppointmentTheme;
 import com.zhan.app.nearby.bean.City;
 import com.zhan.app.nearby.dao.AppointmentDao;
 import com.zhan.app.nearby.util.JSONUtil;
+import com.zhan.app.nearby.util.ResultUtil;
 import com.zhan.app.nearby.util.TextUtils;
 
 @Service
@@ -88,6 +90,20 @@ public class AppointmentService {
 
 	public void changeStatus(int id, int newStatus) {
 		appointmentDao.changeStatus(id, newStatus);
+	}
+
+	public int getAppointMentUnlockCount(long user_id, int id) {
+		return appointmentDao.getAppointMentUnlockCount(user_id,id);
+	}
+	public int getAppointMentTodayCount(long user_id) {
+		return appointmentDao.getAppointMentTodayCount(user_id);
+	}
+	public void unlock(long user_id, int id) {
+		appointmentDao.unlock(user_id,id);
+	}
+
+	public Appointment load(int id) {
+		return appointmentDao.loadById(id);
 	}
 
 }

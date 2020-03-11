@@ -1111,6 +1111,19 @@ public class UserService {
 
 	}
 
+	public Map<String, Object> costCoin(long user_id,   String aid, int coin) {
+		if (coin < 0) {
+			return ResultUtil.getResultMap(ERROR.ERR_FAILED);
+		}
+		if (coin == 0) {
+			return ResultUtil.getResultOKMap();
+		}
+		Map<String, Object> result = modifyUserExtra(user_id, aid, coin, -1);
+		result.put("cost_coins", coin);
+		return result;
+
+	}
+	
 	/**
 	 * 澧炲姞閲戝竵
 	 * 
@@ -1450,7 +1463,15 @@ public class UserService {
 			saveAvatar(user_id, avatar);
 			faceCheckTask.doCheckFace(getBaseUserNoToken(user_id));
 		}
-		
+	}
+
+	public ModelMap unlock(long user_id, long target_uid) {
+		userDao.getUnlockCount(user_id,target_uid);
+		return null;
+	}
+
+	public boolean isVip(long user_id) {
+		return vipDao.isVip(user_id);
 	}
 
 }

@@ -1324,6 +1324,19 @@ public class UserController {
 	public ModelMap getUserSimpleInfo(@PathVariable long uid) {
 		return ResultUtil.getResultOKMap().addAttribute("user", ImagePathUtil.completeAvatarPath(userService.getBaseUserNoToken(uid),true));
 	}
+	
+	@RequestMapping("unlock")
+	@ApiOperation(httpMethod = "POST", value = "解锁应约") // swagger 当前接口注解
+	@ApiImplicitParams({
+		@ApiImplicitParam(name = "target_uid", value = "解锁聊条功能", paramType = "query", dataType = "Integer") })
+	public ModelMap unlock(long user_id,String token,long target_uid) {
+		if(!userService.checkLogin(user_id, token)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		return userService.unlock(user_id,target_uid);
+	}
+	
+	
 	@RequestMapping("m")
 	public ModelMap m(long f, long to) {
 		return userService.testMakeSession(f, to);

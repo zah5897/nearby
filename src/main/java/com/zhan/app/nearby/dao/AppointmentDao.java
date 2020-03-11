@@ -3,6 +3,7 @@ package com.zhan.app.nearby.dao;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -22,50 +23,50 @@ import com.zhan.app.nearby.util.TextUtils;
 public class AppointmentDao extends BaseDao<Appointment> {
 
 	public List<Appointment> queryAll(long user_id, Integer last_id, int count, Integer theme_id, Integer time_stage,
-			String appointment_time, Integer city_id,String keyword) {
+			String appointment_time, Integer city_id, String keyword) {
 		last_id = (last_id == null ? Integer.MAX_VALUE : last_id);
 
 		List<Object> params = new ArrayList<Object>();
 
-		StringBuilder sql =new StringBuilder("select a.*,u.user_id,u.nick_name,u.sex,u.avatar,u.birthday,u.lat,u.lng,c.name as city_name,th.id as tid,th.name as thname  from "
-				+ getTableName() + " a left join t_user u on a.uid=u.user_id "
-				+ "left join t_sys_city c on a.city_id=c.id "
-				+ "left join t_appointment_theme th on a.theme_id=th.id   where ((a.uid=? and a.status=?) or a.status=?) ");
+		StringBuilder sql = new StringBuilder(
+				"select a.*,u.user_id,u.nick_name,u.sex,u.avatar,u.birthday,u.lat,u.lng,c.name as city_name,th.id as tid,th.name as thname  from "
+						+ getTableName() + " a left join t_user u on a.uid=u.user_id "
+						+ "left join t_sys_city c on a.city_id=c.id "
+						+ "left join t_appointment_theme th on a.theme_id=th.id   where ((a.uid=? and a.status=?) or a.status=?) ");
 
 		params.add(user_id);
 		params.add(AppointmentStatus.CREATE.ordinal());
 		params.add(AppointmentStatus.CHECKED.ordinal());
-		
-		if(theme_id!=null) {
+
+		if (theme_id != null) {
 			sql.append(" and a.theme_id=? ");
 			params.add(theme_id);
 		}
-		
-		if(time_stage!=null) {
+
+		if (time_stage != null) {
 			sql.append(" and a.time_stage=? ");
 			params.add(time_stage);
 		}
-		
-		
-		if(appointment_time!=null) {
+
+		if (appointment_time != null) {
 			sql.append(" and date(a.appointment_time)=?  ");
 			params.add(appointment_time);
 		}
-		if(city_id!=null) {
+		if (city_id != null) {
 			sql.append(" and a.city_id=?  ");
 			params.add(city_id);
 		}
-		
-		if(keyword!=null&&!TextUtils.isEmpty(keyword.trim())) {
+
+		if (keyword != null && !TextUtils.isEmpty(keyword.trim())) {
 			sql.append(" and (a.description like ? or a.street like ?) ");
-			params.add("%"+keyword+"%");
-			params.add("%"+keyword+"%");
+			params.add("%" + keyword + "%");
+			params.add("%" + keyword + "%");
 		}
-		
+
 		sql.append(" and a.id<? order by a.id desc limit ?");
 		params.add(last_id);
 		params.add(count);
-		
+
 		return jdbcTemplate.query(sql.toString(), params.toArray(), appointmentMapper);
 	}
 
@@ -138,5 +139,36 @@ public class AppointmentDao extends BaseDao<Appointment> {
 			return app;
 		}
 	};
+
+	public int getAppointMentUnlockCount(long user_id, int id) {
+		String sql = "select count(*) from t_appointment_unlock where uid=? and id=?";
+		int count = jdbcTemplate.queryForObject(sql, new Object[] { user_id, id }, Integer.class);
+		return count;
+	}
+
+	public int getAppointMentTodayCount(long user_id) {
+		String sql = "select count(*) from t_appointment_unlock where uid=? and to_days(create_time)=to_days(now())";
+		int count = jdbcTemplate.queryForObject(sql, new Object[] { user_id }, Integer.class);
+		return count;
+	}
+
+	public void unlock(long user_id, int id) {
+		jdbcTemplate.update("insert ignore into t_appointment_unlock (uid,id,create_time) values(?,?,?)",
+				new Object[] { user_id, id, new Date() });
+	}
+
+	public Appointment loadById(int id) {
+		String sql = "select a.*,u.user_id,u.nick_name,u.sex,u.avatar,u.lat,u.lng,u.birthday,c.name as city_name,th.id as tid,th.name as thname  from "
+				+ getTableName() + " a left join t_user u on a.uid=u.user_id "
+				+ "left join t_sys_city c on a.city_id=c.id "
+				+ "left join t_appointment_theme th on a.theme_id=th.id   where  a.id=?";
+		List<Appointment> apps = jdbcTemplate.query(sql, new Object[] { id }, appointmentMapper);
+		if (!apps.isEmpty()) {
+			return apps.get(0);
+		}
+		
+		return null;
+		
+	}
 
 }

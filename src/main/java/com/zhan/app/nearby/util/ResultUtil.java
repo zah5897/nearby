@@ -19,6 +19,10 @@ public class ResultUtil {
 		return result;
 	}
 
+	public static ModelMap getResultFailed() {
+		return getResultMap(ERROR.ERR_FAILED);
+	}
+
 	public static ModelMap getResultOKMap(String msg) {
 		ModelMap result = new ModelMap();
 		result.addAttribute("code", ERROR.ERR_NO_ERR.getValue());

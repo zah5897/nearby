@@ -15,6 +15,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.zhan.app.nearby.bean.Avatar;
+import com.zhan.app.nearby.bean.City;
 import com.zhan.app.nearby.comm.UserType;
 import com.zhan.app.nearby.util.TextUtils;
 
@@ -80,11 +81,107 @@ public class BaseUser implements Serializable {
 
 	@Transient // 忽略保存
 	private int fans_count;
+
+	private int meili;
+	@Transient // 忽略保存
+	@JsonIgnore
+	private int isvip;
+
+	@Transient // 忽略保存
+	private boolean is_vip;
+
+	
+	
+	private String lat;
+	private String lng;
+	
+	@JsonIgnore
+	private int city_id;
+	@Transient // 忽略保存
+	private City city;
+	@JsonIgnore
+	private int birth_city_id;
+	@Transient // 忽略保存
+	private City birth_city;
+
+	public int getCity_id() {
+		return city_id;
+	}
+
+	public void setCity_id(int city_id) {
+		this.city_id = city_id;
+	}
+
+	public City getCity() {
+		return city;
+	}
+
+	public void setCity(City city) {
+		this.city = city;
+	}
+
+	public int getBirth_city_id() {
+		return birth_city_id;
+	}
+
+	public void setBirth_city_id(int birth_city_id) {
+		this.birth_city_id = birth_city_id;
+	}
+
+	public City getBirth_city() {
+		return birth_city;
+	}
+
+	public void setBirth_city(City birth_city) {
+		this.birth_city = birth_city;
+	}
+
+	public int getMeili() {
+		return meili;
+	}
+
+	public String getLat() {
+		return lat;
+	}
+
+	public void setLat(String lat) {
+		this.lat = lat;
+	}
+
+	public String getLng() {
+		return lng;
+	}
+
+	public void setLng(String lng) {
+		this.lng = lng;
+	}
+
+	public int getIsvip() {
+		return isvip;
+	}
+
+	public void setIsvip(int isvip) {
+		this.isvip = isvip;
+		this.is_vip = isvip == 1;
+	}
+
+	public boolean isIs_vip() {
+		return is_vip;
+	}
+
+	public void setIs_vip(boolean is_vip) {
+		this.is_vip = is_vip;
+	}
+
+	public void setMeili(int meili) {
+		this.meili = meili;
+	}
+
 	@Transient // 忽略保存
 	private int my_follow_count;
 
 	private String age;
-	
+
 	private String channel;
 
 	public String getChannel() {

@@ -128,6 +128,12 @@ public class MainController {
 		return mainService.meiliList(type, page, count);
 	}
 
+	@RequestMapping("rank_list_v2")
+	public ModelMap rank_list_v2(long user_id,int type, Integer page, Integer count) {
+		return mainService.rank_list_v2(user_id,type, page, count);
+	}
+	
+	
 	// 提现历史记录
 	@RequestMapping("exchange_history")
 	public ModelMap exchange_history(long user_id, String token, String aid, Integer page, Integer count) {

@@ -53,6 +53,7 @@ public class Video {
 	@Transient
 	private BaseUser user;
 	
+	
 	public int getComment_count() {
 		return comment_count;
 	}

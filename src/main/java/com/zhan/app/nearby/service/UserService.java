@@ -28,11 +28,8 @@ import com.zhan.app.nearby.bean.Tag;
 import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.bean.VipUser;
 import com.zhan.app.nearby.bean.user.BaseUser;
-import com.zhan.app.nearby.bean.user.BaseVipUser;
 import com.zhan.app.nearby.bean.user.DetailUser;
-import com.zhan.app.nearby.bean.user.LocationUser;
 import com.zhan.app.nearby.bean.user.LoginUser;
-import com.zhan.app.nearby.bean.user.SimpleUser;
 import com.zhan.app.nearby.cache.UserCacheService;
 import com.zhan.app.nearby.comm.AccountStateType;
 import com.zhan.app.nearby.comm.AvatarIMGStatus;
@@ -92,26 +89,26 @@ public class UserService {
 	@Autowired
 	private CommAsyncTask commAsyncTask;
 
-	
 	@Autowired
 	private HXAsyncTask hxTask;
-	
+
 	public BaseUser getBasicUser(long id) {
 		return userDao.getBaseUser(id);
 	}
 
-	public BaseVipUser getBaseVipUser(long id) {
+	public BaseUser getBaseVipUser(long id) {
 		return userDao.getBaseVipUser(id);
 	}
+
 	public BaseUser findBaseUserByMobile(String mobile) {
 		return userDao.findBaseUserByMobile(mobile);
 	}
 
-	public LocationUser findLocationUserByMobile(String mobile) {
+	public LoginUser findLocationUserByMobile(String mobile) {
 		return userDao.findLocationUserByMobile(mobile);
 	}
 
-	public LocationUser findLocationUserByOpenId(String openid) {
+	public LoginUser findLocationUserByOpenId(String openid) {
 		return userDao.findLocationUserByOpenid(openid);
 	}
 
@@ -177,8 +174,7 @@ public class UserService {
 		commAsyncTask.getUserLocationByIP(user, user.getIp());
 		return id;
 	}
-	
-	
+
 	public void doCheckIsFace(BaseUser user) {
 		faceCheckTask.doCheckFace(user);
 	}
@@ -277,7 +273,6 @@ public class UserService {
 			}
 
 			ImagePathUtil.completeAvatarPath(user, true); // 补全图片链接地址
-			user.hideSysInfo();
 		}
 		return user;
 	}
@@ -292,7 +287,7 @@ public class UserService {
 	}
 
 	@Transactional
-	public int visitorToNormal(SimpleUser user, boolean isNeedHX) {
+	public int visitorToNormal(LoginUser user, boolean isNeedHX) {
 		int count = userDao.visitorToNormal(user.getUser_id(), user.getMobile(), user.getPassword(), user.getToken(),
 				user.getNick_name(), user.getBirthday(), user.getSex(), user.getAvatar(), user.getLast_login_time());
 		if (count > 0) {
@@ -414,7 +409,6 @@ public class UserService {
 		user.setCity(cc);
 
 		ModelMap r = ResultUtil.getResultOKMap();
-		user.setIs_vip(vipDao.isVip(user_id_for));
 		user.setAvatars(getUserAvatars(user_id_for));
 
 		if (!TextUtils.isEmpty(user.getContact()) && uid != user_id_for) {
@@ -441,7 +435,8 @@ public class UserService {
 			relationShip = 7;
 		}
 		r.put("relationship", relationShip);
-		r.addAttribute("meili", giftService.getUserMeiLiVal(user_id_for));
+//		r.addAttribute("meili", giftService.getUserMeiLiVal(user_id_for));
+		r.addAttribute("meili", user.getMeili());
 		r.addAttribute("coins", giftService.getUserCoins(aid, user_id_for));
 		r.addAttribute("like_count", giftService.getUserBeLikeVal(user_id_for));
 		return r;
@@ -477,7 +472,6 @@ public class UserService {
 		user.setCity(cc);
 
 		ModelMap r = ResultUtil.getResultOKMap();
-		user.setIs_vip(vipDao.isVip(user_id_for));
 		user.setAvatars(getUserAvatars(user_id_for));
 
 		if (!TextUtils.isEmpty(user.getContact()) && uid != user_id_for) {
@@ -504,7 +498,8 @@ public class UserService {
 			relationShip = 7;
 		}
 		r.put("relationship", relationShip);
-		r.addAttribute("meili", giftService.getUserMeiLiVal(user_id_for));
+//		r.addAttribute("meili", giftService.getUserMeiLiVal(user_id_for));
+		r.addAttribute("meili", user.getMeili());
 		r.addAttribute("coins", giftService.getUserCoins(aid, user_id_for));
 		r.addAttribute("like_count", giftService.getUserBeLikeVal(user_id_for));
 		return r;
@@ -944,26 +939,22 @@ public class UserService {
 //			// 触发随机匹配会话
 //			checkHowLongNotOpenApp(user);
 //			return result;
-			
-			return getUserDetailResult(user_id,token,aid);
+
+			return getUserDetailResult(user_id, token, aid);
 		} else {
-			return ResultUtil.getResultMap(ERROR.ERR_FAILED, "鐧诲綍澶辫触");
+			return ResultUtil.getResultMap(ERROR.ERR_FAILED);
 		}
 	}
 
-	
-	
-	public ModelMap getUserDetailResult(long user_id,String token,String aid) {
+	public ModelMap getUserDetailResult(long user_id, String token, String aid) {
 		ModelMap result = ResultUtil.getResultOKMap();
 		DetailUser user = userDao.getUserDetailInfo(user_id);
 		user.setToken(token);
 		ImagePathUtil.completeAvatarPath(user, true); // 琛ュ叏鍥剧墖閾炬帴鍦板潃
 
 		VipUser vip = loadUserVipInfo(aid, user.getUser_id());
-
 		if (vip != null && vip.getDayDiff() >= 0) {
-			user.setVip(true);
-			user.setIs_vip(true);
+			user.setIsvip(1);
 		}
 
 		result.put("user", user);
@@ -973,7 +964,7 @@ public class UserService {
 		checkHowLongNotOpenApp(user);
 		return result;
 	}
-	
+
 	public void saveUserOnline(long uid) {
 		try {
 			userDao.saveUserOnline(uid);
@@ -1030,9 +1021,9 @@ public class UserService {
 
 	public void removeRecommendAndMeetBottle(long user_id) {
 		userDao.removeFromFound(user_id);
-		managerService.editUserMeetBottle(user_id,0, "127.0.0.1", "admin"); //从邂逅瓶里面删除
+		managerService.editUserMeetBottle(user_id, 0, "127.0.0.1", "admin"); // 从邂逅瓶里面删除
 	}
-	
+
 	public List<Avatar> listNotCheckedAvatars(int count) {
 		return userDao.listNotCheckedAvatars(count);
 	}
@@ -1041,16 +1032,16 @@ public class UserService {
 		return userDao.listConfirmAvatars(state, pageSize, pageIndex, user_id);
 	}
 
-	public List<BaseUser> listAvatarsByUid(int pageSize, int pageIndex, Long user_id,String nickName) {
-		return userDao.listAvatarsByUid(pageSize, pageIndex, user_id,nickName);
+	public List<BaseUser> listAvatarsByUid(int pageSize, int pageIndex, Long user_id, String nickName) {
+		return userDao.listAvatarsByUid(pageSize, pageIndex, user_id, nickName);
 	}
 
 	public int getCountOfConfirmAvatars(Long user_id, int state) {
 		return userDao.getCountOfConfirmAvatars(user_id, state);
 	}
 
-	public int getCountOfUserAvatars(Long user_id,String nickName) {
-		return userDao.getCountOfUserAvatars(user_id,nickName);
+	public int getCountOfUserAvatars(Long user_id, String nickName) {
+		return userDao.getCountOfUserAvatars(user_id, nickName);
 	}
 
 	public int getUserState(long uid) {
@@ -1111,7 +1102,7 @@ public class UserService {
 
 	}
 
-	public Map<String, Object> costCoin(long user_id,   String aid, int coin) {
+	public Map<String, Object> costCoin(long user_id, String aid, int coin) {
 		if (coin < 0) {
 			return ResultUtil.getResultMap(ERROR.ERR_FAILED);
 		}
@@ -1123,7 +1114,7 @@ public class UserService {
 		return result;
 
 	}
-	
+
 	/**
 	 * 澧炲姞閲戝竵
 	 * 
@@ -1216,7 +1207,7 @@ public class UserService {
 
 	public ModelMap followUsers(long user_id, boolean isFollowMe, Integer page, Integer count) {
 		int c = count == null ? 20 : count;
-		List<BaseVipUser> users = userDao.followUsers(user_id, isFollowMe, page == null ? 1 : page, c);
+		List<BaseUser> users = userDao.followUsers(user_id, isFollowMe, page == null ? 1 : page, c);
 		ImagePathUtil.completeAvatarsPath(users, true);
 		long last_id = users.size() == 0 ? 0 : users.get(users.size() - 1).getUser_id();
 		return ResultUtil.getResultOKMap().addAttribute("users", users).addAttribute("hasMore", users.size() == c)
@@ -1238,7 +1229,7 @@ public class UserService {
 	public void testLongTimeNoLogin(long user_id, long target_id) {
 		BaseUser i = userDao.getBaseUser(user_id);
 		BaseUser he = userDao.getBaseUser(target_id);
-		hxTask.makeChatSession(i, he, 0);
+		hxTask.createChatSessionRandMsg(i, he);
 	}
 
 	/**
@@ -1259,7 +1250,7 @@ public class UserService {
 	public ModelMap testMakeSession(long f, long to) {
 		BaseUser fu = userDao.getBaseUser(f);
 		BaseUser toU = userDao.getBaseUser(to);
-		hxTask.makeChatSession(fu, toU, 0);
+		hxTask.createChatSessionRandMsg(fu, toU);
 		return ResultUtil.getResultOKMap();
 	}
 
@@ -1313,7 +1304,7 @@ public class UserService {
 	public ModelMap doLogin(LoginUser tempUser, String _ua, String aid, City defaultCity) {
 
 		// login by openid;
-		LocationUser user = userDao.findLocationUserByOpenid(tempUser.getOpenid());
+		LoginUser user = userDao.findLocationUserByOpenid(tempUser.getOpenid());
 
 		if (user == null)
 
@@ -1350,7 +1341,7 @@ public class UserService {
 		}
 		VipUser vip = loadUserVipInfo(aid, user.getUser_id());
 		if (vip != null && vip.getDayDiff() >= 0) {
-			user.setVip(true);
+			user.setIsvip(1);
 		}
 		result.put("user", user);
 		// result.put("all_coins", userService.loadUserCoins(aid, user.getUser_id()));
@@ -1418,7 +1409,7 @@ public class UserService {
 		if (womenUids.isEmpty()) { //
 			return false;
 		}
-		
+
 		do {
 			int startIndex = new Random().nextInt(count);
 			List<BaseUser> mans = userDao.getActiveManToMatch(days, startIndex, 1);
@@ -1426,18 +1417,18 @@ public class UserService {
 				continue;
 			}
 			BaseUser man = mans.get(0);
-			
+
 			int womanstartIndex = new Random().nextInt(womenUids.size());
 			BaseUser woman = userDao.getBaseUserNoToken(womenUids.get(womanstartIndex));
-			womenUids.remove(womanstartIndex);//移除，防止下次被重新拿到
+			womenUids.remove(womanstartIndex);// 移除，防止下次被重新拿到
 
 			String msg = HX_SessionUtil.getRandomMsg();
 			ImagePathUtil.completeAvatarPath(woman, true);
 			ImagePathUtil.completeAvatarPath(man, true);
 
 			saveMatchLog(man.getUser_id(), woman.getUser_id());
-			hxTask.matchCopyDraw(woman, man.getUser_id(), msg);
-			hxTask.matchCopyDraw(man, woman.getUser_id(), msg);
+
+			hxTask.createChatSession(woman, man, msg);
 
 			everyTimesCount--;
 			count--;
@@ -1457,21 +1448,60 @@ public class UserService {
 		return userDao.getOpenIdByUid(user_id);
 	}
 
-	public void updateBaseInfo(long user_id, String nick_name, String avatar,Date birthday, City city) {
-		userDao.updateBaseInfo(user_id,nick_name,avatar,birthday,city);
-		if(!TextUtils.isEmpty(avatar)) {
+	public void updateBaseInfo(long user_id, String nick_name, String avatar, Date birthday, City city) {
+		userDao.updateBaseInfo(user_id, nick_name, avatar, birthday, city);
+		if (!TextUtils.isEmpty(avatar)) {
 			saveAvatar(user_id, avatar);
 			faceCheckTask.doCheckFace(getBaseUserNoToken(user_id));
 		}
 	}
 
-	public ModelMap unlock(long user_id, long target_uid) {
-		userDao.getUnlockCount(user_id,target_uid);
-		return null;
+	public ModelMap unlockChat(long user_id, String aid, long target_uid) {
+		int count = userDao.getUnlockChatCount(user_id, target_uid);
+		if (count > 0) {
+			return ResultUtil.getResultOKMap();
+		}
+		// 解锁聊天，消耗一个金币
+		Map<String, Object> r = costCoin(user_id, aid, 1);
+		if (r != null) {
+			Object all_coinsObj = r.get("all_coins");
+			if (all_coinsObj == null) {
+				return ResultUtil.getResultFailed();
+			}
+			int all_coins = (int) all_coinsObj;
+			if (all_coins >= 0) {
+				userDao.unlockChat(user_id, target_uid);
+				return ResultUtil.getResultOKMap();
+			} else {
+				return ResultUtil.getResultMap(ERROR.ERR_COINS_SHORT);
+			}
+		} else {
+			return ResultUtil.getResultFailed();
+		}
+	}
+
+	public boolean isUnlock(long user_id, long target_uid) {
+		return userDao.getUnlockChatCount(user_id, target_uid) > 0;
+	}
+
+	public void markUnlock(long user_id, long target_uid) {
+		userDao.unlockChat(user_id, target_uid);
 	}
 
 	public boolean isVip(long user_id) {
 		return vipDao.isVip(user_id);
 	}
 
+	public void updateMeiLiValue(long user_id, int addMeiLi) {
+		userDao.addMeili(user_id, addMeiLi);
+	}
+
+	public void updateUserVipVal(long user_id, boolean isVip) {
+		userDao.updateUserVipVal(user_id, isVip);
+	}
+
+	public void updateUserLOcation(long uid,String lat, String lng) {
+		userDao.updateUserLocation(uid,lat,lng);
+	}
+	 
 }

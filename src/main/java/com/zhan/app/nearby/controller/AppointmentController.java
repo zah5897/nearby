@@ -2,7 +2,6 @@ package com.zhan.app.nearby.controller;
 
 import java.text.ParseException;
 import java.util.List;
-import java.util.Map;
 
 import javax.annotation.Resource;
 
@@ -68,6 +67,8 @@ public class AppointmentController {
 		appointment.setTime_stage(time_stage);
 		appointment.setTheme_id(theme_id);
 		appointment.setStreet(Street);
+		appointment.setLat(lat);
+		appointment.setLng(lng);
 		appointment.setChannel(channel);
 		try {
 			appointment.setAppointment_time(DateTimeUtil.parse(appointment_time, "yyyy-MM-dd"));
@@ -81,6 +82,7 @@ public class AppointmentController {
 		appointment.setImage(image_names);
 		appointmentService.save(appointment, ios_addr, android_addr);
 		ImagePathUtil.completePath(appointment);
+		userService.updateUserLOcation(user_id,lat,lng);
 		return ResultUtil.getResultOKMap().addAttribute("dating", appointment);
 	}
 
@@ -171,23 +173,23 @@ public class AppointmentController {
                 return ResultUtil.getResultMap(ERROR.ERR_FAILED,"非vip每日只能应约5次");				
 			}
 		}
-		
-		Map<String, Object> r=userService.costCoin(user_id,aid,1);
-		if(r!=null) {
-          Object all_coinsObj=r.get("all_coins");
-          if(all_coinsObj==null) {
-        	  return ResultUtil.getResultFailed();
-          }
-          int all_coins=(int) all_coinsObj;
-          if(all_coins>=0) {
-        	  appointmentService.unlock(user_id,id);
-        	  return ResultUtil.getResultOKMap();
-          }else {
-        	  return ResultUtil.getResultMap(ERROR.ERR_COINS_SHORT);
-          }
-		}else {
-			 return ResultUtil.getResultFailed();
-		}
+		return ResultUtil.getResultOKMap();
+//		Map<String, Object> r=userService.costCoin(user_id,aid,1);
+//		if(r!=null) {
+//          Object all_coinsObj=r.get("all_coins");
+//          if(all_coinsObj==null) {
+//        	  return ResultUtil.getResultFailed();
+//          }
+//          int all_coins=(int) all_coinsObj;
+//          if(all_coins>=0) {
+//        	  appointmentService.unlock(user_id,id);
+//        	  return ResultUtil.getResultOKMap();
+//          }else {
+//        	  return ResultUtil.getResultMap(ERROR.ERR_COINS_SHORT);
+//          }
+//		}else {
+//			 return ResultUtil.getResultFailed();
+//		}
 	}
 
 }

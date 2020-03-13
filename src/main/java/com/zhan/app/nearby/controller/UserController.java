@@ -28,7 +28,6 @@ import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.bean.VipUser;
 import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.bean.user.DetailUser;
-import com.zhan.app.nearby.bean.user.LocationUser;
 import com.zhan.app.nearby.bean.user.LoginUser;
 import com.zhan.app.nearby.cache.UserCacheService;
 import com.zhan.app.nearby.comm.AccountStateType;
@@ -557,7 +556,7 @@ public class UserController {
 	public ModelMap loginByMobile(String mobile, String password, String openid, String _ua, String aid,
 			String bDeleteIM, String device_token) {
 
-		LocationUser user = null;
+		LoginUser user = null;
 		if (TextUtils.isEmpty(openid)) {
 			if (TextUtils.isEmpty(mobile) || TextUtils.isEmpty(password)) {
 				return ResultUtil.getResultMap(ERROR.ERR_PARAM, "手机号码或密码不能为空");
@@ -607,9 +606,6 @@ public class UserController {
 					user.setBirth_city(cityService.getSimpleCity(user.getBirth_city_id()));
 				}
 				VipUser vip = userService.loadUserVipInfo(aid, user.getUser_id());
-				if (vip != null && vip.getDayDiff() >= 0) {
-					user.setVip(true);
-				}
 				result.put("user", user);
 				// result.put("all_coins", userService.loadUserCoins(aid, user.getUser_id()));
 				result.put("vip", vip);
@@ -758,7 +754,6 @@ public class UserController {
 			return ResultUtil.getResultMap(ERROR.ERR_USER_NOT_EXIST, "该用户不存在！");
 		} else {
 			ModelMap result = ResultUtil.getResultOKMap();
-			u.hideSysInfo();
 			ImagePathUtil.completeAvatarPath(u, true); // 补全图片链接地址
 			Map<String, Object> juser = JSONUtil.jsonToMap(u);
 			juser.put("relationship", userService.getRelationShip(user_id, user_id_for).ordinal());
@@ -1325,17 +1320,37 @@ public class UserController {
 		return ResultUtil.getResultOKMap().addAttribute("user", ImagePathUtil.completeAvatarPath(userService.getBaseUserNoToken(uid),true));
 	}
 	
-	@RequestMapping("unlock")
-	@ApiOperation(httpMethod = "POST", value = "解锁应约") // swagger 当前接口注解
+	@RequestMapping("unlock_chat")
+	@ApiOperation(httpMethod = "POST", value = "解锁聊天功能") // swagger 当前接口注解
 	@ApiImplicitParams({
 		@ApiImplicitParam(name = "target_uid", value = "解锁聊条功能", paramType = "query", dataType = "Integer") })
-	public ModelMap unlock(long user_id,String token,long target_uid) {
+	public ModelMap unlock_chat(long user_id,String token,String aid,long target_uid) {
 		if(!userService.checkLogin(user_id, token)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
-		return userService.unlock(user_id,target_uid);
+		return userService.unlockChat(user_id, aid, target_uid);
 	}
-	
+	@RequestMapping("chat_is_unlock")
+	@ApiOperation(httpMethod = "POST", value = "查询是否解锁") // swagger 当前接口注解
+	@ApiImplicitParams({
+		@ApiImplicitParam(name = "target_uid", value = "解锁对方id", paramType = "query", dataType = "Integer") })
+	public ModelMap chat_is_unlock(long user_id,String token,String aid,long target_uid) {
+		if(!userService.checkLogin(user_id, token)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		return ResultUtil.getResultOKMap().addAttribute("is_unlock", userService.isUnlock(user_id, target_uid));
+	}
+	@RequestMapping("mark_chat_unlock")
+	@ApiOperation(httpMethod = "POST", value = "客户端主动标记解锁") // swagger 当前接口注解
+	@ApiImplicitParams({
+		@ApiImplicitParam(name = "target_uid", value = "解锁对方id", paramType = "query", dataType = "Integer") })
+	public ModelMap mark_chat_unlock(long user_id,String token,String aid,long target_uid) {
+		if(!userService.checkLogin(user_id, token)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		userService.markUnlock(user_id, target_uid);
+		return ResultUtil.getResultOKMap();
+	}
 	
 	@RequestMapping("m")
 	public ModelMap m(long f, long to) {

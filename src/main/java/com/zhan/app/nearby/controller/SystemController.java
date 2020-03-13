@@ -12,10 +12,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.zhan.app.nearby.bean.BGM;
 import com.zhan.app.nearby.bean.Report;
-import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.service.MainService;
 import com.zhan.app.nearby.service.UserService;
-import com.zhan.app.nearby.task.HXAsyncTask;
+import com.zhan.app.nearby.task.CommAsyncTask;
 import com.zhan.app.nearby.util.BottleKeyWordUtil;
 import com.zhan.app.nearby.util.IPUtil;
 import com.zhan.app.nearby.util.ResultUtil;
@@ -28,9 +27,9 @@ public class SystemController {
 	private UserService userService;
 	@Autowired
 	private MainService mainService;
-	@Autowired
-	private HXAsyncTask hxAsyncTask;
 	
+	@Autowired 
+	private CommAsyncTask commonTask;
     
 	@Deprecated
 	@RequestMapping("report")

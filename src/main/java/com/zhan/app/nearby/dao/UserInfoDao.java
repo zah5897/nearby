@@ -18,7 +18,6 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
 import com.zhan.app.nearby.bean.mapper.FateUserMapper;
-import com.zhan.app.nearby.bean.mapper.FoundUserMapper;
 import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.bean.user.DetailUser;
 import com.zhan.app.nearby.comm.Relationship;
@@ -122,14 +121,6 @@ public class UserInfoDao extends BaseDao<BaseUser> {
 				new Object[] { user_id, id });
 	}
 
-	public List<DetailUser> getRandUsers(long user_id, String lat, String lng, int count) {
-		String disc = " ROUND(6378.138*2*ASIN(SQRT(POW(SIN((?*PI()/180-lat*PI()/180)/2),2)+COS(?*PI()/180)*COS(lat*PI()/180)*POW(SIN((?*PI()/180-lng*PI()/180)/2),2)))*1000) AS juli";
-		return jdbcTemplate.query(
-				"select user_id,avatar, nick_name,type,birthday,job_ids,lat,lng,interest_ids, " + disc
-						+ " from t_user where user_id<>? order by rand() limit ?",
-				new Object[] { lat, lat, lng, user_id, count }, new FoundUserMapper());
-
-	}
 
 	public void updateRelationship(long user_id, long with_user_id, int relation_ship) {
 		jdbcTemplate.update("delete from t_relationship where user_id=? and with_user_id=?",

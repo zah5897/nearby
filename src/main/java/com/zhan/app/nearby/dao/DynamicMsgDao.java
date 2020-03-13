@@ -5,10 +5,8 @@ import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 
-import javax.annotation.Resource;
 
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import com.zhan.app.nearby.bean.DynamicComment;
@@ -16,7 +14,6 @@ import com.zhan.app.nearby.bean.DynamicMessage;
 import com.zhan.app.nearby.bean.mapper.DynamicMsgMapper;
 import com.zhan.app.nearby.bean.type.DynamicMsgStatus;
 import com.zhan.app.nearby.bean.user.BaseUser;
-import com.zhan.app.nearby.bean.user.BaseVipUser;
 import com.zhan.app.nearby.comm.DynamicMsgType;
 import com.zhan.app.nearby.comm.MsgState;
 import com.zhan.app.nearby.comm.Relationship;
@@ -53,8 +50,7 @@ public class DynamicMsgDao extends BaseDao<DynamicMessage> {
 
 	public DynamicMessage loadMsg(long msg_id) {
 		String sql = "select * from " + getTableName() + "  where id=?";
-		List<DynamicMessage> msgs = jdbcTemplate.query(sql, new Object[] { msg_id },
-				getEntityMapper());
+		List<DynamicMessage> msgs = jdbcTemplate.query(sql, new Object[] { msg_id }, getEntityMapper());
 		if (msgs != null && msgs.size() > 0) {
 			return msgs.get(0);
 		}
@@ -93,52 +89,44 @@ public class DynamicMsgDao extends BaseDao<DynamicMessage> {
 	}
 
 	public List<DynamicMessage> getMyMeetLatest(long user_id) {
-		String sql = "select msg.* from  " + getTableName() + " msg  "
-				+ " left join t_bottle b on msg.obj_id=b.id  "
+		String sql = "select msg.* from  " + getTableName() + " msg  " + " left join t_bottle b on msg.obj_id=b.id  "
 				+ " left join t_latest_tip_time la on msg.user_id=la.uid  "
 				+ " where msg.user_id=? and msg.type=? and msg.create_time>la.last_time order by msg.create_time";
-		return jdbcTemplate.query(sql, new Object[] { user_id, DynamicMsgType.TYPE_MEET.ordinal() },
-				getEntityMapper());
+		return jdbcTemplate.query(sql, new Object[] { user_id, DynamicMsgType.TYPE_MEET.ordinal() }, getEntityMapper());
 	}
 
-	public List<DynamicMessage> loadMsg(long user_id, Long last_id, int count,boolean noMeet) {
+	public List<DynamicMessage> loadMsg(long user_id, Long last_id, int count, boolean noMeet) {
 
-		if (last_id == null||last_id<1) {
+		if (last_id == null || last_id < 1) {
 			last_id = Long.MAX_VALUE;
 		}
-		
-		String sql = "select msg.*,u.nick_name,u.avatar,u.user_id ,u.sex,v.vip_id "
-				+ "   from  " + getTableName() + " msg "
-				+ " left join t_user u on msg.by_user_id=u.user_id "
-				+ "  left join t_user_vip v on msg.by_user_id=v.user_id  "
+
+		String sql = "select msg.*,u.nick_name,u.avatar,u.user_id ,u.sex,u.isvip " + "   from  " + getTableName()
+				+ " msg " + " left join t_user u on msg.by_user_id=u.user_id "
 				+ " where msg.user_id=? and msg.id<?  order by msg.id desc limit ?";
-		if(noMeet) {
-		  sql = "select msg.*,u.nick_name,u.avatar,u.user_id ,u.sex,v.vip_id "
-					+ "   from  " + getTableName() + " msg "
-					+ " left join t_user u on msg.by_user_id=u.user_id "
-					+ "  left join t_user_vip v on msg.by_user_id=v.user_id  "
-					+ " where msg.user_id=? and msg.type<>"+DynamicMsgType.TYPE_MEET.ordinal()+" and msg.id<?  order by msg.id desc limit ?";
+		if (noMeet) {
+			sql = "select msg.*,u.nick_name,u.avatar,u.user_id ,u.sex,u.isvip " + "   from  " + getTableName()
+					+ " msg " + " left join t_user u on msg.by_user_id=u.user_id "
+					+ " where msg.user_id=? and msg.type<>" + DynamicMsgType.TYPE_MEET.ordinal()
+					+ " and msg.id<?  order by msg.id desc limit ?";
 		}
-		
+
 		return jdbcTemplate.query(sql, new Object[] { user_id, last_id, count },
 				new BeanPropertyRowMapper<DynamicMessage>(DynamicMessage.class) {
-			@Override
-			public DynamicMessage mapRow(ResultSet rs, int rowNumber) throws SQLException {
-				DynamicMessage msg= super.mapRow(rs, rowNumber);
-				BaseVipUser u = new BaseVipUser();
-				u.setUser_id(rs.getLong("by_user_id"));
-				u.setNick_name(rs.getString("nick_name"));
-				u.setAvatar(rs.getString("avatar"));
-				u.setSex(rs.getString("sex"));
-				ImagePathUtil.completeAvatarPath(u, true);
-				Object vipObj = rs.getObject("vip_id");
-				if (vipObj != null && !"null".equals(vipObj.toString())) {
-					u.setVip(true);
-				}
-				msg.setFrom(u);
-				return msg;
-			}
-		});
+					@Override
+					public DynamicMessage mapRow(ResultSet rs, int rowNumber) throws SQLException {
+						DynamicMessage msg = super.mapRow(rs, rowNumber);
+						BaseUser u = new BaseUser();
+						u.setUser_id(rs.getLong("by_user_id"));
+						u.setNick_name(rs.getString("nick_name"));
+						u.setAvatar(rs.getString("avatar"));
+						u.setSex(rs.getString("sex"));
+						ImagePathUtil.completeAvatarPath(u, true);
+						u.setIsvip(rs.getInt("isvip"));
+						msg.setFrom(u);
+						return msg;
+					}
+				});
 	}
 
 	public int deleteFrom(long user_id) {
@@ -146,20 +134,21 @@ public class DynamicMsgDao extends BaseDao<DynamicMessage> {
 		return jdbcTemplate.queryForObject(sql, Integer.class);
 	}
 
-	public int getUnReadMsgCount(long user_id,boolean noMeet) {
-		if(noMeet) {
-			String sql = "select count(*) from  " + getTableName() + " where user_id=" + user_id+ " and isReadNum=0 and type<>"+DynamicMsgType.TYPE_MEET.ordinal();
+	public int getUnReadMsgCount(long user_id, boolean noMeet) {
+		if (noMeet) {
+			String sql = "select count(*) from  " + getTableName() + " where user_id=" + user_id
+					+ " and isReadNum=0 and type<>" + DynamicMsgType.TYPE_MEET.ordinal();
 			return jdbcTemplate.queryForObject(sql, Integer.class);
-		}else {
-			String sql = "select count(*) from  " + getTableName() + " where user_id=" + user_id+ " and isReadNum=0";
+		} else {
+			String sql = "select count(*) from  " + getTableName() + " where user_id=" + user_id + " and isReadNum=0";
 			return jdbcTemplate.queryForObject(sql, Integer.class);
 		}
-			
+
 	}
 
 	public void clearMsg(long user_id, long last_id) {
-         String sql="delete from "+getTableName()+" where user_id=? and id>? ";
-         jdbcTemplate.update(sql,new Object[] {user_id,last_id});
+		String sql = "delete from " + getTableName() + " where user_id=? and id>? ";
+		jdbcTemplate.update(sql, new Object[] { user_id, last_id });
 	}
 
 	public List<DynamicMessage> getPraseMsg(long user_id) {

@@ -7,7 +7,7 @@ import java.util.Date;
 import org.springframework.jdbc.core.RowMapper;
 
 import com.zhan.app.nearby.bean.UserDynamic;
-import com.zhan.app.nearby.bean.user.BaseVipUser;
+import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.comm.LikeDynamicState;
 import com.zhan.app.nearby.util.DateTimeUtil;
 import com.zhan.app.nearby.util.ImagePathUtil;
@@ -43,7 +43,7 @@ public class DynamicMapper implements RowMapper<UserDynamic> {
 			dynamic.setLike_state(LikeDynamicState.UNLIKE.ordinal());
 		}
 
-		BaseVipUser user = new BaseVipUser();
+		BaseUser user = new BaseUser();
 
 		user.setUser_id(rs.getLong("user_id"));
 		user.setNick_name(rs.getString("nick_name"));
@@ -51,17 +51,10 @@ public class DynamicMapper implements RowMapper<UserDynamic> {
 		user.setSex(rs.getString("sex"));
 		user.setType(rs.getShort("type"));
 		Date birthday = rs.getDate("birthday");
+		int is_vip=rs.getInt("isvip");
+		user.setIsvip(is_vip);
 		user.setAge(DateTimeUtil.getAge(birthday));
 		ImagePathUtil.completeAvatarPath(user, true);
-
-		try {
-			Object vipObj = rs.getObject("vip_id");
-			if (vipObj != null && !"null".equals(vipObj.toString())) {
-				user.setVip(true);
-			}
-		} catch (Exception e) {
-			// TODO: handle exception
-		}
 
 		dynamic.setUser(user);
 		return dynamic;

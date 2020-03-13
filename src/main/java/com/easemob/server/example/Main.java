@@ -28,8 +28,6 @@ public class Main {
 		}
 	}
 
-	
-
 	public static void main(String[] args) throws Exception {
 		// initFactory();
 		// IMUserAPI user = (IMUserAPI)
@@ -129,9 +127,9 @@ public class Main {
 //		Map map=new HashMap<>();
 //		map.put("image_id", "0");
 //		Main.sendTxtMessage("admin", new String[] {"133258"},map);
-		//disconnectUser("1");
+		// disconnectUser("1");
 		initFactory();
-		String token=ClientContext.getInstance().getAuthToken();
+		String token = ClientContext.getInstance().getAuthToken();
 		System.out.println(token);
 	}
 
@@ -165,19 +163,18 @@ public class Main {
 		initFactory();
 
 		IMUserAPI user = (IMUserAPI) factory.newInstance(EasemobRestAPIFactory.USER_CLASS);
-		
+
 		Map<String, String> payload = new HashMap<String, String>();
 		payload.put("nickname", nickname);
 		return user.modifyIMUserNickNameWithAdminToken(userName, payload);
 	}
 
-	public static Object sendTxtMessageByAdmin(String[] users, String msgTxt, Map<String, String> ext,
-			String TYPE) {
+	public static Object sendTxtMessageByAdmin(String[] users, String msgTxt, Map<String, String> ext, String TYPE) {
 		if (ext == null) {
 			ext = new HashMap<String, String>();
 		}
 		ext.put("send_by_admim", "admin");
-		String alert =  "系统消息:" + msgTxt;
+		String alert = "系统消息:" + msgTxt;
 		Map<String, String> apns = new HashMap<String, String>();
 		apns.put("type", TYPE);
 		apns.put("msg", msgTxt);
@@ -195,22 +192,27 @@ public class Main {
 		SendMessageAPI message = (SendMessageAPI) factory.newInstance(EasemobRestAPIFactory.SEND_MESSAGE_CLASS);
 		return message.sendMessage(payload);
 	}
-	
-	public static Object sendTxtMessage(BaseUser fromUser, String[] users, String msgTxt, Map<String, String> ext,
-			String TYPE) {
+
+	public static Object sendTxtMessage(long from, String[] users, String msgTxt, Map<String, String> ext) {
+		return sendTxtMessage(String.valueOf(from), users, msgTxt, ext);
+	}
+
+	public static Object sendTxtMessage(BaseUser from, String[] users, String msgTxt, Map<String, String> ext) {
+		return sendTxtMessage(String.valueOf(from.getUser_id()), users, msgTxt, ext);
+	}
+
+	public static Object sendTxtMessage(String from, String[] users, String msgTxt, Map<String, String> ext) {
+
+		String TYPE = "NEW_CONVERSATION";
 
 		if (ext == null) {
 			ext = new HashMap<String, String>();
 		}
-		ImagePathUtil.completeAvatarPath(fromUser, true);
-		
-		ext.put("nickname", fromUser.getNick_name());
-		ext.put("avatar", fromUser.getAvatar());
-		ext.put("origin_avatar", fromUser.getOrigin_avatar());
-		
-		
+
+		String nickName = ext.get("nickname");
+
 		ext.put("send_by_admim", "admin");
-		String alert = fromUser.getNick_name() + ":" + msgTxt;
+		String alert = nickName + ":" + msgTxt;
 		Map<String, String> apns = new HashMap<String, String>();
 		apns.put("type", TYPE);
 		apns.put("msg", msgTxt);
@@ -224,7 +226,7 @@ public class Main {
 			e.printStackTrace();
 		}
 		initFactory();
-		BodyWrapper payload = new TextMessageBody("users", users, String.valueOf(fromUser.getUser_id()), ext, msgTxt);
+		BodyWrapper payload = new TextMessageBody("users", users, from, ext, msgTxt);
 		SendMessageAPI message = (SendMessageAPI) factory.newInstance(EasemobRestAPIFactory.SEND_MESSAGE_CLASS);
 		return message.sendMessage(payload);
 	}
@@ -236,9 +238,6 @@ public class Main {
 		}
 		ext.put("send_by_admim", SYS);
 
-		
-		
-		
 		Map<String, String> apns = new HashMap<String, String>();
 		apns.put("type", ext.get("type"));
 		apns.put("msg", ext.get("msg"));
@@ -251,8 +250,7 @@ public class Main {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
-		
+
 		initFactory();
 		BodyWrapper payload = new CmdMessageBody("users", toUsers, SYS, ext);
 		SendMessageAPI message = (SendMessageAPI) factory.newInstance(EasemobRestAPIFactory.SEND_MESSAGE_CLASS);

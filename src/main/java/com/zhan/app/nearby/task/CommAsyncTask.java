@@ -1,8 +1,8 @@
 package com.zhan.app.nearby.task;
 
-import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
@@ -21,6 +21,8 @@ import com.zhan.app.nearby.util.TextUtils;
 @Component
 public class CommAsyncTask {
 
+	@Autowired
+	private UserService userService;
 	@Async
 	public void getDynamicLocation(final String ip, final UserDynamic dynamic, final String ios_addr) {
 		dynamic.setIp(ip);
@@ -64,6 +66,7 @@ public class CommAsyncTask {
 		AddressUtil.setCity(dynamic, address);
 		UserDynamicService userDynamicService = ((UserDynamicService) SpringContextUtil.getBean("userDynamicService"));
 		userDynamicService.updateAddress(dynamic);
+		userService.updateUserLOcation(dynamic.getUser_id(),dynamic.getLat(),dynamic.getLng());
 	}
 	
 	@Async
@@ -87,13 +90,20 @@ public class CommAsyncTask {
 			return;
 		}
 		
-		UserService userService = SpringContextUtil.getBean("userService");
 		userService.updateUserBirthCity(user.getUser_id(), userLocation);
+	}
+	
+	@Async
+	public void updateMeiLiValByGift(long user_id,int coins) {
+		userService.updateMeiLiValue(user_id, coins*5);
+	}
+	@Async
+	public void updateMeiLiValByLike(long user_id) {
+		userService.updateMeiLiValue(user_id,1);
 	}
 	
 	@Async
 	public void clearMsg(DynamicMsgService service,long uid,long last_id) {
 		service.clearMsg(uid,last_id);
 	}
-
 }

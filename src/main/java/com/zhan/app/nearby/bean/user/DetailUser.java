@@ -16,7 +16,7 @@ import com.zhan.app.nearby.util.DateTimeUtil;
 
 @SuppressWarnings("serial")
 @Table(name = "t_user")
-public class DetailUser extends LocationUser {
+public class DetailUser extends SimpleUser {
 	public DetailUser(long user_id) {
 		super(user_id);
 	}
@@ -83,9 +83,6 @@ public class DetailUser extends LocationUser {
 	private List<Tag> footsteps;
 	private String want_to_where;
 	
-	@Transient
-	@JsonProperty("is_vip")
-	private boolean is_vip;
 
 	public String getJob_ids() {
 		return job_ids;
@@ -232,14 +229,6 @@ public class DetailUser extends LocationUser {
 			basicInfo.put("birth_city", getBirth_city());
 		}
 		return basicInfo;
-	}
-
-	public boolean isIs_vip() {
-		return is_vip;
-	}
-
-	public void setIs_vip(boolean is_vip) {
-		this.is_vip = is_vip;
 	}
 
 	/**

@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository;
 import com.zhan.app.nearby.bean.Appointment;
 import com.zhan.app.nearby.bean.AppointmentTheme;
 import com.zhan.app.nearby.bean.City;
-import com.zhan.app.nearby.bean.user.LocationUser;
+import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.comm.AppointmentStatus;
 import com.zhan.app.nearby.dao.base.BaseDao;
 import com.zhan.app.nearby.util.DateTimeUtil;
@@ -29,7 +29,7 @@ public class AppointmentDao extends BaseDao<Appointment> {
 		List<Object> params = new ArrayList<Object>();
 
 		StringBuilder sql = new StringBuilder(
-				"select a.*,u.user_id,u.nick_name,u.sex,u.avatar,u.birthday,u.lat,u.lng,c.name as city_name,th.id as tid,th.name as thname  from "
+				"select a.*,u.user_id,u.nick_name,u.sex,u.avatar,u.birthday,u.lat,u.lng,u.isvip,c.name as city_name,th.id as tid,th.name as thname  from "
 						+ getTableName() + " a left join t_user u on a.uid=u.user_id "
 						+ "left join t_sys_city c on a.city_id=c.id "
 						+ "left join t_appointment_theme th on a.theme_id=th.id   where ((a.uid=? and a.status=?) or a.status=?) ");
@@ -73,7 +73,7 @@ public class AppointmentDao extends BaseDao<Appointment> {
 	public List<Appointment> queryMine(long user_id, Integer last_id, int count) {
 		last_id = (last_id == null ? Integer.MAX_VALUE : last_id);
 
-		String sql = "select a.*,u.user_id,u.nick_name,u.sex,u.avatar,u.lat,u.lng,u.birthday,c.name as city_name,th.id as tid,th.name as thname  from "
+		String sql = "select a.*,u.user_id,u.nick_name,u.sex,u.avatar,u.lat,u.lng,u.birthday,u.isvip,c.name as city_name,th.id as tid,th.name as thname  from "
 				+ getTableName() + " a left join t_user u on a.uid=u.user_id "
 				+ "left join t_sys_city c on a.city_id=c.id "
 				+ "left join t_appointment_theme th on a.theme_id=th.id   where a.uid=? and  a.id<? order by a.id desc limit ?";
@@ -81,7 +81,7 @@ public class AppointmentDao extends BaseDao<Appointment> {
 	}
 
 	public List<Appointment> queryAllToCheck(int status, int page, int count) {
-		String sql = "select a.*,u.user_id,u.nick_name,u.sex,u.avatar,u.lat,u.lng,u.birthday,c.name as city_name,th.id as tid,th.name as thname  from "
+		String sql = "select a.*,u.user_id,u.nick_name,u.sex,u.avatar,u.lat,u.lng,u.isvip,u.birthday,c.name as city_name,th.id as tid,th.name as thname  from "
 				+ getTableName() + " a left join t_user u on a.uid=u.user_id "
 				+ "left join t_sys_city c on a.city_id=c.id "
 				+ "left join t_appointment_theme th on a.theme_id=th.id where a.status=? order by a.id desc limit ?,?";
@@ -111,13 +111,14 @@ public class AppointmentDao extends BaseDao<Appointment> {
 		@Override
 		public Appointment mapRow(ResultSet rs, int rowNumber) throws SQLException {
 			Appointment app = super.mapRow(rs, rowNumber);
-			LocationUser user = new LocationUser();
+			BaseUser user = new BaseUser();
 			user.setUser_id(rs.getLong("user_id"));
 			user.setNick_name(rs.getString("nick_name"));
 			user.setAvatar(rs.getString("avatar"));
 			user.setSex(rs.getString("sex"));
 			user.setLat(rs.getString("lat"));
 			user.setLng(rs.getString("lng"));
+			user.setIsvip(rs.getInt("isvip"));
 			user.setBirthday(rs.getDate("birthday"));
 			user.setAge(DateTimeUtil.getAge(user.getBirthday()));
 			ImagePathUtil.completeAvatarPath(user, true);
@@ -158,7 +159,7 @@ public class AppointmentDao extends BaseDao<Appointment> {
 	}
 
 	public Appointment loadById(int id) {
-		String sql = "select a.*,u.user_id,u.nick_name,u.sex,u.avatar,u.lat,u.lng,u.birthday,c.name as city_name,th.id as tid,th.name as thname  from "
+		String sql = "select a.*,u.user_id,u.nick_name,u.sex,u.avatar,u.lat,u.lng,u.birthday,u.isvip,c.name as city_name,th.id as tid,th.name as thname  from "
 				+ getTableName() + " a left join t_user u on a.uid=u.user_id "
 				+ "left join t_sys_city c on a.city_id=c.id "
 				+ "left join t_appointment_theme th on a.theme_id=th.id   where  a.id=?";

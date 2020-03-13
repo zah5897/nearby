@@ -16,8 +16,8 @@ import com.zhan.app.nearby.bean.Exchange;
 import com.zhan.app.nearby.bean.Gift;
 import com.zhan.app.nearby.bean.GiftOwn;
 import com.zhan.app.nearby.bean.MeiLi;
-import com.zhan.app.nearby.bean.user.BaseVipUser;
-import com.zhan.app.nearby.bean.user.LocationUser;
+import com.zhan.app.nearby.bean.user.BaseUser;
+import com.zhan.app.nearby.bean.user.RankUser;
 import com.zhan.app.nearby.comm.Relationship;
 import com.zhan.app.nearby.comm.UserType;
 import com.zhan.app.nearby.dao.base.BaseDao;
@@ -30,8 +30,7 @@ public class GiftDao extends BaseDao<Gift> {
 	private VipDao vipDao;
 
 	public List<Gift> listGifts() {
-		return jdbcTemplate.query("select *from " + getTableName() + " order by price",
-				getEntityMapper());
+		return jdbcTemplate.query("select *from " + getTableName() + " order by price", getEntityMapper());
 	}
 
 	public void delete(long id) {
@@ -54,8 +53,8 @@ public class GiftDao extends BaseDao<Gift> {
 	}
 
 	public Gift load(int gift_id) {
-		List<Gift> gifts = jdbcTemplate.query("select *from " + getTableName() + " where id=?", new Object[] { gift_id },
-				getEntityMapper());
+		List<Gift> gifts = jdbcTemplate.query("select *from " + getTableName() + " where id=?",
+				new Object[] { gift_id }, getEntityMapper());
 		if (gifts != null && gifts.size() > 0) {
 			return gifts.get(0);
 		}
@@ -88,7 +87,7 @@ public class GiftDao extends BaseDao<Gift> {
 	}
 
 	public List<GiftOwn> loadGiftNotice(int page, int count) {
-		String sql = "select go.*,re.nick_name as re_name,re.avatar as re_avatar,se.nick_name as se_name,se.avatar as se_avatar,g.name,g.image_url,g.price,g.old_price"
+		String sql = "select go.*,re.nick_name as re_name,re.isvip as re_is_vip,re.avatar as re_avatar,se.nick_name as se_name,se.isvip as se_is_vip,se.avatar as se_avatar,g.name,g.image_url,g.price,g.old_price"
 				+ " from t_gift_own go left join t_gift g on g.id=go.gift_id "
 				+ " left join t_user re on re.user_id=go.user_id " + " left join t_user se on se.user_id=go.from_uid "
 				+ " order by give_time desc limit ?,?";
@@ -108,17 +107,19 @@ public class GiftDao extends BaseDao<Gift> {
 				own.setPrice(rs.getInt("price"));
 				own.setOld_price(rs.getInt("old_price"));
 
-				BaseVipUser receiver = new BaseVipUser();
+				BaseUser receiver = new BaseUser();
 				receiver.setUser_id(rs.getLong("user_id"));
 				receiver.setNick_name(rs.getString("re_name"));
+				receiver.setIsvip(rs.getInt("re_is_vip"));
 				receiver.setAvatar(rs.getString("re_avatar"));
 				ImagePathUtil.completeAvatarPath(receiver, true);
 				own.setReceiver(receiver);
 
-				BaseVipUser sender = new BaseVipUser();
+				BaseUser sender = new BaseUser();
 				sender.setUser_id(rs.getLong("from_uid"));
 				sender.setNick_name(rs.getString("se_name"));
 				sender.setAvatar(rs.getString("se_avatar"));
+				sender.setIsvip(rs.getInt("se_is_vip"));
 
 				ImagePathUtil.completeAvatarPath(sender, true);
 				own.setSender(sender);
@@ -139,40 +140,55 @@ public class GiftDao extends BaseDao<Gift> {
 	 */
 	@Cacheable(value = "one_hour", key = "#root.methodName+'_'+#page+'_'+#count")
 	public List<MeiLi> loadTotalMeiLi(int page, int count) {
-		String sql = "select u.user_id ,u.nick_name, u.avatar,v.dayDiff,gift.tval as sanbei, gift.tval*5+lk.like_count as mli  from "
+		String sql = "select u.user_id ,u.nick_name, u.avatar,u.isvip,gift.tval as sanbei, gift.tval*5+lk.like_count as mli  from "
 				+ "t_user u left join "
 				+ " (select tg.user_id ,sum(tg.val) as tval from (select o.*,o.count*g.price as val from  t_gift_own o left join t_gift g on o.gift_id=g.id) as tg group by tg.user_id) gift "
 				+ "on u.user_id=gift.user_id "
-				+ "left join  (select TIMESTAMPDIFF(DAY,now(),end_time) as dayDiff,start_time,user_id from t_user_vip ) v  "
-				+ " on u.user_id=v.user_id "
 				+ " left join  (select count(*) as like_count ,with_user_id from t_user_relationship where relationship=?  group by  with_user_id) lk  "
 				+ " on u.user_id=lk.with_user_id " + " left join t_found_user_relationship fu "
 				+ " on u.user_id=fu.uid "
-				+ "where   u.user_id not in(41,93837,96651,90055,95470,148641) and  (u.type=? or u.type=?) and  (fu.state is null or fu.state<>1)  and DATE_SUB(CURDATE(), INTERVAL 365 DAY) <= date(create_time) order by mli desc limit ?,?";
+				+ "where  (u.type=? or u.type=?) and  (fu.state is null or fu.state<>1)  and DATE_SUB(CURDATE(), INTERVAL 365 DAY) <= date(create_time) order by mli desc limit ?,?";
 
-		List<MeiLi> users = jdbcTemplate.query(sql,
-				new Object[] { Relationship.LIKE.ordinal(), UserType.OFFIEC.ordinal(),UserType.THRID_CHANNEL.ordinal(), (page - 1) * count, count },
+		List<MeiLi> users = jdbcTemplate.query(sql, new Object[] { Relationship.LIKE.ordinal(),
+				UserType.OFFIEC.ordinal(), UserType.THRID_CHANNEL.ordinal(), (page - 1) * count, count },
 				new RowMapper<MeiLi>() {
 					@Override
 					public MeiLi mapRow(ResultSet rs, int rowNum) throws SQLException {
 						MeiLi m = new MeiLi();
 						m.setValue(rs.getInt("mli"));
 						m.setShanbei(rs.getInt("sanbei"));
-						LocationUser user = new LocationUser();
+						BaseUser user = new BaseUser();
 						user.setUser_id(rs.getLong("user_id"));
 						user.setNick_name(rs.getString("nick_name"));
 						user.setAvatar(rs.getString("avatar"));
 						ImagePathUtil.completeAvatarPath(user, true);
 						m.setUser(user);
-						int dayDiff = rs.getInt("dayDiff");
-						m.setIs_vip(dayDiff > 0);
-						user.setVip(m.isIs_vip());
+						int is_vip = rs.getInt("isvip");
+						m.setIs_vip(is_vip > 0);
+						user.setIsvip(is_vip);
 						return m;
 					}
 
 				});
 		return users;
 	}
+	
+	@Cacheable(value = "one_hour", key = "#root.methodName+'_'+#page+'_'+#count")
+	public List<RankUser> loadTotalMeiLiV2(int page, int count) {
+		String sql = "select u.user_id ,u.nick_name,u.lat,u.lng, u.avatar,u.isvip,ifnull(gift.tval,'0') as shanbei, u.meili from t_user u"
+				+ "  left join "
+				+ " (select tg.user_id ,sum(tg.val) as tval from (select o.*,o.count*g.price as val from  t_gift_own o left join t_gift g on o.gift_id=g.id) as tg group by tg.user_id) gift "
+				+ "on u.user_id=gift.user_id "
+				+ " left join  (select count(*) as like_count ,with_user_id from t_user_relationship where relationship=?  group by  with_user_id) lk  "
+				+ " on u.user_id=lk.with_user_id " + " left join t_found_user_relationship fu "
+				+ " on u.user_id=fu.uid "
+				+ "where    (u.type=? or u.type=?) and  (fu.state is null or fu.state<>1)  and DATE_SUB(CURDATE(), INTERVAL 365 DAY) <= date(create_time) order by meili desc limit ?,?";
+
+		List<RankUser> users = jdbcTemplate.query(sql, new Object[] { Relationship.LIKE.ordinal(),
+				UserType.OFFIEC.ordinal(), UserType.THRID_CHANNEL.ordinal(), (page - 1) * count, count },new BeanPropertyRowMapper<RankUser>(RankUser.class));
+		return users;
+	}
+	
 
 	/**
 	 * 获取土豪榜
@@ -184,30 +200,29 @@ public class GiftDao extends BaseDao<Gift> {
 	 */
 	@Cacheable(value = "one_hour", key = "#root.methodName+'_'+#page+'_'+#count")
 	public List<MeiLi> loadTuHao(int page, int count) {
-		String sql = "select u.user_id ,u.nick_name, u.avatar,v.dayDiff,gift.tval as sanbei from "
+		String sql = "select u.user_id ,u.nick_name, u.avatar,u.isvip,ifnull(gift.tval,'0') as sanbei from "
 				+ "t_user u left join "
 				+ "(select tg.from_uid ,sum(tg.val) as tval from (select o.*,o.count*g.price as val from  t_gift_own o left join t_gift g on o.gift_id=g.id) as tg group by tg.from_uid) gift "
-				+ "on u.user_id=gift.from_uid "
-				+ "left join  (select TIMESTAMPDIFF(DAY,now(),end_time) as dayDiff,start_time,user_id from t_user_vip ) v  "
-				+ " on u.user_id=v.user_id " + " left join t_found_user_relationship fu " + " on u.user_id=fu.uid "
-				+ "where u.user_id not in(41,93837,96651,90055,95470,148641) and  (u.type=? or  u.type=?) and  (fu.state is null or fu.state<>1)  order by sanbei desc limit ?,?";
+				+ "on u.user_id=gift.from_uid " + " left join t_found_user_relationship fu " + " on u.user_id=fu.uid "
+				+ "where  (u.type=? or  u.type=?) and  (fu.state is null or fu.state<>1)  order by sanbei desc limit ?,?";
 
 		List<MeiLi> users = jdbcTemplate.query(sql,
-				new Object[] { UserType.OFFIEC.ordinal(),UserType.THRID_CHANNEL.ordinal(), (page - 1) * count, count }, new RowMapper<MeiLi>() {
+				new Object[] { UserType.OFFIEC.ordinal(), UserType.THRID_CHANNEL.ordinal(), (page - 1) * count, count },
+				new RowMapper<MeiLi>() {
 					@Override
 					public MeiLi mapRow(ResultSet rs, int rowNum) throws SQLException {
 						MeiLi m = new MeiLi();
 						m.setValue(rs.getInt("sanbei"));
 						m.setShanbei(rs.getInt("sanbei"));
-						LocationUser user = new LocationUser();
+						BaseUser user = new BaseUser();
 						user.setUser_id(rs.getLong("user_id"));
 						user.setNick_name(rs.getString("nick_name"));
 						user.setAvatar(rs.getString("avatar"));
 						ImagePathUtil.completeAvatarPath(user, true);
 						m.setUser(user);
-						int dayDiff = rs.getInt("dayDiff");
-						m.setIs_vip(dayDiff > 0);
-						user.setVip(m.isIs_vip());
+						int is_vip = rs.getInt("isvip");
+						m.setIs_vip(is_vip > 0);
+						user.setIsvip(is_vip);
 						return m;
 					}
 
@@ -215,27 +230,39 @@ public class GiftDao extends BaseDao<Gift> {
 		return users;
 	}
 
-	public int getUserMeiLiVal(long user_id) {
-		String sql = "select   gift.tval*5+lk.like_count as mli  from " + "t_user u left join "
-				+ " (select tg.user_id ,sum(tg.val) as tval from (select o.*,o.count*g.price as val from  t_gift_own o left join t_gift g on o.gift_id=g.id) as tg group by tg.user_id) gift "
-				+ "on u.user_id=gift.user_id "
-				+ "left join  (select TIMESTAMPDIFF(DAY,now(),end_time) as dayDiff,start_time,user_id from t_user_vip ) v  "
-				+ " on u.user_id=v.user_id "
-				+ " left join  (select count(*) as like_count ,with_user_id from t_user_relationship where relationship=?  group by  with_user_id) lk  "
-				+ " on u.user_id=lk.with_user_id " + " left join t_found_user_relationship fu "
-				+ " on u.user_id=fu.uid "
-				+ "where   u.user_id =?  and DATE_SUB(CURDATE(), INTERVAL 365 DAY) <= date(create_time)";
-		try {
-			List<Integer> ml = jdbcTemplate.queryForList(sql, new Object[] { Relationship.LIKE.ordinal(), user_id },
-					Integer.class);
-			if (ml.isEmpty()) {
-				return 0;
-			}
-			return ml.get(0);
-		} catch (Exception e) {
-			return 0;
-		}
+	@Cacheable(value = "one_hour", key = "#root.methodName+'_'+#page+'_'+#count")
+	public List<RankUser> loadTuHaoV2(int page, int count) {
+		String sql = "select u.user_id ,u.nick_name,u.lat,u.lng, u.avatar,u.isvip,ifnull(gift.tval,'0') as shanbei from "
+				+ "t_user u left join "
+				+ "(select tg.from_uid ,sum(tg.val) as tval from (select o.*,o.count*g.price as val from  t_gift_own o left join t_gift g on o.gift_id=g.id) as tg group by tg.from_uid) gift "
+				+ "on u.user_id=gift.from_uid " + " left join t_found_user_relationship fu " + " on u.user_id=fu.uid "
+				+ "where  (u.type=? or  u.type=?) and  (fu.state is null or fu.state<>1)  order by shanbei desc limit ?,?";
+
+		List<RankUser> users = jdbcTemplate.query(sql,
+				new Object[] { UserType.OFFIEC.ordinal(), UserType.THRID_CHANNEL.ordinal(), (page - 1) * count, count },new BeanPropertyRowMapper<RankUser>(RankUser.class));
+		return users;
 	}
+	
+	
+//	public int getUserMeiLiVal(long user_id) {
+//		String sql = "select   gift.tval*5+lk.like_count as mli  from " + "t_user u left join "
+//				+ " (select tg.user_id ,sum(tg.val) as tval from (select o.*,o.count*g.price as val from  t_gift_own o left join t_gift g on o.gift_id=g.id) as tg group by tg.user_id) gift "
+//				+ "on u.user_id=gift.user_id "
+//				+ " left join  (select count(*) as like_count ,with_user_id from t_user_relationship where relationship=?  group by  with_user_id) lk  "
+//				+ " on u.user_id=lk.with_user_id " + " left join t_found_user_relationship fu "
+//				+ " on u.user_id=fu.uid "
+//				+ "where   u.user_id =?  and DATE_SUB(CURDATE(), INTERVAL 365 DAY) <= date(create_time)";
+//		try {
+//			List<Integer> ml = jdbcTemplate.queryForList(sql, new Object[] { Relationship.LIKE.ordinal(), user_id },
+//					Integer.class);
+//			if (ml.isEmpty()) {
+//				return 0;
+//			}
+//			return ml.get(0);
+//		} catch (Exception e) {
+//			return 0;
+//		}
+//	}
 
 	public int getUserBeLikeVal(long user_id) {
 		String beLikeCount = "select count(*) from t_user_relationship where with_user_id=? and relationship=? group by with_user_id";
@@ -254,7 +281,7 @@ public class GiftDao extends BaseDao<Gift> {
 			Integer r = jdbcTemplate.queryForObject(sql, new Object[] { String.valueOf(user_id) }, Integer.class);
 			return r == null ? 0 : r;
 		} catch (Exception e) {
-			
+
 		}
 		return 0;
 	}
@@ -321,5 +348,6 @@ public class GiftDao extends BaseDao<Gift> {
 			return (int) (total * 0.3);
 		}
 	}
+
 
 }

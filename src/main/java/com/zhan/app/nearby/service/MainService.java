@@ -20,7 +20,8 @@ import com.zhan.app.nearby.bean.PersonalInfo;
 import com.zhan.app.nearby.bean.Report;
 import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.bean.user.BaseUser;
-import com.zhan.app.nearby.bean.user.BaseVipUser;
+import com.zhan.app.nearby.bean.user.RankUser;
+import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.cache.UserCacheService;
 import com.zhan.app.nearby.comm.AccountStateType;
 import com.zhan.app.nearby.comm.DynamicMsgType;
@@ -32,6 +33,7 @@ import com.zhan.app.nearby.dao.UserDao;
 import com.zhan.app.nearby.dao.UserDynamicDao;
 import com.zhan.app.nearby.dao.VipDao;
 import com.zhan.app.nearby.exception.ERROR;
+import com.zhan.app.nearby.task.CommAsyncTask;
 import com.zhan.app.nearby.task.HXAsyncTask;
 import com.zhan.app.nearby.util.HttpService;
 import com.zhan.app.nearby.util.ImagePathUtil;
@@ -67,6 +69,8 @@ public class MainService {
 
 	@Autowired
 	private HXAsyncTask hxTask;
+	@Autowired
+	private CommAsyncTask commAsyncTask;
 
 	public ModelMap found_users(Long user_id, Integer page_size, Integer gender) {
 		int realCount;
@@ -129,7 +133,8 @@ public class MainService {
 		String[] with_ids = with_user_id.split(",");
 		int len = with_ids.length;
 		for (int i = 0; i < len; i++) {
-			changeRelationShip(user_id, with_ids[i], Relationship.LIKE);
+			long tuid = Long.parseLong(with_ids[i]);
+			changeRelationShip(user_id, tuid, Relationship.LIKE);
 		}
 		return ResultUtil.getResultOKMap();
 	}
@@ -141,7 +146,8 @@ public class MainService {
 		String[] with_ids = with_user_id.split(",");
 		int len = with_ids.length;
 		for (int i = 0; i < len; i++) {
-			changeRelationShip(user_id, with_ids[i], Relationship.BLACK);
+			long tuid = Long.parseLong(with_ids[i]);
+			changeRelationShip(user_id, tuid, Relationship.BLACK);
 		}
 		return ResultUtil.getResultOKMap();
 	}
@@ -153,14 +159,15 @@ public class MainService {
 		String[] with_ids = with_user_id.split(",");
 		int len = with_ids.length;
 		for (int i = 0; i < len; i++) {
-			changeRelationShip(user_id, with_ids[i], Relationship.IGNORE);
+			long tuid = Long.parseLong(with_ids[i]);
+			changeRelationShip(user_id, tuid, Relationship.IGNORE);
+			commAsyncTask.updateMeiLiValByLike(tuid);
 		}
 		return ResultUtil.getResultOKMap();
 	}
 
-	private ModelMap changeRelationShip(long user_id, String with_user_id, Relationship ship) {
+	private ModelMap changeRelationShip(long user_id, long with_user, Relationship ship) {
 		try {
-			long with_user = Long.parseLong(with_user_id);
 			if (with_user != user_id) {
 				BaseUser withUser = userDao.getBaseUser(with_user);
 				if (withUser != null) {
@@ -171,7 +178,7 @@ public class MainService {
 								withUser.getUser_id(), "");
 						int count = userDao.isLikeMe(user_id, with_user);
 						if (count > 0) { // 对方喜欢我了，这个时候我也喜欢对方了，需要互相发消息
-							hxTask.makeChatSession(user, withUser);
+							hxTask.createChatSessionRandMsg(user, withUser);
 						}
 					}
 				}
@@ -239,6 +246,36 @@ public class MainService {
 		return ResultUtil.getResultOKMap();
 	}
 
+	public ModelMap rank_list_v2(long user_id,int type, Integer pageIndex, Integer count) {
+		if (pageIndex == null || pageIndex <= 0) {
+			pageIndex = 1;
+		}
+		if (count == null) {
+			count = 20;
+		}
+		
+		
+		ModelMap r=	ResultUtil.getResultOKMap();
+		
+		List<? extends BaseUser> users = null;
+		if(type==-2) {
+			users = userDao.getIWatching(user_id,pageIndex, count);
+		}else if(type==-1) {
+			users = userDao.getRankOnlineUsers(pageIndex, count);
+		}else if (type == 0) {
+			users = userDao.getNewRegistUsersV2(pageIndex, count);
+		} else if (type == 1) {
+			users = giftService.loadMeiLiV2(pageIndex, count);
+		} else if (type == 2) {
+			users = giftService.loadTuHaoV2(pageIndex, count);
+		} else if (type == 3) {
+			users=userDao.getVipRankUsersV2(pageIndex, count);
+		}
+		r.addAttribute("hasMore", users.size()==count);
+		ImagePathUtil.completeAvatarsPath(users, true);
+		return r.addAttribute("users", users);
+	}
+
 	public ModelMap exchange_history(long user_id, String aid, Integer page_index, Integer count) {
 		if (page_index == null) {
 			page_index = 1;
@@ -267,11 +304,11 @@ public class MainService {
 		if (count == null || count < 1) {
 			count = 6;
 		}
-		BaseVipUser fix_user = null;
+		BaseUser fix_user = null;
 		if (fix_user_id != null && fix_user_id > 0) {
-			fix_user = userDao.getBaseVipUser(fix_user_id);
+			fix_user = userDao.getBaseUser(fix_user_id);
 		}
-		List<BaseVipUser> users;
+		List<BaseUser> users;
 		if (fix_user != null) {
 			users = systemDao.getTouTiaoUser((page - 1) * count, count - 1);
 			users.add(0, fix_user);
@@ -279,8 +316,7 @@ public class MainService {
 			users = systemDao.getTouTiaoUser((page - 1) * count, count);
 		}
 		ImagePathUtil.completeAvatarsPath(users, true);
-		for (BaseVipUser u : users) {
-			u.setVip(vipDao.isVip(u.getUser_id()));
+		for (BaseUser u : users) {
 			u.setBirth_city(cityService.getSimpleCity(u.getBirth_city_id()));
 			u.setCity(cityService.getSimpleCity(u.getCity_id()));
 		}
@@ -291,12 +327,12 @@ public class MainService {
 		if (count == null || count < 1) {
 			count = 6;
 		}
-		BaseVipUser fix_user = null;
+		BaseUser fix_user = null;
 		if (fix_user_id != null && fix_user_id > 0) {
-			fix_user = userDao.getBaseVipUser(fix_user_id);
+			fix_user = userDao.getBaseUser(fix_user_id);
 		}
 		int startIndex = 0;
-		List<BaseVipUser> users;
+		List<BaseUser> users;
 		if (fix_user != null) {
 			List<Map<String, Object>> index_userids = systemDao.getTouTiaoUserIndexVal();
 			for (Map<String, Object> idMap : index_userids) {
@@ -313,8 +349,7 @@ public class MainService {
 		}
 
 		ImagePathUtil.completeAvatarsPath(users, true);
-		for (BaseVipUser u : users) {
-			u.setVip(vipDao.isVip(u.getUser_id()));
+		for (BaseUser u : users) {
 			u.setBirth_city(cityService.getSimpleCity(u.getBirth_city_id()));
 			u.setCity(cityService.getSimpleCity(u.getCity_id()));
 		}
@@ -328,7 +363,7 @@ public class MainService {
 		if (count == null || count < 1) {
 			count = 6;
 		}
-		List<BaseVipUser> users;
+		List<BaseUser> users;
 		if (page == 1 && fix_user_id == null) {
 			users = systemDao.getTouTiaoUser(0, count);
 		} else if (page == 1 && fix_user_id != null) {
@@ -337,15 +372,14 @@ public class MainService {
 			users = systemDao.loadMaxRateMeiLiRandom(fix_user_id, gender, count);
 		}
 		ImagePathUtil.completeAvatarsPath(users, true);
-		for (BaseVipUser u : users) {
-			u.setVip(vipDao.isVip(u.getUser_id()));
+		for (BaseUser u : users) {
 			u.setBirth_city(cityService.getSimpleCity(u.getBirth_city_id()));
 			u.setCity(cityService.getSimpleCity(u.getCity_id()));
 		}
 		return ResultUtil.getResultOKMap().addAttribute("users", users).addAttribute("hasMore", users.size() == count);
 	}
 
-	private List<BaseVipUser> getAfterFixUsers(long fix_user_id, int count) {
+	private List<BaseUser> getAfterFixUsers(long fix_user_id, int count) {
 		int startIndex = 0;
 		List<Map<String, Object>> index_userids = systemDao.getTouTiaoUserIndexVal();
 		for (Map<String, Object> idMap : index_userids) {

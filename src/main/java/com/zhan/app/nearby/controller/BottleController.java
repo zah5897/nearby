@@ -24,8 +24,14 @@ import com.zhan.app.nearby.util.ImageSaveUtils;
 import com.zhan.app.nearby.util.RedPacketUtils;
 import com.zhan.app.nearby.util.ResultUtil;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+
 @RestController
 @RequestMapping("/bottle")
+@Api(value = "瓶子相关")
 public class BottleController {
 
 	@Resource
@@ -307,5 +313,13 @@ public class BottleController {
 		return ResultUtil.getResultOKMap().addAttribute("red_package_gets",
 				bottleService.getRedPackageHistory(bottle_id));
 	}
-
+	@RequestMapping("test")
+	@ApiOperation(httpMethod = "POST", value = "测试瓶子触发会话") // swagger 当前接口注解
+	@ApiImplicitParams({
+		@ApiImplicitParam(name = "user_id", value = "当前用户id", paramType = "query", dataType = "Integer") ,
+		@ApiImplicitParam(name = "type", value = "瓶子类型", paramType = "query", dataType = "Integer") })
+	public ModelMap test(long user_id, Long bottle_id) {
+		bottleService.test(user_id,bottle_id);
+		return ResultUtil.getResultOKMap();
+	}
 }

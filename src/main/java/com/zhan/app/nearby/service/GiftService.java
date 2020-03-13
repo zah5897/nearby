@@ -2,7 +2,6 @@ package com.zhan.app.nearby.service;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -15,21 +14,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
 
-import com.easemob.server.example.Main;
 import com.zhan.app.nearby.bean.Exchange;
 import com.zhan.app.nearby.bean.Gift;
 import com.zhan.app.nearby.bean.GiftOwn;
 import com.zhan.app.nearby.bean.MeiLi;
 import com.zhan.app.nearby.bean.user.BaseUser;
-import com.zhan.app.nearby.bean.user.BaseVipUser;
+import com.zhan.app.nearby.bean.user.RankUser;
 import com.zhan.app.nearby.cache.InfoCacheService;
 import com.zhan.app.nearby.cache.UserCacheService;
 import com.zhan.app.nearby.comm.ExchangeState;
-import com.zhan.app.nearby.comm.PushMsgType;
 import com.zhan.app.nearby.dao.GiftDao;
 import com.zhan.app.nearby.exception.ERROR;
+import com.zhan.app.nearby.task.CommAsyncTask;
 import com.zhan.app.nearby.task.HXAsyncTask;
-import com.zhan.app.nearby.util.HX_SessionUtil;
 import com.zhan.app.nearby.util.HttpService;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.JSONUtil;
@@ -47,8 +44,6 @@ public class GiftService {
 
 	@Resource
 	private UserService userService;
-	@Autowired
-	private VipService vipService;
 
 	@Resource
 	private InfoCacheService infoCacheService;
@@ -58,6 +53,8 @@ public class GiftService {
 	
 	@Autowired
 	private HXAsyncTask hxTask;
+	@Autowired
+	private CommAsyncTask commAsyncTask;
 	
 	@Transactional
 	public ModelMap save(Gift gift) {
@@ -120,6 +117,7 @@ public class GiftService {
 				BaseUser u = userService.getBasicUser(user_id);
 				infoCacheService.clear(InfoCacheService.GIFT_SEND_NOTICE);
 				hxTask.pushGift(u.getNick_name(),to_user_id);
+				commAsyncTask.updateMeiLiValByGift(to_user_id, gift_coins);
 				Map<String, Object> result = HttpService.queryUserCoins(user_id, aid);
 				return result;
 			} else {
@@ -136,10 +134,6 @@ public class GiftService {
 
 	public List<GiftOwn> loadGiftGiveList(int page, int count) {
 		 List<GiftOwn>  noGiftOwns= giftDao.loadGiftNotice(page, count);
-		 for(GiftOwn gift:noGiftOwns) {
-			 gift.getSender().setVip(vipService.isVip(gift.getSender().getUser_id()));
-			 gift.getReceiver().setVip(vipService.isVip(gift.getReceiver().getUser_id()));
-		 }
 		 return noGiftOwns;
 	}
 
@@ -155,6 +149,10 @@ public class GiftService {
 		return giftDao.loadTotalMeiLi(pageIndex, count);
 	}
 
+	public List<RankUser> loadMeiLiV2(int pageIndex, int count) {
+		return giftDao.loadTotalMeiLiV2(pageIndex, count);
+	}
+	
 	/**
 	 * 土豪榜
 	 * 
@@ -166,11 +164,14 @@ public class GiftService {
 	public List<MeiLi> loadTuHao(int pageIndex, int count) {
 		return giftDao.loadTuHao(pageIndex, count);
 	}
-
-	// 获取用户魅力值
-	public int getUserMeiLiVal(long user_id) {
-		return giftDao.getUserMeiLiVal(user_id);
+	public List<RankUser> loadTuHaoV2(int pageIndex, int count) {
+		return giftDao.loadTuHaoV2(pageIndex, count);
 	}
+
+//	// 获取用户魅力值
+//	public int getUserMeiLiVal(long user_id) {
+//		return giftDao.getUserMeiLiVal(user_id);
+//	}
 
 	// 获取用户财富值
 	public int getUserCoins(String aid, long user_id) {
@@ -218,7 +219,7 @@ public class GiftService {
 		for (GiftOwn own : owns) {
 			own.setSender(userService.getBaseVipUser(own.getGive_uid()));
 			ImagePathUtil.completeAvatarPath(own.getSender(), true);
-			BaseVipUser me = userService.getBaseVipUser(user_id);
+			BaseUser me = userService.getBaseVipUser(user_id);
 			ImagePathUtil.completeAvatarPath(me, true);
 			own.setReceiver(me);
 			ImagePathUtil.completeGiftPath(own, true);
@@ -307,4 +308,5 @@ public class GiftService {
 		return ResultUtil.getResultOKMap().addAttribute("data", data).addAttribute("total_exchange_coin",
 				giftDao.getTotalExchangeDiamond(user_id)).addAttribute("hasMore", hasMore);
 	}
+
 }

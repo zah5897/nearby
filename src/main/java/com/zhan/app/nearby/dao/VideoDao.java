@@ -24,7 +24,7 @@ public class VideoDao extends BaseDao<Video> {
 
 	public List<Video> mine(long user_id, Long last_id, int count) {
 		if (last_id==null) {
-			String sql = "select v.* ,u.user_id,u.nick_name ,u.avatar,u.sex from " + TABLE_VIDEO
+			String sql = "select v.* ,u.user_id,u.nick_name ,u.avatar,u.sex,u.isvip from " + TABLE_VIDEO
 					+ " v left join t_user u on v.uid=u.user_id where v.uid=?  order by v.id desc limit ?";
 			return jdbcTemplate.query(sql, new Object[] { user_id, count },
 					new BeanPropertyRowMapper<Video>(Video.class) {
@@ -36,13 +36,14 @@ public class VideoDao extends BaseDao<Video> {
 							user.setNick_name(rs.getString("nick_name"));
 							user.setAvatar(rs.getString("avatar"));
 							user.setSex(rs.getString("sex"));
+							user.setIsvip(rs.getInt("isvip"));
 							ImagePathUtil.completeAvatarPath(user, true);
 							v.setUser(user);
 							return v;
 						}
 					});
 		} else {
-			String sql = "select v.* ,u.user_id,u.nick_name ,u.avatar,u.sex from " + TABLE_VIDEO
+			String sql = "select v.* ,u.user_id,u.nick_name ,u.avatar,u.sex ,u.isvip from " + TABLE_VIDEO
 					+ " v left join t_user u on v.uid=u.user_id where v.uid=? and v.id<?  order by v.id desc limit ?";
 			return jdbcTemplate.query(sql, new Object[] { user_id, last_id, count },
 					new BeanPropertyRowMapper<Video>(Video.class) {
@@ -54,6 +55,7 @@ public class VideoDao extends BaseDao<Video> {
 							user.setNick_name(rs.getString("nick_name"));
 							user.setAvatar(rs.getString("avatar"));
 							user.setSex(rs.getString("sex"));
+							user.setIsvip(rs.getInt("isvip"));
 							ImagePathUtil.completeAvatarPath(user, true);
 							v.setUser(user);
 							return v;

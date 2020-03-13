@@ -31,7 +31,18 @@ public class ImagePathUtil {
 	
 	public static String HOST_PROFIX_APPOINTMENT_IMG = "http://nearby-appointment-img.cn-bj.ufileos.com/";
 	
-	
+	public static String completeStrAvatarPath(String avatar) {
+		if (TextUtils.isEmpty(avatar)) {
+			return "";
+		}
+
+		if (avatar.startsWith("http")) {
+			return avatar;
+		}
+
+		String path = HOST_PROFIX_AVATAR + ImageSaveUtils.FILE_AVATAR + avatar;
+		 return path;
+	}
 
 	public static BaseUser completeAvatarPath(BaseUser user, boolean thumbAndOrigin) {
 

@@ -17,8 +17,6 @@ import com.zhan.app.nearby.bean.Exchange;
 import com.zhan.app.nearby.bean.PersonalInfo;
 import com.zhan.app.nearby.bean.Report;
 import com.zhan.app.nearby.bean.user.BaseUser;
-import com.zhan.app.nearby.bean.user.BaseVipUser;
-import com.zhan.app.nearby.bean.user.LocationUser;
 import com.zhan.app.nearby.comm.ExchangeState;
 import com.zhan.app.nearby.dao.base.BaseDao;
 import com.zhan.app.nearby.util.DateTimeUtil;
@@ -53,7 +51,7 @@ public class SystemDao extends BaseDao<Report> {
 						@Override
 						public Report mapRow(ResultSet rs, int rowNumber) throws SQLException {
 							Report report = super.mapRow(rs, rowNumber);
-							LocationUser user = new LocationUser();
+							BaseUser user = new BaseUser();
 							user.setUser_id(report.getTarget_id());
 							user.setNick_name(rs.getString("nick_name"));
 							user.setSex(rs.getString("sex"));
@@ -131,18 +129,18 @@ public class SystemDao extends BaseDao<Report> {
 	 * @param limit
 	 * @return
 	 */
-	public List<BaseVipUser> loadMaxRateMeiLiRandom(Long ignoreUserId, String gender,  int limit) {
+	public List<BaseUser> loadMaxRateMeiLiRandom(Long ignoreUserId, String gender,  int limit) {
 		if (TextUtils.isEmpty(gender)) {
-			String sql = "select u.user_id,u.nick_name,u.avatar,u.sex,u.birthday,u.birth_city_id, u.city_id from   t_user u left join t_found_user_relationship s on u.user_id=s.uid   where s.state=0 and   u.user_id<>? and  u.avatar<>? order by rand() limit ?";
+			String sql = "select u.user_id,u.nick_name,u.avatar,u.sex,u.birthday,u.birth_city_id, u.city_id ,u.isvip from   t_user u left join t_found_user_relationship s on u.user_id=s.uid   where s.state=0 and   u.user_id<>? and  u.avatar<>? order by rand() limit ?";
 			return jdbcTemplate.query(sql,
 					new Object[] { ignoreUserId == null ? 0 : ignoreUserId, "",   limit },
-					new BeanPropertyRowMapper<BaseVipUser>(BaseVipUser.class));
+					new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
 		} else {
-			String sql = "select u.user_id,u.nick_name,u.avatar,u.sex,u.birthday,u.birth_city_id, u.city_id from   t_user u  left join t_found_user_relationship s on u.user_id=s.uid   where s.state=0 and u.user_id<>? and u.avatar<>? and u.sex=?  order by rand() limit ?";
+			String sql = "select u.user_id,u.nick_name,u.avatar,u.sex,u.birthday,u.birth_city_id, u.city_id,u.isvip  from   t_user u  left join t_found_user_relationship s on u.user_id=s.uid   where s.state=0 and u.user_id<>? and u.avatar<>? and u.sex=?  order by rand() limit ?";
 			return jdbcTemplate
 					.query(sql,
 							new Object[] { ignoreUserId == null ? 0 : ignoreUserId, "", gender, limit },
-							new BeanPropertyRowMapper<BaseVipUser>(BaseVipUser.class));
+							new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
 		}
 	}
 
@@ -170,15 +168,15 @@ public class SystemDao extends BaseDao<Report> {
 
 	}
 
-	public List<BaseVipUser> loadMaxMeiLi(Long ignoreUserId, String gender, int page_index, int limit) {
+	public List<BaseUser> loadMaxMeiLi(Long ignoreUserId, String gender, int page_index, int limit) {
 		if (TextUtils.isEmpty(gender)) {
 			String sql = "select u.user_id,u.nick_name,u.avatar,u.sex,u.birthday from t_meili_temp t left join t_user u on t.uid=u.user_id where u.avatar<>?    order by temp_meili,t.uid desc limit ?,?";
 			return jdbcTemplate.query(sql, new Object[] { "", (page_index - 1) * limit, limit },
-					new BeanPropertyRowMapper<BaseVipUser>(BaseVipUser.class));
+					new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
 		} else {
 			String sql = "select u.user_id,u.nick_name,u.avatar,u.sex,u.birthday from t_meili_temp t left join t_user u on t.uid=u.user_id where u.avatar<>? and u.sex=?   order by temp_meili,t.uid desc limit ?,?";
 			return jdbcTemplate.query(sql, new Object[] { "", gender, (page_index - 1) * limit, limit },
-					new BeanPropertyRowMapper<BaseVipUser>(BaseVipUser.class));
+					new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
 		}
 	}
 
@@ -284,9 +282,9 @@ public class SystemDao extends BaseDao<Report> {
 	}
 	
 	
-	public List<BaseVipUser> getTouTiaoUser(int startIndex,int limit){
-		String sql="select u.user_id,u.nick_name,u.avatar,u.birthday from t_toutiao_user tt left join t_user u on tt.uid=u.user_id where u.type<>0 and u.type<>2 order by tt.create_time desc limit ?,?";
-		return jdbcTemplate.query(sql, new Object[] {startIndex,limit}, new BeanPropertyRowMapper<BaseVipUser>(BaseVipUser.class));
+	public List<BaseUser> getTouTiaoUser(int startIndex,int limit){
+		String sql="select u.user_id,u.nick_name,u.avatar,u.birthday u.isvip from t_toutiao_user tt left join t_user u on tt.uid=u.user_id where u.type<>0 and u.type<>2 order by tt.create_time desc limit ?,?";
+		return jdbcTemplate.query(sql, new Object[] {startIndex,limit}, new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
 	}
 	public List<Map<String, Object>> getTouTiaoUserIndexVal(){
 		String sql="SELECT (@i:=@i+1) i,uid FROM t_toutiao_user, (SELECT @i:=0) as i order by create_time desc ";

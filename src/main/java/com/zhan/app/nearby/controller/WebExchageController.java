@@ -17,7 +17,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
 
-import com.zhan.app.nearby.bean.user.LocationUser;
+import com.zhan.app.nearby.bean.user.LoginUser;
 import com.zhan.app.nearby.cache.UserCacheService;
 import com.zhan.app.nearby.comm.FoundUserRelationship;
 import com.zhan.app.nearby.exception.ERROR;
@@ -143,7 +143,7 @@ public class WebExchageController {
 		if(TextUtils.isEmpty(mobile)) {
 			return new ModelAndView(redirectView,ResultUtil.getResultMap(ERROR.ERR_USER_NOT_EXIST));
 		}
-		LocationUser user = userService.findLocationUserByMobile(mobile);
+		LoginUser user = userService.findLocationUserByMobile(mobile);
 		if (user == null) {
 			return new ModelAndView(redirectView,ResultUtil.getResultMap(ERROR.ERR_USER_NOT_EXIST));
 		}

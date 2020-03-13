@@ -69,11 +69,15 @@ public class VipDao extends BaseDao<Vip> {
 						userVip.getVip_id() });
 
 	}
+	
+	
+ 
+	
 
-	public List<VipUser> loadExpireVip() {
-		String sql = "select vip.* from " + TABLE_NAME_VIP_USER
+	public List<Long> loadExpireVip() {
+		String sql = "select user_id from " + TABLE_NAME_VIP_USER
 				+ " vip where TIMESTAMPDIFF(DAY,now(),vip.end_time) < 0";
-		return jdbcTemplate.query(sql, getEntityMapper(VipUser.class));
+		return jdbcTemplate.queryForList(sql, Long.class);
 	}
 
 	public List<Integer> getVipIdByMonth(int month) {

@@ -9,7 +9,6 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.zhan.app.nearby.bean.user.BaseUser;
-import com.zhan.app.nearby.bean.user.BaseVipUser;
 
 @SuppressWarnings("serial")
 @Table(name = "t_gift_own")
@@ -25,9 +24,9 @@ public class GiftOwn extends Gift {
 	private long give_time_v2;
 
 	@Transient
-	private BaseVipUser receiver;
+	private BaseUser receiver;
 	@Transient
-	private BaseVipUser sender;
+	private BaseUser sender;
 
 	public long getUser_id() {
 		return user_id;
@@ -62,20 +61,26 @@ public class GiftOwn extends Gift {
 		this.give_time_v2 = give_time.getTime() / 1000;
 	}
 
-	public BaseVipUser getReceiver() {
+	 
+
+	public BaseUser getReceiver() {
 		return receiver;
 	}
 
-	public void setReceiver(BaseVipUser receiver) {
+	public void setReceiver(BaseUser receiver) {
 		this.receiver = receiver;
 	}
 
-	public BaseVipUser getSender() {
+	public BaseUser getSender() {
 		return sender;
 	}
 
-	public void setSender(BaseVipUser sender) {
+	public void setSender(BaseUser sender) {
 		this.sender = sender;
+	}
+
+	public void setGive_time_v2(long give_time_v2) {
+		this.give_time_v2 = give_time_v2;
 	}
 
 	@Override

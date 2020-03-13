@@ -14,7 +14,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.zhan.app.nearby.bean.user.BaseVipUser;
+import com.zhan.app.nearby.bean.user.BaseUser;
 
 @SuppressWarnings("serial")
 @Table(name = "t_dynamic_comment")
@@ -35,7 +35,7 @@ public class DynamicComment implements Serializable{
 	@Transient
 	private long comment_time_v2;
 	@Transient
-	private BaseVipUser user;
+	private BaseUser user;
 	
 	@JsonIgnore //上层评论
 	private long pid;
@@ -89,11 +89,11 @@ public class DynamicComment implements Serializable{
 	}
 
 	 
-	public BaseVipUser getUser() {
+	public BaseUser getUser() {
 		return user;
 	}
 
-	public void setUser(BaseVipUser user) {
+	public void setUser(BaseUser user) {
 		this.user = user;
 	}
 

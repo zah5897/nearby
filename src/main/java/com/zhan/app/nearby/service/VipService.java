@@ -6,6 +6,7 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
@@ -27,6 +28,10 @@ public class VipService {
 	@Resource
 	private VipDao vipDao;
 
+	
+	@Autowired
+	private UserService userService;
+	
 	@Transactional
 	public ModelMap save(Vip vip) {
 		if (vip.getId() > 0) {
@@ -79,12 +84,14 @@ public class VipService {
 			vipUser.setStart_time(now);
 			vipUser.setEnd_time(DateTimeUtil.getVipEndDate(now, vip.getTerm_mount()));
 			vipDao.insertObject(vipUser);
+			userService.updateUserVipVal(vipUser.getUser_id(),true);
 			return "success";
 		} else {
 			Date newEndDate = DateTimeUtil.getVipEndDate(userVip.getEnd_time(), vip.getTerm_mount());
 			userVip.setEnd_time(newEndDate);
 			userVip.setLast_order_no(vipUser.getLast_order_no());
 			vipDao.updateUserVip(userVip);
+			userService.updateUserVipVal(vipUser.getUser_id(),true);
 			return "success";
 		}
 		// 还不是vip
@@ -121,9 +128,13 @@ public class VipService {
 
 	@Transactional
 	public int clearExpireVip() {
-		List<VipUser> vips = vipDao.loadExpireVip();
-		for (VipUser vip : vips) {
-			vipDao.delUserVip(vip.getUser_id());
+		List<Long> vips = vipDao.loadExpireVip();
+		for (Long vipUid : vips) {
+			if(vipUid!=null) {
+				vipDao.delUserVip(vipUid);
+				userService.updateUserVipVal(vipUid, false);
+			}
+			
 		}
 		return vips.size();
 	}

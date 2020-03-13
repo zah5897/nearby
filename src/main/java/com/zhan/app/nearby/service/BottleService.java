@@ -37,6 +37,7 @@ import com.zhan.app.nearby.dao.UserDao;
 import com.zhan.app.nearby.dao.VipDao;
 import com.zhan.app.nearby.exception.AppException;
 import com.zhan.app.nearby.exception.ERROR;
+import com.zhan.app.nearby.task.CommAsyncTask;
 import com.zhan.app.nearby.task.HXAsyncTask;
 import com.zhan.app.nearby.util.BottleKeyWordUtil;
 import com.zhan.app.nearby.util.ImagePathUtil;
@@ -67,9 +68,11 @@ public class BottleService {
 
 	@Resource
 	private UserCacheService userCacheService;
-	
+
 	@Autowired
 	private HXAsyncTask hxTask;
+	@Autowired
+	private CommAsyncTask commAsyncTask;
 
 	public Bottle getBottleFromPool(long user_id) {
 
@@ -78,6 +81,10 @@ public class BottleService {
 			return bottles.get(0);
 		}
 		return null;
+	}
+
+	public Bottle getBottleById(long bid) {
+		return bottleDao.getBottleById(bid);
 	}
 
 	public boolean checkTime(Bottle bottle) {
@@ -140,45 +147,16 @@ public class BottleService {
 					}
 				}
 			} else { // 其他渠道
-				if ("2.0.0".compareTo(version) > 0) { //低于2.0.0
-					if (look_sex == null) {
-						bolltes = bottleDao.getBottlesLowVersion(user_id, look_sex, page_size, realType);
-					} else {
-						VipUser vip = vipDao.loadUserVip(user_id);
-						if (vip == null || vip.getDayDiff() < 0) {
-							bolltes = bottleDao.getBottlesLowVersion(user_id, null, page_size, realType);
-						} else {
-							int sex = (look_sex == null ? -1 : look_sex);
-							bolltes = bottleDao.getBottlesLowVersion(user_id, sex, page_size, realType);
-						}
-					}
+				if (look_sex == null) {
+					bolltes = bottleDao.getBottlesLeastVersion(user_id, look_sex, page_size, realType);
 				} else {
-					if(AndroidChannel.oppo.name().equals(channel)||AndroidChannel.xiaomi.name().equals(channel)||AndroidChannel.vivo.name().equals(channel)||AndroidChannel.huawei.name().equals(channel)) {
-						if (look_sex == null) {
-							bolltes = bottleDao.getBottlesLeastVersion(user_id, null, page_size, realType);
-						} else {
-							VipUser vip = vipDao.loadUserVip(user_id);
-							if (vip == null || vip.getDayDiff() < 0) {
-								bolltes = bottleDao.getBottlesLeastVersion(user_id, null, page_size, realType);
-							} else {
-								int sex = (look_sex == null ? -1 : look_sex);
-								bolltes = bottleDao.getBottlesLeastVersion(user_id, sex, page_size, realType);
-							}
-						}
-					}else {
-						if (look_sex == null) {
-							bolltes = bottleDao.getBottlesV19(user_id, null, page_size, realType);
-						} else {
-							VipUser vip = vipDao.loadUserVip(user_id);
-							if (vip == null || vip.getDayDiff() < 0) {
-								bolltes = bottleDao.getBottlesV19(user_id, null, page_size, realType);
-							} else {
-								int sex = (look_sex == null ? -1 : look_sex);
-								bolltes = bottleDao.getBottlesV19(user_id, sex, page_size, realType);
-							}
-						}
+					VipUser vip = vipDao.loadUserVip(user_id);
+					if (vip == null || vip.getDayDiff() < 0) {
+						bolltes = bottleDao.getBottlesLeastVersion(user_id, null, page_size, realType);
+					} else {
+						int sex = (look_sex == null ? -1 : look_sex);
+						bolltes = bottleDao.getBottlesLeastVersion(user_id, sex, page_size, realType);
 					}
-					
 				}
 			}
 		} else {// ios 手机
@@ -208,30 +186,6 @@ public class BottleService {
 				}
 			}
 		}
-		for (Bottle bottle : bolltes) {
-			if (bottle.getType() == BottleType.MEET.ordinal()) {
-				ImagePathUtil.completeAvatarPath(bottle.getSender(), true);
-			}
-			ImagePathUtil.completeBottleDrawPath(bottle);
-		}
-		// 过滤语音瓶子问题
-		if (_ua.startsWith("a")) {
-			if ("1.9.5".compareTo(version) > 0) {
-				for (Bottle b : bolltes) {
-					if (b.getType() == BottleType.VOICE.ordinal()) {
-						Map<String, Object> conData = JSONUtil.jsonToMap(b.getContent());
-						if (conData.containsKey("duration")) {
-//			        		conData.put("duration", "\""+conData.get("duration")+"\"");
-							conData.put("duration", String.valueOf(conData.get("duration")));
-							b.setContent(JSONUtil.writeValueAsString(conData));
-							System.out.println(b.getContent());
-						}
-
-					}
-				}
-			}
-		}
-
 		result.addAttribute("bottles", bolltes);
 		return result;
 	}
@@ -387,7 +341,7 @@ public class BottleService {
 					}
 					// 概率
 					if (RandomCodeUtil.randomPercentOK(percent)) {
-						hxTask.makeChatSession(u1, u2, bid);
+						hxTask.replayBottle(u1, u2, bottleDao.getBottleById(bid));
 					}
 				} catch (Exception e) {
 				}
@@ -422,7 +376,7 @@ public class BottleService {
 		// to_user_id, content);
 		BaseUser user = userDao.getBaseUser(user_id);
 		BaseUser to_user = userDao.getBaseUser(to_user_id);
-		hxTask.makeChatSessionSingle(user, to_user, content);
+		hxTask.createChatSession(user, to_user, content);
 		return ResultUtil.getResultOKMap();
 	}
 
@@ -436,7 +390,7 @@ public class BottleService {
 			for (Map<?, ?> u_b : idList) {
 				long withUserID = Long.parseLong(u_b.get("uid").toString());
 				long bottleID = Long.parseLong(u_b.get("bottle_id").toString());
-				
+
 				// 判断瓶子是否存在，不存在的话要新建
 				if (bottleID < 1) {
 					List<Long> ids = bottleDao.getMeetBottleIDByUser(withUserID);
@@ -452,6 +406,7 @@ public class BottleService {
 					}
 				}
 				userDao.updateRelationship(user_id, withUserID, Relationship.LIKE);
+				commAsyncTask.updateMeiLiValByLike(withUserID);
 				if (bottleID > 0) {
 					dynamicMsgService.insertActionMsg(DynamicMsgType.TYPE_MEET, user_id, bottleID, withUserID, "");
 					hxTask.pushLike(withUserID);
@@ -470,27 +425,15 @@ public class BottleService {
 	@Transactional
 	public ModelMap replay(String aid, long user_id, long target, String msg, long bottle_id) {
 		BaseUser user = userDao.getBaseUser(user_id);
+		BaseUser targetU = userDao.getBaseUser(target);
 
-		Bottle bottle = bottleDao.getBottle(bottle_id);
+		Bottle bottle = bottleDao.getBottleById(bottle_id);
 		if (bottle == null) {
 			return ResultUtil.getResultMap(ERROR.ERR_NOT_EXIST);
 		}
-
-		ImagePathUtil.completeAvatarPath(user, true);
 		// 发送给对方
-
 		if (bottle.getType() != BottleType.RED_PACKAGE.ordinal()) {
-			Map<String, String> ext = new HashMap<String, String>();
-			String nickName=user.getNick_name();
-			if(nickName==null||TextUtils.isEmpty(nickName.trim())) {
-				log.error("user_id="+user_id+",该用户nickname为空，请注意查看");
-				nickName="匿名";
-			}
-			ext.put("nickname", nickName);
-			ext.put("avatar", user.getAvatar());
-			ext.put("origin_avatar", user.getOrigin_avatar());
-			ext.put("bottle_id", String.valueOf(bottle_id));
-			hxTask.sendReplayBottle(user,target,msg,ext,PushMsgType.TYPE_NEW_CONVERSATION);
+			hxTask.replayBottleSingle(user, targetU, bottle, msg);
 		}
 
 		if (bottle.getType() == BottleType.DRAW_GUESS.ordinal()) {
@@ -536,7 +479,7 @@ public class BottleService {
 				if (code == 0) {
 					bottleDao.updateRedPackage(content, count, restCount, bottle_id);// 修改该瓶子的剩余数量等信息
 					addGetRedPackageHistory(user_id, bottle_id, curCoin); // 记录历史
-					getRedPackageSendMsg(user, bottle_id, target, curCoin);
+					hxTask.replayRedPackageBottleSingle(user, target, getBottleById(bottle_id), curCoin);
 					return ResultUtil.getResultOKMap().addAttribute("red_package_get_coin", curCoin);
 				} else {
 					return ResultUtil.getResultOKMap().addAttribute("red_package_get_coin", 0);
@@ -546,10 +489,6 @@ public class BottleService {
 			}
 		}
 		return ResultUtil.getResultOKMap();
-	}
-
-	private void getRedPackageSendMsg(BaseUser user, long bottle_id, long target, int coin) {
-		hxTask.getRedPackageSendMsg(user, bottle_id, target, coin);
 	}
 
 	@Transactional
@@ -609,8 +548,10 @@ public class BottleService {
 		dynamicMsgService.updateMeetState(user_id, target);
 		BaseUser u1 = userDao.getBaseUserNoToken(user_id);
 		BaseUser u2 = userDao.getBaseUserNoToken(target);
-		long meet_bottle_id = bottleDao.getMeetBottleByUserId(target);
-		hxTask.makeChatSession(u1, u2, meet_bottle_id);
+		Bottle meet_bottle = bottleDao.getMeetBottleByUserId(target);
+		if (meet_bottle != null) {
+			hxTask.replayBottle(u1, u2, meet_bottle);
+		}
 		return ResultUtil.getResultOKMap().addAttribute("user", u2);
 	}
 
@@ -697,5 +638,15 @@ public class BottleService {
 
 	public List<RedPackageGetHistory> getRedPackageHistory(long bid) {
 		return bottleDao.getRedPackageHistoryByBid(bid);
+	}
+
+	public void test(long user_id, Long bottle_id) {
+		Bottle b;
+		if (bottle_id == null) {
+			b = bottleDao.getBottleByRand();
+		} else {
+			b = bottleDao.getBottleById(bottle_id);
+		}
+		hxTask.testBottle(user_id, b);
 	}
 }

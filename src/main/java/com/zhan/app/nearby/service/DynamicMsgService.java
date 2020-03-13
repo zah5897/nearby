@@ -10,6 +10,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.ModelMap;
 
+import com.zhan.app.nearby.bean.Bottle;
 import com.zhan.app.nearby.bean.DynamicComment;
 import com.zhan.app.nearby.bean.DynamicMessage;
 import com.zhan.app.nearby.bean.type.DynamicMsgStatus;
@@ -42,6 +43,9 @@ public class DynamicMsgService {
 	
 	@Autowired
 	private CommAsyncTask commAsyncTask;
+	
+	@Autowired
+	private BottleService bottleService;
 
 	/**
 	 * 
@@ -106,11 +110,12 @@ public class DynamicMsgService {
 			BaseUser me = userDao.getBaseUser(user_id);
 			BaseUser he = userDao.getBaseUser(msg.getBy_user_id());
 			if (msg.getType() == DynamicMsgType.TYPE_MEET.ordinal()) {
-				hxTask.makeChatSession(me, he, msg.getObj_id());
+				Bottle bottle=bottleService.getBottleById( msg.getObj_id());
+				hxTask.replayBottle(me, he, bottle);
 			} else if (msg.getType() == DynamicMsgType.TYPE_LIKE.ordinal()) {
-				hxTask.makeChatSession(me, he, 0);
+				hxTask.createChatSessionRandMsg(me, he);
 			} else {
-				hxTask.makeChatSession(me, he);
+				hxTask.createChatSessionRandMsg(me, he);
 			}
 		}
 		return ResultUtil.getResultOKMap().addAttribute("id", msg_id);

@@ -30,14 +30,13 @@ public class TimerTask {
 	private MatchActiveUserTask matchActiveUserTask;
 	@Autowired
 	private UserCacheService userCacheService;
-
+	
 	@Scheduled(cron = "0 0/5 * * * ?") // 每5分钟执行一次
 	public void injectMeetBottle() {
 		String ip = IPUtil.getLocalAddr();
 		String method = Thread.currentThread().getStackTrace()[1].getMethodName();
 		boolean lock = userCacheService.tryLock(method, ip, 240);
 		if (lock) {
-
 			UserDao userDao = SpringContextUtil.getBean("userDao");
 			List<BaseUser> users = userDao.getRandomMeetBottleUser(10);
 			BottleService bottleService = SpringContextUtil.getBean("bottleService");
@@ -46,6 +45,9 @@ public class TimerTask {
 					bottleService.sendMeetBottle(u.getUser_id());
 				}
 			}
+			
+			
+			
 		}
 	}
 

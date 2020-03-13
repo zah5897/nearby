@@ -26,23 +26,9 @@ public class MatchActiveUserTask {
 		List<BaseUser> users = userService.getActiveUser(sex);
 		if (users.size() > 0) {
 			BaseUser user = users.get(0);
-			HX_SessionUtil.makeChatSession(newRegisterUser, user, 0);
+			HX_SessionUtil.createChatSession(newRegisterUser, user);
 		}
 	}
-
-	@Async
-	public void longTimeNotOpenMatch(BaseUser curUser) {
-		int sex = 0;
-		if ("0".equals(curUser.getSex())) {
-			sex = 1;
-		}
-		List<BaseUser> users = userService.getActiveUser(sex);
-		if (users.size() > 0) {
-			BaseUser user = users.get(0);
-			HX_SessionUtil.makeChatSession(curUser, user, 0);
-		}
-	}
-
 	// 鏈�杩�3涓湀鍐呮墦寮�杩嘺pp鐨勭敤鎴凤紝鍖归厤涓�浜涙鍦ㄦ椿璺冪殑鐢ㄦ埛
 	@Async
 	public void shortTimeOpenMatch(BaseUser curUser) {
@@ -55,8 +41,7 @@ public class MatchActiveUserTask {
 		for (BaseUser u : users) {
 			String msg = HX_SessionUtil.getRandomMsg();
 			userService.saveMatchLog(curUser.getUser_id(), u.getUser_id());
-			HX_SessionUtil.matchCopyDraw(curUser, u.getUser_id(), msg);
-			HX_SessionUtil.matchCopyDraw(ImagePathUtil.completeAvatarPath(u, true), curUser.getUser_id(), msg);
+			HX_SessionUtil.createChatSession(u, curUser, msg);
 		}
 	}
 

@@ -131,6 +131,7 @@ public class UserController {
 	 * @return
 	 */
 	@RequestMapping("code_for_game")
+	
 	public ModelMap code_for_game(HttpServletRequest request, String mobile, Integer code_type) {
 		if (TextUtils.isEmpty(mobile)) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "手机号码不能为空");
@@ -184,6 +185,7 @@ public class UserController {
 	 */
 
 	@RequestMapping("regist")
+	
 	public ModelMap regist(HttpServletRequest request, LoginUser user, String code, String aid, Integer city_id,
 			String bGenderOK, String _ua, String bDeleteIM) {
 
@@ -291,6 +293,7 @@ public class UserController {
 	}
 
 	@SuppressWarnings("deprecation")
+	@ApiOperation(httpMethod = "POST", value = "regist_v2") // swagger 当前接口注
 	@RequestMapping("regist_v2")
 	public ModelMap regist_v2(HttpServletRequest request, LoginUser user, String code, String aid, Integer city_id,
 			String bGenderOK, String _ua, String image_names, String bDeleteIM) {
@@ -469,6 +472,7 @@ public class UserController {
 	 * @param image_names
 	 * @return
 	 */
+	@ApiOperation(httpMethod = "POST", value = "regist_for_game") // swagger 当前接口注
 	@RequestMapping("regist_for_game")
 	public ModelMap regist_for_game(HttpServletRequest request, LoginUser user, String code, String aid,
 			Integer city_id, String bGenderOK, String _ua, String image_names) {
@@ -553,6 +557,7 @@ public class UserController {
 	 * @return
 	 */
 	@RequestMapping("login")
+	@ApiOperation(httpMethod = "POST", value = "login") // swagger 当前接口注
 	public ModelMap loginByMobile(String mobile, String password, String openid, String _ua, String aid,
 			String bDeleteIM, String device_token) {
 
@@ -621,7 +626,7 @@ public class UserController {
 		}
 
 	}
-
+	@ApiOperation(httpMethod = "POST", value = "logout") // swagger 当前接口注
 	@RequestMapping("logout")
 	public ModelMap logout(String token, long user_id) {
 		if (TextUtils.isEmpty(token) || user_id < 1) {
@@ -644,6 +649,7 @@ public class UserController {
 	 * @return
 	 */
 	@RequestMapping("reset_password_code")
+	@ApiOperation(httpMethod = "POST", value = "reset_password_code") // swagger 当前接口注
 	public ModelMap reset_password_code(String mobile) {
 		if (TextUtils.isEmpty(mobile)) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "手机号码不能为空");
@@ -676,6 +682,7 @@ public class UserController {
 	 * @param mobile 手机号码
 	 * @return
 	 */
+	@ApiOperation(httpMethod = "POST", value = "reset_game_password_code") // swagger 当前接口注
 	@RequestMapping("reset_game_password_code")
 	public ModelMap reset_game_password_code(String mobile) {
 		if (TextUtils.isEmpty(mobile)) {
@@ -711,6 +718,7 @@ public class UserController {
 	 * @param code     验证码
 	 * @return
 	 */
+	@ApiOperation(httpMethod = "POST", value = "reset_password") // swagger 当前接口注
 	@RequestMapping("reset_password")
 	public ModelMap reset_password(String mobile, String password, String code, String _ua, String aid,
 			String device_token) {
@@ -747,6 +755,7 @@ public class UserController {
 	 * @param user_id 用户id
 	 * @return
 	 */
+	@ApiOperation(httpMethod = "POST", value = "info") // swagger 当前接口注
 	@RequestMapping("info")
 	public ModelMap info(long user_id, long user_id_for) {
 		DetailUser u = userService.getUserDetailInfo(user_id_for);
@@ -771,6 +780,7 @@ public class UserController {
 	 * @return
 	 */
 	@RequestMapping("modify_avatar")
+	@ApiOperation(httpMethod = "POST", value = "modify_avatar") // swagger 当前接口注解
 	public ModelMap modify_avatar(DefaultMultipartHttpServletRequest multipartRequest, long user_id, String aid,
 			String token) {
 		if (!userService.checkLogin(user_id, token)) {
@@ -815,6 +825,7 @@ public class UserController {
 	 * @param token            token
 	 * @return
 	 */
+	@ApiOperation(httpMethod = "POST", value = "modify_avatar_v2") // swagger 当前接口注解
 	@RequestMapping("modify_avatar_v2")
 	public ModelMap modify_avatar_v2(long user_id, String aid, String token, String image_names) {
 		if (!userService.checkLogin(user_id, token)) {
@@ -876,7 +887,7 @@ public class UserController {
 		userService.updateBaseInfo(user_id, nick_name, avatar, birthdayDate, city);
 		return userService.getUserDetailResult(user_id, token, aid);
 	}
-
+	@ApiOperation(httpMethod = "POST", value = "upload_avatars") // swagger 当前接口注解
 	@RequestMapping("upload_avatars")
 	public ModelMap upload_avatars(DefaultMultipartHttpServletRequest multipartRequest, long user_id, String aid,
 			String token) {
@@ -912,7 +923,7 @@ public class UserController {
 		}
 		return ResultUtil.getResultMap(ERROR.ERR_FAILED, "no files.");
 	}
-
+	@ApiOperation(httpMethod = "POST", value = "upload_avatars_v2") // swagger 当前接口注解
 	@RequestMapping("upload_avatars_v2")
 	public ModelMap upload_avatars_v2(DefaultMultipartHttpServletRequest multipartRequest, long user_id, String aid,
 			String token, String image_names) {
@@ -932,7 +943,7 @@ public class UserController {
 		}
 		return userService.getUserCenterData("", aid, user_id, user_id);
 	}
-
+	@ApiOperation(httpMethod = "POST", value = "delete_avatar") // swagger 当前接口注解
 	@RequestMapping("delete_avatar")
 	public ModelMap delete_avatar(HttpServletRequest request, long user_id, String token, String aid,
 			String avatar_ids) {
@@ -968,6 +979,7 @@ public class UserController {
 	 * @param want_to_where
 	 * @return
 	 */
+	@ApiOperation(httpMethod = "POST", value = "modify_info") // swagger 当前接口注解
 	@RequestMapping("modify_info")
 	public ModelMap modify_info(long user_id, String aid, String token, String nick_name, String birthday, String jobs,
 			String height, String weight, String signature, String my_tags, String interest, String favourite_animal,
@@ -1016,6 +1028,7 @@ public class UserController {
 	 * @param countz'z
 	 * @return
 	 */
+	@ApiOperation(httpMethod = "POST", value = "detial_info") // swagger 当前接口注解
 	@RequestMapping("detial_info")
 	public ModelMap detial_info(Long user_id, String aid, Long user_id_for, Integer count) {
 		if (user_id_for != null && user_id_for > 0) {
@@ -1026,7 +1039,7 @@ public class UserController {
 		}
 		return userService.getUserCenterData("", aid, user_id, user_id);
 	}
-
+	@ApiOperation(httpMethod = "POST", value = "dynamic") // swagger 当前接口注解
 	@RequestMapping("dynamic")
 	public ModelMap dynamic(long user_id, Long user_id_for, Integer page, Integer count) {
 
@@ -1057,20 +1070,20 @@ public class UserController {
 		}
 		return result;
 	}
-
+	@ApiOperation(httpMethod = "POST", value = "更新用户位置信息") // swagger 当前接口注解
 	@RequestMapping("update_location")
 	public ModelMap update_location(HttpServletRequest request, Long user_id, String lat, String lng,
 			String ios_address) {
 		userService.uploadLocation(IPUtil.getIpAddress(request), user_id == null ? 0 : user_id, lat, lng);
 		return ResultUtil.getResultOKMap();
 	}
-
+	@ApiOperation(httpMethod = "POST", value = "add_app_user") // swagger 当前接口注解
 	@RequestMapping("add_token")
 	public ModelMap add_token(HttpServletRequest request, Long user_id, String device_token, String zh_cn) {
 		userService.uploadToken(user_id == null ? 0 : user_id, device_token, zh_cn);
 		return ResultUtil.getResultOKMap();
 	}
-
+	@ApiOperation(httpMethod = "POST", value = "add_app_user") // swagger 当前接口注解
 	@RequestMapping("add_app_user")
 	public ModelMap add_app_user(String device_id, String aid, String device_token, String zh_cn, String lat,
 			String lng) {
@@ -1107,14 +1120,14 @@ public class UserController {
 		result.put("user", user);
 		return result;
 	}
-
+	@ApiOperation(httpMethod = "POST", value = "set_city") // swagger 当前接口注解
 	@RequestMapping("set_city")
 	public ModelMap set_city(Long user_id, Integer city_id) {
 		userService.setCity(user_id, city_id);
 		ModelMap result = ResultUtil.getResultOKMap();
 		return result;
 	}
-
+	@ApiOperation(httpMethod = "POST", value = "add_block") // swagger 当前接口注解
 	@RequestMapping("add_block")
 	public ModelMap set_city(Long user_id, String token, Long block_user_id) {
 		ModelMap result = ResultUtil.getResultOKMap();
@@ -1124,28 +1137,28 @@ public class UserController {
 		return result;
 	}
 
-	@Deprecated
-	@RequestMapping("center_page")
-	public ModelMap center_page(Long user_id_for, String token, String aid, long user_id) {
-		return userService.getUserCenterData(token, aid, user_id_for, user_id);
-	}
+//	@Deprecated
+//	@RequestMapping("center_page")
+//	public ModelMap center_page(Long user_id_for, String token, String aid, long user_id) {
+//		return userService.getUserCenterData(token, aid, user_id_for, user_id);
+//	}
 
-	@Deprecated
-	@RequestMapping("center_page/{user_id_for}")
-	public ModelMap center_page_path(@PathVariable Long user_id_for, String token, String aid, Long user_id) {
-		return userService.getUserCenterData(token, aid, user_id_for, user_id);
-	}
-
+//	@Deprecated
+//	@RequestMapping("center_page/{user_id_for}")
+//	public ModelMap center_page_path(@PathVariable Long user_id_for, String token, String aid, Long user_id) {
+//		return userService.getUserCenterData(token, aid, user_id_for, user_id);
+//	}
+	@ApiOperation(httpMethod = "POST", value = "center_page_v2") // swagger 当前接口注解
 	@RequestMapping("center_page_v2")
 	public ModelMap center_page_v2(Long user_id_for, String token, String aid, long user_id) {
 		return userService.getUserCenterDataV2(token, aid, user_id_for, user_id);
 	}
-
+	@ApiOperation(httpMethod = "POST", value = "center_page_v2") // swagger 当前接口注解
 	@RequestMapping("center_page_v2/{user_id_for}")
 	public ModelMap center_page_v2(@PathVariable Long user_id_for, String token, String aid, Long user_id) {
 		return userService.getUserCenterDataV2(token, aid, user_id_for, user_id);
 	}
-
+	@ApiOperation(httpMethod = "POST", value = "avatar") // swagger 当前接口注解
 	@RequestMapping("avatar/{user_id}")
 	public ModelMap getUserAvatar(@PathVariable long user_id) {
 		return userService.getUserAvatar(user_id);
@@ -1157,6 +1170,7 @@ public class UserController {
 	 * @param type
 	 * @return
 	 */
+	@ApiOperation(httpMethod = "POST", value = "simple") // swagger 当前接口注解
 	@RequestMapping("simple/{user_id}")
 	public ModelMap getSimpleUserInfo(@PathVariable long user_id) {
 		return userService.getUserSimple(user_id);
@@ -1168,6 +1182,7 @@ public class UserController {
 	 * @param type
 	 * @return
 	 */
+	@ApiOperation(httpMethod = "POST", value = "property") // swagger 当前接口注解
 	@RequestMapping("property")
 	public ModelMap getUserProperty(long user_id, String aid) {
 		return userService.getUserProperty(user_id, aid);
@@ -1179,6 +1194,7 @@ public class UserController {
 	 * @param type
 	 * @return
 	 */
+	@ApiOperation(httpMethod = "POST", value = "tags") // swagger 当前接口注解
 	@RequestMapping("tags")
 	public ModelMap getTags(int type) {
 		ModelMap result = ResultUtil.getResultOKMap();
@@ -1188,22 +1204,23 @@ public class UserController {
 		}
 		return result;
 	}
-
+	@ApiOperation(httpMethod = "POST", value = "like_list") // swagger 当前接口注解
 	@RequestMapping("like_list/{user_id}")
 	public ModelMap like_list(@PathVariable long user_id, Integer page_index, Integer count) {
 		return userService.likeList(user_id, page_index, count);
 	}
 
+	@ApiOperation(httpMethod = "POST", value = "check_in") // swagger 当前接口注解
 	@RequestMapping("check_in")
 	public Map<String, Object> check_in(long user_id, String token, String aid) {
 		return userService.checkIn(user_id, token, aid);
 	}
-
+	@ApiOperation(httpMethod = "POST", value = "getContact") // swagger 当前接口注解
 	@RequestMapping("getContact/{by_user_id}")
 	public ModelMap getContact(@PathVariable long by_user_id, long user_id, String token, String aid) {
 		return userService.getContact(by_user_id, user_id, token, aid);
 	}
-
+	@ApiOperation(httpMethod = "POST", value = "autoLogin") // swagger 当前接口注解
 	@RequestMapping("autoLogin")
 	public ModelMap autoLogin(long user_id, String md5pwd, String aid, String device_token) {
 
@@ -1213,7 +1230,7 @@ public class UserController {
 
 		return userService.autoLogin(user_id, md5pwd, aid, device_token);
 	}
-
+	@ApiOperation(httpMethod = "POST", value = "online_list") // swagger 当前接口注解
 	@RequestMapping("online_list")
 	public ModelMap online_list(Integer page, Integer count) {
 
@@ -1228,7 +1245,7 @@ public class UserController {
 		return ResultUtil.getResultOKMap().addAttribute("users", users).addAttribute("hasMore", users.size() == count);
 
 	}
-
+	@ApiOperation(httpMethod = "POST", value = "关注某人") // swagger 当前接口注解
 	@RequestMapping("follow")
 	public ModelMap follow(long user_id, String token, long target_id) {
 
@@ -1238,7 +1255,7 @@ public class UserController {
 		userService.follow(user_id, target_id, false);
 		return ResultUtil.getResultOKMap().addAttribute("target_id", target_id);
 	}
-
+	@ApiOperation(httpMethod = "POST", value = "取消关注某人") // swagger 当前接口注解
 	@RequestMapping("cancel_follow")
 	public ModelMap cancelFollow(long user_id, String token, long target_id) {
 
@@ -1249,28 +1266,32 @@ public class UserController {
 		return ResultUtil.getResultOKMap().addAttribute("target_id", target_id);
 	}
 
+	@ApiOperation(httpMethod = "POST", value = "cost_coin") // swagger 当前接口注解
 	@RequestMapping("cost_coin")
 	public Map<String, Object> cost_coin(long user_id, String token, String aid, int coin) {
 		return userService.cost_coin(user_id, token, aid, coin);
 	}
 
+	@ApiOperation(httpMethod = "POST", value = "add_extra") // swagger 当前接口注解
 	@RequestMapping("add_extra")
 	public Map<String, Object> add_extra(long user_id, String token, String content) throws Exception {
 		return userService.addCoin(user_id, token, content);
 	}
 
+	@ApiOperation(httpMethod = "POST", value = "获取某用户关注的人列表") // swagger 当前接口注解
 	@RequestMapping("follow/{uid}")
 	public ModelMap my_follow(@PathVariable long uid, Integer page, Integer count)
 			throws Exception {
 		return userService.followUsers(uid, false, page, count);
 	}
 
+	@ApiOperation(httpMethod = "POST", value = "获取某用户的粉丝列表") // swagger 当前接口注解
 	@RequestMapping("fans/{uid}")
 	public ModelMap follow_me(@PathVariable long uid, long user_id, String token, Integer page, Integer count)
 			throws Exception {
 		return userService.followUsers(uid, true, page, count);
 	}
-
+	@ApiOperation(httpMethod = "POST", value = "关闭该账号") // swagger 当前接口注解
 	@RequestMapping("close")
 	public ModelMap close(long user_id, String token) throws Exception {
 		if (!userService.checkLogin(user_id, token)) {
@@ -1290,31 +1311,8 @@ public class UserController {
 //		userService.match(user_id, exclude_uids, percent, days, count);
 		return ResultUtil.getResultOKMap();
 	}
-
-//
-//	
-//	@RequestMapping("add_token")
-//	public ModelMap add_token(long user_id,String  device_token) {
-//		 userService.addDeviceToken(user_id,device_token);
-//		 return ResultUtil.getResultOKMap();
-//	}
-
-	@RequestMapping("test_longtime_no_login")
-	public ModelMap test_new_user_regist(long user_id, long target_id) {
-		userService.testLongTimeNoLogin(user_id, target_id);
-		return ResultUtil.getResultOKMap();
-	}
-
-	@RequestMapping("setProperty")
-	public ModelMap setProperty(int percent) {
-		userService.setPercent(percent);
-		return ResultUtil.getResultOKMap();
-	}
-
-	@RequestMapping("getProperty")
-	public ModelMap getProperty() {
-		return ResultUtil.getResultOKMap().addAttribute("percent", userService.getPercent());
-	}
+ 
+	@ApiOperation(httpMethod = "POST", value = "获取某人的简单信息") // swagger 当前接口注解
 	@RequestMapping("simple_info/{uid}")
 	public ModelMap getUserSimpleInfo(@PathVariable long uid) {
 		return ResultUtil.getResultOKMap().addAttribute("user", ImagePathUtil.completeAvatarPath(userService.getBaseUserNoToken(uid),true));
@@ -1340,23 +1338,17 @@ public class UserController {
 		}
 		return ResultUtil.getResultOKMap().addAttribute("is_unlock", userService.isUnlock(user_id, target_uid));
 	}
-	@RequestMapping("mark_chat_unlock")
+	@RequestMapping("reply_unlock")
 	@ApiOperation(httpMethod = "POST", value = "客户端主动标记解锁") // swagger 当前接口注解
 	@ApiImplicitParams({
 		@ApiImplicitParam(name = "target_uid", value = "解锁对方id", paramType = "query", dataType = "Integer") })
-	public ModelMap mark_chat_unlock(long user_id,String token,String aid,long target_uid) {
+	public ModelMap reply_unlock(long user_id,String token,String aid,long target_uid) {
 		if(!userService.checkLogin(user_id, token)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
 		userService.markUnlock(user_id, target_uid);
 		return ResultUtil.getResultOKMap();
 	}
-	
-	@RequestMapping("m")
-	public ModelMap m(long f, long to) {
-		return userService.testMakeSession(f, to);
-	}
-
 	private City getDefaultCityId() {
 
 		City city = new City();

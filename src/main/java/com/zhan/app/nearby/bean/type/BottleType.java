@@ -5,8 +5,8 @@ public enum BottleType {
 	IMG,
 	VOICE,
 	MEET,
-	DM_TXT, //弹幕文字瓶子
-	DM_VOICE,//弹幕语音瓶子
-	DRAW_GUESS, //我画你猜
-	RED_PACKAGE; //红包瓶子
+	DM_TXT, //弹幕文字瓶子  4
+	DM_VOICE,//弹幕语音瓶子  5
+	DRAW_GUESS, //我画你猜  6
+	RED_PACKAGE; //红包瓶子 7
 }

@@ -891,7 +891,7 @@ public class UserDao extends BaseDao<BaseUser> {
 				new BeanPropertyRowMapper<LoginUser>(LoginUser.class));
 	}
 
-	
+	@Cacheable(value = "five_minute", key = "#root.methodName+'_'+#page+'_'+#count")
 	public List<LoginUser> getRankOnlineUsers(int page, int count) {
 		String sql = "select u.user_id,u.nick_name,u.avatar,u.last_login_time ,u.sex,u.isvip,u.lat,u.lng ,ifnull(gift.tval,'0') as shanbei " + " from t_user_online l"
 				+ "  inner join t_user u on l.uid=u.user_id"

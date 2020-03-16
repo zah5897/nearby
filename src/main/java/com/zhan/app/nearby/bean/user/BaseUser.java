@@ -17,6 +17,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.zhan.app.nearby.bean.Avatar;
 import com.zhan.app.nearby.bean.City;
 import com.zhan.app.nearby.comm.UserType;
+import com.zhan.app.nearby.util.DateTimeUtil;
 import com.zhan.app.nearby.util.TextUtils;
 
 @SuppressWarnings("serial")
@@ -103,6 +104,26 @@ public class BaseUser implements Serializable {
 	private int birth_city_id;
 	@Transient // 忽略保存
 	private City birth_city;
+	
+	
+	@Transient // 忽略保存
+	private int my_follow_count;
+
+	private String age;
+
+	private String channel;
+	
+	
+	@JsonIgnore
+	private String openid;
+
+	public String getOpenid() {
+		return openid;
+	}
+
+	public void setOpenid(String openid) {
+		this.openid = openid;
+	}
 
 	public int getCity_id() {
 		return city_id;
@@ -177,12 +198,7 @@ public class BaseUser implements Serializable {
 		this.meili = meili;
 	}
 
-	@Transient // 忽略保存
-	private int my_follow_count;
 
-	private String age;
-
-	private String channel;
 
 	public String getChannel() {
 		return channel;
@@ -206,6 +222,7 @@ public class BaseUser implements Serializable {
 
 	public void setBirthday(Date birthday) {
 		this.birthday = birthday;
+		this.age=DateTimeUtil.getAge(birthday);
 	}
 
 	public long getUser_id() {

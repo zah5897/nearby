@@ -254,9 +254,7 @@ public class MainService {
 			count = 20;
 		}
 		
-		
 		ModelMap r=	ResultUtil.getResultOKMap();
-		
 		List<? extends BaseUser> users = null;
 		if(type==-2) {
 			users = userDao.getIWatching(user_id,pageIndex, count);

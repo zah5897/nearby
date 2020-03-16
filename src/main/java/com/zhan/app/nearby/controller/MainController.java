@@ -50,11 +50,13 @@ public class MainController {
 	 * @return
 	 */
 	@RequestMapping("found")
+	@ApiOperation(httpMethod = "POST", value = "found") // swagger 当前接口注解
 	public ModelMap found(Long user_id, Long last_id, Integer count, String lat, String lng, Integer city_id) {
 		return mainService.getHomeFoundSelected(user_id == null ? 0 : user_id, last_id, count, city_id);
 	}
 
 	@RequestMapping("reset_city")
+	@ApiOperation(httpMethod = "POST", value = "reset_city") // swagger 当前接口注解
 	public ModelMap reset_city() {
 
 		long last_time = userCacheService.getLastUploadTime(41);
@@ -73,16 +75,19 @@ public class MainController {
 	// 是用于第三方的app里面，用于推广我们app用的
 
 	@RequestMapping("foud_users")
+	@ApiOperation(httpMethod = "POST", value = "foud_users 接口名字有误，请使用found_users接口") // swagger 当前接口注解
 	public ModelMap foud_users(Long user_id, Integer count, Integer gender) {
 		return mainService.found_users(user_id, count, gender);
 	}
 
 	@RequestMapping("found_users")
+	@ApiOperation(httpMethod = "POST", value = "found_users") // swagger 当前接口注解
 	public ModelMap found_users(Long user_id, Integer count, Integer gender) {
 		return mainService.found_users(user_id, count, gender);
 	}
 
 	@RequestMapping("buy_first_position")
+	@ApiOperation(httpMethod = "POST", value = "buy_first_position") // swagger 当前接口注解
 	public Map<String, Object> buy_first_position(long user_id, String token, String aid) {
 		if (!userService.checkLogin(user_id, token)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
@@ -91,11 +96,13 @@ public class MainController {
 	}
 
 	@RequestMapping("new_regist_users")
+	@ApiOperation(httpMethod = "POST", value = "new_regist_users") // swagger 当前接口注解
 	public ModelMap new_regist_users(Integer page, Integer count) {
 		return mainService.newRegistUsers(page, count);
 	}
 
 	@RequestMapping("report")
+	@ApiOperation(httpMethod = "POST", value = "report") // swagger 当前接口注解
 	public ModelMap report(Long user_id, String token, Long dynamic_id) {
 		return ResultUtil.getResultOKMap();
 	}
@@ -109,25 +116,28 @@ public class MainController {
 	 * @return
 	 */
 	@RequestMapping("like")
+	@ApiOperation(httpMethod = "POST", value = "like") // swagger 当前接口注解
 	public ModelMap like(long user_id, String token, String with_user_id) {
 		return mainService.like(user_id, with_user_id);
 	}
-
+	@ApiOperation(httpMethod = "POST", value = "add_block") // swagger 当前接口注解
 	@RequestMapping("add_block")
 	public ModelMap add_block(long user_id, String token, String with_user_id) {
 		return mainService.addBlock(user_id, with_user_id);
 	}
-
+	@ApiOperation(httpMethod = "POST", value = "ignore") // swagger 当前接口注解
 	@RequestMapping("ignore")
 	public ModelMap ignore(long user_id, String token, String with_user_id) {
 		return mainService.ignore(user_id, with_user_id);
 	}
-
+	@ApiOperation(httpMethod = "POST", value = "排行榜") // swagger 当前接口注解
 	@RequestMapping("rank_list")
 	public ModelMap meili(int type, Integer page, Integer count) {
 		return mainService.meiliList(type, page, count);
 	}
-
+	@ApiOperation(httpMethod = "POST", value = "排行榜") // swagger 当前接口注解
+	@ApiImplicitParams({
+		@ApiImplicitParam(name = "type", value = "-2我关注的人，-1在线用户，0 新人榜，1魅力榜，2土豪榜，3vip榜", paramType = "query", dataType = "Integer") })
 	@RequestMapping("rank_list_v2")
 	public ModelMap rank_list_v2(long user_id,int type, Integer page, Integer count) {
 		return mainService.rank_list_v2(user_id,type, page, count);
@@ -135,6 +145,7 @@ public class MainController {
 	
 	
 	// 提现历史记录
+	@ApiOperation(httpMethod = "POST", value = "exchange_history") // swagger 当前接口注解
 	@RequestMapping("exchange_history")
 	public ModelMap exchange_history(long user_id, String token, String aid, Integer page, Integer count) {
 		return mainService.exchange_history(user_id, aid, page, count);
@@ -148,6 +159,8 @@ public class MainController {
 
 	// 获取成长率最高的用户
 	@RequestMapping("hot_users")
+	@ApiOperation(httpMethod = "POST", value = "hot_users") // swagger 当前接口注解
+
 	public ModelMap hot_users(String gender, Long fix_user_id, Integer page,Integer count) {
 		return mainService.getHotUsers(gender, fix_user_id, page,count);
 	}
@@ -171,36 +184,42 @@ public class MainController {
 
 	// 提交个人身份证
 	@RequestMapping("check_submit_personal_id")
+	@ApiOperation(httpMethod = "POST", value = "check_submit_personal_id") // swagger 当前接口注解
 	public ModelMap check_submit_personal_id(PersonalInfo personal) {
 		return mainService.check_submit_personal_id(personal);
 	}
 
 	// 提交支付宝信息
 	@RequestMapping("check_submit_personal_zhifubao")
+	@ApiOperation(httpMethod = "POST", value = "check_submit_personal_zhifubao") // swagger 当前接口注解
 	public ModelMap check_submit_zhifubao(PersonalInfo personal, String code) {
 		return mainService.check_submit_zhifubao(personal, code);
 	}
 
 	// 修改个人绑定的信息
 	@RequestMapping("modify_bind_personal_info")
+	@ApiOperation(httpMethod = "POST", value = "modify_bind_personal_info") // swagger 当前接口注解
 	public ModelMap modify_bind_personal_info(PersonalInfo personal, String code) {
 		return mainService.modify_bind_personal_info(personal, code);
 	}
 
 	// 获取个人绑定的信息
 	@RequestMapping("load_personal_info")
+	@ApiOperation(httpMethod = "POST", value = "load_personal_info") // swagger 当前接口注解
 	public ModelMap load_personal_info(long user_id, String token, String aid) {
 		return mainService.load_personal_info(user_id, token, aid);
 	}
 
 	// 获取验证码
 	@RequestMapping("get_personal_validate_code")
+	@ApiOperation(httpMethod = "POST", value = "get_personal_validate_code") // swagger 当前接口注解
 	public ModelMap get_personal_validate_code(long user_id, String token, String aid, String mobile,
 			Integer code_type) {
 		return mainService.get_personal_validate_code(user_id, token, mobile, code_type);
 	}
 
 	@RequestMapping("load_special_users")
+	@ApiOperation(httpMethod = "POST", value = "load_special_users") // swagger 当前接口注解
 	public ModelMap special_users(Integer count) {
 		return mainService.getSpecialUsers(1, count == null ? 5 : count);
 	}

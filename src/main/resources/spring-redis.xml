@@ -65,6 +65,7 @@
 				<entry key="six_hour" value="21600" />
 				<entry key="one_hour" value="3600" />
 				<entry key="thrity_minute" value="1800" />
+				<entry key="five_minute" value="3000" />
 				<entry key="one_minute" value="60" />
 			</map>
 		</property>

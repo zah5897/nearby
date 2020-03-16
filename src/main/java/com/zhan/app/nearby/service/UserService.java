@@ -301,15 +301,6 @@ public class UserService {
 		return count;
 	}
 
-	private int percent = 20;
-
-	public void setPercent(int percent) {
-		this.percent = percent;
-	}
-
-	public int getPercent() {
-		return percent;
-	}
 
 	public void checkHowLongNotOpenApp(long uid) {
 		checkHowLongNotOpenApp(getBasicUser(uid));
@@ -450,9 +441,6 @@ public class UserService {
 		if (user == null) {
 			return ResultUtil.getResultMap(ERROR.ERR_FAILED);
 		}
-
-		user.setAge(String.valueOf(DateTimeUtil.getAge(user.getBirthday())));
-
 		// //
 		// Map<String, Object> userJson = new HashMap<>();
 		// userJson.put("about_me", user);
@@ -482,25 +470,32 @@ public class UserService {
 
 		user.setFans_count(userDao.getFansCount(user.getUser_id()));
 		user.setMy_follow_count(userDao.getFollowCount(user.getUser_id()));
-		user.setHas_followed(userDao.isFollowed(uid, user_id_for) ? 1 : 0);
-
-		r.put("user", user);
-		Relationship iWithHim = getRelationShip(uid == null ? 0 : uid, user_id_for);
-		Relationship heWithMe = getRelationShip(user_id_for, uid == null ? 0 : uid);
+		
+		
 		int relationShip = 0;
-		if (iWithHim == Relationship.LIKE && heWithMe == Relationship.LIKE) {
-			relationShip = 4;
-		} else if (iWithHim == Relationship.LIKE && heWithMe != Relationship.LIKE) {
-			relationShip = 5;
-		} else if (iWithHim != Relationship.LIKE && heWithMe == Relationship.LIKE) {
-			relationShip = 6;
-		} else {
-			relationShip = 7;
+		
+		if(user_id_for==uid) { //说明为本人自己
+			user.setHas_followed(1);
+			relationShip=4;
+			r.addAttribute("coins", giftService.getUserCoins(aid, user_id_for));
+		}else {
+			user.setHas_followed(userDao.isFollowed(uid, user_id_for) ? 1 : 0);
+			Relationship iWithHim = getRelationShip(uid == null ? 0 : uid, user_id_for);
+			Relationship heWithMe = getRelationShip(user_id_for, uid == null ? 0 : uid);
+			if (iWithHim == Relationship.LIKE && heWithMe == Relationship.LIKE) {
+				relationShip = 4;
+			} else if (iWithHim == Relationship.LIKE && heWithMe != Relationship.LIKE) {
+				relationShip = 5;
+			} else if (iWithHim != Relationship.LIKE && heWithMe == Relationship.LIKE) {
+				relationShip = 6;
+			} else {
+				relationShip = 7;
+			}
+			r.addAttribute("coins", 0);
 		}
+		r.put("user", user);
 		r.put("relationship", relationShip);
-//		r.addAttribute("meili", giftService.getUserMeiLiVal(user_id_for));
 		r.addAttribute("meili", user.getMeili());
-		r.addAttribute("coins", giftService.getUserCoins(aid, user_id_for));
 		r.addAttribute("like_count", giftService.getUserBeLikeVal(user_id_for));
 		return r;
 	}

@@ -202,7 +202,7 @@ public class UserDynamicDao extends BaseDao<UserDynamic> {
 
 	public UserDynamic detail(long dynamic_id) {
 		try {
-			String sql = "select dy.*,user.user_id ,v.vip_id ,user.nick_name ,user.avatar,user.sex ,user.birthday,user.type ,user.isvip   from "
+			String sql = "select dy.*,user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday,user.type ,user.isvip   from "
 					+ getTableName() + " dy left join t_user user on dy.user_id=user.user_id " + " where dy.id=?";
 			return jdbcTemplate.queryForObject(sql, new Object[] { dynamic_id }, dynamicMapper);
 		} catch (Exception e) {

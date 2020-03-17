@@ -149,7 +149,7 @@ public class ModelEntityPropertyWrapper {
                 	Class<?> clazz=(Class<?>) fieldClass;
                 	 
                     if (fieldClass.toString().equals( Date.class.toString())) {
-                        EntityPropertiesReflectUtil.invokeSetMethod(o, field, new Object[]{rs.getTimestamp(key)}, (Class<?>)fieldClass);
+                        EntityPropertiesReflectUtil.invokeSetMethod(o, field, new Object[]{rs.getTimestamp(key)},clazz);
                     } else {
                         EntityPropertiesReflectUtil.invokeSetMethod(o, field, new Object[]{rs.getObject(key, clazz)}, clazz);
                     }

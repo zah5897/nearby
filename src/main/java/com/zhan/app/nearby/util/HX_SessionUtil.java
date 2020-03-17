@@ -86,7 +86,13 @@ public class HX_SessionUtil {
 		// 发送给对方
 		Map<String, String> ext = new HashMap<String, String>();
 		putUserInfo(ext, user);
-
+		
+		Map<String, String> data = new HashMap<String, String>();
+		data.put("content",  msg);
+		data.put("type",  ChatConversationType.CHAT_TYPE_SYSTEM_MATCH);
+		
+		String dataStr=JSONUtil.writeValueAsString(data);
+		ext.put("data",dataStr );
 		if (TextUtils.isEmpty(msg)) {
 			msg = getRandomMsg();
 		}
@@ -94,7 +100,19 @@ public class HX_SessionUtil {
 		// 发送给自己
 		ext = new HashMap<String, String>();
 		putUserInfo(ext, with_user);
+		ext.put("data", dataStr);
 		Main.sendTxtMessage(with_user, new String[] { String.valueOf(user.getUser_id()) }, msg, ext);
+	}
+	public static void createExpressSession(BaseUser user, BaseUser with_user, String msg) {
+		// 发送给对方
+		Map<String, String> ext = new HashMap<String, String>();
+		putUserInfo(ext, user);
+		
+		Map<String, String> data = new HashMap<String, String>();
+		data.put("content",  msg);
+		data.put("type",  ChatConversationType.CHAT_TYPE_EXPRESS);
+		ext.put("data", JSONUtil.writeValueAsString(data));
+		Main.sendTxtMessage(user, new String[] { String.valueOf(with_user.getUser_id()) }, msg, ext);
 	}
 
 //	public static void makeChatSession(BaseUser user, BaseUser with_user, long bottle_id) {

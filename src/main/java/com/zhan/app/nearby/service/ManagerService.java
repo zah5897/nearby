@@ -12,6 +12,7 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.zhan.app.nearby.bean.Appointment;
 import com.zhan.app.nearby.bean.Bottle;
 import com.zhan.app.nearby.bean.ManagerUser;
 import com.zhan.app.nearby.bean.Report;
@@ -431,7 +432,11 @@ public class ManagerService {
 		}
 		r.put("currentPageIndex", page);
 
-		r.addAttribute("data", appointmentService.listToCheck(status, page, count));
+		
+		
+		List<Appointment> data=appointmentService.listToCheck(status, page, count);
+		ImagePathUtil.completePath(data);
+		r.addAttribute("data", data);
 		return r;
 	}
 
@@ -452,7 +457,9 @@ public class ManagerService {
 		}
 		r.put("currentPageIndex", page);
 
-		r.addAttribute("data", appointmentService.listToCheck(status, page, count));
+		List<Appointment> data=appointmentService.listToCheck(status, page, count);
+		ImagePathUtil.completePath(data);
+		r.addAttribute("data", data);
 		return r;
 	}
 

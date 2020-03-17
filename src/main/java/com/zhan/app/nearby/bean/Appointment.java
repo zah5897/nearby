@@ -48,7 +48,6 @@ public class Appointment {
 	private int city_id;
 	@JsonIgnore
 	private String image;
-	@JsonIgnore
 	private String channel;
 	private String lat,lng;
 

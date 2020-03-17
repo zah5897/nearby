@@ -189,13 +189,13 @@ td {
 			 toAdd+="<td>"+pageData['channel']+"</td>";
 			 
 			// var nick_name=pageData.publisher.nick_name;
-			 var uid=pageData.publisher.user_id;
+			 var uid=pageData.user.user_id;
 			// nick_name=nick_name==undefined?"":nick_name;
 			 toAdd+="<td>"+uid+"</td>";
-			 toAdd+="<td><img  src='"+pageData.image+"' alt='"+pageData.image+"'  height='50'/></td>";
+			 toAdd+="<td><img  src='"+pageData.images[0]+"' alt='"+pageData.images[0]+"'  height='50'/></td>";
 			 //主题
 			 toAdd+="<td>"+pageData.theme.name+"</td>";
-			 toAdd+="<td>"+pageData.addr+"</td>";
+			 toAdd+="<td>"+pageData.street+"</td>";
 			 toAdd+="<td>"+pageData.appointment_time+"</td>";
 			 
 			 var time_stage=pageData.time_stage;

@@ -39,7 +39,7 @@ public class BottleDao extends BaseDao<Bottle> {
 	public static final int BOTTLE_LIMIT_COUNT = 150;
 
 	public Bottle getBottleById(long id) {
-		String sql = "select bottle.*,user.nick_name,user.sex,user.avatar,u.isvip from " + getTableName()
+		String sql = "select bottle.*,user.nick_name,user.sex,user.avatar,user.isvip from " + getTableName()
 				+ " bottle left join t_user user on bottle.user_id=user.user_id where bottle.id=?";
 		List<Bottle> bottles = jdbcTemplate.query(sql, new Object[] { id },
 				new BeanPropertyRowMapper<Bottle>(Bottle.class) {

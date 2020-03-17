@@ -11,9 +11,5 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 @Table(name = "t_user")
 public class LoginUser extends RankUser {
 	 
-	@Override
-	public String getToken() {
-		return super.getToken();
-	}
 	
 }

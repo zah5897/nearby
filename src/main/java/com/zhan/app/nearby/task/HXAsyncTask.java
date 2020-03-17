@@ -42,6 +42,12 @@ public class HXAsyncTask {
 	public void createChatSession(BaseUser user, BaseUser with_user,String msg) {
 		HX_SessionUtil.createChatSession(user, with_user,msg);
 	}
+	
+	@Async
+	public void createExpressSession(BaseUser user, BaseUser with_user,String msg) {
+		HX_SessionUtil.createChatSession(user, with_user,msg);
+	}
+	
 //
 //	@Async
 //	public void makeChatSession(BaseUser user, BaseUser with_user, long bottle_id) {

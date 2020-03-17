@@ -12,7 +12,8 @@ public class CustomSQLErrorCodeTranslator extends SQLErrorCodeSQLExceptionTransl
 	@SuppressWarnings("serial")
 	@Override
 	protected DataAccessException customTranslate(String task, String sql, SQLException sqlEx) {
-		String errMsg = "task:" + task + "\\nsql=" + sql;
+		String errMsg = "task:\n" + task + "\nsql=\n" + sql;
+		errMsg += "\n" + sqlEx.getMessage();
 		log.error(errMsg);
 		return new DataAccessException(errMsg) {
 		};

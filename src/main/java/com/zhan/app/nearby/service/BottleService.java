@@ -376,7 +376,7 @@ public class BottleService {
 		// to_user_id, content);
 		BaseUser user = userDao.getBaseUser(user_id);
 		BaseUser to_user = userDao.getBaseUser(to_user_id);
-		hxTask.createChatSession(user, to_user, content);
+		hxTask.createExpressSession(user, to_user, content);
 		return ResultUtil.getResultOKMap();
 	}
 

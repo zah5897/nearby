@@ -31,4 +31,7 @@ public class ChatConversationType {
 
 	/** 短视频电话 */
 	public static final String CHAT_TYPE_VIDEO = "CHAT_TYPE_VIDEO";
+	
+	/** 表白 */
+    public static final String CHAT_TYPE_EXPRESS = "CHAT_TYPE_EXPRESS";
 }

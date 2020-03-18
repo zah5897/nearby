@@ -85,7 +85,7 @@ public class BottleDao extends BaseDao<Bottle> {
 	}
 
 	public Bottle getMeetBottleByUserId(long user_id) {
-		String sql = "select b.*,u.nick_name,u.avatar from t_bottle as b left join t_user u on b.user_id=u.id where b.user_id=? and b.type=?";
+		String sql = "select b.*,u.nick_name,u.avatar,u.isvip from t_bottle  b left join t_user u on b.user_id=u.user_id where b.user_id=? and b.type=?";
 		List<Bottle> bottles = jdbcTemplate.query(sql, new Object[] { user_id, BottleType.MEET.ordinal() },
 				new BeanPropertyRowMapper<Bottle>(Bottle.class) {
 
@@ -124,7 +124,7 @@ public class BottleDao extends BaseDao<Bottle> {
 	}
 
 	public List<Bottle> getBottleRandomInPool(long user_id, int limit) {
-		String sql = "select b.*,u.nick_name ,u.gender,u.avatar from t_bottle as b right join (select  * from t_bottle_pool where user_id<>? order by rand() limit ?) as p on b.id=p.bottle_id left join t_user u on b.user_id=u.id";
+		String sql = "select b.*,u.nick_name ,u.gender,u.avatar,u.isvip, from t_bottle as b right join (select  * from t_bottle_pool where user_id<>? order by rand() limit ?) as p on b.id=p.bottle_id left join t_user u on b.user_id=u.id";
 		return jdbcTemplate.query(sql, new Object[] { user_id, limit },
 				new BeanPropertyRowMapper<Bottle>(Bottle.class) {
 
@@ -178,7 +178,7 @@ public class BottleDao extends BaseDao<Bottle> {
 			return jdbcTemplate.query(sql, new Object[] { user_id, BottleState.IOS_REVIEW.ordinal(),
 					BottleType.DM_TXT.ordinal(), BottleType.DM_VOICE.ordinal(), limit }, getBottleMapper());
 		} else if (type == BottleType.VOICE.ordinal()) {
-			String sql = "select b.*,u.nick_name,u.avatar,u.birthday,u.birth_city_id,u.city_id," 
+			String sql = "select b.*,u.nick_name,u.avatar,u.birthday,u.birth_city_id,u.city_id,"
 					+ " u.sex,u.isvip ,c.name as city_name from t_bottle  b   left join t_user u on b.user_id=u.user_id "
 					+ " left join t_sys_city c on u.birth_city_id=c.id"
 					+ "  where u.avatar<>'illegal.jpg' and  b.user_id<>? and b.state=?  and b.typ=>? " + sexCondition
@@ -194,7 +194,7 @@ public class BottleDao extends BaseDao<Bottle> {
 			return jdbcTemplate.query(sql, new Object[] { user_id, BottleState.IOS_REVIEW.ordinal(), type,
 					BottleAnswerState.NORMAL.ordinal(), limit }, getBottleMapper());
 		} else {
-			String sql = "select b.*,u.nick_name,u.avatar,u.birthday,u.birth_city_id,u.city_id," 
+			String sql = "select b.*,u.nick_name,u.avatar,u.birthday,u.birth_city_id,u.city_id,"
 					+ " u.sex ,u.isvip,c.name as city_name from t_bottle  b   left join t_user u on b.user_id=u.user_id "
 					+ " left join t_sys_city c on u.birth_city_id=c.id"
 					+ "  where u.avatar<>'illegal.jpg' and  b.user_id<>? and b.state=?  and b.type=? " + sexCondition
@@ -231,7 +231,7 @@ public class BottleDao extends BaseDao<Bottle> {
 				return jdbcTemplate.query(sql, new Object[] { user_id, BottleState.BLACK.ordinal(),
 						BottleType.DM_TXT.ordinal(), BottleType.DM_VOICE.ordinal(), limit }, getBottleMapper());
 			} else {
-				String sql = "select b.*,u.nick_name,u.avatar,u.birthday,u.birth_city_id,u.city_id," 
+				String sql = "select b.*,u.nick_name,u.avatar,u.birthday,u.birth_city_id,u.city_id,"
 						+ " u.sex ,u.isvip,c.name as city_name from t_bottle_pool p left join  t_bottle b  on p.bottle_id=b.id left join t_user u on b.user_id=u.user_id "
 						+ " left join t_sys_city c on u.birth_city_id=c.id "
 						+ " where b.user_id<>? and  u.avatar<>'illegal.jpg' and b.state<>? and b.type=? "
@@ -249,7 +249,7 @@ public class BottleDao extends BaseDao<Bottle> {
 				return jdbcTemplate.query(sql, new Object[] { user_id, state.ordinal(), BottleType.DM_TXT.ordinal(),
 						BottleType.DM_VOICE.ordinal(), limit }, getBottleMapper());
 			} else {
-				String sql = "select b.*,u.nick_name,u.avatar,u.birthday,u.birth_city_id,u.city_id," 
+				String sql = "select b.*,u.nick_name,u.avatar,u.birthday,u.birth_city_id,u.city_id,"
 						+ " u.sex ,c.name as city_name from t_bottle_pool p left join  t_bottle b  on p.bottle_id=b.id left join t_user u on b.user_id=u.user_id "
 						+ " left join t_sys_city c on u.birth_city_id=c.id "
 						+ " where b.user_id<>? and  u.avatar<>'illegal.jpg' and   b.state=?  and b.type=? "
@@ -343,6 +343,7 @@ public class BottleDao extends BaseDao<Bottle> {
 		return jdbcTemplate.query(sql, new Object[] { "", gender, limit },
 				new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
 	}
+
 	public boolean checkExistMeetBottleAndReUse(long user_id) {
 		int pool_count = jdbcTemplate.queryForObject("select count(*) from t_bottle_pool where user_id=? and type=?",
 				new Object[] { user_id, BottleType.MEET.ordinal() }, Integer.class);
@@ -451,7 +452,7 @@ public class BottleDao extends BaseDao<Bottle> {
 				user.setIsvip(rs.getInt("isvip"));
 				ImagePathUtil.completeAvatarPath(user, true);
 				bottle.setSender(user);
-				
+
 				if (bottle.getType() == BottleType.DRAW_GUESS.ordinal()) {
 					ImagePathUtil.completeBottleDrawPath(bottle);
 				}

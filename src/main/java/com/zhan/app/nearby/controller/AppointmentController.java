@@ -65,7 +65,8 @@ public class AppointmentController {
 		appointment.setUid(user_id);
 		appointment.setDescription(description);
 		appointment.setTime_stage(time_stage);
-		appointment.setTheme_id(theme_id);
+		
+	    appointment.setTheme_id(theme_id);
 		appointment.setStreet(Street);
 		appointment.setLat(lat);
 		appointment.setLng(lng);

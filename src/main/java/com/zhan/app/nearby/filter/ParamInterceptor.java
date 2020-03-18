@@ -12,7 +12,6 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.zhan.app.nearby.service.ManagerService;
-import com.zhan.app.nearby.util.IPUtil;
 import com.zhan.app.nearby.util.MD5Util;
 import com.zhan.app.nearby.util.TextUtils;
 
@@ -24,15 +23,15 @@ public class ParamInterceptor implements HandlerInterceptor {
 	@Resource
 	private ManagerService managerService;
 
-	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws NoSuchAlgorithmException {
+	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
+			throws NoSuchAlgorithmException {
 
 		String url = request.getRequestURI();
 
 //		if (IPUtil.doBlackIPFilter(request)) {
 //			return false;
 //		}
-		
-		
+
 		if (url.contains("nearby/exchange")) {
 			return true;
 		}
@@ -63,56 +62,59 @@ public class ParamInterceptor implements HandlerInterceptor {
 		if (url.contains("nearby/files/")) {
 			return true;
 		}
-		 boolean r=isSupportSwagger(url);
-		 if(r) {
-			 return r;
-		 }
 		
+//		boolean r = isSupportSwagger(url);
+//		if (r) {
+//			return r;
+//		}
+
 		if (url.endsWith(".html")) {
 			return true;
 		}
-		 
-		String i=request.getParameter("ii");
-		String f=request.getParameter("f");
-		
-		if("ii11".equals(i)) {
+
+		String i = request.getParameter("ii");
+		String f = request.getParameter("f");
+
+		if ("ii11".equals(i)) {
 			return true;
 		}
-		
-		if("pay".equals(f)) {
+
+		if ("pay".equals(f)) {
 			return true;
 		}
-		
-//		String _ua = request.getParameter("_ua");
-//		String version = request.getParameter("version");
-//		String timestamp = request.getParameter("timestamp");
-//		String aid = request.getParameter("aid");
-//		return checkSecret(request,_ua, aid, version, timestamp);
-		return true;
+
+		String _ua = request.getParameter("_ua");
+		String version = request.getParameter("version");
+		String timestamp = request.getParameter("timestamp");
+		String aid = request.getParameter("aid");
+		return checkSecret(request,_ua, aid, version, timestamp);
 	}
 
-	
 	public boolean isSupportSwagger(String url) {
-		if(url.contains("swagger")) {
+		
+		
+		if (url.contains("swagger")) {
 			return true;
 		}
-		if(url.contains("nearby/v2/")) {
+		if (url.contains("nearby/v2/")) {
 			return true;
 		}
 		return false;
 	}
+
 	@SuppressWarnings("deprecation")
-	private boolean checkSecret(HttpServletRequest request,String _ua, String aid, String version, String timestamp) throws NoSuchAlgorithmException {
+	private boolean checkSecret(HttpServletRequest request, String _ua, String aid, String version, String timestamp)
+			throws NoSuchAlgorithmException {
 //		
-		if(TextUtils.isEmpty(_ua)) {
+		if (TextUtils.isEmpty(_ua)) {
 			return false;
 		}
 		String[] _uas = _ua.split("\\|");
 		if (_uas.length < 10) {
-			String deUA= URLDecoder.decode(_ua);
+			String deUA = URLDecoder.decode(_ua);
 			_uas = deUA.split("\\|");
 		}
-		
+
 		if (IOS.equals(_uas[0])) {
 			if (version.compareTo("1.8.1") <= 0) {
 				return true;
@@ -123,7 +125,7 @@ public class ParamInterceptor implements HandlerInterceptor {
 		String cd = new String(base64byte);
 		String paramS = _uas[_uas.length - 1];
 		if (!cd.trim().equalsIgnoreCase(paramS.trim())) {
-			 return false;
+			return false;
 		}
 		return true;
 	}

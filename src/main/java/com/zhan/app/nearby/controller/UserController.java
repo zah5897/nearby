@@ -1137,17 +1137,17 @@ public class UserController {
 		return result;
 	}
 
-//	@Deprecated
-//	@RequestMapping("center_page")
-//	public ModelMap center_page(Long user_id_for, String token, String aid, long user_id) {
-//		return userService.getUserCenterData(token, aid, user_id_for, user_id);
-//	}
+	@Deprecated
+	@RequestMapping("center_page")
+	public ModelMap center_page(Long user_id_for, String token, String aid, long user_id) {
+		return userService.getUserCenterData(token, aid, user_id_for, user_id);
+	}
 
-//	@Deprecated
-//	@RequestMapping("center_page/{user_id_for}")
-//	public ModelMap center_page_path(@PathVariable Long user_id_for, String token, String aid, Long user_id) {
-//		return userService.getUserCenterData(token, aid, user_id_for, user_id);
-//	}
+	@Deprecated
+	@RequestMapping("center_page/{user_id_for}")
+	public ModelMap center_page_path(@PathVariable Long user_id_for, String token, String aid, Long user_id) {
+		return userService.getUserCenterData(token, aid, user_id_for, user_id);
+	}
 	@ApiOperation(httpMethod = "POST", value = "center_page_v2") // swagger 当前接口注解
 	@RequestMapping("center_page_v2")
 	public ModelMap center_page_v2(Long user_id_for, String token, String aid, long user_id) {

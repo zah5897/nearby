@@ -6,6 +6,7 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
 
+import com.zhan.app.nearby.bean.Appointment;
 import com.zhan.app.nearby.bean.Video;
 import com.zhan.app.nearby.bean.VideoComment;
 import com.zhan.app.nearby.bean.user.BaseUser;
@@ -33,8 +34,16 @@ public class VideoService {
 		return list;
 	}
 
-	public List<Video> list(long user_id, Long last_id, int count) {
-		List<Video> list = videoDao.mine(user_id, last_id, count);
+	//获取某人的短视频（已审核通过）
+	public List<Video> loadByUid(long user_id, Long last_id, int count) {
+		List<Video> list = videoDao.loadByUid(user_id, last_id, count);
+		ImagePathUtil.completeVideosPath(list);
+		return list;
+	}
+	
+	//获取所有人的发布的已经通过审核的视频
+	public List<Video> list(Long last_id, int count) {
+		List<Video> list = videoDao.listAll(last_id, count);
 		ImagePathUtil.completeVideosPath(list);
 		return list;
 	}
@@ -62,5 +71,18 @@ public class VideoService {
 
 	public void addShareCount(String video_id) {
 		videoDao.addShareCount(video_id);
+	}
+
+	public int getCountByStatus(int status) {
+		return videoDao.getCountByStatus(status);
+	}
+
+	public List<Video> loadByStatus(int status, int page, int count) {
+		return videoDao.loadByStatus(status, page, count);
+	}
+
+	public void changeStatus(int id, int newStatus) {
+		videoDao.changeStatus(id,newStatus);
+		
 	}
 }

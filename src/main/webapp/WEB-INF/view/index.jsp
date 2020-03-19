@@ -63,7 +63,10 @@
    <ul>
     <li><a href="<%=path %>/manager/forword?path=appointment_check" target="right"><span class="icon-caret-right"></span>约会审核</a></li>
   </ul>  
-  
+     <h2><span class="icon-user"></span>短视频管理</h2>
+   <ul>
+    <li><a href="<%=path %>/manager/forword?path=shortvideo_check" target="right"><span class="icon-caret-right"></span>短视频审核</a></li>
+  </ul>  
    
    <h2><span class="icon-user"></span>金币管理</h2>
    <ul>

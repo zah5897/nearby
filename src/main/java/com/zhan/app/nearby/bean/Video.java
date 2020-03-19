@@ -50,6 +50,11 @@ public class Video {
 	
 	private int store_count;
 	
+	
+	private int status; //视频审核状态
+	private int secret_level; // 0 推荐，1 私密
+	private String channel;  
+	
 	@Transient
 	private BaseUser user;
 	
@@ -167,6 +172,24 @@ public class Video {
 	}
 	public void setType(int type) {
 		this.type = type;
+	}
+	public int getStatus() {
+		return status;
+	}
+	public void setStatus(int status) {
+		this.status = status;
+	}
+	public int getSecret_level() {
+		return secret_level;
+	}
+	public void setSecret_level(int secret_level) {
+		this.secret_level = secret_level;
+	}
+	public String getChannel() {
+		return channel;
+	}
+	public void setChannel(String channel) {
+		this.channel = channel;
 	}
 
 }

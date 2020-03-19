@@ -18,6 +18,7 @@ import com.zhan.app.nearby.bean.ManagerUser;
 import com.zhan.app.nearby.bean.Report;
 import com.zhan.app.nearby.bean.Topic;
 import com.zhan.app.nearby.bean.UserDynamic;
+import com.zhan.app.nearby.bean.Video;
 import com.zhan.app.nearby.bean.VipUser;
 import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.cache.UserCacheService;
@@ -59,6 +60,10 @@ public class ManagerService {
 	@Autowired
 	private AppointmentService appointmentService;
 
+	
+	@Autowired
+	private VideoService videoService;
+	
 	@Autowired
 	private HXAsyncTask hxTask;
 
@@ -416,6 +421,7 @@ public class ManagerService {
 		managerDao.updateMPwd(name, MD5Util.getMd5(pwd));
 	}
 
+	//----------------约会相关------------------------------------------------
 	public ModelMap loadAppointMents(int status, int page, int count) {
 
 		ModelMap r = ResultUtil.getResultOKMap();
@@ -463,4 +469,53 @@ public class ManagerService {
 		return r;
 	}
 
+	
+	//----------短视频相关--------------------------------------------------------------
+	
+	
+	public ModelMap loadShortvideos(int status, int page, int count) {
+
+		ModelMap r = ResultUtil.getResultOKMap();
+		if (page == 1) {
+			int totalSize = videoService.getCountByStatus(status);
+			int pageCount = totalSize / count;
+			if (totalSize % count > 0) {
+				pageCount += 1;
+			}
+			if (pageCount == 0) {
+				pageCount = 1;
+			}
+			r.put("pageCount", pageCount);
+		}
+		r.put("currentPageIndex", page);
+		
+		List<Video> data=videoService.loadByStatus(status, page, count);
+		ImagePathUtil.completeVideosPath(data);
+		r.addAttribute("data", data);
+		return r;
+	}
+
+	public ModelMap changeShortvideoStatus(int id, int status, int page, int count, int newStatus) {
+
+		videoService.changeStatus(id, newStatus);
+		ModelMap r = ResultUtil.getResultOKMap();
+		if (page == 1) {
+			int totalSize = videoService.getCountByStatus(status);
+			int pageCount = totalSize / count;
+			if (totalSize % count > 0) {
+				pageCount += 1;
+			}
+			if (pageCount == 0) {
+				pageCount = 1;
+			}
+			r.put("pageCount", pageCount);
+		}
+		r.put("currentPageIndex", page);
+
+		List<Video> data=videoService.loadByStatus(status, page, count);
+		ImagePathUtil.completeVideosPath(data);
+		r.addAttribute("data", data);
+		return r;
+	}
+	
 }

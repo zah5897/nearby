@@ -25,7 +25,7 @@ public class SimpleUser extends BaseUser {
 	private String weight;// 体重
 	private String height;// 身高
 	
-	@JsonFormat(pattern = "yyyy-MM-dd", locale = "zh", timezone = "GMT+8")
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", locale = "zh", timezone = "GMT+8")
 	private Date last_login_time;
 
 	@Transient // 不用插入数据库字段

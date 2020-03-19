@@ -83,6 +83,14 @@ public class WebManagerController {
 
 	@RequestMapping(value = "/forword")
 	public ModelAndView forword(HttpServletRequest request, String path) {
+		if(path.startsWith("play_video")) {
+			
+			ModelAndView mv= new ModelAndView("play_video");
+			mv.addObject("thumb", request.getParameter("thumb"));
+			mv.addObject("url", request.getParameter("vu"));
+			return mv;
+		}
+		
 		if (!managerService.isLogin(request)) {
 			return new ModelAndView("redirect:/manager/");
 		}
@@ -1192,6 +1200,7 @@ public class WebManagerController {
 		return ResultUtil.getResultOKMap();
 	}
 	
+	//-------------------------------约会相关--------------------------------------------------
 	@RequestMapping(value = "/appointment_list")
 	public @ResponseBody ModelMap appointment_list(HttpServletRequest request,int status, int page,int count) throws NoSuchAlgorithmException {
 		if (!managerService.isLogin(request)) {
@@ -1208,5 +1217,21 @@ public class WebManagerController {
 		return managerService.changeAppointMentsStatus(id, status, page, count, to_state);
 	}
 	
+	//------------------------------短视频相关--------------------------------------------------
+	@RequestMapping(value = "/shortvideo_list")
+	public @ResponseBody ModelMap shortvideo_list(HttpServletRequest request,int status, int page,int count) throws NoSuchAlgorithmException {
+		if (!managerService.isLogin(request)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		return managerService.loadShortvideos(status, page, count);
+	}
+	
+	@RequestMapping(value = "/changeShortvideoStatus")
+	public @ResponseBody ModelMap changeShortvideoStatus(HttpServletRequest request,int id,int status, int page,int count,int to_state) throws NoSuchAlgorithmException {
+		if (!managerService.isLogin(request)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		return managerService.changeAppointMentsStatus(id, status, page, count, to_state);
+	}
 
 }

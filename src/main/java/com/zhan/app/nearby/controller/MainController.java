@@ -137,10 +137,11 @@ public class MainController {
 	}
 	@ApiOperation(httpMethod = "POST", value = "排行榜") // swagger 当前接口注解
 	@ApiImplicitParams({
-		@ApiImplicitParam(name = "type", value = "-2我关注的人，-1在线用户，0 新人榜，1魅力榜，2土豪榜，3vip榜", paramType = "query", dataType = "Integer") })
+		@ApiImplicitParam(name = "type", value = "-2我关注的人，-1在线用户，0 新人榜，1魅力榜，2土豪榜，3vip榜", paramType = "query", dataType = "Integer"),
+		@ApiImplicitParam(name = "time_point", value = "该参数只针对在线排行榜，把最后一条用户的last_login_time传过来即可，格式yyyy-MM-dd HH:mm:ss", paramType = "query", dataType = "Integer")})
 	@RequestMapping("rank_list_v2")
-	public ModelMap rank_list_v2(long user_id,int type, Integer page, Integer count) {
-		return mainService.rank_list_v2(user_id,type, page, count);
+	public ModelMap rank_list_v2(long user_id,int type, Integer page, Integer count,String time_point) {
+		return mainService.rank_list_v2(user_id,type, page, count,time_point);
 	}
 	
 	

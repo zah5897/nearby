@@ -63,10 +63,10 @@ public class ParamInterceptor implements HandlerInterceptor {
 			return true;
 		}
 		
-//		boolean r = isSupportSwagger(url);
-//		if (r) {
-//			return r;
-//		}
+		boolean r = isSupportSwagger(url);
+		if (r) {
+			return r;
+		}
 
 		if (url.endsWith(".html")) {
 			return true;
@@ -82,7 +82,6 @@ public class ParamInterceptor implements HandlerInterceptor {
 		if ("pay".equals(f)) {
 			return true;
 		}
-
 		String _ua = request.getParameter("_ua");
 		String version = request.getParameter("version");
 		String timestamp = request.getParameter("timestamp");

@@ -6,6 +6,7 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -40,15 +41,24 @@ public class VideoController {
 			@ApiImplicitParam(name = "token", value = "用户登录token", required = true, paramType = "query"),
 			@ApiImplicitParam(name = "aid", value = "aid", required = true, paramType = "query"),
 			@ApiImplicitParam(name = "title", value = "视频标题", paramType = "query"),
-			@ApiImplicitParam(name = "type", value = "视频标题,0为普通短视频，1为头像视频，2为发布的动态视频", paramType = "query",dataType = "Integer"),
+			@ApiImplicitParam(name = "type", value = "视频标题,0为普通短视频，1为头像视频，2为发布的动态视频,默认为0", paramType = "query",dataType = "Integer"),
 			@ApiImplicitParam(name = "video_name", value = "视频上传在UCloud上面的文件名称", required = true, paramType = "query"),
 			@ApiImplicitParam(name = "thumb_img_name", value = "视频预览图，上传在UCloud上面的文件名称", paramType = "query"),
+			@ApiImplicitParam(name = "secret_level", value = "视频等级，0为公开，1为私密，默认公开",dataType = "Integer", paramType = "query"),
 			@ApiImplicitParam(name = "duration", value = "视频时长单位秒", required = true, paramType = "query",dataType = "Float") })
 	public ModelMap send(long user_id, String token, String aid, String title, String video_name, String thumb_img_name,
-			float duration,int type) {
-//		if(!userService.checkLogin(user_id, token)) {
-//			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
-//		}
+			float duration,Integer type,Integer secret_level) {
+		if(!userService.checkLogin(user_id, token)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		
+		if(secret_level==null) {
+			secret_level=0;
+		}
+		
+		if(type==null) {
+			type=0;
+		}
 		 
 		if (TextUtils.isEmpty(video_name)) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "video_name is null");
@@ -65,6 +75,7 @@ public class VideoController {
 		video.setVideo_name(video_name);
 		video.setThumb_img_name(thumb_img_name);
 		video.setCreate_time(new Date());
+		video.setSecret_level(secret_level);
 		videoService.save(video);
 		ImagePathUtil.completeVideoPath(video);
 		return ResultUtil.getResultOKMap().addAttribute("data", video);
@@ -88,19 +99,32 @@ public class VideoController {
 	}
 
 	@RequestMapping("list")
-	@ApiOperation(httpMethod = "POST", value = "获取他人短视频列表") // swagger 当前接口注解
+	@ApiOperation(httpMethod = "POST", value = "获取所有已审核通过的短视频") // swagger 当前接口注解
 	@ApiImplicitParams({
 			@ApiImplicitParam(name = "target_user_id", value = "对应用户id", required = true, paramType = "query"),
 			@ApiImplicitParam(name = "last_id", value = "上一页最后一条的id值", required = true, paramType = "query"),
 			@ApiImplicitParam(name = "count", value = "count", required = true, paramType = "query") })
-	public ModelMap list(long target_user_id, Long last_id, int count) {
-		List<Video> list = videoService.list(target_user_id, last_id, count);
+	public ModelMap list(Long last_id, int count) {
+		List<Video> list = videoService.list(last_id, count);
 		if(!list.isEmpty()) {
 			last_id=list.get(list.size()-1).getId();
 		}
 		return ResultUtil.getResultOKMap().addAttribute("data", list).addAttribute("hasMore", list.size() == count).addAttribute("last_id", last_id);
 	}
-
+	
+	@RequestMapping("load/{uid}")
+	@ApiOperation(httpMethod = "POST", value = "获取某人已经通过审核的短视频列表") // swagger 当前接口注解
+	@ApiImplicitParams({
+			@ApiImplicitParam(name = "uid", value = "路径变量，对应用户的user_id", required = true, paramType = "query"),
+			@ApiImplicitParam(name = "last_id", value = "上一页最后一条的id值", required = true, paramType = "query"),
+			@ApiImplicitParam(name = "count", value = "count", required = true, paramType = "query") })
+	public ModelMap load(@PathVariable Long uid, Long last_id, int count) {
+		List<Video> list = videoService.loadByUid(uid, last_id, count);
+		if(!list.isEmpty()) {
+			last_id=list.get(list.size()-1).getId();
+		}
+		return ResultUtil.getResultOKMap().addAttribute("data", list).addAttribute("hasMore", list.size() == count).addAttribute("last_id", last_id);
+	}
 	
 	
 	@RequestMapping("comment")

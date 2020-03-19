@@ -36,7 +36,7 @@ public class ManagerDao extends BaseDao<ManagerUser> {
 //	}
 
 	public List<UserDynamic> getHomeFoundSelected(int pageIndex, int pageSize) {
-		String sql = "select dynamic.*, user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday,user.type from "
+		String sql = "select dynamic.*, user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday,user.type ,user.isvip from "
 				+ TABLE_USER_DYNAMIC + " dynamic left join " + TABLE_HOME_FOUND_SELECTED
 				+ " selected on dynamic.id=selected.dynamic_id left join t_user user on  dynamic.user_id=user.user_id  where selected.selected_state=?   order by dynamic.id desc limit ?,?";
 		return jdbcTemplate.query(sql,
@@ -50,7 +50,7 @@ public class ManagerDao extends BaseDao<ManagerUser> {
 	 
 		if(!TextUtils.isEmpty(nick_name)) {
 
-			String sql = "select dynamic.*  ,user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday,user.type from "
+			String sql = "select dynamic.*  ,user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.isvip,user.birthday,user.type from "
 					+ TABLE_USER_DYNAMIC
 					+ " dynamic left join t_user user on  dynamic.user_id=user.user_id  where dynamic.id not in(select dynamic_id from "
 					+ TABLE_HOME_FOUND_SELECTED
@@ -60,7 +60,7 @@ public class ManagerDao extends BaseDao<ManagerUser> {
 		}
 		
 		
-		String sql = "select dynamic.*  ,user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday,user.type from "
+		String sql = "select dynamic.*  ,user.user_id  ,user.nick_name ,user.avatar,user.sex,user.isvip ,user.birthday,user.type from "
 				+ TABLE_USER_DYNAMIC
 				+ " dynamic left join t_user user on  dynamic.user_id=user.user_id  where dynamic.id not in(select dynamic_id from "
 				+ TABLE_HOME_FOUND_SELECTED

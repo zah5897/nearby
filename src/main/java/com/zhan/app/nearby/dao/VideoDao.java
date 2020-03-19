@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 import com.zhan.app.nearby.bean.Video;
 import com.zhan.app.nearby.bean.VideoComment;
 import com.zhan.app.nearby.bean.user.BaseUser;
+import com.zhan.app.nearby.comm.VideoStatus;
 import com.zhan.app.nearby.dao.base.BaseDao;
 import com.zhan.app.nearby.util.ImagePathUtil;
 
@@ -26,44 +27,37 @@ public class VideoDao extends BaseDao<Video> {
 		if (last_id==null) {
 			String sql = "select v.* ,u.user_id,u.nick_name ,u.avatar,u.sex,u.isvip from " + TABLE_VIDEO
 					+ " v left join t_user u on v.uid=u.user_id where v.uid=?  order by v.id desc limit ?";
-			return jdbcTemplate.query(sql, new Object[] { user_id, count },
-					new BeanPropertyRowMapper<Video>(Video.class) {
-						@Override
-						public Video mapRow(ResultSet rs, int rowNumber) throws SQLException {
-							Video v = super.mapRow(rs, rowNumber);
-							BaseUser user = new BaseUser();
-							user.setUser_id(rs.getLong("user_id"));
-							user.setNick_name(rs.getString("nick_name"));
-							user.setAvatar(rs.getString("avatar"));
-							user.setSex(rs.getString("sex"));
-							user.setIsvip(rs.getInt("isvip"));
-							ImagePathUtil.completeAvatarPath(user, true);
-							v.setUser(user);
-							return v;
-						}
-					});
+			return jdbcTemplate.query(sql, new Object[] { user_id, count },videoMapper);
 		} else {
 			String sql = "select v.* ,u.user_id,u.nick_name ,u.avatar,u.sex ,u.isvip from " + TABLE_VIDEO
 					+ " v left join t_user u on v.uid=u.user_id where v.uid=? and v.id<?  order by v.id desc limit ?";
-			return jdbcTemplate.query(sql, new Object[] { user_id, last_id, count },
-					new BeanPropertyRowMapper<Video>(Video.class) {
-						@Override
-						public Video mapRow(ResultSet rs, int rowNumber) throws SQLException {
-							Video v = super.mapRow(rs, rowNumber);
-							BaseUser user = new BaseUser();
-							user.setUser_id(rs.getLong("user_id"));
-							user.setNick_name(rs.getString("nick_name"));
-							user.setAvatar(rs.getString("avatar"));
-							user.setSex(rs.getString("sex"));
-							user.setIsvip(rs.getInt("isvip"));
-							ImagePathUtil.completeAvatarPath(user, true);
-							v.setUser(user);
-							return v;
-						}
-					});
+			return jdbcTemplate.query(sql, new Object[] { user_id, last_id, count },videoMapper);
 		}
 	}
-
+	public List<Video> loadByUid(long user_id, Long last_id, int count) {
+		if (last_id==null) {
+			String sql = "select v.* ,u.user_id,u.nick_name ,u.avatar,u.sex,u.isvip from " + TABLE_VIDEO
+					+ " v left join t_user u on v.uid=u.user_id where v.uid=? and v.status=?  order by v.id desc limit ?";
+			return jdbcTemplate.query(sql, new Object[] { user_id,VideoStatus.CHECKED.ordinal(), count },videoMapper);
+		} else {
+			String sql = "select v.* ,u.user_id,u.nick_name ,u.avatar,u.sex ,u.isvip from " + TABLE_VIDEO
+					+ " v left join t_user u on v.uid=u.user_id where v.uid=? and v.id<? and v.status=?  order by v.id desc limit ?";
+			return jdbcTemplate.query(sql, new Object[] { user_id, last_id,VideoStatus.CHECKED.ordinal(), count },videoMapper);
+		}
+	}
+	
+	public List<Video> listAll(Long last_id, int count) {
+		if (last_id==null) {
+			String sql = "select v.* ,u.user_id,u.nick_name ,u.avatar,u.sex,u.isvip from " + TABLE_VIDEO
+					+ " v left join t_user u on v.uid=u.user_id  where v.status=? order by v.id desc limit ?";
+			return jdbcTemplate.query(sql, new Object[] {VideoStatus.CHECKED.ordinal(), count },videoMapper);
+		} else {
+			String sql = "select v.* ,u.user_id,u.nick_name ,u.avatar,u.sex ,u.isvip from " + TABLE_VIDEO
+					+ " v left join t_user u on v.uid=u.user_id where  v.id<? and v.status=?  order by v.id desc limit ?";
+			return jdbcTemplate.query(sql, new Object[] { last_id, VideoStatus.CHECKED.ordinal(),count },videoMapper);
+		}
+	}
+	
 	public List<VideoComment> listComment(long user_id, String vid, Integer last_id, int count) {
 		
 		if(last_id==null) {
@@ -149,4 +143,31 @@ public class VideoDao extends BaseDao<Video> {
 				new Object[] { count + 1, video_id });
 	}
 
+	private static BeanPropertyRowMapper<Video> videoMapper=  new BeanPropertyRowMapper<Video>(Video.class) {
+		@Override
+		public Video mapRow(ResultSet rs, int rowNumber) throws SQLException {
+			Video v = super.mapRow(rs, rowNumber);
+			BaseUser user = new BaseUser();
+			user.setUser_id(rs.getLong("user_id"));
+			user.setNick_name(rs.getString("nick_name"));
+			user.setAvatar(rs.getString("avatar"));
+			user.setSex(rs.getString("sex"));
+			user.setIsvip(rs.getInt("isvip"));
+			ImagePathUtil.completeAvatarPath(user, true);
+			v.setUser(user);
+			return v;
+		}
+	};
+
+	public int getCountByStatus(int status) {
+		return jdbcTemplate.queryForObject("select count(*) from "+getTableName()+" where status="+status, Integer.class);
+	}
+	public List<Video> loadByStatus(int status, int page, int count) {
+		String sql = "select v.* ,u.user_id,u.nick_name ,u.avatar,u.sex ,u.isvip from " + TABLE_VIDEO
+				+ " v left join t_user u on v.uid=u.user_id where  v.status=?  order by v.id desc limit ?,?";
+		return jdbcTemplate.query(sql, new Object[] { status,(page-1)*count, count },videoMapper);
+	}
+	public void changeStatus(int id, int newStatus) {
+      jdbcTemplate.update("update "+getTableName()+" set status=? where id=?",new Object[] {newStatus,id});		
+	}
 }

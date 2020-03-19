@@ -891,16 +891,25 @@ public class UserDao extends BaseDao<BaseUser> {
 				new BeanPropertyRowMapper<LoginUser>(LoginUser.class));
 	}
 
-	@Cacheable(value = "five_minute", key = "#root.methodName+'_'+#page+'_'+#count")
-	public List<LoginUser> getRankOnlineUsers(int page, int count) {
-		String sql = "select u.user_id,u.nick_name,u.avatar,u.last_login_time ,u.sex,u.isvip,u.lat,u.lng ,ifnull(gift.tval,'0') as shanbei " + " from t_user_online l"
+//	@Cacheable(value = "five_minute", key = "#root.methodName+'_'+#page+'_'+#count")
+	public List<LoginUser> getRankOnlineUsers(int count,Date time_point) {
+		String sql = "select u.user_id,u.nick_name,u.avatar,l.check_time as last_login_time ,u.sex,u.isvip,u.lat,u.lng ,ifnull(gift.tval,'0') as shanbei " + " from t_user_online l"
 				+ "  inner join t_user u on l.uid=u.user_id"
 				+ "  left join "
 				+ " (select tg.user_id ,sum(tg.val) as tval from (select o.*,o.count*g.price as val from  t_gift_own o left join t_gift g on o.gift_id=g.id) as tg group by tg.user_id) gift "
 				+ "on l.uid=gift.user_id "
-				+ " where u.isFace=1 order by l.check_time desc limit ?,?";
-		return jdbcTemplate.query(sql, new Object[] { (page - 1) * count, count },
-				new BeanPropertyRowMapper<LoginUser>(LoginUser.class));
+				+ " where u.isFace=1 ";
+		
+		
+		if(time_point==null) {
+			sql+=" order by l.check_time desc limit ?";
+			return jdbcTemplate.query(sql, new Object[] { count },
+					new BeanPropertyRowMapper<LoginUser>(LoginUser.class));
+		}else {
+			sql+=" and l.check_time<? order by l.check_time desc limit ?";
+			return jdbcTemplate.query(sql, new Object[] {time_point,count },
+					new BeanPropertyRowMapper<LoginUser>(LoginUser.class));
+		}
 	}
 	
 	public void removeOnline(long uid) {

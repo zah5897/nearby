@@ -1,5 +1,6 @@
 package com.zhan.app.nearby.service;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -8,6 +9,7 @@ import java.util.Random;
 
 import javax.annotation.Resource;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.ModelMap;
@@ -20,6 +22,7 @@ import com.zhan.app.nearby.bean.PersonalInfo;
 import com.zhan.app.nearby.bean.Report;
 import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.bean.user.BaseUser;
+import com.zhan.app.nearby.bean.user.LoginUser;
 import com.zhan.app.nearby.bean.user.RankUser;
 import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.cache.UserCacheService;
@@ -27,6 +30,7 @@ import com.zhan.app.nearby.comm.AccountStateType;
 import com.zhan.app.nearby.comm.DynamicMsgType;
 import com.zhan.app.nearby.comm.ExchangeState;
 import com.zhan.app.nearby.comm.Relationship;
+import com.zhan.app.nearby.controller.UserController;
 import com.zhan.app.nearby.dao.GiftDao;
 import com.zhan.app.nearby.dao.SystemDao;
 import com.zhan.app.nearby.dao.UserDao;
@@ -35,6 +39,7 @@ import com.zhan.app.nearby.dao.VipDao;
 import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.task.CommAsyncTask;
 import com.zhan.app.nearby.task.HXAsyncTask;
+import com.zhan.app.nearby.util.DateTimeUtil;
 import com.zhan.app.nearby.util.HttpService;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.RandomCodeUtil;
@@ -44,6 +49,7 @@ import com.zhan.app.nearby.util.TextUtils;
 
 @Service
 public class MainService {
+	private static Logger log = Logger.getLogger(MainService.class);
 	@Resource
 	private UserDynamicDao userDynamicDao;
 	@Resource
@@ -246,7 +252,7 @@ public class MainService {
 		return ResultUtil.getResultOKMap();
 	}
 
-	public ModelMap rank_list_v2(long user_id,int type, Integer pageIndex, Integer count) {
+	public ModelMap rank_list_v2(long user_id,int type, Integer pageIndex, Integer count,String time_point) {
 		if (pageIndex == null || pageIndex <= 0) {
 			pageIndex = 1;
 		}
@@ -259,7 +265,18 @@ public class MainService {
 		if(type==-2) {
 			users = userDao.getIWatching(user_id,pageIndex, count);
 		}else if(type==-1) {
-			users = userDao.getRankOnlineUsers(pageIndex, count);
+			Date timePoint=null;
+			try {
+				timePoint = DateTimeUtil.parse(time_point, "yyyy-MM-dd HH:mm:ss");
+			} catch (Exception e) {
+				log.error(e.getMessage());
+			}
+			users = userDao.getRankOnlineUsers(count,timePoint);
+			
+			if(!users.isEmpty()) {
+				LoginUser user=(LoginUser) users.get(users.size()-1);
+				r.addAttribute("last_login_time",DateTimeUtil.format(user.getLast_login_time()));
+			}
 		}else if (type == 0) {
 			users = userDao.getNewRegistUsersV2(pageIndex, count);
 		} else if (type == 1) {

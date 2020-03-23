@@ -114,6 +114,11 @@ public class BaseUser implements Serializable {
 	private String channel;
 	
 	
+	
+	
+	@Transient // 
+	private int online_status; //用户在线状态   -1 未知， 0离线，1在线
+	 
 	@JsonIgnore
 	private String openid;
 
@@ -400,6 +405,14 @@ public class BaseUser implements Serializable {
 
 	public void setMy_follow_count(int my_follow_count) {
 		this.my_follow_count = my_follow_count;
+	}
+
+	public int getOnline_status() {
+		return online_status;
+	}
+
+	public void setOnline_status(int online_status) {
+		this.online_status = online_status;
 	}
 
 }

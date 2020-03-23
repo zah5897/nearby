@@ -23,62 +23,63 @@ public class VideoDao extends BaseDao<Video> {
 	public static final String TABLE_VIDEO_PRAISE_HISTORY = "t_video_praise_history";
 	public static final String TABLE_VIDEO_STORE_HISTORY = "t_video_store_history";
 
-
 	public List<Video> mine(long user_id, Long last_id, int count) {
-		if (last_id==null) {
+		if (last_id == null) {
 			String sql = "select v.* ,u.user_id,u.nick_name ,u.avatar,u.sex,u.isvip from " + TABLE_VIDEO
 					+ " v left join t_user u on v.uid=u.user_id where v.uid=?  order by v.id desc limit ?";
-			return jdbcTemplate.query(sql, new Object[] { user_id, count },videoMapper);
+			return jdbcTemplate.query(sql, new Object[] { user_id, count }, videoMapper);
 		} else {
 			String sql = "select v.* ,u.user_id,u.nick_name ,u.avatar,u.sex ,u.isvip from " + TABLE_VIDEO
 					+ " v left join t_user u on v.uid=u.user_id where v.uid=? and v.id<?  order by v.id desc limit ?";
-			return jdbcTemplate.query(sql, new Object[] { user_id, last_id, count },videoMapper);
+			return jdbcTemplate.query(sql, new Object[] { user_id, last_id, count }, videoMapper);
 		}
 	}
+
 	public List<Video> loadByUid(long user_id, Long last_id, int count) {
-		if (last_id==null) {
+		if (last_id == null) {
 			String sql = "select v.* ,u.user_id,u.nick_name ,u.avatar,u.sex,u.isvip from " + TABLE_VIDEO
 					+ " v left join t_user u on v.uid=u.user_id where v.uid=? and v.status=?  order by v.id desc limit ?";
-			return jdbcTemplate.query(sql, new Object[] { user_id,VideoStatus.CHECKED.ordinal(), count },videoMapper);
+			return jdbcTemplate.query(sql, new Object[] { user_id, VideoStatus.CHECKED.ordinal(), count }, videoMapper);
 		} else {
 			String sql = "select v.* ,u.user_id,u.nick_name ,u.avatar,u.sex ,u.isvip from " + TABLE_VIDEO
 					+ " v left join t_user u on v.uid=u.user_id where v.uid=? and v.id<? and v.status=?  order by v.id desc limit ?";
-			return jdbcTemplate.query(sql, new Object[] { user_id, last_id,VideoStatus.CHECKED.ordinal(), count },videoMapper);
+			return jdbcTemplate.query(sql, new Object[] { user_id, last_id, VideoStatus.CHECKED.ordinal(), count },
+					videoMapper);
 		}
 	}
-	
-	public List<Video> listAll(Long last_id, int count,Integer type,Integer secret_level) {
-		
-		String sql = "select v.* ,u.user_id,u.nick_name ,u.avatar,u.sex,u.isvip from " + TABLE_VIDEO
-				+ " v left join t_user u on v.uid=u.user_id  where v.status=? ";
 
-		List<Object> params=new ArrayList<Object>();
+	public List<Video> listAll(Long last_id, int count, Integer type, Integer secret_level) {
+
+		String sql = "select v.* ,u.user_id,u.nick_name ,u.avatar,u.sex,u.isvip,o.check_time from " + TABLE_VIDEO
+				+ " v left join t_user u on v.uid=u.user_id  left join t_user_online o on o.uid=v.uid  where v.status=? ";
+
+		List<Object> params = new ArrayList<Object>();
 		params.add(VideoStatus.CHECKED.ordinal());
-		if (last_id!=null) {
-			sql+=" and v.id<? ";
+		if (last_id != null) {
+			sql += " and v.id<? ";
 			params.add(last_id);
 		}
-		
-		if(type!=null) {
-			sql+=" and v.type=?";
+
+		if (type != null) {
+			sql += " and v.type=?";
 			params.add(type);
 		}
-		
-		if(secret_level!=null) {
-			sql+=" and v.secret_level=?";
+
+		if (secret_level != null) {
+			sql += " and v.secret_level=?";
 			params.add(secret_level);
 		}
-		sql+=" order by v.id desc limit ?";
+		sql += " order by v.id desc limit ?";
 		params.add(count);
-		return jdbcTemplate.query(sql, params.toArray(),videoMapper);
+		return jdbcTemplate.query(sql, params.toArray(), videoMapper);
 	}
-	
+
 	public List<VideoComment> listComment(long user_id, String vid, Integer last_id, int count) {
-		
-		if(last_id==null) {
+
+		if (last_id == null) {
 			String sql = "select vc.*,u.nick_name,u.avatar,u.sex from " + TABLE_VIDEO_COMMENT
 					+ " vc left join t_user u on vc.uid=u.user_id where vc.video_id=? order by vc.id desc limit ?";
-			return jdbcTemplate.query(sql, new Object[] { vid,count },
+			return jdbcTemplate.query(sql, new Object[] { vid, count },
 					new BeanPropertyRowMapper<VideoComment>(VideoComment.class) {
 						@Override
 						public VideoComment mapRow(ResultSet rs, int rowNumber) throws SQLException {
@@ -93,11 +94,12 @@ public class VideoDao extends BaseDao<Video> {
 							return vc;
 						}
 					});
-		}else {
+		} else {
 			String sql = "select vc.*,u.nick_name,u.avatar,u.sex from " + TABLE_VIDEO_COMMENT
 					+ " vc left join t_user u on vc.uid=u.user_id where vc.video_id=?  and vc.id<? order by vc.id desc limit ?";
 			return jdbcTemplate.query(sql, new Object[] { vid, last_id, count },
 					new BeanPropertyRowMapper<VideoComment>(VideoComment.class) {
+
 						@Override
 						public VideoComment mapRow(ResultSet rs, int rowNumber) throws SQLException {
 							VideoComment vc = super.mapRow(rs, rowNumber);
@@ -110,6 +112,7 @@ public class VideoDao extends BaseDao<Video> {
 							vc.setUser(user);
 							return vc;
 						}
+
 					});
 		}
 	}
@@ -158,7 +161,7 @@ public class VideoDao extends BaseDao<Video> {
 				new Object[] { count + 1, video_id });
 	}
 
-	private static BeanPropertyRowMapper<Video> videoMapper=  new BeanPropertyRowMapper<Video>(Video.class) {
+	private static BeanPropertyRowMapper<Video> videoMapper = new BeanPropertyRowMapper<Video>(Video.class) {
 		@Override
 		public Video mapRow(ResultSet rs, int rowNumber) throws SQLException {
 			Video v = super.mapRow(rs, rowNumber);
@@ -169,20 +172,33 @@ public class VideoDao extends BaseDao<Video> {
 			user.setSex(rs.getString("sex"));
 			user.setIsvip(rs.getInt("isvip"));
 			ImagePathUtil.completeAvatarPath(user, true);
+			try {
+				Object loginTime = rs.getObject("check_time");
+				if (loginTime != null) {
+					user.setOnline_status(1);
+				}else {
+					user.setOnline_status(0);
+				}
+			} catch (Exception e) {
+				user.setOnline_status(-1);
+			}
 			v.setUser(user);
 			return v;
 		}
 	};
 
 	public int getCountByStatus(int status) {
-		return jdbcTemplate.queryForObject("select count(*) from "+getTableName()+" where status="+status, Integer.class);
+		return jdbcTemplate.queryForObject("select count(*) from " + getTableName() + " where status=" + status,
+				Integer.class);
 	}
+
 	public List<Video> loadByStatus(int status, int page, int count) {
 		String sql = "select v.* ,u.user_id,u.nick_name ,u.avatar,u.sex ,u.isvip from " + TABLE_VIDEO
 				+ " v left join t_user u on v.uid=u.user_id where  v.status=?  order by v.id desc limit ?,?";
-		return jdbcTemplate.query(sql, new Object[] { status,(page-1)*count, count },videoMapper);
+		return jdbcTemplate.query(sql, new Object[] { status, (page - 1) * count, count }, videoMapper);
 	}
+
 	public void changeStatus(int id, int newStatus) {
-      jdbcTemplate.update("update "+getTableName()+" set status=? where id=?",new Object[] {newStatus,id});		
+		jdbcTemplate.update("update " + getTableName() + " set status=? where id=?", new Object[] { newStatus, id });
 	}
 }

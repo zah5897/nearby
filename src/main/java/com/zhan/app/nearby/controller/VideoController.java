@@ -172,18 +172,40 @@ public class VideoController {
 			@ApiImplicitParam(name = "token", value = "token", required = true, paramType = "query"),
 			@ApiImplicitParam(name = "id", value = "视频id", required = true, paramType = "query")
 			  })
-	public ModelMap praise(long user_id, String token, String id) {
+	public ModelMap praise(long user_id, String token, long id) {
 		videoService.praise(user_id, id);
 		return ResultUtil.getResultOKMap();
 	}
+	
+	@RequestMapping("cancel_praise")
+	@ApiOperation(httpMethod = "POST", value = "取消视频点赞") // swagger 当前接口注解
+	@ApiImplicitParams({ @ApiImplicitParam(name = "user_id", value = "用户id", required = true, paramType = "query"),
+			@ApiImplicitParam(name = "token", value = "token", required = true, paramType = "query"),
+			@ApiImplicitParam(name = "id", value = "视频id", required = true, paramType = "query")
+			  })
+	public ModelMap cancel_praise(long user_id, String token, long id) {
+		videoService.cancelPraise(user_id, id);
+		return ResultUtil.getResultOKMap();
+	}
+	
 	@RequestMapping("store")
 	@ApiOperation(httpMethod = "POST", value = "收藏视频") // swagger 当前接口注解
 	@ApiImplicitParams({ @ApiImplicitParam(name = "user_id", value = "用户id", required = true, paramType = "query"),
 			@ApiImplicitParam(name = "token", value = "token", required = true, paramType = "query"),
 			@ApiImplicitParam(name = "id", value = "视频id", required = true, paramType = "query")
 			  })
-	public ModelMap store(long user_id, String token, String id) {
+	public ModelMap store(long user_id, String token, long id) {
 		videoService.store(user_id, id);
+		return ResultUtil.getResultOKMap();
+	}
+	@RequestMapping("cancel_store")
+	@ApiOperation(httpMethod = "POST", value = "取消收藏视频") // swagger 当前接口注解
+	@ApiImplicitParams({ @ApiImplicitParam(name = "user_id", value = "用户id", required = true, paramType = "query"),
+			@ApiImplicitParam(name = "token", value = "token", required = true, paramType = "query"),
+			@ApiImplicitParam(name = "id", value = "视频id", required = true, paramType = "query")
+			  })
+	public ModelMap cancel_store(long user_id, String token, long id) {
+		videoService.cancelStore(user_id, id);
 		return ResultUtil.getResultOKMap();
 	}
 	@RequestMapping("share")
@@ -192,8 +214,17 @@ public class VideoController {
 			@ApiImplicitParam(name = "token", value = "token", required = true, paramType = "query"),
 			@ApiImplicitParam(name = "id", value = "视频id", required = true, paramType = "query")
 			  })
-	public ModelMap share(long user_id, String token, String id) {
+	public ModelMap share(long user_id, String token, long id) {
 		videoService.addShareCount(id);
+		return ResultUtil.getResultOKMap();
+	}
+	@RequestMapping("scan")
+	@ApiOperation(httpMethod = "POST", value = "提交浏览，通知服务器变动浏览次数") // swagger 当前接口注解
+	@ApiImplicitParams({  
+			    @ApiImplicitParam(name = "id", value = "视频id", required = true, paramType = "query")
+			  })
+	public ModelMap scan(long id) {
+		videoService.addScanCount(id);
 		return ResultUtil.getResultOKMap();
 	}
 }

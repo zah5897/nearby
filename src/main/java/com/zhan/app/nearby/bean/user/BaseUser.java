@@ -414,5 +414,6 @@ public class BaseUser implements Serializable {
 	public void setOnline_status(int online_status) {
 		this.online_status = online_status;
 	}
+ 
 
 }

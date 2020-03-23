@@ -50,6 +50,8 @@ public class Video {
 	
 	private int store_count;
 	
+	private int scan_count;
+	
 	
 	private int status; //视频审核状态
 	private int secret_level; // 0 推荐，1 私密
@@ -57,6 +59,10 @@ public class Video {
 	
 	@Transient
 	private BaseUser user;
+	@Transient
+	private boolean hasStored;
+	@Transient
+	private boolean hasPraised;
 	
 	
 	public int getComment_count() {
@@ -190,6 +196,24 @@ public class Video {
 	}
 	public void setChannel(String channel) {
 		this.channel = channel;
+	}
+	public int getScan_count() {
+		return scan_count;
+	}
+	public void setScan_count(int scan_count) {
+		this.scan_count = scan_count;
+	}
+	public boolean isHasStored() {
+		return hasStored;
+	}
+	public void setHasStored(boolean hasStored) {
+		this.hasStored = hasStored;
+	}
+	public boolean isHasPraised() {
+		return hasPraised;
+	}
+	public void setHasPraised(boolean hasPraised) {
+		this.hasPraised = hasPraised;
 	}
 
 }

@@ -34,16 +34,16 @@ public class VideoService {
 		return list;
 	}
 
-	//获取某人的短视频（已审核通过）
+	// 获取某人的短视频（已审核通过）
 	public List<Video> loadByUid(long user_id, Long last_id, int count) {
 		List<Video> list = videoDao.loadByUid(user_id, last_id, count);
 		ImagePathUtil.completeVideosPath(list);
 		return list;
 	}
-	
-	//获取所有人的发布的已经通过审核的视频
-	public List<Video> list(Long last_id, int count,Integer type,Integer secret_level) {
-		List<Video> list = videoDao.listAll(last_id, count,type,secret_level);
+
+	// 获取所有人的发布的已经通过审核的视频
+	public List<Video> list(Long last_id, int count, Integer type, Integer secret_level) {
+		List<Video> list = videoDao.listAll(last_id, count, type, secret_level);
 		ImagePathUtil.completeVideosPath(list);
 		return list;
 	}
@@ -61,16 +61,27 @@ public class VideoService {
 		comment.setUser(user);
 	}
 
-	public void praise(long uid, String video_id) {
+	public void praise(long uid, long video_id) {
 		videoDao.addPraiseHistory(uid, video_id);
 	}
 
-	public void store(long uid, String video_id) {
+	public void cancelPraise(long uid, long video_id) {
+		videoDao.cancelPraise(uid, video_id);
+	}
+	
+	public void store(long uid, long video_id) {
 		videoDao.addStoreHistory(uid, video_id);
 	}
 
-	public void addShareCount(String video_id) {
+	public void cancelStore(long uid, long video_id) {
+		videoDao.cancelStore(uid, video_id);
+	}
+	public void addShareCount(long video_id) {
 		videoDao.addShareCount(video_id);
+	}
+
+	public void addScanCount(long video_id) {
+		videoDao.addScanCount(video_id);
 	}
 
 	public int getCountByStatus(int status) {
@@ -82,7 +93,7 @@ public class VideoService {
 	}
 
 	public void changeStatus(int id, int newStatus) {
-		videoDao.changeStatus(id,newStatus);
-		
+		videoDao.changeStatus(id, newStatus);
+
 	}
 }

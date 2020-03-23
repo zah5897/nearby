@@ -2,6 +2,7 @@ package com.zhan.app.nearby.dao;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -46,16 +47,30 @@ public class VideoDao extends BaseDao<Video> {
 		}
 	}
 	
-	public List<Video> listAll(Long last_id, int count) {
-		if (last_id==null) {
-			String sql = "select v.* ,u.user_id,u.nick_name ,u.avatar,u.sex,u.isvip from " + TABLE_VIDEO
-					+ " v left join t_user u on v.uid=u.user_id  where v.status=? order by v.id desc limit ?";
-			return jdbcTemplate.query(sql, new Object[] {VideoStatus.CHECKED.ordinal(), count },videoMapper);
-		} else {
-			String sql = "select v.* ,u.user_id,u.nick_name ,u.avatar,u.sex ,u.isvip from " + TABLE_VIDEO
-					+ " v left join t_user u on v.uid=u.user_id where  v.id<? and v.status=?  order by v.id desc limit ?";
-			return jdbcTemplate.query(sql, new Object[] { last_id, VideoStatus.CHECKED.ordinal(),count },videoMapper);
+	public List<Video> listAll(Long last_id, int count,Integer type,Integer secret_level) {
+		
+		String sql = "select v.* ,u.user_id,u.nick_name ,u.avatar,u.sex,u.isvip from " + TABLE_VIDEO
+				+ " v left join t_user u on v.uid=u.user_id  where v.status=? ";
+
+		List<Object> params=new ArrayList<Object>();
+		params.add(VideoStatus.CHECKED.ordinal());
+		if (last_id!=null) {
+			sql+=" and v.id<? ";
+			params.add(last_id);
 		}
+		
+		if(type!=null) {
+			sql+=" and v.type=?";
+			params.add(type);
+		}
+		
+		if(secret_level!=null) {
+			sql+=" and v.secret_level=?";
+			params.add(secret_level);
+		}
+		sql+=" order by v.id desc limit ?";
+		params.add(count);
+		return jdbcTemplate.query(sql, params.toArray(),videoMapper);
 	}
 	
 	public List<VideoComment> listComment(long user_id, String vid, Integer last_id, int count) {

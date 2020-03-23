@@ -42,8 +42,8 @@ public class VideoService {
 	}
 	
 	//获取所有人的发布的已经通过审核的视频
-	public List<Video> list(Long last_id, int count) {
-		List<Video> list = videoDao.listAll(last_id, count);
+	public List<Video> list(Long last_id, int count,Integer type,Integer secret_level) {
+		List<Video> list = videoDao.listAll(last_id, count,type,secret_level);
 		ImagePathUtil.completeVideosPath(list);
 		return list;
 	}

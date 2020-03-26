@@ -29,16 +29,6 @@ td {
 		<div class="panel admin-panel">
 			<div class="padding border-bottom">
 				<ul class="search">
-					<li>状态筛选：</li>
-					<li><select id="user_type" name="user_type" class="input"
-						onchange="changeType(this)"
-						style="line-height: 17px; display: inline-block">
-							<option value="0">新发布</option>
-							<option value="1">已审核</option>
-							<option value="2">复审</option>
-							<option value="3">违规</option>
-							<option value="4">已删除</option>
-					</select></li>
 				</ul>
 			</div>
 
@@ -101,7 +91,7 @@ td {
 			if (currentPageIndex == index) {
 				return false;
 			}
-			$.post("<%=path%>/manager/shortvideo_list",{'page':index,'count':pageSize,'status':type,'isUserCert':0},function(result){
+			$.post("<%=path%>/manager/shortvideo_list_cert",{'page':index,'count':pageSize,'status':type,'isUserCert':1},function(result){
 				 var json=JSON.parse(result);
 			        if(json.code==0){
 			        	$("table tr[id*='tr_'").each(function(i){
@@ -233,8 +223,6 @@ td {
 				 typeStr="短视频头像"
 			 }else if(type==2){
 				 typeStr="短视频动态"
-			 }else{
-				 typeStr="视频认证"
 			 }
 			 
 			 
@@ -250,20 +238,9 @@ td {
 			 //操作单元格
 			  toAdd+="<td><div class='button-group'>";
 			  //操作单元格
-			  if(state==0){
-				  toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return changeBottleState("+id+",1)'><span class='icon-edit'></span>通过</a>";
-				  toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return changeBottleState("+id+",3)'><span class='icon-edit'></span>违规</a>";
-			  }else if(state==1) {
-				  toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return changeBottleState("+id+",3)'><span class='icon-edit'></span>违规</a>";
-			  }else if(state==2) {
-				  toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return changeBottleState("+id+",3)'><span class='icon-edit'></span>违规</a>";
-			  }else if(state==3) {
-				  toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return changeBottleState("+id+",1)'><span class='icon-edit'></span>通过</a>";
-				  toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return changeBottleState("+id+",4)'><span class='icon-edit'></span>删除</a>";
-			  }else{
-				  toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return changeBottleState("+id+",1)'><span class='icon-edit'></span>通过</a>";
- 
-			  }
+				 toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return changeUserCert("+id+","+uid+",1)'><span class='icon-edit'></span>通过</a>";
+				 toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return changeUserCert("+id+","+uid+",0)'><span class='icon-edit'></span>删除</a>";
+			   
 			  toAdd+="</div></td></tr>";
 			 tr.after(toAdd);
 		}
@@ -273,13 +250,14 @@ td {
 	    }
 	   
 	    
- 	    function changeBottleState(id,newStatus){
-			$.post("<%=path%>/manager/changeShortvideoStatus", {
+ 	    function changeUserCert(id,uid,isOK){
+			$.post("<%=path%>/manager/user_shortvideo_cert_ok", {
 				'id' : id,
 				'status' : type,
 				'page' : currentPageIndex,
+				'uid' : uid,
 				'count' : pageSize,
-				'to_state' : newStatus
+				'isOK' : isOK
 			}, function(result) {
 				var json = JSON.parse(result);
 				if (json.code == 0) {

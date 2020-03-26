@@ -63,10 +63,12 @@
    <ul>
     <li><a href="<%=path %>/manager/forword?path=appointment_check" target="right"><span class="icon-caret-right"></span>约会审核</a></li>
   </ul>  
-     <h2><span class="icon-user"></span>短视频管理</h2>
+     
+   <h2><span class="icon-user"></span>短视频管理</h2>
    <ul>
     <li><a href="<%=path %>/manager/forword?path=shortvideo_check" target="right"><span class="icon-caret-right"></span>短视频审核</a></li>
-  </ul>  
+    <li><a href="<%=path %>/manager/forword?path=user_shortvideo_cert" target="right"><span class="icon-caret-right"></span>短视频认证</a></li>
+   </ul>  
    
    <h2><span class="icon-user"></span>金币管理</h2>
    <ul>
@@ -134,7 +136,7 @@ function dateFtt(fmt,date)
     "h+" : date.getHours(),                   //小时   
     "m+" : date.getMinutes(),                 //分   
     "s+" : date.getSeconds(),                 //秒   
-    "q+" : Math.floor((date.getMonth()+3)/3), //季度   
+    "q+" : Math.floor((date.getMonth()+3)/3),  //季度   
     "S"  : date.getMilliseconds()             //毫秒   
   };   
   if(/(y+)/.test(fmt))   

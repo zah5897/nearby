@@ -1498,5 +1498,9 @@ public class UserService {
 	public void updateUserLOcation(long uid,String lat, String lng) {
 		userDao.updateUserLocation(uid,lat,lng);
 	}
+
+	public void changeUserCertStatus(long uid, int certStatus) {
+		userDao.changeUserCertStatus(uid,certStatus);
+	}
 	 
 }

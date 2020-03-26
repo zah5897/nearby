@@ -141,6 +141,7 @@ public class MainService {
 		for (int i = 0; i < len; i++) {
 			long tuid = Long.parseLong(with_ids[i]);
 			changeRelationShip(user_id, tuid, Relationship.LIKE);
+			userService.updateMeiLiValue(tuid, 1); //增加魅力值
 		}
 		return ResultUtil.getResultOKMap();
 	}
@@ -167,7 +168,6 @@ public class MainService {
 		for (int i = 0; i < len; i++) {
 			long tuid = Long.parseLong(with_ids[i]);
 			changeRelationShip(user_id, tuid, Relationship.IGNORE);
-			commAsyncTask.updateMeiLiValByLike(tuid);
 		}
 		return ResultUtil.getResultOKMap();
 	}

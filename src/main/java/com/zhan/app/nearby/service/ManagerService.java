@@ -25,6 +25,7 @@ import com.zhan.app.nearby.cache.UserCacheService;
 import com.zhan.app.nearby.comm.DynamicState;
 import com.zhan.app.nearby.comm.ExchangeState;
 import com.zhan.app.nearby.comm.FoundUserRelationship;
+import com.zhan.app.nearby.comm.VideoStatus;
 import com.zhan.app.nearby.dao.ManagerDao;
 import com.zhan.app.nearby.dao.UserDao;
 import com.zhan.app.nearby.exception.ERROR;
@@ -473,11 +474,11 @@ public class ManagerService {
 	//----------短视频相关--------------------------------------------------------------
 	
 	
-	public ModelMap loadShortvideos(int status, int page, int count) {
+	public ModelMap loadShortvideos(int status, int page, int count,boolean isUserCert) {
 
 		ModelMap r = ResultUtil.getResultOKMap();
 		if (page == 1) {
-			int totalSize = videoService.getCountByStatus(status);
+			int totalSize = videoService.getCountByStatus(status,isUserCert);
 			int pageCount = totalSize / count;
 			if (totalSize % count > 0) {
 				pageCount += 1;
@@ -489,7 +490,7 @@ public class ManagerService {
 		}
 		r.put("currentPageIndex", page);
 		
-		List<Video> data=videoService.loadByStatus(status, page, count);
+		List<Video> data=videoService.loadByStatus(status, page, count,isUserCert);
 		ImagePathUtil.completeVideosPath(data);
 		r.addAttribute("data", data);
 		return r;
@@ -500,7 +501,7 @@ public class ManagerService {
 		videoService.changeStatus(id, newStatus);
 		ModelMap r = ResultUtil.getResultOKMap();
 		if (page == 1) {
-			int totalSize = videoService.getCountByStatus(status);
+			int totalSize = videoService.getCountByStatus(status,false);
 			int pageCount = totalSize / count;
 			if (totalSize % count > 0) {
 				pageCount += 1;
@@ -512,7 +513,30 @@ public class ManagerService {
 		}
 		r.put("currentPageIndex", page);
 
-		List<Video> data=videoService.loadByStatus(status, page, count);
+		List<Video> data=videoService.loadByStatus(status, page, count,false);
+		ImagePathUtil.completeVideosPath(data);
+		r.addAttribute("data", data);
+		return r;
+	}
+
+	public ModelMap userShortvideoCert(int id, long uid,int isOK,int status,int page, int count) {
+		videoService.changeStatus(id, isOK==1?VideoStatus.CHECKED.ordinal():VideoStatus.DEL.ordinal());
+		userService.changeUserCertStatus(uid,isOK==1?1:0);
+		ModelMap r = ResultUtil.getResultOKMap();
+		if (page == 1) {
+			int totalSize = videoService.getCountByStatus(status,true);
+			int pageCount = totalSize / count;
+			if (totalSize % count > 0) {
+				pageCount += 1;
+			}
+			if (pageCount == 0) {
+				pageCount = 1;
+			}
+			r.put("pageCount", pageCount);
+		}
+		r.put("currentPageIndex", page);
+
+		List<Video> data=videoService.loadByStatus(status, page, count,true);
 		ImagePathUtil.completeVideosPath(data);
 		r.addAttribute("data", data);
 		return r;

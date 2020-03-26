@@ -98,11 +98,6 @@ public class CommAsyncTask {
 		userService.updateMeiLiValue(user_id, coins*5);
 	}
 	@Async
-	public void updateMeiLiValByLike(long user_id) {
-		userService.updateMeiLiValue(user_id,1);
-	}
-	
-	@Async
 	public void clearMsg(DynamicMsgService service,long uid,long last_id) {
 		service.clearMsg(uid,last_id);
 	}

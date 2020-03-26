@@ -312,19 +312,16 @@ public class UserDao extends BaseDao<BaseUser> {
 	}
 
 	public void updateRelationship(Long user_id, Long with_user_id, Relationship relationship) {
-
-		int count = jdbcTemplate.queryForObject(
-				"select count(*) from t_user_relationship where user_id=? and with_user_id=?",
-				new Object[] { user_id, with_user_id }, Integer.class);
+		int count=jdbcTemplate.update("update t_user_relationship set relationship=? where  user_id=? and with_user_id=?",
+				new Object[] { relationship.ordinal(), user_id, with_user_id });
 		if (count < 1) {
 			jdbcTemplate.update(
-					"insert into t_user_relationship (user_id,with_user_id,relationship,create_time) values(?,?,?,?)",
+					"insert ignore into t_user_relationship (user_id,with_user_id,relationship,create_time) values(?,?,?,?)",
 					new Object[] { user_id, with_user_id, relationship.ordinal(), new Date() });
-		} else {
-			jdbcTemplate.update("update t_user_relationship set relationship=? where  user_id=? and with_user_id=?",
-					new Object[] { relationship.ordinal(), user_id, with_user_id });
+		}  
+		if(relationship==Relationship.LIKE) {
+			addMeili(with_user_id, 1);
 		}
-
 	}
 
 	public List<Long> getAllUserIds(long last_id, int page) {
@@ -379,7 +376,7 @@ public class UserDao extends BaseDao<BaseUser> {
 
 	@Cacheable(value = "one_hour", key = "#root.methodName+'_'+#page+'_'+#count")
 	public List<RankUser> getNewRegistUsersV2(int page, int count) {
-		String sql = "select u.user_id ,u.nick_name,u.meili,u.isvip,u.lat,u.lng, u.avatar,u.isvip, g.coins as shanbei from t_user u "
+		String sql = "select u.user_id ,u.nick_name,u.meili,u.isvip,u.lat,u.lng, u.avatar, ifnull(g.coins,'0') as shanbei from t_user u "
 				+ "left join t_gift_coins g on g.uid=u.user_id "
 				+ " left join t_found_user_relationship fu on u.user_id=fu.uid "
 				+ "where  (u.type=? or u.type=?) and   (fu.state is null or fu.state<>1)  and DATE_SUB(CURDATE(), INTERVAL 15 DAY) <= date(create_time) order by u.meili desc limit ?,?";
@@ -1299,5 +1296,9 @@ public class UserDao extends BaseDao<BaseUser> {
 	public void updateUserLocation(long uid, String lat, String lng) {
 		// TODO Auto-generated method stub
 		jdbcTemplate.update("update t_user set lat=?,lng=? where user_id=?",new Object[] {lat,lng,uid});
+	}
+
+	public void changeUserCertStatus(long uid, int certStatus) {
+		jdbcTemplate.update("update "+getTableName()+" set video_cert_status=? where user_id=?",certStatus,uid);
 	}
 }

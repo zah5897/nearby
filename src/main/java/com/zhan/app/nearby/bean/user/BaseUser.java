@@ -114,7 +114,7 @@ public class BaseUser implements Serializable {
 	private String channel;
 	
 	
-	
+	private int video_cert_status;//是否短视频认证过 -1 认证中，0未认证 ，1已认证
 	
 	@Transient // 
 	private int online_status; //用户在线状态   -1 未知， 0离线，1在线
@@ -414,6 +414,15 @@ public class BaseUser implements Serializable {
 	public void setOnline_status(int online_status) {
 		this.online_status = online_status;
 	}
+
+	public int getVideo_cert_status() {
+		return video_cert_status;
+	}
+
+	public void setVideo_cert_status(int video_cert_status) {
+		this.video_cert_status = video_cert_status;
+	}
+ 
  
 
 }

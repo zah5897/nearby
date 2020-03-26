@@ -62,11 +62,11 @@ public class ParamInterceptor implements HandlerInterceptor {
 		if (url.contains("nearby/files/")) {
 			return true;
 		}
-		
-		boolean r = isSupportSwagger(url);
-		if (r) {
-			return r;
-		}
+//		
+//		boolean r = isSupportSwagger(url);
+//		if (r) {
+//			return r;
+//		}
 
 		if (url.endsWith(".html")) {
 			return true;
@@ -83,13 +83,11 @@ public class ParamInterceptor implements HandlerInterceptor {
 			return true;
 		}
 		
-		return true;
-		
-//		String _ua = request.getParameter("_ua");
-//		String version = request.getParameter("version");
-//		String timestamp = request.getParameter("timestamp");
-//		String aid = request.getParameter("aid");
-//		return checkSecret(request,_ua, aid, version, timestamp);
+		String _ua = request.getParameter("_ua");
+		String version = request.getParameter("version");
+		String timestamp = request.getParameter("timestamp");
+		String aid = request.getParameter("aid");
+		return checkSecret(request,_ua, aid, version, timestamp);
 	}
 
 	public boolean isSupportSwagger(String url) {

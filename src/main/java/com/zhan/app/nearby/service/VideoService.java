@@ -6,14 +6,12 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
 
-import com.zhan.app.nearby.bean.Appointment;
 import com.zhan.app.nearby.bean.Video;
 import com.zhan.app.nearby.bean.VideoComment;
 import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.dao.UserDao;
 import com.zhan.app.nearby.dao.VideoDao;
 import com.zhan.app.nearby.util.ImagePathUtil;
-import com.zhan.app.nearby.util.ObjectId;
 
 @Service
 public class VideoService {
@@ -25,6 +23,9 @@ public class VideoService {
 	public void save(Video video) {
 //		video.setId(ObjectId.get().toString());
 		long id = videoDao.insert(video);
+		if(video.getType()==3) {//发布了短视频认证，修改其认证状态
+			userDao.changeUserCertStatus(video.getUid(), -1); //审核中
+		}
 		video.setId(id);
 	}
 
@@ -84,12 +85,12 @@ public class VideoService {
 		videoDao.addScanCount(video_id);
 	}
 
-	public int getCountByStatus(int status) {
-		return videoDao.getCountByStatus(status);
+	public int getCountByStatus(int status,boolean isUserCert) {
+		return videoDao.getCountByStatus(status,isUserCert);
 	}
-
-	public List<Video> loadByStatus(int status, int page, int count) {
-		return videoDao.loadByStatus(status, page, count);
+	 
+	public List<Video> loadByStatus(int status, int page, int count,boolean isUserCert) {
+		return videoDao.loadByStatus(status, page, count,isUserCert);
 	}
 
 	public void changeStatus(int id, int newStatus) {

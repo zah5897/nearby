@@ -1219,11 +1219,11 @@ public class WebManagerController {
 	
 	//------------------------------短视频相关--------------------------------------------------
 	@RequestMapping(value = "/shortvideo_list")
-	public @ResponseBody ModelMap shortvideo_list(HttpServletRequest request,int status, int page,int count) throws NoSuchAlgorithmException {
+	public @ResponseBody ModelMap shortvideo_list(HttpServletRequest request,int status, int page,int count,int isUserCert) throws NoSuchAlgorithmException {
 		if (!managerService.isLogin(request)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
-		return managerService.loadShortvideos(status, page, count);
+		return managerService.loadShortvideos(status, page, count,false);
 	}
 	
 	@RequestMapping(value = "/changeShortvideoStatus")
@@ -1231,7 +1231,22 @@ public class WebManagerController {
 		if (!managerService.isLogin(request)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
-		return managerService.changeAppointMentsStatus(id, status, page, count, to_state);
+		return managerService.changeShortvideoStatus(id, status, page, count, to_state);
 	}
-
+	
+	@RequestMapping(value = "/shortvideo_list_cert")
+	public @ResponseBody ModelMap shortvideo_list_cert(HttpServletRequest request,int status, int page,int count,int isUserCert) throws NoSuchAlgorithmException {
+		if (!managerService.isLogin(request)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		return managerService.loadShortvideos(status, page, count,true);
+	}
+	
+	@RequestMapping(value = "/user_shortvideo_cert_ok")
+	public @ResponseBody ModelMap user_shortvideo_cert_ok(HttpServletRequest request,int id, long uid,int isOK,int status,int page, int count) throws NoSuchAlgorithmException {
+		if (!managerService.isLogin(request)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		return managerService.userShortvideoCert(id, uid, isOK, status, page, count);
+	}
 }

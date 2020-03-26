@@ -177,15 +177,12 @@ public class GiftDao extends BaseDao<Gift> {
 	public List<RankUser> loadTotalMeiLiV2(int page, int count) {
 		String sql = "select u.user_id ,u.nick_name,u.lat,u.lng, u.avatar,u.isvip,ifnull(gift.tval,'0') as shanbei, u.meili from t_user u"
 				+ "  left join "
-				+ " (select tg.user_id ,sum(tg.val) as tval from (select o.*,o.count*g.price as val from  t_gift_own o left join t_gift g on o.gift_id=g.id) as tg group by tg.user_id) gift "
-				+ "on u.user_id=gift.user_id "
-				+ " left join  (select count(*) as like_count ,with_user_id from t_user_relationship where relationship=?  group by  with_user_id) lk  "
-				+ " on u.user_id=lk.with_user_id " + " left join t_found_user_relationship fu "
+				+ " (select tg.user_id ,sum(tg.val) as tval,tg.give_time from (select o.*,o.count*g.price as val from  t_gift_own o left join t_gift g on o.gift_id=g.id) as tg group by tg.user_id) gift "
+				+ " on u.user_id=gift.user_id "
+			    + " left join t_found_user_relationship fu "
 				+ " on u.user_id=fu.uid "
-				+ "where    (u.type=? or u.type=?) and  (fu.state is null or fu.state<>1)  and DATE_SUB(CURDATE(), INTERVAL 365 DAY) <= date(create_time) order by meili desc limit ?,?";
-
-		List<RankUser> users = jdbcTemplate.query(sql, new Object[] { Relationship.LIKE.ordinal(),
-				UserType.OFFIEC.ordinal(), UserType.THRID_CHANNEL.ordinal(), (page - 1) * count, count },new BeanPropertyRowMapper<RankUser>(RankUser.class));
+				+ " where    (u.type=? or u.type=?) and  (fu.state is null or fu.state<>1)  and DATE_SUB(CURDATE(), INTERVAL 30 DAY) <= date(gift.give_time) order by u.meili desc limit ?,?";
+		List<RankUser> users = jdbcTemplate.query(sql, new Object[] {  UserType.OFFIEC.ordinal(), UserType.THRID_CHANNEL.ordinal(), (page - 1) * count, count },new BeanPropertyRowMapper<RankUser>(RankUser.class));
 		return users;
 	}
 	
@@ -234,9 +231,9 @@ public class GiftDao extends BaseDao<Gift> {
 	public List<RankUser> loadTuHaoV2(int page, int count) {
 		String sql = "select u.user_id ,u.nick_name,u.lat,u.lng, u.avatar,u.isvip,ifnull(gift.tval,'0') as shanbei from "
 				+ "t_user u left join "
-				+ "(select tg.from_uid ,sum(tg.val) as tval from (select o.*,o.count*g.price as val from  t_gift_own o left join t_gift g on o.gift_id=g.id) as tg group by tg.from_uid) gift "
+				+ "(select tg.from_uid ,sum(tg.val) as tval,tg.give_time from (select o.*,o.count*g.price as val from  t_gift_own o left join t_gift g on o.gift_id=g.id) as tg group by tg.from_uid) gift "
 				+ "on u.user_id=gift.from_uid " + " left join t_found_user_relationship fu " + " on u.user_id=fu.uid "
-				+ "where  (u.type=? or  u.type=?) and  (fu.state is null or fu.state<>1)  order by shanbei desc limit ?,?";
+				+ "where  (u.type=? or  u.type=?) and  (fu.state is null or fu.state<>1)  and DATE_SUB(CURDATE(), INTERVAL 30 DAY) <= date(gift.give_time) order by shanbei desc limit ?,?";
 
 		List<RankUser> users = jdbcTemplate.query(sql,
 				new Object[] { UserType.OFFIEC.ordinal(), UserType.THRID_CHANNEL.ordinal(), (page - 1) * count, count },new BeanPropertyRowMapper<RankUser>(RankUser.class));

@@ -2,7 +2,6 @@ package com.zhan.app.nearby.service;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -30,7 +29,6 @@ import com.zhan.app.nearby.comm.BottleAnswerState;
 import com.zhan.app.nearby.comm.BottleState;
 import com.zhan.app.nearby.comm.DynamicMsgType;
 import com.zhan.app.nearby.comm.FoundUserRelationship;
-import com.zhan.app.nearby.comm.PushMsgType;
 import com.zhan.app.nearby.comm.Relationship;
 import com.zhan.app.nearby.dao.BottleDao;
 import com.zhan.app.nearby.dao.UserDao;
@@ -406,7 +404,6 @@ public class BottleService {
 					}
 				}
 				userDao.updateRelationship(user_id, withUserID, Relationship.LIKE);
-				commAsyncTask.updateMeiLiValByLike(withUserID);
 				if (bottleID > 0) {
 					dynamicMsgService.insertActionMsg(DynamicMsgType.TYPE_MEET, user_id, bottleID, withUserID, "");
 					hxTask.pushLike(withUserID);

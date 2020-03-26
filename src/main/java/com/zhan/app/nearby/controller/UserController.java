@@ -1284,6 +1284,14 @@ public class UserController {
 			throws Exception {
 		return userService.followUsers(uid, false, page, count);
 	}
+	
+	@ApiOperation(httpMethod = "POST", value = "获取某人认证视频信息") // swagger 当前接口注解
+	@RequestMapping("get_confirm_video/{uid}")
+	public ModelMap confirm_video(@PathVariable long uid)
+			throws Exception {
+		return userService.loadConfirmVideo(uid);
+	}
+
 
 	@ApiOperation(httpMethod = "POST", value = "获取某用户的粉丝列表") // swagger 当前接口注解
 	@RequestMapping("fans/{uid}")

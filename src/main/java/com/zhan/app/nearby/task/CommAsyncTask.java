@@ -92,11 +92,7 @@ public class CommAsyncTask {
 		
 		userService.updateUserBirthCity(user.getUser_id(), userLocation);
 	}
-	
-	@Async
-	public void updateMeiLiValByGift(long user_id,int coins) {
-		userService.updateMeiLiValue(user_id, coins*5);
-	}
+	 
 	@Async
 	public void clearMsg(DynamicMsgService service,long uid,long last_id) {
 		service.clearMsg(uid,last_id);

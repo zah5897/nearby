@@ -20,7 +20,8 @@ public enum ERROR {
 	ERR_ACCOUNT_BLACKLIST(15, "该账号处于黑名单状态"),
 	ERR_SMS_CODE_LIMIT(16, "验证码发送次数已超每日限制"),
 	ERR_USER_CLOSE(17, "该帐号已注销"),
-	ERR_MODIFY_SEX_LIMIT(18, "性别修改次数受限");
+	ERR_MODIFY_SEX_LIMIT(18, "性别修改次数受限"),
+	ERR_CONFIRM_VIDEO_LIMIT(19, "当日上传认证视频超限");
 	private int value;
 	private String errorMsg;
 

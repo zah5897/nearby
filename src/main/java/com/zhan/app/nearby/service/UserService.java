@@ -91,6 +91,10 @@ public class UserService {
 
 	@Autowired
 	private HXAsyncTask hxTask;
+	
+	
+	@Autowired 
+	private VideoService videoService;
 
 	public BaseUser getBasicUser(long id) {
 		return userDao.getBaseUser(id);
@@ -1501,6 +1505,9 @@ public class UserService {
 
 	public void changeUserCertStatus(long uid, int certStatus) {
 		userDao.changeUserCertStatus(uid,certStatus);
+	}
+	public ModelMap loadConfirmVideo(long uid) {
+		return ResultUtil.getResultOKMap().addAttribute("video", videoService.loadConfirmVideo(uid));
 	}
 	 
 }

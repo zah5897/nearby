@@ -5,6 +5,7 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
+import org.springframework.ui.ModelMap;
 
 import com.zhan.app.nearby.bean.Video;
 import com.zhan.app.nearby.bean.VideoComment;
@@ -96,5 +97,19 @@ public class VideoService {
 	public void changeStatus(int id, int newStatus) {
 		videoDao.changeStatus(id, newStatus);
 
+	}
+	public int getTodayConfirmVideCount(long uid) {
+		return videoDao.getTodayConfirmVideCount(uid);
+	}
+	public Video loadConfirmVideo(long uid) {
+		List<Video> vs= videoDao.loadConfirmVideo(uid);
+		
+		if(vs.isEmpty()) {
+			return null;
+		}
+		Video v=vs.get(0);
+		ImagePathUtil.completeVideoPath(v);
+		return v;
+		
 	}
 }

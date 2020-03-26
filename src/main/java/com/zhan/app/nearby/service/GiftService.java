@@ -117,7 +117,8 @@ public class GiftService {
 				BaseUser u = userService.getBasicUser(user_id);
 				infoCacheService.clear(InfoCacheService.GIFT_SEND_NOTICE);
 				hxTask.pushGift(u.getNick_name(),to_user_id);
-				commAsyncTask.updateMeiLiValByGift(to_user_id, gift_coins);
+				userService.updateMeiLiValue(to_user_id, gift_coins*5);
+				userService.updateMeiLiValue(user_id, gift_coins*5);
 				Map<String, Object> result = HttpService.queryUserCoins(user_id, aid);
 				return result;
 			} else {

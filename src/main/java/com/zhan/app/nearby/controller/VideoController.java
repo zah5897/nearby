@@ -41,7 +41,7 @@ public class VideoController {
 			@ApiImplicitParam(name = "token", value = "用户登录token", required = true, paramType = "query"),
 			@ApiImplicitParam(name = "aid", value = "aid", required = true, paramType = "query"),
 			@ApiImplicitParam(name = "title", value = "视频标题", paramType = "query"),
-			@ApiImplicitParam(name = "type", value = "视频标题,0为普通短视频，1为头像视频，2为发布的动态视频,3为认证短视频,默认为0", paramType = "query",dataType = "Integer"),
+			@ApiImplicitParam(name = "type", value = "视频标题,0为短视频,3为头像认证短视频,默认为0", paramType = "query",dataType = "Integer"),
 			@ApiImplicitParam(name = "video_name", value = "视频上传在UCloud上面的文件名称", required = true, paramType = "query"),
 			@ApiImplicitParam(name = "thumb_img_name", value = "视频预览图，上传在UCloud上面的文件名称", paramType = "query"),
 			@ApiImplicitParam(name = "secret_level", value = "视频等级，0为公开，1为私密，默认公开",dataType = "Integer", paramType = "query"),
@@ -65,6 +65,14 @@ public class VideoController {
 		}
 		if (duration < 1) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "duration < 1 error.");
+		}
+		
+		
+		if(type==3) {
+		   int count=videoService.getTodayConfirmVideCount(user_id);
+		   if(count>=3) {//超限了
+			   return ResultUtil.getResultMap(ERROR.ERR_CONFIRM_VIDEO_LIMIT);
+		   }
 		}
 
 		Video video = new Video();

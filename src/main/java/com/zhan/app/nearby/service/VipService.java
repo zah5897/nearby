@@ -13,10 +13,13 @@ import org.springframework.ui.ModelMap;
 
 import com.zhan.app.nearby.bean.Vip;
 import com.zhan.app.nearby.bean.VipUser;
+import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.dao.VipDao;
 import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.util.DateTimeUtil;
+import com.zhan.app.nearby.util.HX_SessionUtil;
 import com.zhan.app.nearby.util.HttpService;
+import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.ResultUtil;
 import com.zhan.app.nearby.util.TextUtils;
 
@@ -79,12 +82,16 @@ public class VipService {
 		// 获取已购买的vip数据
 		VipUser userVip = vipDao.loadUserVip(vipUser.getUser_id());
 		// 已经是vip了，计算复杂
+		
+		
+		
 		if (userVip == null || userVip.getDayDiff() <= 0) {// 以天为精度的过期
 			vipDao.delUserVip(vipUser.getUser_id());
 			vipUser.setStart_time(now);
 			vipUser.setEnd_time(DateTimeUtil.getVipEndDate(now, vip.getTerm_mount()));
 			vipDao.insertObject(vipUser);
 			userService.updateUserVipVal(vipUser.getUser_id(),true);
+			HX_SessionUtil.pushVip(vipUser.getUser_id());
 			return "success";
 		} else {
 			Date newEndDate = DateTimeUtil.getVipEndDate(userVip.getEnd_time(), vip.getTerm_mount());
@@ -92,6 +99,7 @@ public class VipService {
 			userVip.setLast_order_no(vipUser.getLast_order_no());
 			vipDao.updateUserVip(userVip);
 			userService.updateUserVipVal(vipUser.getUser_id(),true);
+			HX_SessionUtil.pushVip(vipUser.getUser_id());
 			return "success";
 		}
 		// 还不是vip
@@ -150,5 +158,12 @@ public class VipService {
 	
 	public boolean isVip(long user_id) {
 		return vipDao.isVip(user_id);
+	}
+
+	public ModelMap globalInfo() {
+		int count=vipDao.getUserVipCount();
+		List<BaseUser> users=vipDao.latest4VipUser();
+		ImagePathUtil.completeAvatarsPath(users, true);
+		return ResultUtil.getResultOKMap().addAttribute("total_count",count).addAttribute("users", users);
 	}
 }

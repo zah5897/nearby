@@ -70,6 +70,9 @@ public class AppointmentService {
 	public List<Appointment> mine(long user_id, Integer last_id, int count) {
 		return appointmentDao.queryMine(user_id, last_id, count);
 	}
+	public List<Appointment> loadUserAppointments(long uid, Integer last_id, int count) {
+		return appointmentDao.loadUserAppointments(uid, last_id, count);
+	}
 
 	public int del(long user_id, Integer id) {
 		return appointmentDao.deleteById(user_id, id);

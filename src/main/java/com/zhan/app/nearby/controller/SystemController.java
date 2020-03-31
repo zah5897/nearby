@@ -14,6 +14,7 @@ import com.zhan.app.nearby.bean.BGM;
 import com.zhan.app.nearby.bean.Report;
 import com.zhan.app.nearby.service.MainService;
 import com.zhan.app.nearby.service.UserService;
+import com.zhan.app.nearby.task.CommAsyncTask;
 import com.zhan.app.nearby.util.BottleKeyWordUtil;
 import com.zhan.app.nearby.util.IPUtil;
 import com.zhan.app.nearby.util.ResultUtil;
@@ -26,7 +27,8 @@ public class SystemController {
 	private UserService userService;
 	@Autowired
 	private MainService mainService;
-    
+	@Autowired
+	private CommAsyncTask commAsyncTask;
 	@Deprecated
 	@RequestMapping("report")
 	public ModelMap report(Report report) {
@@ -107,7 +109,8 @@ public class SystemController {
 	}
 
 	@RequestMapping("test")
-	public ModelMap test() {
+	public ModelMap test(long uid) {
+		commAsyncTask.userOnLineNotify(uid);
 		return ResultUtil.getResultOKMap();
 	}
 	

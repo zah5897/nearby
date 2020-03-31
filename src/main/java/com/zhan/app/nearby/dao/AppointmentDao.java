@@ -87,6 +87,16 @@ public class AppointmentDao extends BaseDao<Appointment> {
 				+ "left join t_appointment_theme th on a.theme_id=th.id where a.status=? order by a.id desc limit ?,?";
 		return jdbcTemplate.query(sql, new Object[] { status, (page - 1) * count, count }, appointmentMapper);
 	}
+	public List<Appointment> loadUserAppointments(long uid, Integer last_id, int count) {
+		if(last_id==null) {
+			last_id=Integer.MAX_VALUE;
+		}
+		String sql = "select a.*,u.user_id,u.nick_name,u.sex,u.avatar,u.lat,u.lng,u.isvip,u.birthday,c.name as city_name,th.id as tid,th.name as thname  from "
+				+ getTableName() + " a left join t_user u on a.uid=u.user_id "
+				+ "left join t_sys_city c on a.city_id=c.id "
+				+ "left join t_appointment_theme th on a.theme_id=th.id where a.uid=? and a.status=? and a.id<? order by a.id desc limit ?";
+		return jdbcTemplate.query(sql, new Object[] { uid,AppointmentStatus.CHECKED.ordinal(),last_id, count }, appointmentMapper);
+	}
 
 	public int deleteById(long user_id, Integer id) {
 		return jdbcTemplate.update("delete from " + getTableName() + " where uid=" + user_id + " and id=" + id);

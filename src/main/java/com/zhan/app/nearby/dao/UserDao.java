@@ -35,6 +35,8 @@ import com.zhan.app.nearby.util.ImageSaveUtils;
 import com.zhan.app.nearby.util.SQLUtil;
 import com.zhan.app.nearby.util.TextUtils;
 
+import io.swagger.models.auth.In;
+
 @Repository
 public class UserDao extends BaseDao<BaseUser> {
 	@Resource
@@ -868,24 +870,34 @@ public class UserDao extends BaseDao<BaseUser> {
 	}
 
 	public void saveUserOnline(long uid) {
-		int count = jdbcTemplate.queryForObject("select count(*) from t_user_online where uid=" + uid, Integer.class);
+		int count=jdbcTemplate.update("update t_user_online set check_time=? where uid=?", new Object[] { new Date(), uid });
 		if (count == 0) {
-			jdbcTemplate.update("insert into t_user_online (uid,check_time) values(?,?)",
+			jdbcTemplate.update("insert ignore into t_user_online (uid,check_time) values(?,?)",
 					new Object[] { uid, new Date() });
-		} else {
-			jdbcTemplate.update("update t_user_online set check_time=? where uid=?", new Object[] { new Date(), uid });
 		}
 	}
 
-	public void updateOnlineCheckTime(long uid) {
-		jdbcTemplate.update("update t_user_online set check_time=? where uid=?", new Object[] { new Date(), uid });
-	}
 
 	public List<LoginUser> getOnlineUsers(int page, int count) {
 		String sql = "select u.user_id,u.nick_name,u.avatar,u.last_login_time ,u.sex " + " from t_user_online l"
 				+ "  inner join t_user u on l.uid=u.user_id where u.isFace=1 order by l.check_time desc limit ?,?";
 		return jdbcTemplate.query(sql, new Object[] { (page - 1) * count, count },
 				new BeanPropertyRowMapper<LoginUser>(LoginUser.class));
+	}
+
+	public int getOnlineUserCountLastetByMinute(int minuts) {
+		String sql = "select count(*) from t_user_online  where check_time>DATE_ADD(NOW(), INTERVAL -? MINUTE)";
+		return jdbcTemplate.queryForObject(sql, new Object[] {minuts},Integer.class);
+	}
+	
+	public List<Long> getOnlineUidLastetByMinute(int minuts) {
+		String sql = "select uid from t_user_online  where check_time>DATE_ADD(NOW(), INTERVAL -? MINUTE)";
+		return jdbcTemplate.queryForList(sql, new Object[] {minuts},Long.class);
+	}
+	
+	public List<String> getOnlineUidLastetByLimit(int limit) {
+		 String sql="select uid from t_user_online   where notify_cmd_time is null or notify_cmd_time<DATE_ADD(NOW(), INTERVAL -2 MINUTE) order by check_time desc limit ?";
+		return jdbcTemplate.queryForList(sql, new Object[] {limit},String.class);
 	}
 
 //	@Cacheable(value = "five_minute", key = "#root.methodName+'_'+#page+'_'+#count")
@@ -1300,5 +1312,22 @@ public class UserDao extends BaseDao<BaseUser> {
 
 	public void changeUserCertStatus(long uid, int certStatus) {
 		jdbcTemplate.update("update "+getTableName()+" set video_cert_status=? where user_id=?",certStatus,uid);
+	}
+
+	public Date getLastSendTime(long uid) {
+		List<Date> dates=jdbcTemplate.queryForList("select send_cmd_time  from t_user_online where uid="+uid, Date.class);
+	    if(dates.isEmpty()) {
+	    	return null;
+	    }else {
+	    	return dates.get(0);
+	    }
+	}
+
+	public void updateLastSendTime(long uid) {
+	    jdbcTemplate.update("update t_user_online set send_cmd_time=? where uid=?",new Object[] {new Date(),uid});	
+	}
+
+	public void updateNotifyTime(long uid) {
+		 jdbcTemplate.update("update t_user_online set notify_cmd_time=? where uid=?",new Object[] {new Date(),uid});	
 	}
 }

@@ -12,6 +12,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.zhan.app.nearby.bean.Tag;
 import com.zhan.app.nearby.bean.UserDynamic;
+import com.zhan.app.nearby.bean.Video;
 import com.zhan.app.nearby.util.DateTimeUtil;
 
 @SuppressWarnings("serial")
@@ -37,6 +38,9 @@ public class DetailUser extends SimpleUser {
 	@JsonIgnore
 	private String my_tag_ids;
 
+	@Transient // 忽略保存
+	private Video head_video;
+	
 	@Transient // 忽略保存
 	public List<UserDynamic> getImages() {
 		return images;
@@ -229,6 +233,14 @@ public class DetailUser extends SimpleUser {
 			basicInfo.put("birth_city", getBirth_city());
 		}
 		return basicInfo;
+	}
+
+	public Video getHead_video() {
+		return head_video;
+	}
+
+	public void setHead_video(Video head_video) {
+		this.head_video = head_video;
 	}
 
 	/**

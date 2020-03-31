@@ -101,9 +101,18 @@ public class VideoService {
 	public int getTodayConfirmVideCount(long uid) {
 		return videoDao.getTodayConfirmVideCount(uid);
 	}
-	public Video loadConfirmVideo(long uid) {
-		List<Video> vs= videoDao.loadConfirmVideo(uid);
+	public Video loadConfirmdVideo(long uid) {
+		List<Video> vs= videoDao.loadConfirmdVideo(uid);
+		if(vs.isEmpty()) {
+			return null;
+		}
+		Video v=vs.get(0);
+		ImagePathUtil.completeVideoPath(v);
+		return v;
 		
+	}
+	public Video loadLatestConfirmVideo(long uid) {
+		List<Video> vs= videoDao.loadLatestConfirmVideo(uid);
 		if(vs.isEmpty()) {
 			return null;
 		}

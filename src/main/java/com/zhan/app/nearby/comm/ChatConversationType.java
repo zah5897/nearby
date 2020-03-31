@@ -34,4 +34,10 @@ public class ChatConversationType {
 	
 	/** 表白 */
     public static final String CHAT_TYPE_EXPRESS = "CHAT_TYPE_EXPRESS";
+    
+	/** vip购买 */
+    public static final String TYPE_BUY_VIP = "TYPE_BUY_VIP";
+
+    /** vip购买 */
+    public static final String TYPE_ONLINE_USER = "TYPE_ONLINE_USER";
 }

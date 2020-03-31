@@ -636,14 +636,4 @@ public class BottleService {
 	public List<RedPackageGetHistory> getRedPackageHistory(long bid) {
 		return bottleDao.getRedPackageHistoryByBid(bid);
 	}
-
-	public void test(long user_id, Long bottle_id) {
-		Bottle b;
-		if (bottle_id == null) {
-			b = bottleDao.getBottleByRand();
-		} else {
-			b = bottleDao.getBottleById(bottle_id);
-		}
-		hxTask.testBottle(user_id, b);
-	}
 }

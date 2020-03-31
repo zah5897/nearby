@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 
 import com.zhan.app.nearby.bean.Vip;
 import com.zhan.app.nearby.bean.VipUser;
+import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.dao.base.BaseDao;
 
 @SuppressWarnings("unchecked")
@@ -69,10 +70,6 @@ public class VipDao extends BaseDao<Vip> {
 						userVip.getVip_id() });
 
 	}
-	
-	
- 
-	
 
 	public List<Long> loadExpireVip() {
 		String sql = "select user_id from " + TABLE_NAME_VIP_USER
@@ -84,4 +81,15 @@ public class VipDao extends BaseDao<Vip> {
 		return jdbcTemplate.queryForList("select id from " + TABLE_NAME_VIP + " where term_mount=" + month,
 				Integer.class);
 	}
+
+	public int getUserVipCount() {
+		return jdbcTemplate.queryForObject("select count(*) from t_user_vip", Integer.class);
+	}
+	
+	public List<BaseUser> latest4VipUser(){
+		String sql ="select u.user_id,u.nick_name,u.avatar from t_user_vip v left join t_user u on v.user_id=u.user_id order by v.start_time desc limit 4";
+		return jdbcTemplate.query(sql, getEntityMapper(BaseUser.class));
+		
+	}
+	
 }

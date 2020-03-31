@@ -7,6 +7,7 @@ import javax.annotation.Resource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -136,7 +137,26 @@ public class AppointmentController {
 		return ResultUtil.getResultOKMap().addAttribute("dating", apps);
 	}
 	
+	@RequestMapping("load_user_appointments/{uid}")
+	@ApiOperation(httpMethod = "POST", value = "获取某人已审核的约会列表") // swagger 当前接口注解
+	@ApiImplicitParams({
+			@ApiImplicitParam(name = "uid", value = "路径变量，对应用户的user_id", required = true, paramType = "query") ,
+			@ApiImplicitParam(name = "last_id", value = "分页id",   paramType = "query") ,
+			@ApiImplicitParam(name = "count", value = "每页数量", required = true , paramType = "query") 
+		 })
+	public ModelMap load_user_appointments(@PathVariable long uid,Integer last_id,int count) {
+		List<Appointment> apps = appointmentService.loadUserAppointments(uid, last_id, count);
+		ImagePathUtil.completePath(apps);
+		boolean hasMore = apps.size() == count;
+		if (!apps.isEmpty()) {
+			last_id = apps.get(apps.size() - 1).getId();
+		}
+		return ResultUtil.getResultOKMap().addAttribute("dating", apps).addAttribute("hasMore", hasMore)
+				.addAttribute("last_id", last_id);
+	}
 
+	
+	
 	@RequestMapping("del")
 	@ApiOperation(httpMethod = "POST", value = "删除约会信息") // swagger 当前接口注解
 	@ApiImplicitParams({ @ApiImplicitParam(name = "user_id", value = "用户id", required = true, paramType = "query"),

@@ -1289,7 +1289,7 @@ public class UserController {
 	@RequestMapping("get_confirm_video/{uid}")
 	public ModelMap confirm_video(@PathVariable long uid)
 			throws Exception {
-		return userService.loadConfirmVideo(uid);
+		return userService.loadConfirmdVideo(uid);
 	}
 
 

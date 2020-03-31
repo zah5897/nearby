@@ -237,12 +237,18 @@ public class VideoDao extends BaseDao<Video> {
 			return jdbcTemplate.query(sql, new Object[] { status, (page - 1) * count, count }, videoMapper);
 		}
 	}
-	public List<Video> loadConfirmVideo(long uid) {
+	public List<Video> loadLatestConfirmVideo(long uid) {
 			String sql = "select v.* ,u.user_id,u.nick_name ,u.avatar,u.sex ,u.isvip from " + TABLE_VIDEO
-					+ " v left join t_user u on v.uid=u.user_id where  v.type=3 and  v.uid=? and  v.status=?  order by v.id desc limit 1";
-			return jdbcTemplate.query(sql, new Object[] {uid, VideoStatus.CHECKED.ordinal()}, videoMapper);
+					+ " v left join t_user u on v.uid=u.user_id where  v.type=3 and  v.uid=? order by v.id desc limit 1";
+			return jdbcTemplate.query(sql, new Object[] {uid}, videoMapper);
 		 
 	}
+	public List<Video> loadConfirmdVideo(long uid) {
+		String sql = "select v.* ,u.user_id,u.nick_name ,u.avatar,u.sex ,u.isvip from " + TABLE_VIDEO
+				+ " v left join t_user u on v.uid=u.user_id where  v.type=3 and  v.uid=? and  v.status=?  order by v.id desc limit 1";
+		return jdbcTemplate.query(sql, new Object[] {uid, VideoStatus.CHECKED.ordinal()}, videoMapper);
+	 
+}
 	public void changeStatus(int id, int newStatus) {
 		jdbcTemplate.update("update " + getTableName() + " set status=? where id=?",newStatus, id );
 	}

@@ -18,10 +18,6 @@ import com.zhan.app.nearby.util.MD5Util;
 @Component
 public class HXAsyncTask {
 	@Async
-	public void testBottle(long user_id, Bottle b) {
-		HX_SessionUtil.testBottle(user_id, b);
-	}
-	@Async
 	public void replayBottle(BaseUser user, BaseUser with_user, Bottle bottle) {
 		HX_SessionUtil.replayBottle(user, with_user, bottle);
 	}

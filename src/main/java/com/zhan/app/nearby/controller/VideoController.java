@@ -135,6 +135,27 @@ public class VideoController {
 		return ResultUtil.getResultOKMap().addAttribute("data", list).addAttribute("hasMore", list.size() == count).addAttribute("last_id", last_id);
 	}
 	
+
+	@RequestMapping("load_latest_confirm_video/{uid}")
+	@ApiOperation(httpMethod = "POST", value = "获取某人最新的头像短视频") // swagger 当前接口注解
+	@ApiImplicitParams({
+			@ApiImplicitParam(name = "uid", value = "路径变量，对应用户的user_id", required = true, paramType = "query") 
+		 })
+	public ModelMap load_latest_confirm_video(@PathVariable Long uid   ) {
+		Video video = videoService.loadLatestConfirmVideo(uid);
+		return ResultUtil.getResultOKMap().addAttribute("video", video);
+	}
+	
+	@RequestMapping("load_confirmd_video/{uid}")
+	@ApiOperation(httpMethod = "POST", value = "获取某人已审核的最近的一条数据") // swagger 当前接口注解
+	@ApiImplicitParams({
+			@ApiImplicitParam(name = "uid", value = "路径变量，对应用户的user_id", required = true, paramType = "query") 
+		  })
+	public ModelMap load_confirmd_video(@PathVariable Long uid) {
+		Video video = videoService.loadConfirmdVideo(uid);
+		return ResultUtil.getResultOKMap().addAttribute("video", video);
+	}
+	
 	
 	@RequestMapping("comment")
 	@ApiOperation(httpMethod = "POST", value = "评论视频") // swagger 当前接口注解

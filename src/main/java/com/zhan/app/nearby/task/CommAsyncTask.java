@@ -1,5 +1,8 @@
 package com.zhan.app.nearby.task;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +17,8 @@ import com.zhan.app.nearby.service.DynamicMsgService;
 import com.zhan.app.nearby.service.UserDynamicService;
 import com.zhan.app.nearby.service.UserService;
 import com.zhan.app.nearby.util.AddressUtil;
+import com.zhan.app.nearby.util.HX_SessionUtil;
+import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.JSONUtil;
 import com.zhan.app.nearby.util.SpringContextUtil;
 import com.zhan.app.nearby.util.TextUtils;
@@ -97,4 +102,26 @@ public class CommAsyncTask {
 	public void clearMsg(DynamicMsgService service,long uid,long last_id) {
 		service.clearMsg(uid,last_id);
 	}
+	
+	@Async
+	public void userOnLineNotify(long uid) {
+		Date date=userService.getLastSendTime(uid);
+		if(date!=null) {
+			long time=date.getTime()/1000;
+			long now=System.currentTimeMillis()/1000;
+			if(now-time<120) { //2分钟内，不能发送频繁
+				return;
+			}
+		}
+		BaseUser user=userService.getBaseUserNoToken(uid);
+		ImagePathUtil.completeAvatarPath(user, true);
+		List<String> uids=userService.getOnlineUidLastetByLimit(900);
+		
+		String[] toUid=new String[uids.size()];
+		uids.toArray(toUid);
+		//HX_SessionUtil.pushOnLine(user, toUid);
+		userService.updateLastSendTime(uid);
+		userService.updateNotifyTime(uids);
+	}
+	 
 }

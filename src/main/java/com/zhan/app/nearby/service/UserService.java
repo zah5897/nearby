@@ -141,7 +141,6 @@ public class UserService {
 		}
 		user.setLast_login_time(new Date());
 		userDao.insert(user);
-
 		if (user.getUser_id() > 0 && user.getType() == UserType.OFFIEC.ordinal()) {
 			if (user.getIsFace() == 1) {
 				addRecommendAndMeetBottle(user.getUser_id());
@@ -178,7 +177,12 @@ public class UserService {
 		commAsyncTask.getUserLocationByIP(user, user.getIp());
 		return id;
 	}
-
+	
+	public void userOnLineNotify(long uid) {
+		commAsyncTask.userOnLineNotify(uid);
+	}
+	
+	
 	public void doCheckIsFace(BaseUser user) {
 		faceCheckTask.doCheckFace(user);
 	}
@@ -406,9 +410,12 @@ public class UserService {
 		ModelMap r = ResultUtil.getResultOKMap();
 		user.setAvatars(getUserAvatars(user_id_for));
 
+		
+		
+	
 		if (!TextUtils.isEmpty(user.getContact()) && uid != user_id_for) {
-			if (!userDao.hadGetContact(uid == null ? 0 : uid, user_id_for == null ? 0 : user_id_for)) {
-				user.setContact("花费金币查看");
+			if(!isVip(uid)) {
+				user.setContact("vip可看");
 			}
 		}
 
@@ -482,6 +489,9 @@ public class UserService {
 			user.setHas_followed(1);
 			relationShip=4;
 			r.addAttribute("coins", giftService.getUserCoins(aid, user_id_for));
+			
+			user.setHead_video(videoService.loadLatestConfirmVideo(user_id_for));
+			
 		}else {
 			user.setHas_followed(userDao.isFollowed(uid, user_id_for) ? 1 : 0);
 			Relationship iWithHim = getRelationShip(uid == null ? 0 : uid, user_id_for);
@@ -496,7 +506,12 @@ public class UserService {
 				relationShip = 7;
 			}
 			r.addAttribute("coins", 0);
+			user.setHead_video(videoService.loadConfirmdVideo(user_id_for));
 		}
+		
+		
+		
+		
 		r.put("user", user);
 		r.put("relationship", relationShip);
 		r.addAttribute("meili", user.getMeili());
@@ -875,33 +890,32 @@ public class UserService {
 			} else {
 				return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN, "Token杩囨湡");
 			}
-
 		}
-
 		String weixin = userDao.getContact(by_user_id);
 		if (TextUtils.isEmpty(weixin)) {
 			return ResultUtil.getResultOKMap().addAttribute("contact", weixin);
 		}
-
-		if (userDao.hadGetContact(user_id, by_user_id)) {
+		if (vipDao.isVip(user_id)) {
 			return ResultUtil.getResultOKMap().addAttribute("contact", weixin);
+		}else {
+			return ResultUtil.getResultMap(ERROR.ERR_NOT_VIP);
 		}
-		// 閲戝竵鍑�1
-		Map<String, Object> extraData = modifyUserExtra(user_id, aid, 1, -1);
-		if (extraData != null && extraData.containsKey("all_coins")) {
-			int all_coins = (int) extraData.get("all_coins");
-			if (all_coins < 0) {
-				throw new AppException(ERROR.ERR_COINS_SHORT);
-			} else {
-				modifyUserExtra(by_user_id, aid, 1, 1);
-				try {
-					userDao.markContactRel(user_id, by_user_id);
-				} catch (Exception e) {
-					// 涓婚敭绾︽潫瀵艰嚧鎻掑叆璇け璐�
-				}
-			}
-		}
-		return ResultUtil.getResultOKMap().addAttribute("contact", weixin).addAttribute("contact_cost_coins", 1);
+//		// 閲戝竵鍑�1
+//		Map<String, Object> extraData = modifyUserExtra(user_id, aid, 1, -1);
+//		if (extraData != null && extraData.containsKey("all_coins")) {
+//			int all_coins = (int) extraData.get("all_coins");
+//			if (all_coins < 0) {
+//				throw new AppException(ERROR.ERR_COINS_SHORT);
+//			} else {
+//				modifyUserExtra(by_user_id, aid, 1, 1);
+//				try {
+//					userDao.markContactRel(user_id, by_user_id);
+//				} catch (Exception e) {
+//					// 涓婚敭绾︽潫瀵艰嚧鎻掑叆璇け璐�
+//				}
+//			}
+//		}
+		//return ResultUtil.getResultOKMap().addAttribute("contact", weixin).addAttribute("contact_cost_coins", 1);
 	}
 
 	public ModelMap autoLogin(long user_id, String md5_pwd, String aid, String device_token) {
@@ -965,11 +979,8 @@ public class UserService {
 	}
 
 	public void saveUserOnline(long uid) {
-		try {
-			userDao.saveUserOnline(uid);
-		} catch (Exception e) {
-			userDao.updateOnlineCheckTime(uid);
-		}
+		userDao.saveUserOnline(uid);
+	    userOnLineNotify(uid);
 	}
 
 	public List<LoginUser> getOnlineUsers(int page, int count) {
@@ -977,7 +988,15 @@ public class UserService {
 		ImagePathUtil.completeAvatarsPath(users, true);
 		return users;
 	}
-
+	public int getOnlineUserCountLastetByMinute(int minuts) {
+		return userDao.getOnlineUserCountLastetByMinute(minuts);
+	}
+	public List<Long> getOnlineUidLastetByMinute(int minuts) {
+		return userDao.getOnlineUidLastetByMinute(minuts);
+	}
+	public List<String> getOnlineUidLastetByLimit(int limit) {
+		return userDao.getOnlineUidLastetByLimit(limit);
+	}
 	@Transactional
 	public void removeOnline(long uid) {
 		userDao.removeOnline(uid);
@@ -1506,8 +1525,25 @@ public class UserService {
 	public void changeUserCertStatus(long uid, int certStatus) {
 		userDao.changeUserCertStatus(uid,certStatus);
 	}
+	public ModelMap loadConfirmdVideo(long uid) {
+		return ResultUtil.getResultOKMap().addAttribute("video", videoService.loadConfirmdVideo(uid));
+	}
 	public ModelMap loadConfirmVideo(long uid) {
-		return ResultUtil.getResultOKMap().addAttribute("video", videoService.loadConfirmVideo(uid));
+		return ResultUtil.getResultOKMap().addAttribute("video", videoService.loadConfirmdVideo(uid));
+	}
+
+	public Date getLastSendTime(long uid) {
+		return userDao.getLastSendTime(uid);
+	}
+
+	public void updateLastSendTime(long uid) {
+		userDao.updateLastSendTime(uid);
+	}
+
+	public void updateNotifyTime(List<String> uids) {
+		for(String id:uids) {
+			userDao.updateNotifyTime(Long.parseLong(id));
+		}
 	}
 	 
 }

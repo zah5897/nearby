@@ -12,8 +12,12 @@ import com.zhan.app.nearby.bean.Vip;
 import com.zhan.app.nearby.bean.VipUser;
 import com.zhan.app.nearby.service.VipService;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+
 @RestController
 @RequestMapping("vip")
+@Api(value = "vip相关", description = "vip相关")
 public class VipController {
 
 	@Resource
@@ -39,6 +43,12 @@ public class VipController {
 		return vipService.save(vip);
 	}
 
+	@RequestMapping("global_info")
+	@ApiOperation(httpMethod = "POST", value = "获取vip的总数和最近4条数据") // swagger 当前接口注解
+	public ModelMap global_info() {
+		return vipService.globalInfo();
+	}
+	
 	@RequestMapping("buy")
 	public Map<?, ?> buy(VipUser vipUser) {
 		return vipService.buy(vipUser);

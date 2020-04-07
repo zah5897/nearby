@@ -902,7 +902,7 @@ public class UserDao extends BaseDao<BaseUser> {
 
 //	@Cacheable(value = "five_minute", key = "#root.methodName+'_'+#page+'_'+#count")
 	public List<LoginUser> getRankOnlineUsers(int count,Date time_point) {
-		String sql = "select u.user_id,u.nick_name,u.avatar,l.check_time as last_login_time ,u.sex,u.isvip,u.lat,u.lng ,ifnull(gift.tval,'0') as shanbei " + " from t_user_online l"
+		String sql = "select u.user_id,u.nick_name,u.avatar,l.check_time as last_login_time ,u.sex,u.isvip,u.lat,u.lng,u.video_cert_status ,ifnull(gift.tval,'0') as shanbei " + " from t_user_online l"
 				+ "  inner join t_user u on l.uid=u.user_id"
 				+ "  left join "
 				+ " (select tg.user_id ,sum(tg.val) as tval from (select o.*,o.count*g.price as val from  t_gift_own o left join t_gift g on o.gift_id=g.id) as tg group by tg.user_id) gift "
@@ -1103,6 +1103,29 @@ public class UserDao extends BaseDao<BaseUser> {
 	}
 
 	
+	public List<RankUser> getFollowUsersByUid(long user_id, int page, int count) {
+		String sql = "select u.user_id,u.nick_name,u.avatar,u.meili,u.isvip,u.lat,u.lng,ifnull(gift.tval,'0') as shanbei from t_user_follow f "
+				+ "  left join t_user u on f.target_id =u.user_id "
+				+ " left join "
+				+ " (select tg.user_id ,sum(tg.val) as tval from (select o.*,o.count*g.price as val from  t_gift_own o left join t_gift g on o.gift_id=g.id) as tg group by tg.user_id) gift "
+				+ "on f.target_id=gift.user_id "
+				+ " where f.uid=? order by f.create_time desc limit ?,?";
+		 
+		return jdbcTemplate.query(sql, new Object[] { user_id, (page - 1) * count, count },
+				new BeanPropertyRowMapper<RankUser>(RankUser.class));
+	}
+	
+	public List<RankUser> getFansByUid(long user_id, int page, int count) {
+		String sql = "select u.user_id,u.nick_name,u.avatar,u.meili,u.isvip,u.lat,u.lng,ifnull(gift.tval,'0') as shanbei from t_user_follow f "
+				+ "  left join t_user u on f.uid =u.user_id "
+				+ " left join "
+				+ " (select tg.user_id ,sum(tg.val) as tval from (select o.*,o.count*g.price as val from  t_gift_own o left join t_gift g on o.gift_id=g.id) as tg group by tg.user_id) gift "
+				+ "on f.target_id=gift.user_id "
+				+ " where f.target_id=? order by f.create_time desc limit ?,?";
+		 
+		return jdbcTemplate.query(sql, new Object[] { user_id, (page - 1) * count, count },
+				new BeanPropertyRowMapper<RankUser>(RankUser.class));
+	}
 	public List<RankUser> getIWatching(long user_id, int page, int count) {
 		String sql = "select u.user_id,u.nick_name,u.avatar,u.meili,u.isvip,u.lat,u.lng,ifnull(gift.tval,'0') as shanbei from t_user_follow f "
 				+ "  left join t_user u on f.target_id =u.user_id "

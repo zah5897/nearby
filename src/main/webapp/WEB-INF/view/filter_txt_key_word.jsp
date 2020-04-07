@@ -21,15 +21,12 @@
 <body>
 	<div class="panel admin-panel"></div>
 	<script type="text/javascript">
-$(document).ready(function(){ 
-	loadWordList();
-}); 
 
 function editWord(){
 	var form = new FormData($("form")[0]);  
 	$.ajax({
 		async: false,
-        url:"<%=path%>/manager/filter_key_word",
+        url:"<%=path%>/manager/edit_key_words",
         type:"post",
         data:form,
         processData:false,
@@ -43,26 +40,10 @@ function editWord(){
         }
     });
 }
-	function loadWordList(){
-		$.post('<%=path%>/manager/filter_key_word', {'type' : 0}, function(data, status) {
-				var json = JSON.parse(data);
-				if (json.code == 0) {
-					var path=json["download_path"];
-					if(path){
-						$("#download").show();
-						$('#download').attr('href',path); 
-					}else{
-						$("#download").hide();
-						$("#vip_add_update_btn").show();
-					}
-				}
-			});
-		}
-	 
 	</script>
 	<div class="panel admin-panel margin-top" id="add">
 		<div class="panel-head">
-			<strong><span class="icon-pencil-square-o"></span>瓶子敏感詞</strong>
+			<strong><span class="icon-pencil-square-o"></span>系统敏感詞</strong>
 		</div>
 		<div class="body-content">
 			<a href="#edit"></a>
@@ -70,16 +51,18 @@ function editWord(){
 				enctype="multipart/form-data">
 				<div class="form-group">
 					<div class="field">
+					     <label><input name="type" type="radio" value="1" checked/>添加 </label> 
+                         <label><input name="type" type="radio" value="0" />删除 </label> 
+					</div>
+				</div>
+				<div class="form-group">
+				</div>
+				<div class="form-group">
+					<div class="field">
 						<input type="file" id="url1" name="keyword" class="input tips"
 							style="width: 25%; float: left;" value="" />
 					</div>
 				</div>
-				 <div class="form-group">
-					<div class="field">
-							&nbsp;&nbsp;&nbsp;<a href="#" id="download">下载敏感词</a>
-					</div>
-				</div>
-				<input type="hidden" value="1" name="type">
 				<div class="form-group">
 
 					<div class="field">

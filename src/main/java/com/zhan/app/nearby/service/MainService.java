@@ -654,14 +654,11 @@ public class MainService {
 		return systemDao.loadBlackWords();
 	}
 
-	public void addBlackWord(String word) {
-		if (word == null || TextUtils.isEmpty(word.trim())) {
-			return;
-		}
-		systemDao.insertBlackWord(word);
+	public void addBlackWord(String words) {
+		systemDao.insertBlackWord(words);
 	}
 
-	public void removeBlackWord(String word) {
-		systemDao.delBlackWord(word);
+	public void deleteBlackWord(String words) {
+		systemDao.delBlackWord(words);
 	}
 }

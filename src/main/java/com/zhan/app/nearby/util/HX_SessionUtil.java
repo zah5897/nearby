@@ -172,6 +172,12 @@ public class HX_SessionUtil {
 		putUserInfo(ext, user);
 		ext.put("msg", "用户上线通知");
 		ext.put("type", ChatConversationType.TYPE_ONLINE_USER);
+		
+		Map<String, String> data = new HashMap<String, String>();
+		data.put("content",  user.getNick_name()+"用户上线通知");
+		data.put("type",  ChatConversationType.TYPE_ONLINE_USER);
+		putDataInfo(data, user);
+		ext.put("data", JSONUtil.writeValueAsString(data));
 		Main.sendCmdMessage(to_user_ids, ext);
 	}
 	

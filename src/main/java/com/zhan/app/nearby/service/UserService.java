@@ -26,10 +26,12 @@ import com.zhan.app.nearby.bean.Avatar;
 import com.zhan.app.nearby.bean.City;
 import com.zhan.app.nearby.bean.Tag;
 import com.zhan.app.nearby.bean.UserDynamic;
+import com.zhan.app.nearby.bean.Video;
 import com.zhan.app.nearby.bean.VipUser;
 import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.bean.user.DetailUser;
 import com.zhan.app.nearby.bean.user.LoginUser;
+import com.zhan.app.nearby.bean.user.RankUser;
 import com.zhan.app.nearby.cache.UserCacheService;
 import com.zhan.app.nearby.comm.AccountStateType;
 import com.zhan.app.nearby.comm.AvatarIMGStatus;
@@ -489,8 +491,11 @@ public class UserService {
 			user.setHas_followed(1);
 			relationShip=4;
 			r.addAttribute("coins", giftService.getUserCoins(aid, user_id_for));
-			
-			user.setHead_video(videoService.loadLatestConfirmVideo(user_id_for));
+			Video v=videoService.loadLatestConfirmVideo(user_id_for);
+			if(v!=null) {
+				v.setUser(null);
+			}
+			user.setHead_video(v);
 			
 		}else {
 			user.setHas_followed(userDao.isFollowed(uid, user_id_for) ? 1 : 0);
@@ -506,7 +511,12 @@ public class UserService {
 				relationShip = 7;
 			}
 			r.addAttribute("coins", 0);
-			user.setHead_video(videoService.loadConfirmdVideo(user_id_for));
+			
+			Video v=videoService.loadConfirmdVideo(user_id_for);
+			if(v!=null) {
+				v.setUser(null);
+			}
+			user.setHead_video(v);
 		}
 		
 		
@@ -1226,6 +1236,26 @@ public class UserService {
 	public ModelMap followUsers(long user_id, boolean isFollowMe, Integer page, Integer count) {
 		int c = count == null ? 20 : count;
 		List<BaseUser> users = userDao.followUsers(user_id, isFollowMe, page == null ? 1 : page, c);
+		ImagePathUtil.completeAvatarsPath(users, true);
+		long last_id = users.size() == 0 ? 0 : users.get(users.size() - 1).getUser_id();
+		return ResultUtil.getResultOKMap().addAttribute("users", users).addAttribute("hasMore", users.size() == c)
+				.addAttribute("last_id", last_id);
+	}
+	
+	public ModelMap getFollowUsers(long user_id, boolean isFollowMe, Integer page, Integer count) {
+		int c = count == null ? 20 : count;
+		List<RankUser> users = userDao.getFollowUsersByUid(user_id, page == null ? 1 : page, count==null?10:count);
+		ImagePathUtil.completeAvatarsPath(users, true);
+		long last_id = users.size() == 0 ? 0 : users.get(users.size() - 1).getUser_id();
+		return ResultUtil.getResultOKMap().addAttribute("users", users).addAttribute("hasMore", users.size() == c)
+				.addAttribute("last_id", last_id);
+	}
+	
+	
+
+	public ModelMap getUserFans(long user_id,Integer page, Integer count) {
+		int c = count == null ? 20 : count;
+		List<RankUser> users = userDao.getFansByUid(user_id, page==null?1:page, count==null?10:count);
 		ImagePathUtil.completeAvatarsPath(users, true);
 		long last_id = users.size() == 0 ? 0 : users.get(users.size() - 1).getUser_id();
 		return ResultUtil.getResultOKMap().addAttribute("users", users).addAttribute("hasMore", users.size() == c)

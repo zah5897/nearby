@@ -1,5 +1,6 @@
 package com.zhan.app.nearby.controller;
 
+import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.Iterator;
@@ -9,12 +10,14 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.multipart.support.DefaultMultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -31,6 +34,7 @@ import com.zhan.app.nearby.comm.FoundUserRelationship;
 import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.service.MainService;
 import com.zhan.app.nearby.service.ManagerService;
+import com.zhan.app.nearby.task.CommAsyncTask;
 import com.zhan.app.nearby.util.IPUtil;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.ImageSaveUtils;
@@ -49,6 +53,10 @@ public class WebManagerController {
 	@Resource
 	private MainService mainService;
 
+	@Autowired
+	private CommAsyncTask commAsyncTask;
+	
+	
 	@RequestMapping(value = "/")
 	public ModelAndView index(HttpServletRequest request) {
 		if (managerService.isLogin(request)) {
@@ -985,42 +993,29 @@ public class WebManagerController {
 		return list_bottle(request, type, pageSize, pageIndex, bottle_id);
 	}
 
-	// 获取提现申请记录
-	@RequestMapping(value = "/add_black_words")
-	public @ResponseBody ModelMap add_black_words(int type, String words, HttpServletRequest request) {
-
+	@RequestMapping(value = "/edit_key_words")
+	public @ResponseBody ModelMap add_black_words(int type,HttpServletRequest request) throws IOException {
 		if (!managerService.isLogin(request)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
-
-		if (type == 0) { // 下载
-			if (ImageSaveUtils.getFilterWordsFilePath() != null) {
-				return ResultUtil.getResultOKMap().addAttribute("download_path", ImagePathUtil.getFilterWordsPath());
-			} else {
-				return ResultUtil.getResultOKMap();
-			}
-		} else if (type == 1) { // 添加
-			if (words == null || TextUtils.isEmpty(words)) {
-				return ResultUtil.getResultOKMap();
-			}
-			String[] wordArray = words.split(",");
-			for (String word : wordArray) {
-				mainService.addBlackWord(word);
-			}
-			return ResultUtil.getResultOKMap();
-		} else if (type == 3) {
-			if (words == null || TextUtils.isEmpty(words)) {
-				return ResultUtil.getResultOKMap();
-			}
-			String[] wordArray = words.split(",");
-			for (String word : wordArray) {
-				mainService.removeBlackWord(word);
-			}
-			return ResultUtil.getResultOKMap();
-		}else {
-			return ResultUtil.getResultOKMap();
+		if(request instanceof MultipartHttpServletRequest) {
+			DefaultMultipartHttpServletRequest dRequest=(DefaultMultipartHttpServletRequest) request;
+				Iterator<String> iterator = dRequest.getFileNames();
+				while (iterator.hasNext()) {
+					MultipartFile file = dRequest.getFile((String) iterator.next());
+					if (!file.isEmpty()) {
+						String mgc=new String(file.getBytes(),"UTF-8");
+						 if(type==1) {
+							 commAsyncTask.addMGC(mgc);
+						 }else {
+							 commAsyncTask.delMGC(mgc);
+						 }
+						
+					}
+		       }
 		}
 
+		return ResultUtil.getResultOKMap();
 	}
 
 	// 获取提现申请记录

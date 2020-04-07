@@ -1277,12 +1277,18 @@ public class UserController {
 	public Map<String, Object> add_extra(long user_id, String token, String content) throws Exception {
 		return userService.addCoin(user_id, token, content);
 	}
-
+	
 	@ApiOperation(httpMethod = "POST", value = "获取某用户关注的人列表") // swagger 当前接口注解
 	@RequestMapping("follow/{uid}")
 	public ModelMap my_follow(@PathVariable long uid, Integer page, Integer count)
 			throws Exception {
 		return userService.followUsers(uid, false, page, count);
+	}
+	@ApiOperation(httpMethod = "POST", value = "获取某用户关注的人列表") // swagger 当前接口注解
+	@RequestMapping("follow_v2/{uid}")
+	public ModelMap follow_v2(@PathVariable long uid, Integer page, Integer count)
+			throws Exception {
+		return userService.getFollowUsers(uid, false, page, count);
 	}
 	
 	@ApiOperation(httpMethod = "POST", value = "获取某人认证视频信息") // swagger 当前接口注解
@@ -1299,6 +1305,14 @@ public class UserController {
 			throws Exception {
 		return userService.followUsers(uid, true, page, count);
 	}
+	
+	@ApiOperation(httpMethod = "POST", value = "获取某用户的粉丝列表") // swagger 当前接口注解
+	@RequestMapping("fans_v2/{uid}")
+	public ModelMap getfansByUid(@PathVariable long uid,Integer page, Integer count)
+			throws Exception {
+		return userService.getUserFans(uid,page, count);
+	}
+	
 	@ApiOperation(httpMethod = "POST", value = "关闭该账号") // swagger 当前接口注解
 	@RequestMapping("close")
 	public ModelMap close(long user_id, String token) throws Exception {

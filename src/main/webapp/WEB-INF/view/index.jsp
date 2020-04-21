@@ -34,8 +34,6 @@
     <li><a href="<%=path %>/manager/forword?path=dynamic_illegal" target="right"><span class="icon-caret-right"></span>违规动态</a></li>
     <li><a href="<%=path %>/manager/forword?path=topic_manager" target="right"><span class="icon-caret-right"></span>话题管理</a></li>
    
-    <li><a href="<%=path %>/manager/forword?path=gift_manager" target="right"><span class="icon-caret-right"></span>礼物管理</a></li>
-   
   </ul>   
   
    <h2><span class="icon-user"></span>用户管理</h2>
@@ -54,51 +52,66 @@
   </ul>  
   
   
+   <h2><span class="icon-user"></span>评论管理</h2>
+   <ul>
+    <li><a href="<%=path %>/manager/forword?path=dynamic_comment_check" target="right"><span class="icon-caret-right"></span>动态评论</a></li>
+  </ul> 
+  
+   <h2><span class="icon-user"></span>礼物</h2>
+   <ul>
+     <li><a href="<%=path %>/manager/forword?path=gift_history" target="right"><span class="icon-caret-right"></span>礼物清单</a></li>
+     <li><a href="<%=path %>/manager/forword?path=gift_manager" target="right"><span class="icon-caret-right"></span>礼物管理</a></li>
+    </ul> 
+  
+  
    <h2><span class="icon-user"></span>会员管理</h2>
    <ul>
     <li><a href="<%=path %>/manager/forword?path=vip_manager" target="right"><span class="icon-caret-right"></span>会员类型</a></li>
-  </ul>  
+  </ul>
   
+  <!-- 
    <h2><span class="icon-user"></span>约会管理</h2>
    <ul>
     <li><a href="<%=path %>/manager/forword?path=appointment_check" target="right"><span class="icon-caret-right"></span>约会审核</a></li>
   </ul>  
-     
    <h2><span class="icon-user"></span>短视频管理</h2>
    <ul>
     <li><a href="<%=path %>/manager/forword?path=shortvideo_check" target="right"><span class="icon-caret-right"></span>短视频审核</a></li>
     <li><a href="<%=path %>/manager/forword?path=user_shortvideo_cert" target="right"><span class="icon-caret-right"></span>短视频认证</a></li>
    </ul>  
-   
    <h2><span class="icon-user"></span>金币管理</h2>
    <ul>
     <li><a href="<%=path %>/manager/forword?path=rule_manager" target="right"><span class="icon-caret-right"></span>金币购买规则项</a></li>
-  </ul>   
+  </ul>  
    <h2><span class="icon-user"></span>提现管理</h2>
    <ul>
     <li><a href="<%=path %>/manager/forword?path=exchange_manager" target="right"><span class="icon-caret-right"></span>提现审批</a></li>
   </ul> 
-  
+  --> 
    <h2><span class="icon-user"></span>举报管理</h2>
    <ul>
     <li><a href="<%=path %>/manager/forword?path=report_manager" target="right"><span class="icon-caret-right"></span>举报列表</a></li>
   </ul> 
   
   
-  <h2><span class="icon-user"></span>瓶子管理（池部分）</h2>
+  <h2><span class="icon-user"></span>瓶子管理</h2>
    <ul>
     <li><a href="<%=path %>/manager/forword?path=bottle_manager" target="right"><span class="icon-caret-right"></span>瓶子列表</a></li>
-    <li><a href="<%=path %>/manager/forword?path=filter_txt_key_word" target="right"><span class="icon-caret-right"></span>瓶子敏感词管理</a></li>
+    <li><a href="<%=path %>/manager/forword?path=filter_txt_key_word" target="right"><span class="icon-caret-right"></span>敏感词管理</a></li>
   </ul> 
   
+  <!--  
     <h2><span class="icon-user"></span>推广</h2>
    <ul>
     <li><a href="<%=path %>/manager/forword?path=user_spread_list" target="right"><span class="icon-caret-right"></span>推广用户</a></li>
   </ul> 
+  -->
+  
+  
     <h2><span class="icon-user"></span>人工处理</h2>
    <ul>
     <li><a href="<%=path %>/manager/forword?path=charge_vip" target="right"><span class="icon-caret-right"></span>充值会员</a></li>
-    <li><a href="<%=path %>/manager/forword?path=charge_coin" target="right"><span class="icon-caret-right"></span>充值扇贝</a></li>
+    <!--<li><a href="<%=path %>/manager/forword?path=charge_coin" target="right"><span class="icon-caret-right"></span>充值扇贝</a></li>-->
     <li><a href="<%=path %>/manager/forword?path=change_pwd" target="right"><span class="icon-caret-right"></span>修改管理员密码</a></li>
   </ul> 
   
@@ -137,7 +150,7 @@ function dateFtt(fmt,date)
     "m+" : date.getMinutes(),                 //分   
     "s+" : date.getSeconds(),                 //秒   
     "q+" : Math.floor((date.getMonth()+3)/3),  //季度   
-    "S"  : date.getMilliseconds()             //毫秒   
+    "S"  : date.getMilliseconds()           //毫秒  
   };   
   if(/(y+)/.test(fmt))   
     fmt=fmt.replace(RegExp.$1, (date.getFullYear()+"").substr(4 - RegExp.$1.length));   

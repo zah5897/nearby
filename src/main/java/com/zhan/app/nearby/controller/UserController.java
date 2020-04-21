@@ -1013,6 +1013,14 @@ public class UserController {
 				}
 			}
 		}
+		
+		if(!TextUtils.isEmpty(signature)) {
+			signature=BottleKeyWordUtil.filterContent(signature);
+		}
+		if(!TextUtils.isEmpty(want_to_where)) {
+			want_to_where=BottleKeyWordUtil.filterContent(want_to_where);
+		}
+		
 		userService.modify_info(user_id, nick_name, birthday, jobs, height, weight, signature, my_tags, interest,
 				favourite_animal, favourite_music, weekday_todo, footsteps, want_to_where, isNick_modify, birth_city_id,
 				contact, newSex);
@@ -1311,6 +1319,18 @@ public class UserController {
 	public ModelMap getfansByUid(@PathVariable long uid,Integer page, Integer count)
 			throws Exception {
 		return userService.getUserFans(uid,page, count);
+	}
+	
+	
+
+	@ApiOperation(httpMethod = "POST", value = "关闭app") // swagger 当前接口注解
+	@RequestMapping("exit_app")
+	public ModelMap exit_app(long user_id, String token) throws Exception {
+		if (!userService.checkLogin(user_id, token)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		  userService.exitApp(user_id);
+		  return ResultUtil.getResultOKMap();
 	}
 	
 	@ApiOperation(httpMethod = "POST", value = "关闭该账号") // swagger 当前接口注解

@@ -131,7 +131,7 @@ public class TimerTask {
 		if (lock) {
 
 			UserService userService = SpringContextUtil.getBean("userService");
-			userService.removeTimeoutOnlineUsers(4);
+			userService.removeTimeoutOnlineUsers(30);
 		}
 	}
 

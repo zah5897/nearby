@@ -24,6 +24,8 @@ import com.zhan.app.nearby.dao.base.BaseDao;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.TextUtils;
 
+import io.swagger.models.auth.In;
+
 @Repository("giftDao")
 public class GiftDao extends BaseDao<Gift> {
 	@Resource
@@ -346,5 +348,55 @@ public class GiftDao extends BaseDao<Gift> {
 		}
 	}
 
+	public int getGiftHistoryCount(Long send_user_id) {
+		if(send_user_id!=null) {
+			return jdbcTemplate.queryForObject("select count(*) from t_gift_own where from_uid="+send_user_id, Integer.class);
+		}
+		return jdbcTemplate.queryForObject("select count(*) from t_gift_own", Integer.class);
+	}
 
+	public List<GiftOwn> getGifNoticeByManager(Long send_user_id, int page, int count) {
+		
+		
+		BeanPropertyRowMapper<GiftOwn> mapper=new BeanPropertyRowMapper<GiftOwn>(GiftOwn.class) {
+			@Override
+			public GiftOwn mapRow(ResultSet rs, int rowNumber) throws SQLException {
+				// TODO Auto-generated method stub
+				GiftOwn giftO= super.mapRow(rs, rowNumber);
+				BaseUser sender=new BaseUser();
+				sender.setUser_id(rs.getLong("from_uid"));
+				sender.setNick_name(rs.getString("sname"));
+				sender.setAvatar(rs.getString("savatar"));
+				giftO.setSender(sender);
+				
+				BaseUser receiver=new BaseUser();
+				receiver.setUser_id(rs.getLong("user_id"));
+				receiver.setNick_name(rs.getString("rname"));
+				receiver.setAvatar(rs.getString("ravatar"));
+				giftO.setReceiver(receiver);
+				return giftO;
+			}
+		};
+		
+		if(send_user_id!=null) {
+			String sql = "select o.*,s.nick_name as sname ,s.avatar as savatar ,r.nick_name as rname ,r.avatar as ravatar,o.gift_id as id,g.price as price,o.from_uid as give_uid ,g.image_url as image_url,g.name as name "
+					+ " from t_gift_own o "
+					+ " left join t_gift g on o.gift_id=g.id "
+					+ " left join t_user s on o.from_uid=s.user_id "
+					+ " left join t_user r on o.user_id=r.user_id "
+					+ " where o.user_id=? order by o.give_time desc limit ?,?";
+			return jdbcTemplate.query(sql, new Object[] { send_user_id, (page - 1) * count, count },
+					mapper);
+		}
+		
+		String sql = "select o.*,s.nick_name as sname ,s.avatar as savatar ,r.nick_name as rname ,r.avatar as ravatar,o.gift_id as id,g.price as price,o.from_uid as give_uid ,g.image_url as image_url,g.name as name "
+				+ " from t_gift_own o "
+				+ " left join t_gift g on o.gift_id=g.id "
+				+ " left join t_user s on o.from_uid=s.user_id "
+				+ " left join t_user r on o.user_id=r.user_id "
+				+ "   order by o.give_time desc limit ?,?";
+		return jdbcTemplate.query(sql, new Object[] {(page - 1) * count, count },
+				mapper);
+
+	}
 }

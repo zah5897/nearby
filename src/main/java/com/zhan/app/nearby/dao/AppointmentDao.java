@@ -29,7 +29,7 @@ public class AppointmentDao extends BaseDao<Appointment> {
 		List<Object> params = new ArrayList<Object>();
 
 		StringBuilder sql = new StringBuilder(
-				"select a.*,u.user_id,u.nick_name,u.sex,u.avatar,u.birthday,u.lat,u.lng,u.isvip,c.name as city_name,th.id as tid,th.name as thname  from "
+				"select a.*,u.user_id,u.nick_name,u.sex,u.avatar,u.birthday,u.lat,u.lng,u.isvip,u.video_cert_status,c.name as city_name,th.id as tid,th.name as thname  from "
 						+ getTableName() + " a left join t_user u on a.uid=u.user_id "
 						+ "left join t_sys_city c on a.city_id=c.id "
 						+ "left join t_appointment_theme th on a.theme_id=th.id   where ((a.uid=? and a.status=?) or a.status=?) ");
@@ -87,15 +87,17 @@ public class AppointmentDao extends BaseDao<Appointment> {
 				+ "left join t_appointment_theme th on a.theme_id=th.id where a.status=? order by a.id desc limit ?,?";
 		return jdbcTemplate.query(sql, new Object[] { status, (page - 1) * count, count }, appointmentMapper);
 	}
+
 	public List<Appointment> loadUserAppointments(long uid, Integer last_id, int count) {
-		if(last_id==null) {
-			last_id=Integer.MAX_VALUE;
+		if (last_id == null) {
+			last_id = Integer.MAX_VALUE;
 		}
 		String sql = "select a.*,u.user_id,u.nick_name,u.sex,u.avatar,u.lat,u.lng,u.isvip,u.birthday,c.name as city_name,th.id as tid,th.name as thname  from "
 				+ getTableName() + " a left join t_user u on a.uid=u.user_id "
 				+ "left join t_sys_city c on a.city_id=c.id "
 				+ "left join t_appointment_theme th on a.theme_id=th.id where a.uid=? and a.status=? and a.id<? order by a.id desc limit ?";
-		return jdbcTemplate.query(sql, new Object[] { uid,AppointmentStatus.CHECKED.ordinal(),last_id, count }, appointmentMapper);
+		return jdbcTemplate.query(sql, new Object[] { uid, AppointmentStatus.CHECKED.ordinal(), last_id, count },
+				appointmentMapper);
 	}
 
 	public int deleteById(long user_id, Integer id) {
@@ -130,6 +132,11 @@ public class AppointmentDao extends BaseDao<Appointment> {
 			user.setLng(rs.getString("lng"));
 			user.setIsvip(rs.getInt("isvip"));
 			user.setBirthday(rs.getDate("birthday"));
+			try {
+				user.setVideo_cert_status(rs.getInt("video_cert_status"));
+			} catch (Exception e) {
+                    
+			}
 			user.setAge(DateTimeUtil.getAge(user.getBirthday()));
 			ImagePathUtil.completeAvatarPath(user, true);
 
@@ -177,9 +184,9 @@ public class AppointmentDao extends BaseDao<Appointment> {
 		if (!apps.isEmpty()) {
 			return apps.get(0);
 		}
-		
+
 		return null;
-		
+
 	}
 
 }

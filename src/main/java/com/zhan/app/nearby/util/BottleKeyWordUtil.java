@@ -33,11 +33,11 @@ public class BottleKeyWordUtil {
 
 	public static Set<String> loadFilterWords() throws IOException {
 
-		if (isWindows()) {
-			Set<String> set = new HashSet<String>();
-			set.add("敏感词");
-			return set;
-		}
+//		if (isWindows()) {
+//			Set<String> set = new HashSet<String>();
+//			set.add("敏感词");
+//			return set;
+//		}
 //			 
 		MainService service = SpringContextUtil.getBean("mainService");
 		Set<String> staffsSet = new HashSet<String>(service.loadBlackWords());

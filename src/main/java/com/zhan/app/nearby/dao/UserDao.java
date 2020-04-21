@@ -14,6 +14,7 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
+import org.springframework.ui.ModelMap;
 
 import com.zhan.app.nearby.bean.Avatar;
 import com.zhan.app.nearby.bean.City;
@@ -902,20 +903,19 @@ public class UserDao extends BaseDao<BaseUser> {
 
 //	@Cacheable(value = "five_minute", key = "#root.methodName+'_'+#page+'_'+#count")
 	public List<LoginUser> getRankOnlineUsers(int count,Date time_point) {
-		String sql = "select u.user_id,u.nick_name,u.avatar,l.check_time as last_login_time ,u.sex,u.isvip,u.lat,u.lng,u.video_cert_status ,ifnull(gift.tval,'0') as shanbei " + " from t_user_online l"
-				+ "  inner join t_user u on l.uid=u.user_id"
+		String sql = "select u.user_id,u.nick_name,u.avatar,u.last_login_time ,u.sex,u.isvip,u.lat,u.lng,u.video_cert_status ,ifnull(gift.tval,'0') as shanbei " + " from t_user u"
 				+ "  left join "
 				+ " (select tg.user_id ,sum(tg.val) as tval from (select o.*,o.count*g.price as val from  t_gift_own o left join t_gift g on o.gift_id=g.id) as tg group by tg.user_id) gift "
-				+ "on l.uid=gift.user_id "
+				+ "on u.user_id=gift.user_id "
 				+ " where u.isFace=1 ";
 		
 		
 		if(time_point==null) {
-			sql+=" order by l.check_time desc limit ?";
+			sql+=" order by u.last_login_time desc limit ?";
 			return jdbcTemplate.query(sql, new Object[] { count },
 					new BeanPropertyRowMapper<LoginUser>(LoginUser.class));
 		}else {
-			sql+=" and l.check_time<? order by l.check_time desc limit ?";
+			sql+=" and u.last_login_time<? order by u.last_login_time desc limit ?";
 			return jdbcTemplate.query(sql, new Object[] {time_point,count },
 					new BeanPropertyRowMapper<LoginUser>(LoginUser.class));
 		}
@@ -936,9 +936,9 @@ public class UserDao extends BaseDao<BaseUser> {
 		return jdbcTemplate.queryForObject(sql, Date.class);
 	}
 
-	public void removeTimeoutOnlineUsers(int timeoutDay) {
-		String sql = "delete from t_user_online where check_time < DATE_SUB(NOW(),INTERVAL ? DAY)";
-		jdbcTemplate.update(sql, new Object[] { timeoutDay });
+	public void removeTimeoutOnlineUsers(int minutes) {
+		String sql = "delete from t_user_online where check_time < DATE_SUB(NOW(),INTERVAL ? MINUTE)";
+		jdbcTemplate.update(sql, new Object[] { minutes });
 	}
 
 	// 鏍规嵁鐘舵�佽幏鍙栧鏍哥殑澶村儚鍒楄〃
@@ -1352,5 +1352,9 @@ public class UserDao extends BaseDao<BaseUser> {
 
 	public void updateNotifyTime(long uid) {
 		 jdbcTemplate.update("update t_user_online set notify_cmd_time=? where uid=?",new Object[] {new Date(),uid});	
+	}
+
+	public void cleanOnline(long user_id) {
+		 jdbcTemplate.update("delete from  t_user_online where uid="+user_id);	
 	}
 }

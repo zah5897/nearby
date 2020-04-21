@@ -16,6 +16,7 @@ import com.zhan.app.nearby.service.MainService;
 import com.zhan.app.nearby.service.UserService;
 import com.zhan.app.nearby.task.CommAsyncTask;
 import com.zhan.app.nearby.util.BottleKeyWordUtil;
+import com.zhan.app.nearby.util.HX_SessionUtil;
 import com.zhan.app.nearby.util.IPUtil;
 import com.zhan.app.nearby.util.ResultUtil;
 import com.zhan.app.nearby.util.baidu.ImgCheckHelper;
@@ -108,9 +109,15 @@ public class SystemController {
 		return mainService.test_redis();
 	}
 
+	@RequestMapping("test_black_words")
+	public String test_black_words(String w) {
+		return BottleKeyWordUtil.filterContent(w);
+	}
+	
 	@RequestMapping("test")
-	public ModelMap test(long uid) {
-		commAsyncTask.userOnLineNotify(uid);
+	public ModelMap test(long f,long to) {
+//		HX_SessionUtil.pushOnLine(userService.getBaseUserNoToken(f),new String[] {String.valueOf(to)});
+		HX_SessionUtil.pushVip(to);
 		return ResultUtil.getResultOKMap();
 	}
 	

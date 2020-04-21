@@ -161,7 +161,7 @@ public class VipService {
 	}
 
 	public ModelMap globalInfo() {
-		int count=vipDao.getUserVipCount();
+		int count=vipDao.getUserVipCount()*1000+1;
 		List<BaseUser> users=vipDao.latest4VipUser();
 		ImagePathUtil.completeAvatarsPath(users, true);
 		return ResultUtil.getResultOKMap().addAttribute("total_count",count).addAttribute("users", users);

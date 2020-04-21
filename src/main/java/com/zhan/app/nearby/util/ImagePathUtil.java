@@ -317,8 +317,10 @@ public class ImagePathUtil {
 
 	public static void completeGiftsOwnPath(List<GiftOwn> gifts, boolean thumbAndOrigin) {
 		if (gifts != null && gifts.size() > 0) {
-			for (Gift gift : gifts) {
+			for (GiftOwn gift : gifts) {
 				completeGiftPath(gift, thumbAndOrigin);
+				completeAvatarPath(gift.getReceiver(), thumbAndOrigin);
+				completeAvatarPath(gift.getSender(), thumbAndOrigin);
 			}
 		}
 	}

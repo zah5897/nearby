@@ -209,7 +209,7 @@ public class BottleController {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "不支持弹幕瓶子");
 		}
 		if (_ua.startsWith("a")) {
-			if ("2.0.6".compareTo(version) == 0) { // ios审核临界版本号
+			if ("2.0.5".compareTo(version) == 0) { // ios审核临界版本号
 				state = BottleState.IOS_REVIEW.ordinal();
 			}
 		}

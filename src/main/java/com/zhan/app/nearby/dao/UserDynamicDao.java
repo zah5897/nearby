@@ -20,6 +20,7 @@ import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.bean.UserDynamicRelationShip;
 import com.zhan.app.nearby.bean.mapper.DynamicMapper;
 import com.zhan.app.nearby.bean.user.BaseUser;
+import com.zhan.app.nearby.comm.DynamicCommentStatus;
 import com.zhan.app.nearby.comm.DynamicState;
 import com.zhan.app.nearby.comm.FoundUserRelationship;
 import com.zhan.app.nearby.comm.ImageStatus;
@@ -62,7 +63,7 @@ public class UserDynamicDao extends BaseDao<UserDynamic> {
 	public List<UserDynamic> getHomeFoundSelected(long user_id, Long last_id, int page_size, City city) {
 		String sql = "select dy.*,"
 				+ " coalesce((select relationship from t_like_dynamic t_like where t_like.dynamic_id=dy.id and t_like.user_id=?), '0') as like_state ,"
-				+ " u.user_id , u.nick_name ,u.avatar,u.sex ,u.birthday ,u.type, u.isvip " + "from "
+				+ " u.user_id , u.nick_name ,u.avatar,u.sex ,u.birthday,u.video_cert_status ,u.type, u.isvip " + "from "
 				+ getTableName() + " dy left join " + TABLE_HOME_FOUND_SELECTED + " hs "
 				+ " on dy.id=hs.dynamic_id " + " left join t_user u on  dy.user_id=u.user_id "
 				+ " where (hs.selected_state=?  or dy.user_id=? ) and dy.id<?   " + cityIn(city)
@@ -194,7 +195,7 @@ public class UserDynamicDao extends BaseDao<UserDynamic> {
 				+ " where c.status<>? and  c.dynamic_id=? and c.id<? and  c.pid=0 order by c.id desc limit ?";
 		return jdbcTemplate
 				.query(sql,
-						new Object[] { FoundUserRelationship.GONE.ordinal(), dynamic_id,
+						new Object[] { DynamicCommentStatus.ILLEGAL.ordinal(), dynamic_id,
 								last_comment_id <= 0 ? Long.MAX_VALUE : last_comment_id, count },
 						new DynamicCommentMapper());
 
@@ -310,9 +311,10 @@ public class UserDynamicDao extends BaseDao<UserDynamic> {
 	}
 
 	public List<UserDynamic> loadFollow(long user_id, long last_id, int count) {
+		
 		String sql = "select d.*,"
 				+ "coalesce((select relationship from t_like_dynamic t_like where t_like.dynamic_id=d.id and t_like.user_id=?), '0') as like_state ,"
-				+ "u.user_id ,u.nick_name ,u.avatar,u.sex ,u.birthday ,u.type ,u.isvip  "
+				+ "u.user_id ,u.nick_name ,u.avatar,u.sex,u.video_cert_status ,u.birthday ,u.type ,u.isvip  "
 				+ "from t_user_follow f left join  t_user_dynamic d on f.target_id=d.user_id "
 				+ "left join t_user u on  d.user_id=u.user_id "
 				+ "where  d.state=? and  f.uid=? and  d.id<? and f.target_id not in (select with_user_id from t_user_relationship where user_id=? and relationship=?) "
@@ -358,7 +360,7 @@ public class UserDynamicDao extends BaseDao<UserDynamic> {
 		String sql = "select c.*,u.nick_name,u.avatar,u.sex,u.isvip " + "from t_dynamic_comment c  "
 				+ "left join t_user u on c.user_id=u.user_id     where c.status<>? and  c.dynamic_id=? and c.pid=? and c.id>? order by c.id limit ?";
 
-		return jdbcTemplate.query(sql, new Object[] { FoundUserRelationship.GONE.ordinal(), did, pid, last_id, count },
+		return jdbcTemplate.query(sql, new Object[] { DynamicCommentStatus.ILLEGAL.ordinal(), did, pid, last_id, count },
 				new BeanPropertyRowMapper<DynamicComment>(DynamicComment.class) {
 					@Override
 					public DynamicComment mapRow(ResultSet rs, int rowNumber) throws SQLException {
@@ -410,4 +412,39 @@ public class UserDynamicDao extends BaseDao<UserDynamic> {
 		jdbcTemplate.update(sql, new Object[] { user_id, dynamic_id, new Date(), gif_id, count });
 	}
 
+	public int getDynamicCommentCount(Long user_id) {
+		if(user_id==null) {
+			return jdbcTemplate.queryForObject("select count(*) from "+getTableName(DynamicComment.class) +" where status=?",new Object[] {DynamicCommentStatus.CREATE}, Integer.class);
+		}else {
+			return jdbcTemplate.queryForObject("select count(*) from "+getTableName(DynamicComment.class) +" where status=? and user_id=? ",new Object[] {DynamicCommentStatus.CREATE,user_id}, Integer.class);
+		}
+	}
+
+	public List<DynamicComment> loadDynamicCommentToCheck(Long user_id,int page,int count) {
+		
+		if(user_id==null) {
+			String sql = "select c.*,u.nick_name,u.avatar,u.sex,u.isvip  from t_dynamic_comment c "
+					+ "left join t_user u on c.user_id=u.user_id  "
+					+ " where c.status=?  order by c.id desc limit ?,?";
+			return jdbcTemplate
+					.query(sql,
+							new Object[] { DynamicCommentStatus.CREATE,(page-1)*count, count},
+							new DynamicCommentMapper());
+		}else {
+			String sql = "select c.*,u.nick_name,u.avatar,u.sex,u.isvip  from t_dynamic_comment c "
+					+ "left join t_user u on c.user_id=u.user_id  "
+					+ " where c.status=? and c.user_id=?  order by c.id desc limit ?,?";
+			return jdbcTemplate
+					.query(sql,
+							new Object[] { DynamicCommentStatus.CREATE,user_id,(page-1)*count, count},
+							new DynamicCommentMapper());
+		}
+		
+		
+
+	}
+
+	public void changeCommentStatus(int id, int status) {
+		 jdbcTemplate.update("update "+getTableName(DynamicComment.class)+" set status=? where id=?",status,id);
+	}
 }

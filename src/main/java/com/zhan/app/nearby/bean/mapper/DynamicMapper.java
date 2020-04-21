@@ -56,6 +56,10 @@ public class DynamicMapper implements RowMapper<UserDynamic> {
 			user.setIsvip(is_vip);
 		} catch (Exception e) {
 		}
+		try {
+			user.setVideo_cert_status(rs.getInt("video_cert_status"));
+		} catch (Exception e) {
+		}
 		user.setAge(DateTimeUtil.getAge(birthday));
 		ImagePathUtil.completeAvatarPath(user, true);
 

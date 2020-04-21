@@ -1575,5 +1575,9 @@ public class UserService {
 			userDao.updateNotifyTime(Long.parseLong(id));
 		}
 	}
+
+	public void exitApp(long user_id) {
+		  userDao.cleanOnline(user_id);
+	}
 	 
 }

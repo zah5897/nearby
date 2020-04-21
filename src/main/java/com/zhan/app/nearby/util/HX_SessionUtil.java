@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
+import org.apache.taglibs.standard.extra.spath.SPathFilter;
 
 import com.easemob.server.example.Main;
 import com.zhan.app.nearby.bean.Bottle;
@@ -12,6 +13,7 @@ import com.zhan.app.nearby.bean.type.BottleType;
 import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.comm.ChatConversationType;
 import com.zhan.app.nearby.comm.PushMsgType;
+import com.zhan.app.nearby.service.VipService;
 
 public class HX_SessionUtil {
 
@@ -162,7 +164,7 @@ public class HX_SessionUtil {
 		ext = new HashMap<String, String>();
 		ext.put("msg", "vip 到账通知");
 		ext.put("type", ChatConversationType.TYPE_BUY_VIP);
-		Main.sendCmdMessage(new String[] { String.valueOf(to_user_id) }, ext);
+	    Main.sendCmdMessageVipInfo(new String[] { String.valueOf(to_user_id) }, ext);
 	}
 	
 	public static void pushOnLine(BaseUser user, String[] to_user_ids) {
@@ -176,9 +178,12 @@ public class HX_SessionUtil {
 		Map<String, String> data = new HashMap<String, String>();
 		data.put("content",  user.getNick_name()+"用户上线通知");
 		data.put("type",  ChatConversationType.TYPE_ONLINE_USER);
+		Map<String, String> online_user = new HashMap<String, String>();
+		putDataInfo(online_user, user);
+		data.put("online_user", JSONUtil.writeValueAsString(online_user));
 		putDataInfo(data, user);
 		ext.put("data", JSONUtil.writeValueAsString(data));
-		Main.sendCmdMessage(to_user_ids, ext);
+		Main.sendCmdMessageOnlineMsg(to_user_ids, ext,user);
 	}
 	
 //	public static void sendReplayBottle(BaseUser user, long target, String msg, Map<String, String> ext,
@@ -211,7 +216,7 @@ public class HX_SessionUtil {
 		ext.put("origin_avatar", avatar);
 	}
 	
-	private static void putDataInfo(Map<String, String> data,BaseUser by) {
+	public static void putDataInfo(Map<String, String> data,BaseUser by) {
 		data.put("sender_user_id", String.valueOf(by.getUser_id()));
 		data.put("sender_nickname", by.getNick_name());
 		data.put("sender_avatar", ImagePathUtil.completeStrAvatarPath(by.getAvatar()));

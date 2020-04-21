@@ -44,14 +44,15 @@ public class VideoDao extends BaseDao<Video> {
 				videoMapper);
 	}
 
-	public List<Video> listAll(Long last_id, int count, Integer type, Integer secret_level) {
+	public List<Video> listAll(long uid,Long last_id, int count, Integer type, Integer secret_level) {
 
 		String sql = "select v.* ,u.user_id,u.nick_name ,u.avatar,u.sex,u.isvip,o.check_time,p.create_time as pt ,s.create_time as st from "
 				+ TABLE_VIDEO + " v left join t_user u on v.uid=u.user_id  left join " + TABLE_VIDEO_PRAISE_HISTORY
 				+ " p on p.video_id=v.id  left join " + TABLE_VIDEO_STORE_HISTORY + " s on s.video_id=v.id "
-				+ " left join t_user_online o on o.uid=v.uid  where v.status=? ";
+				+ " left join t_user_online o on o.uid=v.uid  where (v.uid=? or v.status=?) ";
 
 		List<Object> params = new ArrayList<Object>();
+		params.add(uid);
 		params.add(VideoStatus.CHECKED.ordinal());
 		if (last_id != null) {
 			sql += " and v.id<? ";
@@ -67,7 +68,7 @@ public class VideoDao extends BaseDao<Video> {
 			sql += " and v.secret_level=?";
 			params.add(secret_level);
 		}
-		sql += " order by v.id desc limit ?";
+		sql += " group by v.id order by v.id desc limit ?";
 		params.add(count);
 		return jdbcTemplate.query(sql, params.toArray(), videoMapper);
 	}

@@ -25,7 +25,6 @@ public class DynamicComment implements Serializable{
 	@JsonIgnore
 	private long user_id;
 
-	@JsonIgnore
 	private long dynamic_id;
 
 	private String content;
@@ -44,7 +43,6 @@ public class DynamicComment implements Serializable{
 	private List<DynamicComment> sub_comm;
 	
 	//评论状态
-	@JsonIgnore
 	private int status;
  
 	public long getId() {

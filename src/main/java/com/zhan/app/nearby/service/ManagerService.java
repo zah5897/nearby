@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.zhan.app.nearby.bean.Appointment;
 import com.zhan.app.nearby.bean.Bottle;
+import com.zhan.app.nearby.bean.DynamicComment;
+import com.zhan.app.nearby.bean.GiftOwn;
 import com.zhan.app.nearby.bean.ManagerUser;
 import com.zhan.app.nearby.bean.Report;
 import com.zhan.app.nearby.bean.Topic;
@@ -66,10 +68,13 @@ public class ManagerService {
 	private VideoService videoService;
 	
 	@Autowired
+	private GiftService giftService;
+	
+	@Autowired
 	private HXAsyncTask hxTask;
 
-	public int getHomeFoundSelectedCount() {
-		return managerDao.getHomeFoundSelectedCount();
+	public int getHomeFoundSelectedCount(Long user_id) {
+		return managerDao.getHomeFoundSelectedCount(user_id);
 	}
 
 	public boolean mLogin(HttpServletRequest request, String name, String pwd) {
@@ -101,8 +106,8 @@ public class ManagerService {
 		return userDynamicService.getPageCountByState(state);
 	}
 
-	public List<UserDynamic> getHomeFoundSelected(int pageIndex, int pageSize) {
-		return managerDao.getHomeFoundSelected(pageIndex, pageSize);
+	public List<UserDynamic> getHomeFoundSelected(Long user_id,int pageIndex, int pageSize) {
+		return managerDao.getHomeFoundSelected(user_id,pageIndex, pageSize);
 	}
 
 	// 根据状态获取动态
@@ -110,16 +115,16 @@ public class ManagerService {
 		return userDynamicService.getDyanmicByState(pageIndex, pageSize, state);
 	}
 
-	public int getUnSelectedCount(String nick_name) {
-		return managerDao.getUnSelectedCount(nick_name);
+	public int getUnSelectedCount(Long user_id,String nick_name) {
+		return managerDao.getUnSelectedCount(user_id,nick_name);
 	}
 
-	public List<UserDynamic> getUnSelected(int pageIndex, int pageSize) {
-		return managerDao.getUnSelected(pageIndex, pageSize, null);
+	public List<UserDynamic> getUnSelected(Long user_id,String nick_name,int pageIndex, int pageSize) {
+		return managerDao.getUnSelected(user_id,nick_name,pageIndex, pageSize);
 	}
 
-	public List<UserDynamic> getUnSelected(int pageIndex, int pageSize, String nick_name) {
-		return managerDao.getUnSelected(pageIndex, pageSize, nick_name);
+	public List<UserDynamic> getUnSelected(String nick_name,int pageIndex, int pageSize) {
+		return managerDao.getUnSelected(null,nick_name,pageIndex, pageSize);
 	}
 
 	public int removeFromSelected(long id) {
@@ -330,21 +335,21 @@ public class ManagerService {
 		return mainService.getReportSizeByApproval(approval_type);
 	}
 
-	public List<Bottle> listBottleByState(int state, int pageSize, int pageIndex, Long bottle_id) {
+	public List<Bottle> listBottleByState(Long user_id,int state, int pageSize, int pageIndex, Long bottle_id) {
 		long realId;
 		if (bottle_id == null || bottle_id < 1) {
 			realId = 0;
 		} else {
 			realId = bottle_id;
 		}
-		return bottleService.getBottlesByState(state, pageSize, pageIndex, realId);
+		return bottleService.getBottlesByState(user_id,state, pageSize, pageIndex, realId);
 	}
 
-	public int getBottleCountWithState(int state, Long bottle_id) {
+	public int getBottleCountWithState(Long uid,int state, Long bottle_id) {
 		if (bottle_id != null && bottle_id > 0) {
 			return 1;
 		}
-		return bottleService.getBottleCountWithState(state);
+		return bottleService.getBottleCountWithState(uid,state);
 	}
 
 	public void changeBottleState(int id, int to_state) {
@@ -541,5 +546,55 @@ public class ManagerService {
 		r.addAttribute("data", data);
 		return r;
 	}
+	//----------动态评论相关--------------------------------------------------------------
 	
+	
+	public ModelMap loadDynamicComment(Long user_id,int page, int count) {
+
+		ModelMap r = ResultUtil.getResultOKMap();
+		if (page == 1) {
+			int totalSize = userDynamicService.getDynamicCommentCount(user_id);
+			int pageCount = totalSize / count;
+			if (totalSize % count > 0) {
+				pageCount += 1;
+			}
+			if (pageCount == 0) {
+				pageCount = 1;
+			}
+			r.put("pageCount", pageCount);
+		}
+		r.put("currentPageIndex", page);
+		
+		List<DynamicComment> data=userDynamicService.loadDynamicCommentToCheck(user_id,page, count);
+		r.addAttribute("data", data);
+		return r;
+	}
+	public ModelMap change_dynamic_comment_status(Long user_id,int id,  int status,int page, int count) {
+		userDynamicService.changeCommentStatus(id,status);
+		return loadDynamicComment(user_id,page,count);
+	}
+	
+	//----------礼物清单-----------------------
+	
+	public ModelMap loadGiftHistoryList(Long user_id,int page, int count) {
+
+		ModelMap r = ResultUtil.getResultOKMap();
+		if (page == 1) {
+			int totalSize = giftService.getGiftHistoryCount(user_id);
+			int pageCount = totalSize / count;
+			if (totalSize % count > 0) {
+				pageCount += 1;
+			}
+			if (pageCount == 0) {
+				pageCount = 1;
+			}
+			r.put("pageCount", pageCount);
+		}
+		r.put("currentPageIndex", page);
+		
+		List<GiftOwn> data=giftService.getGifNoticeByManager(user_id, page, count);
+		ImagePathUtil.completeGiftsOwnPath(data, true);
+		r.addAttribute("data", data);
+		return r;
+	}
 }

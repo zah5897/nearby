@@ -393,7 +393,7 @@ public class BottleDao extends BaseDao<Bottle> {
 		return -1;
 	}
 
-	public List<Bottle> getBottlesByState(int state, int pageSize, int pageIndex, long bottle_id) {
+	public List<Bottle> getBottlesByState(Long user_id,int state, int pageSize, int pageIndex, long bottle_id) {
 
 		Object[] param;
 		String sql;
@@ -426,10 +426,14 @@ public class BottleDao extends BaseDao<Bottle> {
 		});
 	}
 
-	public int getBottleCountWithState(int state) {
+	public int getBottleCountWithState(Long user_id,int state) {
 		String sql = "select count(*) from t_bottle_pool p left join t_bottle b on p.bottle_id=b.id where b.state=?";
 		if (state == -1) {
 			sql = "select count(*) from t_bottle_pool p left join  t_bottle  b on p.bottle_id=b.id where b.state<>?";
+		}
+		
+		if(user_id!=null) {
+			sql+=" and b.user_id="+user_id;
 		}
 		return jdbcTemplate.queryForObject(sql, new Object[] { state }, Integer.class);
 	}

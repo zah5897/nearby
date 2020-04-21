@@ -2,6 +2,7 @@ package com.zhan.app.nearby.dao;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -35,63 +36,120 @@ public class ManagerDao extends BaseDao<ManagerUser> {
 //		return saveObj(jdbcTemplate, TABLE_USER_DYNAMIC, dyanmic);
 //	}
 
-	public List<UserDynamic> getHomeFoundSelected(int pageIndex, int pageSize) {
-		String sql = "select dynamic.*, user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday,user.type ,user.isvip from "
-				+ TABLE_USER_DYNAMIC + " dynamic left join " + TABLE_HOME_FOUND_SELECTED
-				+ " selected on dynamic.id=selected.dynamic_id left join t_user user on  dynamic.user_id=user.user_id  where selected.selected_state=?   order by dynamic.id desc limit ?,?";
-		return jdbcTemplate.query(sql,
-				new Object[] { ImageStatus.SELECTED.ordinal(), (pageIndex - 1) * pageSize, pageSize },
-				new DynamicMapper());
+	public List<UserDynamic> getHomeFoundSelected(Long user_id,int pageIndex, int pageSize) {
+		if(user_id==null) {
+			String sql = "select dynamic.*, user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday,user.type ,user.isvip from "
+					+ TABLE_USER_DYNAMIC + " dynamic left join " + TABLE_HOME_FOUND_SELECTED
+					+ " selected on dynamic.id=selected.dynamic_id left join t_user user on  dynamic.user_id=user.user_id  where selected.selected_state=?   order by dynamic.id desc limit ?,?";
+			return jdbcTemplate.query(sql,
+					new Object[] { ImageStatus.SELECTED.ordinal(), (pageIndex - 1) * pageSize, pageSize },
+					new DynamicMapper());
+		}else {
+			String sql = "select dynamic.*, user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday,user.type ,user.isvip from "
+					+ TABLE_USER_DYNAMIC + " dynamic left join " + TABLE_HOME_FOUND_SELECTED
+					+ " selected on dynamic.id=selected.dynamic_id left join t_user user on  dynamic.user_id=user.user_id  "
+					+ " where selected.selected_state=?  and dynamic.user_id=?   order by dynamic.id desc limit ?,?";
+			return jdbcTemplate.query(sql,
+					new Object[] { ImageStatus.SELECTED.ordinal(),user_id, (pageIndex - 1) * pageSize, pageSize },
+					new DynamicMapper());
+		}
 
 	}
 
-	public List<UserDynamic> getUnSelected(int pageIndex, int pageSize,String nick_name) {
+	public List<UserDynamic> getUnSelected(Long user_id,String nick_name,int pageIndex, int pageSize ) {
 		
-	 
-		if(!TextUtils.isEmpty(nick_name)) {
-
-			String sql = "select dynamic.*  ,user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.isvip,user.birthday,user.type from "
-					+ TABLE_USER_DYNAMIC
-					+ " dynamic left join t_user user on  dynamic.user_id=user.user_id  where dynamic.id not in(select dynamic_id from "
-					+ TABLE_HOME_FOUND_SELECTED
-					+ " where selected_state=? or selected_state=? )  and dynamic.state=1  and dynamic.user_id in (select user_id from t_user where nick_name like ?) order by dynamic.id desc limit ?,?";
-			return jdbcTemplate.query(sql, new Object[] { ImageStatus.SELECTED.ordinal(), ImageStatus.IGNORE.ordinal(),"%"+nick_name+"%",
-					(pageIndex - 1) * pageSize, pageSize }, new DynamicMapper());
-		}
+		
+		
+		
+//		String sql = "select dynamic.*  ,user.user_id  ,user.nick_name ,user.avatar,user.sex,user.isvip ,user.birthday,user.type from "
+//				+ TABLE_USER_DYNAMIC
+//				+ " dynamic left join t_user user on  dynamic.user_id=user.user_id  where dynamic.id not in(select dynamic_id from "
+//				+ TABLE_HOME_FOUND_SELECTED
+//				+ " where selected_state=? or selected_state=? )  and dynamic.state=1  order by dynamic.id desc limit ?,?";
+//		return jdbcTemplate.query(sql, new Object[] { ImageStatus.SELECTED.ordinal(), ImageStatus.IGNORE.ordinal(),
+//				(pageIndex - 1) * pageSize, pageSize }, new DynamicMapper());
+		
 		
 		
 		String sql = "select dynamic.*  ,user.user_id  ,user.nick_name ,user.avatar,user.sex,user.isvip ,user.birthday,user.type from "
 				+ TABLE_USER_DYNAMIC
 				+ " dynamic left join t_user user on  dynamic.user_id=user.user_id  where dynamic.id not in(select dynamic_id from "
 				+ TABLE_HOME_FOUND_SELECTED
-				+ " where selected_state=? or selected_state=? )  and dynamic.state=1  order by dynamic.id desc limit ?,?";
-		return jdbcTemplate.query(sql, new Object[] { ImageStatus.SELECTED.ordinal(), ImageStatus.IGNORE.ordinal(),
-				(pageIndex - 1) * pageSize, pageSize }, new DynamicMapper());
+				+ " where selected_state=? or selected_state=? )  and dynamic.state=1  ";
+		
+		List<Object> param=new ArrayList<>();
+		
+		param.add(ImageStatus.SELECTED.ordinal());
+		param.add(ImageStatus.IGNORE.ordinal());
+		
+		if(!TextUtils.isEmpty(nick_name)) {
+			sql+=" and dynamic.user_id in (select user_id from t_user where nick_name like ?)";
+			param.add("%"+nick_name+"%");
+		}		
+			
+		if(user_id!=null) {
+			sql+=" and dynamic.user_id =? ";
+			param.add(user_id);
+		}
+		sql+=" order by dynamic.id desc limit ?,?";
+		param.add((pageIndex - 1) * pageSize);
+		param.add(pageSize);
+		return jdbcTemplate.query(sql, param.toArray(), new DynamicMapper());
+	 
+//		if(!TextUtils.isEmpty(nick_name)) {
+//
+//			String sql = "select dynamic.*  ,user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.isvip,user.birthday,user.type from "
+//					+ TABLE_USER_DYNAMIC
+//					+ " dynamic left join t_user user on  dynamic.user_id=user.user_id  where dynamic.id not in(select dynamic_id from "
+//					+ TABLE_HOME_FOUND_SELECTED
+//					+ " where selected_state=? or selected_state=? )  and dynamic.state=1  and dynamic.user_id in (select user_id from t_user where nick_name like ?) order by dynamic.id desc limit ?,?";
+//			return jdbcTemplate.query(sql, new Object[] { ImageStatus.SELECTED.ordinal(), ImageStatus.IGNORE.ordinal(),"%"+nick_name+"%",
+//					(pageIndex - 1) * pageSize, pageSize }, new DynamicMapper());
+//		}
+//		
+//		
+//		String sql = "select dynamic.*  ,user.user_id  ,user.nick_name ,user.avatar,user.sex,user.isvip ,user.birthday,user.type from "
+//				+ TABLE_USER_DYNAMIC
+//				+ " dynamic left join t_user user on  dynamic.user_id=user.user_id  where dynamic.id not in(select dynamic_id from "
+//				+ TABLE_HOME_FOUND_SELECTED
+//				+ " where selected_state=? or selected_state=? )  and dynamic.state=1  order by dynamic.id desc limit ?,?";
+//		return jdbcTemplate.query(sql, new Object[] { ImageStatus.SELECTED.ordinal(), ImageStatus.IGNORE.ordinal(),
+//				(pageIndex - 1) * pageSize, pageSize }, new DynamicMapper());
 
 	}
 
-	public int getHomeFoundSelectedCount() {
-		String sql = "select  count(*) from " + TABLE_USER_DYNAMIC + " dynamic left join " + TABLE_HOME_FOUND_SELECTED
-				+ " selected on dynamic.id=selected.dynamic_id    where selected.selected_state=? and dynamic.state=1 ";
-		return jdbcTemplate.queryForObject(sql, new Object[] { ImageStatus.SELECTED.ordinal() }, Integer.class);
+	public int getHomeFoundSelectedCount(Long user_id) {
+		if(user_id==null) {
+			String sql = "select  count(*) from " + TABLE_USER_DYNAMIC + " dynamic left join " + TABLE_HOME_FOUND_SELECTED
+					+ " selected on dynamic.id=selected.dynamic_id    where selected.selected_state=? and dynamic.state=1 ";
+			return jdbcTemplate.queryForObject(sql, new Object[] { ImageStatus.SELECTED.ordinal() }, Integer.class);
+		}else {
+			String sql = "select  count(*) from " + TABLE_USER_DYNAMIC + " dynamic left join " + TABLE_HOME_FOUND_SELECTED
+					+ " selected on dynamic.id=selected.dynamic_id    where selected.selected_state=? and dynamic.state=1 and  dynamic.user_id=?";
+			return jdbcTemplate.queryForObject(sql, new Object[] { ImageStatus.SELECTED.ordinal(),user_id }, Integer.class);
+		}
 	}
 
 	// 获取未选中的（前提为被审核通过的）
-	public int getUnSelectedCount(String nick_name) {
-		if(TextUtils.isEmpty(nick_name)) {
-			String sql = "select count(*) from " + TABLE_USER_DYNAMIC
-					+ " dynamic    where dynamic.id not in(select dynamic_id from " + TABLE_HOME_FOUND_SELECTED
-					+ " where selected_state=? or selected_state=?) and dynamic.state=1 ";
-			return jdbcTemplate.queryForObject(sql,
-					new Object[] { ImageStatus.SELECTED.ordinal(), ImageStatus.SELECTED.ordinal() }, Integer.class);
-		}else {
-			String sql = "select count(*) from " + TABLE_USER_DYNAMIC
-					+ " dynamic    where dynamic.id not in(select dynamic_id from " + TABLE_HOME_FOUND_SELECTED
-					+ " where selected_state=? or selected_state=?) and dynamic.state=1 and  dynamic.user_id in (select user_id from t_user where nick_name like ?)";
-			return jdbcTemplate.queryForObject(sql,
-					new Object[] { ImageStatus.SELECTED.ordinal(), ImageStatus.SELECTED.ordinal(),"%"+nick_name+"%" }, Integer.class);
+	public int getUnSelectedCount(Long user_id,String nick_name) {
+		String sql = "select count(*) from " + TABLE_USER_DYNAMIC
+				+ " dynamic    where dynamic.id not in(select dynamic_id from " + TABLE_HOME_FOUND_SELECTED
+				+ " where selected_state=? ) and dynamic.state=1 ";
+		
+		List<Object> param=new ArrayList<Object>();
+		param.add(ImageStatus.SELECTED.ordinal());
+		
+		if(!TextUtils.isEmpty(nick_name)) {
+			sql+=" and dynamic.user_id in (select user_id from t_user where nick_name like ?)";
+			param.add("%"+nick_name+"%");
 		}
 		
+		if(user_id!=null) {
+			sql+=" and dynamic.user_id=? ";
+			param.add(user_id);
+		}
+		
+		return jdbcTemplate.queryForObject(sql,param.toArray(), Integer.class);
 	}
 
 	public int removeFromSelected(long id) {

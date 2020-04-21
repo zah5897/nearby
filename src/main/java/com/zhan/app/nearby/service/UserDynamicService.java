@@ -229,4 +229,13 @@ public class UserDynamicService {
 		userDynamicDao.addFlowerCount(dynamic_id, count);
 	}
 
+	public int getDynamicCommentCount(Long user_id) {
+		return userDynamicDao.getDynamicCommentCount(user_id);
+	}
+	public List<DynamicComment> loadDynamicCommentToCheck(Long user_id,int page,int count) {
+		return userDynamicDao.loadDynamicCommentToCheck(user_id,page,count);
+	}
+	public void changeCommentStatus(int id,int status) {
+		  userDynamicDao.changeCommentStatus(id,status);
+	}
 }

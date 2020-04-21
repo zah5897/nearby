@@ -113,8 +113,8 @@ public class VideoController {
 			@ApiImplicitParam(name = "type", value = "视频标题,0为普通短视频，1为头像视频，2为发布的动态视频,3为认证短视频",  paramType = "query"),
 			@ApiImplicitParam(name = "secret_level", value = "视频等级，0为公开，1为私密，默认公开",  paramType = "query"),
 			@ApiImplicitParam(name = "count", value = "count", required = true, paramType = "query") })
-	public ModelMap list(Long last_id, int count,Integer type,Integer secret_level) {
-		List<Video> list = videoService.list(last_id, count,type,secret_level);
+	public ModelMap list(long user_id,Long last_id, int count,Integer type,Integer secret_level) {
+		List<Video> list = videoService.list(user_id,last_id, count,type,secret_level);
 		if(!list.isEmpty()) {
 			last_id=list.get(list.size()-1).getId();
 		}

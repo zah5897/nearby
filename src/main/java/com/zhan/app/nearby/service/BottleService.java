@@ -507,12 +507,12 @@ public class BottleService {
 		return 0;
 	}
 
-	public List<Bottle> getBottlesByState(int state, int pageSize, int pageIndex, long bottle_id) {
-		return bottleDao.getBottlesByState(state, pageSize, pageIndex, bottle_id);
+	public List<Bottle> getBottlesByState(Long user_id,int state, int pageSize, int pageIndex, long bottle_id) {
+		return bottleDao.getBottlesByState(user_id ,state, pageSize, pageIndex, bottle_id);
 	}
 
-	public int getBottleCountWithState(int state) {
-		return bottleDao.getBottleCountWithState(state);
+	public int getBottleCountWithState(Long user_id,int state) {
+		return bottleDao.getBottleCountWithState(user_id,state);
 	}
 
 	public void changeBottleState(int id, int to_state) {

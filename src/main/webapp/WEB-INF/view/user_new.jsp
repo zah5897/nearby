@@ -140,7 +140,8 @@
 			currentPageIndex=json["currentPageIndex"]
 			if(currentPageIndex==1){
 				pageCount=json["pageCount"];
-				$("#new_count").text("对应新增用户数量："+json["totalCount"])
+				//$("#new_count").text("对应新增用户数量："+json["totalCount"])
+				$("#new_count").text("统计0点以后的用户："+json["totalCount"])
 			}
 			refreshPageIndex();		
 		}

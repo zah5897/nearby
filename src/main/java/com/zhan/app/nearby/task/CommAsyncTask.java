@@ -1,6 +1,5 @@
 package com.zhan.app.nearby.task;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -132,10 +131,11 @@ public class CommAsyncTask {
 		if (TextUtils.isEmpty(words)) {
 			return;
 		}
+		words.replace("，", ",");
 		String[] wordArray = words.split(",");
 		MainService mainService = SpringContextUtil.getBean("mainService");
 		for (String word : wordArray) {
-			mainService.addBlackWord(word);
+			mainService.addBlackWord(word.trim());
 		}
 		
 		BottleKeyWordUtil.refreshFilterWords();
@@ -146,10 +146,11 @@ public class CommAsyncTask {
 		if (TextUtils.isEmpty(words)) {
 			return;
 		}
+		words.replace("，", ",");
 		String[] wordArray = words.split(",");
 		MainService mainService = SpringContextUtil.getBean("mainService");
 		for (String word : wordArray) {
-		   mainService.deleteBlackWord(word);
+		   mainService.deleteBlackWord(word.trim());
 		}
 		BottleKeyWordUtil.refreshFilterWords();
 	}

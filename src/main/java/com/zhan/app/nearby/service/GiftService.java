@@ -310,4 +310,12 @@ public class GiftService {
 				giftDao.getTotalExchangeDiamond(user_id)).addAttribute("hasMore", hasMore);
 	}
 
+	public int getGiftHistoryCount(Long user_id) {
+		return giftDao.getGiftHistoryCount(user_id);
+	}
+	
+	public List<GiftOwn> getGifNoticeByManager(Long send_user_id, int page, int count) {
+		return giftDao.getGifNoticeByManager(send_user_id,page,count);
+	}
+
 }

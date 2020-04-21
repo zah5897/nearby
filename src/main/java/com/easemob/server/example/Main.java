@@ -15,8 +15,12 @@ import com.easemob.server.example.comm.wrapper.BodyWrapper;
 import com.easemob.server.example.comm.wrapper.ResponseWrapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.zhan.app.nearby.bean.user.BaseUser;
+import com.zhan.app.nearby.service.VipService;
+import com.zhan.app.nearby.util.DateTimeUtil;
+import com.zhan.app.nearby.util.HX_SessionUtil;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.JSONUtil;
+import com.zhan.app.nearby.util.SpringContextUtil;
 
 public class Main {
 	public static EasemobRestAPIFactory factory;
@@ -231,32 +235,78 @@ public class Main {
 		return message.sendMessage(payload);
 	}
 
-	public static Object sendCmdMessage(String[] toUsers, Map<String, String> ext) {
-
-		if (ext == null) {
-			ext = new HashMap<String, String>();
-		}
-		ext.put("send_by_admim", SYS);
-
+	public static Object sendCmdMessageVipInfo(String[] toUsers, Map<String, String> ext) {
+		
+		
 		Map<String, String> apns = new HashMap<String, String>();
-		apns.put("type", ext.get("type"));
-		apns.put("msg", ext.get("msg"));
-
-		apns.put("em_push_content", ext.get("msg"));
-		apns.put("em_push_name", "漂流瓶交友");
-		apns.put("extern", ext.get("msg"));
+		createCmdMsg(toUsers,ext,apns);
+		
+		VipService vipService=SpringContextUtil.getBean("vipService");
+		apns.put("buy_vip_info", JSONUtil.writeValueAsString(vipService.globalInfo()));
 		try {
 			ext.put("em_apns_ext", JSONUtil.writeValueAsString(apns));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
 		initFactory();
 		BodyWrapper payload = new CmdMessageBody("users", toUsers, SYS, ext);
 		SendMessageAPI message = (SendMessageAPI) factory.newInstance(EasemobRestAPIFactory.SEND_MESSAGE_CLASS);
 
 		return message.sendMessage(payload);
 	}
+	public static Object sendCmdMessageOnlineMsg(String[] toUsers, Map<String, String> ext,BaseUser onlineUser) {
+		
+		
+		Map<String, String> apns = new HashMap<String, String>();
+		createCmdMsg(toUsers,ext,apns);
+		
+		Map<String, String> onlineUserMap = new HashMap<String, String>();
+		HX_SessionUtil.putDataInfo(onlineUserMap, onlineUser);
+		onlineUserMap.put("sender_sex", onlineUser.getSex());
+		onlineUserMap.put("sender_age",DateTimeUtil.getAge(onlineUser.getBirthday()));
+		apns.put("online_user", JSONUtil.writeValueAsString(onlineUserMap));
+		try {
+			ext.put("em_apns_ext", JSONUtil.writeValueAsString(apns));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		initFactory();
+		BodyWrapper payload = new CmdMessageBody("users", toUsers, SYS, ext);
+		SendMessageAPI message = (SendMessageAPI) factory.newInstance(EasemobRestAPIFactory.SEND_MESSAGE_CLASS);
+		
+		return message.sendMessage(payload);
+	}
+	
+	public static Object sendCmdMessage(String[] toUsers, Map<String, String> ext) {
+		Map<String, String> apns = new HashMap<String, String>();
+		createCmdMsg(toUsers,ext,apns);
+		try {
+			ext.put("em_apns_ext", JSONUtil.writeValueAsString(apns));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		initFactory();
+		BodyWrapper payload = new CmdMessageBody("users", toUsers, SYS, ext);
+		SendMessageAPI message = (SendMessageAPI) factory.newInstance(EasemobRestAPIFactory.SEND_MESSAGE_CLASS);
+
+		return message.sendMessage(payload);
+	}
+	
+	
+	private static void createCmdMsg(String[] toUsers, Map<String, String> ext,Map<String, String> apns) {
+		if (ext == null) {
+			ext = new HashMap<String, String>();
+		}
+		ext.put("send_by_admim", SYS);
+		apns.put("type", ext.get("type"));
+		apns.put("msg", ext.get("msg"));
+
+		apns.put("em_push_content", ext.get("msg"));
+		apns.put("em_push_name", "漂流瓶交友");
+		apns.put("extern", ext.get("msg"));
+	}
+	
 
 	public static Object addFriend(String user_id, String friend_id) {
 		initFactory();

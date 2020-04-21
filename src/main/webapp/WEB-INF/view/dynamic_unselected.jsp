@@ -30,15 +30,23 @@
 			</div>
 			<div class="padding border-bottom">
 				<ul class="search">
+				
+				
+				 <li>
+			         <input type="text" placeholder="请输入用户id" name="user_id_input" class="input" style="width:250px; line-height:17px;display:inline-block" />
+                     <a href="javascript:void(0)" class="button border-main icon-search" onclick="doSearchById()" > 搜索</a>
+                   </li> 
+				 <li>
+			        <input type="text" placeholder="请输入用户昵称" name="user_nick_name_input" class="input" style="width:150px; line-height:17px;display:inline-block" />
+                         <a href="javascript:void(0)" class="button border-main icon-search" onclick="doSearchByName()" > 搜索</a>
+                   </li> 
+				
 					<li>
 						<button type="button" class="button border-green" id="checkall">
 							<span class="icon-check"></span>全选</button>
 						<button type="button" id="add_batch" class="button border-yellow">
 							<span class="icon-plus-square-o"></span>批量添加
 						</button>
-						
-			             <input type="text" placeholder="请输入用户昵称" name="user_nick_name_input" class="input" style="width:150px; line-height:17px;display:inline-block" />
-                         <a href="javascript:void(0)" class="button border-main icon-search" onclick="doSearchById()" > 搜索</a>
 						
 					</li>
 				</ul>
@@ -73,6 +81,7 @@
 	    var pageSize = 10;
 	    var pageCount = 100;
 	    var nickName;
+	    var user_id;
 	    //默认加载第一页
 	    $(document).ready(function(){ 
 		     page(1);
@@ -95,18 +104,24 @@
 	    
 	    
 		 function doSearchById(){
+		    	var uid=$("[name='user_id_input']").val().replace(/^\s+|\s+$/g,"");
+		    	user_id=uid;
+		    	currentPage=0;
+		    	page(1);
+		    }
+	    
+		 function doSearchByName(){
 		    	var nick_name=$("[name='user_nick_name_input']").val().replace(/^\s+|\s+$/g,"");
 		    	nickName=nick_name;
 		    	currentPage=0;
 		    	page(1);
 		    }
-	    
 	     //获取对应页面
 		function page(index) {
 			if (currentPage == index) {
 				return false;
 			}
-			$.post("<%=path%>/manager/unselected_dynamic_list",{'pageIndex':index,'nick_name':nickName},function(result){
+			$.post("<%=path%>/manager/unselected_dynamic_list",{'pageIndex':index,'nick_name':nickName,'user_id':user_id},function(result){
 				 var json=JSON.parse(result);
 			        if(json.code==0){
 			        	$("table tr[id*='tr_'").each(function(i){
@@ -192,7 +207,7 @@
 		 
 		
 		function add(id) {
-				$.post("<%=path%>/manager/add_to_selected",{id:id,currentPage:currentPage},function(result){
+				$.post("<%=path%>/manager/add_to_selected",{id:id,currentPage:currentPage,'nick_name':nickName,'user_id':user_id},function(result){
 			        $("#tr_"+id).remove();//移除当前的元素
 			        
 			        var json=JSON.parse(result);
@@ -212,7 +227,7 @@
 			    });
 		}
 		function ignore(id) {
-				$.post("<%=path%>/manager/ignore",{id:id,currentPage:currentPage},function(result){
+				$.post("<%=path%>/manager/ignore",{id:id,currentPage:currentPage,'nick_name':nickName,'user_id':user_id},function(result){
 			        $("#tr_"+id).remove();//移除当前的元素
 			        
 			        var json=JSON.parse(result);
@@ -235,7 +250,7 @@
 		
 		function del(id) {
 			
-			$.post("<%=path%>/manager/dynamic_del",{id:id,currentPage:currentPage},function(result){
+			$.post("<%=path%>/manager/dynamic_del",{id:id,currentPage:currentPage,'nick_name':nickName,'user_id':user_id},function(result){
 		        $("#tr_"+id).remove();//移除当前的元素
 		        
 		        var json=JSON.parse(result);
@@ -257,7 +272,7 @@
 	}
 		function illegal(id) {
 			
-			$.post("<%=path%>/manager/illegal_unselected",{id:id,currentPage:currentPage},function(result){
+			$.post("<%=path%>/manager/illegal_unselected",{id:id,currentPage:currentPage,'nick_name':nickName,'user_id':user_id},function(result){
 		        $("#tr_"+id).remove();//移除当前的元素
 		        
 		        var json=JSON.parse(result);

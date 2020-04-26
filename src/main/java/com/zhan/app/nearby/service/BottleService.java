@@ -28,8 +28,8 @@ import com.zhan.app.nearby.comm.AndroidChannel;
 import com.zhan.app.nearby.comm.BottleAnswerState;
 import com.zhan.app.nearby.comm.BottleState;
 import com.zhan.app.nearby.comm.DynamicMsgType;
-import com.zhan.app.nearby.comm.FoundUserRelationship;
 import com.zhan.app.nearby.comm.Relationship;
+import com.zhan.app.nearby.comm.SysUserStatus;
 import com.zhan.app.nearby.dao.BottleDao;
 import com.zhan.app.nearby.dao.UserDao;
 import com.zhan.app.nearby.dao.VipDao;
@@ -100,7 +100,7 @@ public class BottleService {
 
 	public boolean isBlackUser(long user_id) {
 		int state = userDao.getUserState(user_id);
-		return state == FoundUserRelationship.GONE.ordinal();
+		return state == SysUserStatus.BLACK.ordinal();
 	}
 
 	/**

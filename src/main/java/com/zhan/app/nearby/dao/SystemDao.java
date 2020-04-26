@@ -131,12 +131,12 @@ public class SystemDao extends BaseDao<Report> {
 	 */
 	public List<BaseUser> loadMaxRateMeiLiRandom(Long ignoreUserId, String gender,  int limit) {
 		if (TextUtils.isEmpty(gender)) {
-			String sql = "select u.user_id,u.nick_name,u.avatar,u.sex,u.birthday,u.birth_city_id, u.city_id ,u.isvip from   t_user u left join t_found_user_relationship s on u.user_id=s.uid   where s.state=0 and   u.user_id<>? and  u.avatar<>? order by rand() limit ?";
+			String sql = "select u.user_id,u.nick_name,u.avatar,u.sex,u.birthday,u.birth_city_id, u.city_id ,u.isvip from   t_user u   where u.sys_status=0 and   u.user_id<>? and  u.avatar<>? order by rand() limit ?";
 			return jdbcTemplate.query(sql,
 					new Object[] { ignoreUserId == null ? 0 : ignoreUserId, "",   limit },
 					new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
 		} else {
-			String sql = "select u.user_id,u.nick_name,u.avatar,u.sex,u.birthday,u.birth_city_id, u.city_id,u.isvip  from   t_user u  left join t_found_user_relationship s on u.user_id=s.uid   where s.state=0 and u.user_id<>? and u.avatar<>? and u.sex=?  order by rand() limit ?";
+			String sql = "select u.user_id,u.nick_name,u.avatar,u.sex,u.birthday,u.birth_city_id, u.city_id,u.isvip  from   t_user u      where u.sys_status=0 and u.user_id<>? and u.avatar<>? and u.sex=?  order by rand() limit ?";
 			return jdbcTemplate
 					.query(sql,
 							new Object[] { ignoreUserId == null ? 0 : ignoreUserId, "", gender, limit },

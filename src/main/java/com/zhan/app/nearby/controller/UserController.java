@@ -31,8 +31,8 @@ import com.zhan.app.nearby.bean.user.DetailUser;
 import com.zhan.app.nearby.bean.user.LoginUser;
 import com.zhan.app.nearby.cache.UserCacheService;
 import com.zhan.app.nearby.comm.AccountStateType;
-import com.zhan.app.nearby.comm.FoundUserRelationship;
 import com.zhan.app.nearby.comm.Relationship;
+import com.zhan.app.nearby.comm.SysUserStatus;
 import com.zhan.app.nearby.comm.UserType;
 import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.service.CityService;
@@ -425,7 +425,7 @@ public class UserController {
 		user.setIp(IPUtil.getIpAddress(request));
 		user.setToken(UUID.randomUUID().toString());
 		user.setAvatar(image_names);
-//		user.setNick_name(BottleKeyWordUtil.filterContent(user.getNick_name()));
+		user.setNick_name(BottleKeyWordUtil.filterContent(user.getNick_name()));
 		if (user.getBirth_city_id() == 0 && city_id != null) {
 			user.setBirth_city_id(city_id);
 		}
@@ -580,7 +580,7 @@ public class UserController {
 			return ResultUtil.getResultMap(ERROR.ERR_USER_CLOSE, "该账号已经注销");
 		}
 
-		if (userService.getUserState(user.getUser_id()) == FoundUserRelationship.GONE.ordinal()) {
+		if (userService.getUserState(user.getUser_id()) == SysUserStatus.BLACK.ordinal()) {
 			return ResultUtil.getResultMap(ERROR.ERR_USER_NOT_EXIST, "该账号因举报而无法登录");
 		}
 
@@ -1020,6 +1020,9 @@ public class UserController {
 		if(!TextUtils.isEmpty(want_to_where)) {
 			want_to_where=BottleKeyWordUtil.filterContent(want_to_where);
 		}
+		if(!TextUtils.isEmpty(contact)) {
+			contact=BottleKeyWordUtil.filterContent(contact);
+		}
 		
 		userService.modify_info(user_id, nick_name, birthday, jobs, height, weight, signature, my_tags, interest,
 				favourite_animal, favourite_music, weekday_todo, footsteps, want_to_where, isNick_modify, birth_city_id,
@@ -1232,7 +1235,7 @@ public class UserController {
 	@RequestMapping("autoLogin")
 	public ModelMap autoLogin(long user_id, String md5pwd, String aid, String device_token) {
 
-		if (userService.getUserState(user_id) == FoundUserRelationship.GONE.ordinal()) {
+		if (userService.getUserState(user_id) == SysUserStatus.BLACK.ordinal()) {
 			return ResultUtil.getResultMap(ERROR.ERR_USER_NOT_EXIST, "该账号因举报而无法登录");
 		}
 

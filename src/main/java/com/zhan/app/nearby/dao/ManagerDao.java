@@ -17,8 +17,8 @@ import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.bean.mapper.DynamicMapper;
 import com.zhan.app.nearby.comm.DynamicState;
 import com.zhan.app.nearby.comm.ExchangeState;
-import com.zhan.app.nearby.comm.FoundUserRelationship;
 import com.zhan.app.nearby.comm.ImageStatus;
+import com.zhan.app.nearby.comm.SysUserStatus;
 import com.zhan.app.nearby.comm.UserType;
 import com.zhan.app.nearby.dao.base.BaseDao;
 import com.zhan.app.nearby.util.DateTimeUtil;
@@ -216,20 +216,8 @@ public class ManagerDao extends BaseDao<ManagerUser> {
 		jdbcTemplate.update("delete  from " + TABLE_TOPIC + " where id=?", new Object[] { id });
 	}
 
-	public int setUserFoundRelationshipState(long uid, FoundUserRelationship gone) {
-		String tableName = "t_found_user_relationship";
-
-		if (gone == FoundUserRelationship.VISIBLE) {
-			return jdbcTemplate.update("delete from " + tableName + " where uid=?", new Object[] { uid });
-		}
-		int count = jdbcTemplate.queryForObject("select count(*) from t_found_user_relationship where uid=?",
-				new Object[] { uid }, int.class);
-		if (count == 0) {
-			String[] columns = { "uid", "state" ,"action_time"};
-			return insertColumns(tableName, columns, new Object[]  { uid, FoundUserRelationship.GONE.ordinal() ,new Date()}) ;
-		} else {
-			return jdbcTemplate.update("update " + tableName + " set state=?,action_time where uid=?", new Object[] { FoundUserRelationship.GONE.ordinal(),new Date(),uid});
-		}
+	public int setUserSysState(long uid, SysUserStatus status) {
+		return jdbcTemplate.update("update t_user set sys_status=? where user_id=?",status.ordinal(),uid);
 	}
 
 	/**
@@ -254,8 +242,8 @@ public class ManagerDao extends BaseDao<ManagerUser> {
 
 	public List<ManagerUser> listNewUser(int pageIndex, int pageSize, int type) {
 
-		String sql = "select user.user_id ,user._ua,user.nick_name,user.avatar,user.sex,user.type,user.channel,coalesce(ship.state,0) as state,user.create_time from t_user user"
-				+ "  left join t_found_user_relationship ship on user.user_id=ship.uid where  (type=? or type=?) and";
+		String sql = "select user.user_id ,user._ua,user.nick_name,user.avatar,user.sex,user.type,user.channel,user.sys_status as state,user.create_time from t_user user"
+				+ "  where  (type=? or type=?) and";
 		if (type == -1) { // 今日
 			sql += "  to_days(create_time) = to_days(now())";
 		} else if (type == 0) {
@@ -269,26 +257,64 @@ public class ManagerDao extends BaseDao<ManagerUser> {
 		return jdbcTemplate.query(sql, new Object[] { UserType.OFFIEC.ordinal(),UserType.THRID_CHANNEL.ordinal(), (pageIndex - 1) * pageSize, pageSize },
 				new BeanPropertyRowMapper<ManagerUser>(ManagerUser.class));
 	}
-
+	
+	
 	/**
-	 * 添加到发现用户黑名单
+	 * 根据限制条件获取新增用户总数
 	 * 
-	 * @param user_id
+	 * @param type
 	 * @return
 	 */
-	public int editUserFoundState(long user_id, FoundUserRelationship ship) {
-		int count = jdbcTemplate.update("update t_found_user_relationship set state=?,action_time=? where uid=?",
-				new Object[] { ship.ordinal(),new Date(), user_id });
-		if (count !=1) {
-			String sql = "insert into t_found_user_relationship values (?, ?,?)";
-			return jdbcTemplate.update(sql, new Object[] { user_id, ship.ordinal() ,new Date()});
+	public int getAllUserCount(Long uid,int type,String keyword) {
+		List<Object> param=new ArrayList<>();
+		
+		String sql="select count(*) from t_user where ";
+		if(type==-1) {
+			sql+=" type<>? ";
+		}else {
+			sql+=" type=?";
 		}
-		return count;
+		param.add(type);
+		if(uid!=null) {
+			sql+=" and user_id=? ";
+			param.add(uid);
+		}
+
+		if(TextUtils.isNotEmpty(keyword)) {
+			sql+=" and nick_name like ?";
+			param.add("%" + keyword + "%");
+		}
+		return jdbcTemplate.queryForObject(sql, param.toArray(), Integer.class);
 	}
 
-	public int removeUserFoundState(long user_id) {
-		return jdbcTemplate.update("delete from t_found_user_relationship where uid=?", new Object[] { user_id });
+	public List<ManagerUser> listAllUser(Long uid,int page, int count, int type,String keyword) {
+		String sql = "select user.user_id ,user._ua,user.nick_name,user.avatar,user.sex,user.type,user.channel,user.sys_status as state,user.create_time from t_user user"
+				+ "  where ";
+		
+		if(type==-1) {
+			sql+=" user.type<>? ";
+		}else {
+			sql+=" user.type=? ";
+		}	 
+		
+		List<Object> param=new ArrayList<>();
+		param.add(type);
+		if(uid!=null) {
+			sql+=" and user.user_id=? ";
+			param.add(uid);
+		}
+
+		if(TextUtils.isNotEmpty(keyword)) {
+			sql+=" and user.nick_name like ?";
+			param.add("%" + keyword + "%");
+		}
+		sql += " order by user.user_id desc limit ?,?";
+		
+		param.add((page-1)*count);
+		param.add(count);
+		return jdbcTemplate.query(sql,  param.toArray(),new BeanPropertyRowMapper<ManagerUser>(ManagerUser.class));
 	}
+	 
 
 	public int editUserMeetBottle(long user_id, int fun,String ip,String by) {
 		if (fun == 1) {

@@ -1,4 +1,4 @@
-package com.zhan.app.nearby.bean.type;
+package com.zhan.app.nearby.comm;
 
 public enum DynamicMsgStatus {
 	DEFAULE, HAD_Operation;

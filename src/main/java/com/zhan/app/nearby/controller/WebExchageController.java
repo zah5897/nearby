@@ -19,7 +19,7 @@ import org.springframework.web.servlet.view.RedirectView;
 
 import com.zhan.app.nearby.bean.user.LoginUser;
 import com.zhan.app.nearby.cache.UserCacheService;
-import com.zhan.app.nearby.comm.FoundUserRelationship;
+import com.zhan.app.nearby.comm.SysUserStatus;
 import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.service.ExchangeService;
 import com.zhan.app.nearby.service.UserService;
@@ -147,7 +147,7 @@ public class WebExchageController {
 		if (user == null) {
 			return new ModelAndView(redirectView,ResultUtil.getResultMap(ERROR.ERR_USER_NOT_EXIST));
 		}
-		if (userService.getUserState(user.getUser_id()) == FoundUserRelationship.GONE.ordinal()) {
+		if (userService.getUserState(user.getUser_id()) == SysUserStatus.BLACK.ordinal()) {
 			return new ModelAndView(redirectView,ResultUtil.getResultMap(ERROR.ERR_ACCOUNT_BLACKLIST));
 		}
 		String md5;

@@ -46,15 +46,20 @@
     <li><a href="<%=path %>/manager/forword?path=avatar_re_confirm" target="right"><span class="icon-caret-right"></span>变动头像人工复审</a></li>
     <li><a href="<%=path %>/manager/forword?path=avatar_search" target="right"><span class="icon-caret-right"></span>用户头像搜索</a></li>
     
+     <!--  
     <li><a href="<%=path %>/manager/forword?path=user_found_list" target="right"><span class="icon-caret-right"></span>发现用户列表</a></li>
+     -->
     <li><a href="<%=path %>/manager/forword?path=user_found_black_list" target="right"><span class="icon-caret-right"></span>黑名单用户</a></li>
-    <li><a href="<%=path %>/manager/forword?path=user_meet_bottle_recommend" target="right"><span class="icon-caret-right"></span>邂逅瓶推荐用户</a></li>
+   <!--  
+     <li><a href="<%=path %>/manager/forword?path=user_meet_bottle_recommend" target="right"><span class="icon-caret-right"></span>邂逅瓶推荐用户</a></li>
+    -->
   </ul>  
   
   
    <h2><span class="icon-user"></span>评论管理</h2>
    <ul>
     <li><a href="<%=path %>/manager/forword?path=dynamic_comment_check" target="right"><span class="icon-caret-right"></span>动态评论</a></li>
+    <li><a href="<%=path %>/manager/forword?path=signature_manager" target="right"><span class="icon-caret-right"></span>签名管理</a></li>
   </ul> 
   
    <h2><span class="icon-user"></span>礼物</h2>
@@ -62,14 +67,15 @@
      <li><a href="<%=path %>/manager/forword?path=gift_history" target="right"><span class="icon-caret-right"></span>礼物清单</a></li>
      <li><a href="<%=path %>/manager/forword?path=gift_manager" target="right"><span class="icon-caret-right"></span>礼物管理</a></li>
     </ul> 
-  
+   
+   <!--
   
    <h2><span class="icon-user"></span>会员管理</h2>
    <ul>
     <li><a href="<%=path %>/manager/forword?path=vip_manager" target="right"><span class="icon-caret-right"></span>会员类型</a></li>
   </ul>
   
-  <!-- 
+  
    <h2><span class="icon-user"></span>约会管理</h2>
    <ul>
     <li><a href="<%=path %>/manager/forword?path=appointment_check" target="right"><span class="icon-caret-right"></span>约会审核</a></li>
@@ -97,7 +103,7 @@
   <h2><span class="icon-user"></span>瓶子管理</h2>
    <ul>
     <li><a href="<%=path %>/manager/forword?path=bottle_manager" target="right"><span class="icon-caret-right"></span>瓶子列表</a></li>
-    <li><a href="<%=path %>/manager/forword?path=filter_txt_key_word" target="right"><span class="icon-caret-right"></span>敏感词管理</a></li>
+  
   </ul> 
   
   <!--  
@@ -113,6 +119,7 @@
     <li><a href="<%=path %>/manager/forword?path=charge_vip" target="right"><span class="icon-caret-right"></span>充值会员</a></li>
     <!--<li><a href="<%=path %>/manager/forword?path=charge_coin" target="right"><span class="icon-caret-right"></span>充值扇贝</a></li>-->
     <li><a href="<%=path %>/manager/forword?path=change_pwd" target="right"><span class="icon-caret-right"></span>修改管理员密码</a></li>
+    <li><a href="<%=path %>/manager/forword?path=filter_txt_key_word" target="right"><span class="icon-caret-right"></span>敏感词管理</a></li>
   </ul> 
   
   

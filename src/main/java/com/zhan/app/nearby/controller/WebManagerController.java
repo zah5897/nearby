@@ -30,10 +30,11 @@ import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.bean.type.BottleType;
 import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.comm.DynamicState;
-import com.zhan.app.nearby.comm.FoundUserRelationship;
+import com.zhan.app.nearby.comm.SysUserStatus;
 import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.service.MainService;
 import com.zhan.app.nearby.service.ManagerService;
+import com.zhan.app.nearby.service.UserService;
 import com.zhan.app.nearby.task.CommAsyncTask;
 import com.zhan.app.nearby.util.IPUtil;
 import com.zhan.app.nearby.util.ImagePathUtil;
@@ -52,6 +53,8 @@ public class WebManagerController {
 	private ManagerService managerService;
 	@Resource
 	private MainService mainService;
+	@Resource
+	private UserService userService;
 
 	@Autowired
 	private CommAsyncTask commAsyncTask;
@@ -742,7 +745,7 @@ public class WebManagerController {
 		}
 
 		ModelMap r = ResultUtil.getResultOKMap();
-		List<BaseUser> users = managerService.getAllUser(pageSize, pageIndex, type, keyword, user_id);
+		List<ManagerUser> users = managerService.getAllUser(pageSize, pageIndex, type, keyword, user_id);
 
 		if (pageIndex == 1) {
 			int totalSize = managerService.getUserSize(type, keyword, user_id);
@@ -755,7 +758,7 @@ public class WebManagerController {
 			}
 			r.put("pageCount", pageCount);
 		}
-		ImagePathUtil.completeAvatarsPath(users, true);
+		ImagePathUtil.completeManagerUserAvatarsPath(users, true);
 		r.put("users", users);
 		r.put("currentPageIndex", pageIndex);
 		return r;
@@ -771,7 +774,7 @@ public class WebManagerController {
 		}
 
 		ModelMap r = ResultUtil.getResultOKMap();
-		FoundUserRelationship ship = FoundUserRelationship.values()[state];
+		SysUserStatus ship = SysUserStatus.values()[state];
 		List<BaseUser> users = managerService.getFoundUsersByState(pageSize, pageIndex, ship);
 
 		if (pageIndex == 1) {
@@ -829,7 +832,7 @@ public class WebManagerController {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
 
-		FoundUserRelationship ship = FoundUserRelationship.values()[state];
+		SysUserStatus ship = SysUserStatus.values()[state];
 		managerService.editUserFoundState(user_id, ship);
 		if (fun == 0) {
 			return list_user_found_by_state(request, pageSize, pageIndex, state);
@@ -845,8 +848,7 @@ public class WebManagerController {
 		if (!managerService.isLogin(request)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
-
-		managerService.removeUserFoundState(user_id);
+		userService.setUserSysStatusToNormal(user_id);
 		return list_user_found_by_state(request, pageSize, pageIndex, state);
 	}
 
@@ -1270,5 +1272,20 @@ public class WebManagerController {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
 		return managerService.loadGiftHistoryList(user_id,page, count);
+	}
+	
+	@RequestMapping(value = "/load_signature_update_users")
+	public @ResponseBody ModelMap loadSignatureUpdateUsers(HttpServletRequest request,Long user_id,int page,int count) throws NoSuchAlgorithmException {
+		if (!managerService.isLogin(request)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		return managerService.loadSignatureUpdateUsers(user_id,page, count);
+	}
+	@RequestMapping(value = "/delete_user_signature")
+	public @ResponseBody ModelMap deleteUserSignature(HttpServletRequest request,long uid,Long user_id,int page,int count) throws NoSuchAlgorithmException {
+		if (!managerService.isLogin(request)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		return managerService.deleteUserSignature(uid,user_id,page, count);
 	}
 }

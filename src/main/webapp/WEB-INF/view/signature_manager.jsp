@@ -42,13 +42,11 @@ td {
 		
 			<table class="table table-hover text-center">
 				<tr>
-					<th width="10%">ID</th>
-					<th width="10%">动态ID</th>
-					<th width="10%">发送者ID</th>
-					<th width="10%">发送者昵称</th>
-					<th width="20%">内容</th>
-					<th width="10%">日期</th>
-					<th width="30%">操作</th>
+					<th width="10%">用户ID</th>
+					<th width="10%">用户昵称</th>
+					<th width="20%">用户头像</th>
+					<th width="20%">签名内容</th>
+					<th width="40%">操作</th>
 				</tr>
 				<tr id="bottom">
 					<td colspan="8">
@@ -67,7 +65,6 @@ td {
 	    var currentPageIndex = 0;
 	    var pageSize = 10;
 	    var pageCount = 100;
-	    var type=0;
 	    var user_id;
 	    //默认加载第一页
 	    $(document).ready(function(){ 
@@ -98,7 +95,7 @@ td {
 			if (currentPageIndex == index) {
 				return false;
 			}
-			$.post("<%=path%>/manager/dynamic_comment_list",{'page':index,'count':pageSize,'status':type,'user_id':user_id},function(result){
+			$.post("<%=path%>/manager/load_signature_update_users",{'page':index,'count':pageSize,'user_id':user_id},function(result){
 				 var json=JSON.parse(result);
 			        if(json.code==0){
 			        	$("table tr[id*='tr_'").each(function(i){
@@ -211,32 +208,24 @@ td {
 	    
 	  //
       function reviewTableTr(pageData,tr) {
-			 var currentItem=$("tr#tr_"+pageData["id"]);
+			 var currentItem=$("tr#tr_"+pageData["user_id"]);
 			 if(currentItem.length>0){
 				 return;
 			 }
-			 var id=pageData['id'];
+			 var uid=pageData['user_id'];
 			 
-			 var toAdd="<tr id='tr_"+id+"'>";
-			 toAdd+="<td>"+id+"</td>";
-			 toAdd+="<td>"+pageData['dynamic_id']+"</td>";
-			 
-			// var nick_name=pageData.publisher.nick_name;
-			 var uid=pageData.user.user_id;
-			// nick_name=nick_name==undefined?"":nick_name;
+			 var toAdd="<tr id='tr_"+uid+"'>";
 			 toAdd+="<td>"+uid+"</td>";
-			 toAdd+="<td>"+pageData.user.nick_name+"</td>";
+			 toAdd+="<td>"+pageData['nick_name']+"</td>";
+	 
+			 toAdd+="<td><img id='img_"+uid+"' src='"+pageData.avatar+"' alt='"+pageData.origin_avatar+"'  height='50' onclick='show(this)'/></td>";
 			 
-			 toAdd+="<td>"+pageData.content+"</td>";
-			 toAdd+="<td>"+pageData.comment_time+"</td>";
-			 var state=pageData["status"];
+			 
+			 toAdd+="<td>"+pageData.signature+"</td>";
 			 //操作单元格
 			  toAdd+="<td><div class='button-group'>";
 			  //操作单元格
-			  if(state==0){
-				 // toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return changeBottleState("+id+",1)'><span class='icon-edit'></span>通过</a>";
-				  toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return changeBottleState("+id+",2)'><span class='icon-edit'></span>删除</a>";
-			  } 
+		      toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return del("+uid+")'><span class='icon-edit'></span>删除</a>";
 			  toAdd+="</div></td></tr>";
 			 tr.after(toAdd);
 		}
@@ -246,10 +235,9 @@ td {
 	    }
 	   
 	    
- 	    function changeBottleState(id,newStatus){
-			$.post("<%=path%>/manager/change_dynamic_comment_status", {
-				'id' : id,
-				'status' : newStatus,
+ 	    function del(uid){
+			$.post("<%=path%>/manager/delete_user_signature", {
+				'uid' : uid,
 				'page' : currentPageIndex,
 				'user_id':user_id,
 				'count' : pageSize

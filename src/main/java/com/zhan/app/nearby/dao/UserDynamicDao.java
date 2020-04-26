@@ -22,7 +22,6 @@ import com.zhan.app.nearby.bean.mapper.DynamicMapper;
 import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.comm.DynamicCommentStatus;
 import com.zhan.app.nearby.comm.DynamicState;
-import com.zhan.app.nearby.comm.FoundUserRelationship;
 import com.zhan.app.nearby.comm.ImageStatus;
 import com.zhan.app.nearby.comm.LikeDynamicState;
 import com.zhan.app.nearby.comm.Relationship;
@@ -305,7 +304,7 @@ public class UserDynamicDao extends BaseDao<UserDynamic> {
 				new Object[] { province_id, city_id, district_id, dy_id });
 	}
 
-	public void updateCommentStatus(long user_id, FoundUserRelationship ship) {
+	public void updateCommentStatus(long user_id, DynamicCommentStatus ship) {
 		jdbcTemplate.update("update t_dynamic_comment set status=? where user_id=?",
 				new Object[] { ship.ordinal(), user_id });
 	}

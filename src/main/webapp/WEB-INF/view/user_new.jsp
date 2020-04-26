@@ -141,7 +141,7 @@
 			if(currentPageIndex==1){
 				pageCount=json["pageCount"];
 				//$("#new_count").text("对应新增用户数量："+json["totalCount"])
-				$("#new_count").text("统计0点以后的用户："+json["totalCount"])
+				//$("#new_count").text("统计0点以后的用户："+json["totalCount"])
 			}
 			refreshPageIndex();		
 		}
@@ -193,6 +193,8 @@
 			 var toAdd="<tr id='tr_"+user_id+"'>";
 			 toAdd+="<td><input type='checkbox' name='id[]' value='"+pageData["user_id"]+"' />"+pageData["user_id"]+"</td>";
 			 
+			 var state=pageData['state'];
+			 
 			 var channel=pageData['channel'];
 			 if(!channel){
 				 channel="iPhone"
@@ -201,7 +203,14 @@
 			 
 			 var nick_name=pageData.nick_name;
 			 nick_name=nick_name==undefined?"":nick_name;
-			 toAdd+="<td>"+nick_name+"</td>";
+			 
+			 if(state==1){
+				 toAdd+="<td><font color='red'>"+nick_name+"</font></td>";
+			 }else{
+				 toAdd+="<td>"+nick_name+"</td>";
+			 }
+			 
+			
 			 
 			 if(pageData.avatar!=null){
 				 toAdd+="<td><img id='img_"+user_id+"' src='"+pageData.avatar+"' alt='"+pageData.origin_avatar+"'  height='50' onclick='show(this)'/></td>";

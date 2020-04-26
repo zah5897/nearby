@@ -24,10 +24,11 @@ import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.bean.user.DetailUser;
 import com.zhan.app.nearby.bean.user.LoginUser;
 import com.zhan.app.nearby.bean.user.RankUser;
+import com.zhan.app.nearby.bean.user.SimpleUser;
 import com.zhan.app.nearby.comm.AccountStateType;
 import com.zhan.app.nearby.comm.AvatarIMGStatus;
-import com.zhan.app.nearby.comm.FoundUserRelationship;
 import com.zhan.app.nearby.comm.Relationship;
+import com.zhan.app.nearby.comm.SysUserStatus;
 import com.zhan.app.nearby.comm.UserType;
 import com.zhan.app.nearby.dao.base.BaseDao;
 import com.zhan.app.nearby.util.DateTimeUtil;
@@ -336,25 +337,21 @@ public class UserDao extends BaseDao<BaseUser> {
 
 	public List<BaseUser> getFoundUserRandom(long user_id, int realCount, int gender) {
 
-		String sql = "select u.user_id,u.nick_name,u.avatar from t_found_user_relationship f left join t_user u on f.uid=u.user_id where f.state=? and f.uid<>? and u.avatar is not null and u.sex<>? order by  RAND() limit ?";
+		String sql = "select u.user_id,u.nick_name,u.avatar from   t_user u  where u.sys_status<>? and u.user_id<>? and u.avatar is not null and u.sex<>? order by  RAND() limit ?";
 
 		List<BaseUser> users = jdbcTemplate.query(sql,
-				new Object[] { FoundUserRelationship.VISIBLE.ordinal(), user_id, gender, realCount },
+				new Object[] { SysUserStatus.BLACK.ordinal(), user_id, gender, realCount },
 				getEntityMapper());
 		return users;
 	}
 
-	public void removeFromFoundUserList(long user_id) {
-		String sql = "delete from t_found_user_relationship where uid=" + user_id;
-		jdbcTemplate.update(sql);
-	}
+
 
 	@Cacheable(value = "one_hour", key = "#root.methodName+'_'+#page+'_'+#count")
 	public List<MeiLi> getNewRegistUsers(int page, int count) {
 		String sql = "select u.user_id ,u.nick_name,u.meili,u.isvip, u.avatar,u.isvip, g.coins from t_user u "
 				+ " left join t_gift_coins g on g.uid=u.user_id "
-				+ " left join t_found_user_relationship fu on u.user_id=fu.uid "
-				+ " where  (u.type=? or u.type=?) and   (fu.state is null or fu.state<>1)  and DATE_SUB(CURDATE(), INTERVAL 15 DAY) <= date(create_time) order by u.meili desc limit ?,?";
+				+ " where  (u.type=? or u.type=?) and   u.sys_status<>1  and DATE_SUB(CURDATE(), INTERVAL 15 DAY) <= date(create_time) order by u.meili desc limit ?,?";
 
 		List<MeiLi> users = jdbcTemplate.query(sql, new Object[] {UserType.OFFIEC.ordinal(), UserType.THRID_CHANNEL.ordinal(), (page - 1) * count, count },
 				new RowMapper<MeiLi>() {
@@ -381,8 +378,7 @@ public class UserDao extends BaseDao<BaseUser> {
 	public List<RankUser> getNewRegistUsersV2(int page, int count) {
 		String sql = "select u.user_id ,u.nick_name,u.meili,u.isvip,u.lat,u.lng, u.avatar, ifnull(g.coins,'0') as shanbei from t_user u "
 				+ "left join t_gift_coins g on g.uid=u.user_id "
-				+ " left join t_found_user_relationship fu on u.user_id=fu.uid "
-				+ "where  (u.type=? or u.type=?) and   (fu.state is null or fu.state<>1)  and DATE_SUB(CURDATE(), INTERVAL 15 DAY) <= date(create_time) order by u.meili desc limit ?,?";
+				+ "where  (u.type=? or u.type=?) and   u.sys_status<>1  and DATE_SUB(CURDATE(), INTERVAL 15 DAY) <= date(create_time) order by u.meili desc limit ?,?";
 
 		List<RankUser> users = jdbcTemplate.query(
 				sql, new Object[] { UserType.OFFIEC.ordinal(),
@@ -573,9 +569,9 @@ public class UserDao extends BaseDao<BaseUser> {
 	 * @param pageIndex
 	 * @return
 	 */
-	public List<BaseUser> getFoundUsersByState(int pageSize, int pageIndex, FoundUserRelationship ship) {
-		String sql = "select u.* from t_found_user_relationship bu left join t_user u on bu.uid=u.user_id  where bu.state=? order by bu.action_time desc limit ?,?";
-		return jdbcTemplate.query(sql, new Object[] { ship.ordinal(), (pageIndex - 1) * pageSize, pageSize },
+	public List<BaseUser> getFoundUsersByState(int pageSize, int pageIndex, SysUserStatus status) {
+		String sql = "select u.* from  t_user u    where u.sys_status=? order by u.last_login_time desc limit ?,?";
+		return jdbcTemplate.query(sql, new Object[] { status.ordinal(), (pageIndex - 1) * pageSize, pageSize },
 				getEntityMapper());
 	}
 
@@ -584,9 +580,9 @@ public class UserDao extends BaseDao<BaseUser> {
 	 * 
 	 * @return
 	 */
-	public int getFoundUsersCountByState(FoundUserRelationship ship) {
-		return jdbcTemplate.queryForObject("select count(*) from t_found_user_relationship where state=?",
-				new Object[] { ship.ordinal() }, Integer.class);
+	public int getFoundUsersCountByState(SysUserStatus status) {
+		return jdbcTemplate.queryForObject("select count(*) from t_user where sys_status=?",
+				new Object[] { status.ordinal() }, Integer.class);
 	}
 
 	/**
@@ -715,10 +711,10 @@ public class UserDao extends BaseDao<BaseUser> {
 
 	public int getUserState(long user_id) {
 		List<Integer> states = jdbcTemplate.queryForList(
-				"select state from  t_found_user_relationship where uid=? limit 1", new Object[] { user_id },
+				"select sys_status from  t_user where user_id=? limit 1", new Object[] { user_id },
 				Integer.class);
 		if (states.isEmpty()) {
-			return FoundUserRelationship.VISIBLE.ordinal();
+			return SysUserStatus.NORMAL.ordinal();
 		} else {
 			return states.get(0);
 		}
@@ -1026,20 +1022,20 @@ public class UserDao extends BaseDao<BaseUser> {
 		jdbcTemplate.update("delete from t_user where user_id=" + uid);
 	}
 
-	public int addToFound(long user_id) {
-		int count = jdbcTemplate.update("update t_found_user_relationship set state=?,action_time=? where uid=?",
-				new Object[] { FoundUserRelationship.VISIBLE.ordinal(), new Date(), user_id });
-		if (count != 1) {
-			String sql = "insert into t_found_user_relationship values (?, ?,?)";
-			return jdbcTemplate.update(sql,
-					new Object[] { user_id, FoundUserRelationship.VISIBLE.ordinal(), new Date() });
-		}
-		return count;
-	}
+//	public int addToFound(long user_id) {
+//		int count = jdbcTemplate.update("update t_found_user_relationship set state=?,action_time=? where uid=?",
+//				new Object[] { FoundUserRelationship.VISIBLE.ordinal(), new Date(), user_id });
+//		if (count != 1) {
+//			String sql = "insert into t_found_user_relationship values (?, ?,?)";
+//			return jdbcTemplate.update(sql,
+//					new Object[] { user_id, FoundUserRelationship.VISIBLE.ordinal(), new Date() });
+//		}
+//		return count;
+//	}
 
-	public void removeFromFound(long user_id) {
-		jdbcTemplate.update("delete from  t_found_user_relationship where uid=" + user_id);
-	}
+//	public void removeFromFound(long user_id) {
+//		jdbcTemplate.update("delete from  t_found_user_relationship where uid=" + user_id);
+//	}
 
 	public boolean isFollowed(long user_id, long target_id) {
 		return jdbcTemplate.queryForObject("select count(*) from t_user_follow where uid=? and target_id=?",
@@ -1356,5 +1352,51 @@ public class UserDao extends BaseDao<BaseUser> {
 
 	public void cleanOnline(long user_id) {
 		 jdbcTemplate.update("delete from  t_user_online where uid="+user_id);	
+	}
+	public int getSignatureUpdateUsersCount(Long user_id) {
+		if(user_id==null) {
+			return jdbcTemplate.queryForObject("select count(*) from t_signature_update_record", Integer.class);
+		}else {
+			return jdbcTemplate.queryForObject("select count(*) from t_signature_update_record where uid="+user_id, Integer.class);
+		}
+		
+	}
+	public List<SimpleUser> loadSignatureUpdateUsers(Long user_id,int page,int count){
+		if(user_id==null) {
+			String sql="select u.user_id,u.nick_name,u.avatar,u.signature from t_signature_update_record sr"
+					+ " left join t_user u on sr.uid=u.user_id order by sr.create_time desc limit ?,?";
+			return jdbcTemplate.query(sql,new Object[] {(page-1)*count,count}, getEntityMapper(SimpleUser.class));	
+		}
+		
+		String sql="select u.user_id,u.nick_name,u.avatar,u.signature from t_signature_update_record sr "
+				+ " left join t_user u on sr.uid=u.user_id where sr.uid=? order by sr.create_time desc limit ?,?";
+		return jdbcTemplate.query(sql,new Object[] {user_id,(page-1)*count,count}, getEntityMapper(SimpleUser.class));	
+		
+		
+	}
+	public void updateSignatureRecord(long user_id, String signature) {
+		String sql="update t_signature_update_record set new_signature=?,create_time=? where uid=?";
+		int count=jdbcTemplate.update(sql,new Object[] {signature,new Date(),user_id});
+		if(count==0) {
+			jdbcTemplate.update("insert ignore into t_signature_update_record (uid,create_time,new_signature) values(?,?,?)",new Object[] {user_id,new Date(),signature});
+		}
+	}
+
+	public void deleteUserSignature(Long uid) {
+		jdbcTemplate.update("delete from t_signature_update_record where uid="+uid);
+		jdbcTemplate.update("update  t_user set signature=?  where user_id=?",new Object[] {"",uid});
+		
+	}
+
+	public void setUserSysStatusToNormal(long uid) {
+		jdbcTemplate.update("update t_user set sys_status=? where user_id=?",SysUserStatus.NORMAL.ordinal(),uid);
+	}
+	public void setUserSysStatusToCanFound(long uid) {
+		jdbcTemplate.update("update t_user set sys_status=? where user_id=?",SysUserStatus.CAN_FOUND.ordinal(),uid);
+	}
+
+	public void setUserSysStatusTo(long uid, int ordinal) {
+		jdbcTemplate.update("update t_user set sys_status=? where user_id=?",ordinal,uid);
+
 	}
 }

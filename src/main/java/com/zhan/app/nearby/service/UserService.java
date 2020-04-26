@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.servlet.tags.form.TextareaTag;
 
 import com.zhan.app.nearby.bean.Avatar;
 import com.zhan.app.nearby.bean.City;
@@ -32,12 +33,13 @@ import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.bean.user.DetailUser;
 import com.zhan.app.nearby.bean.user.LoginUser;
 import com.zhan.app.nearby.bean.user.RankUser;
+import com.zhan.app.nearby.bean.user.SimpleUser;
 import com.zhan.app.nearby.cache.UserCacheService;
 import com.zhan.app.nearby.comm.AccountStateType;
 import com.zhan.app.nearby.comm.AvatarIMGStatus;
-import com.zhan.app.nearby.comm.FoundUserRelationship;
 import com.zhan.app.nearby.comm.PushMsgType;
 import com.zhan.app.nearby.comm.Relationship;
+import com.zhan.app.nearby.comm.SysUserStatus;
 import com.zhan.app.nearby.comm.UserType;
 import com.zhan.app.nearby.dao.TagDao;
 import com.zhan.app.nearby.dao.UserDao;
@@ -292,8 +294,12 @@ public class UserService {
 			String signature, String my_tags, String interests, String animals, String musics, String weekday_todo,
 			String footsteps, String want_to_where, boolean isNick_modify, Integer birth_city_id, String contact,
 			String newSex) {
-		return userDao.modify_info(user_id, nick_name, birthday, job, height, weight, signature, my_tags, interests,
+		int c= userDao.modify_info(user_id, nick_name, birthday, job, height, weight, signature, my_tags, interests,
 				animals, musics, weekday_todo, footsteps, want_to_where, birth_city_id, contact, newSex);
+		if(!TextUtils.isEmpty(signature)) {
+			 userDao.updateSignatureRecord(user_id,signature);
+		}
+		return c;
 	}
 
 	@Transactional
@@ -750,7 +756,7 @@ public class UserService {
 	 * @param pageIndex
 	 * @return
 	 */
-	public List<BaseUser> getFoundUsersByState(int pageSize, int pageIndex, FoundUserRelationship ship) {
+	public List<BaseUser> getFoundUsersByState(int pageSize, int pageIndex, SysUserStatus ship) {
 		return userDao.getFoundUsersByState(pageSize, pageIndex, ship);
 	}
 
@@ -759,7 +765,7 @@ public class UserService {
 	 * 
 	 * @return
 	 */
-	public int getFoundUsersCountByState(FoundUserRelationship ship) {
+	public int getFoundUsersCountByState(SysUserStatus ship) {
 		return userDao.getFoundUsersCountByState(ship);
 	}
 
@@ -862,7 +868,7 @@ public class UserService {
 	public void editAvatarState(int id, int state) {
 		if (state == AvatarIMGStatus.ILLEGAL.ordinal()) {
 			long uid = userDao.editAvatarState(id, AvatarIMGStatus.ILLEGAL.ordinal());
-			userDao.removeFromFoundUserList(uid);
+			userDao.setUserSysStatusToNormal(uid);
 			bottleService.clearIllegalMeetBottle(uid);
 		} else {
 			userDao.updateAvatarState(id, state);
@@ -881,7 +887,7 @@ public class UserService {
 		} catch (Exception e) {
 			userDao.editAvatarStateByUserId(uid, AvatarIMGStatus.ILLEGAL.ordinal());
 		}
-		userDao.removeFromFoundUserList(uid);
+		userDao.setUserSysStatusToNormal(uid);
 		bottleService.clearIllegalMeetBottle(uid);
 	}
 
@@ -1043,12 +1049,12 @@ public class UserService {
 
 	// 杩欓噷鏄‘瀹歩sFace=1鐨勬儏鍐碉紝闇�瑕佹坊鍔犲埌棣栭〉鎺ㄨ崘鍜岄倐閫呯摱涓�
 	public void addRecommendAndMeetBottle(long user_id) {
-		userDao.addToFound(user_id);
+		userDao.setUserSysStatusToCanFound(user_id);
 		managerService.editUserMeetBottle(user_id, 1, "127.0.0.1", "admin");
 	}
 
 	public void removeRecommendAndMeetBottle(long user_id) {
-		userDao.removeFromFound(user_id);
+		userDao.setUserSysStatusToNormal(user_id);
 		managerService.editUserMeetBottle(user_id, 0, "127.0.0.1", "admin"); // 从邂逅瓶里面删除
 	}
 
@@ -1364,7 +1370,7 @@ public class UserService {
 			return ResultUtil.getResultMap(ERROR.ERR_USER_CLOSE, "璇ヨ处鍙峰凡缁忔敞閿�");
 		}
 
-		if (getUserState(user.getUser_id()) == FoundUserRelationship.GONE.ordinal()) {
+		if (getUserState(user.getUser_id()) == SysUserStatus.BLACK.ordinal()) {
 			return ResultUtil.getResultMap(ERROR.ERR_USER_NOT_EXIST, "璇ヨ处鍙峰洜涓炬姤鑰屾棤娉曠櫥褰�");
 		}
 		// 妫�鏌ヨ鐢ㄦ埛澶氫箙娌＄櫥闄嗕簡
@@ -1409,7 +1415,7 @@ public class UserService {
 
 	public void editAvatarStateToIllegal(long user_id, String avatarName) {
 		userDao.editAvatarStateToIllegal(user_id, avatarName);
-		userDao.removeFromFoundUserList(user_id);
+		userDao.setUserSysStatusToNormal(user_id);
 		bottleService.clearIllegalMeetBottle(user_id);
 	}
 
@@ -1580,4 +1586,27 @@ public class UserService {
 		  userDao.cleanOnline(user_id);
 	}
 	 
+	public int getSignatureUpdateUsersCount(Long user_id) {
+		return userDao.getSignatureUpdateUsersCount(user_id);
+	}
+	
+	public List<SimpleUser> loadSignatureUpdateUsers(Long user_id,int page,int count){
+		List<SimpleUser> users=userDao.loadSignatureUpdateUsers(user_id,page,count);
+		ImagePathUtil.completeAvatarsPath( users,true);
+		return users;
+	}
+
+	public void deleteUserSignature(Long uid) {
+		userDao.deleteUserSignature(uid);
+	}
+	
+	public void setUserSysStatusToNormal(long uid) {
+		userDao.setUserSysStatusToNormal(uid);
+	}
+	public void setUserSysStatusToCanFound(long uid) {
+		userDao.setUserSysStatusToCanFound(uid);
+	}
+	public void setUserSysStatusTo(long uid,SysUserStatus status) {
+		userDao.setUserSysStatusTo(uid,status.ordinal());
+	}
 }

@@ -118,7 +118,17 @@ public class BaseUser implements Serializable {
 	
 	@Transient // 
 	private int online_status; //用户在线状态   -1 未知， 0离线，1在线
+	
+	private int sys_status;//0 正常状态，1黑名单状态
 	 
+	public int getSys_status() {
+		return sys_status;
+	}
+
+	public void setSys_status(int sys_status) {
+		this.sys_status = sys_status;
+	}
+
 	@JsonIgnore
 	private String openid;
 

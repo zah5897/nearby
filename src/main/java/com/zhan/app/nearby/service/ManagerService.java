@@ -9,8 +9,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.zhan.app.nearby.bean.Appointment;
 import com.zhan.app.nearby.bean.Bottle;
@@ -24,13 +22,13 @@ import com.zhan.app.nearby.bean.Video;
 import com.zhan.app.nearby.bean.VipUser;
 import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.cache.UserCacheService;
+import com.zhan.app.nearby.comm.DynamicCommentStatus;
 import com.zhan.app.nearby.comm.DynamicState;
 import com.zhan.app.nearby.comm.ExchangeState;
-import com.zhan.app.nearby.comm.FoundUserRelationship;
+import com.zhan.app.nearby.comm.SysUserStatus;
 import com.zhan.app.nearby.comm.VideoStatus;
 import com.zhan.app.nearby.dao.ManagerDao;
 import com.zhan.app.nearby.dao.UserDao;
-import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.task.HXAsyncTask;
 import com.zhan.app.nearby.util.BottleKeyWordUtil;
 import com.zhan.app.nearby.util.IPUtil;
@@ -190,9 +188,6 @@ public class ManagerService {
 		return managerDao.listNewUser(pageIndex, pageSize, type);
 	}
 
-	public int editUserFromFound(long uid, int state) {
-		return managerDao.setUserFoundRelationshipState(uid, FoundUserRelationship.values()[state]);
-	}
 
 	// 动态审核违规
 	public int updateDynamicState(long id, DynamicState state) {
@@ -206,8 +201,8 @@ public class ManagerService {
 	 * @param currentPage
 	 * @return
 	 */
-	public List<BaseUser> getAllUser(int pageSize, int currentPage, int type, String keyword, Long user_id) {
-		return userService.getAllUser(pageSize, currentPage, type, keyword, user_id);
+	public List<ManagerUser> getAllUser(int pageSize, int currentPage, int type, String keyword, Long user_id) {
+		return managerDao.listAllUser(user_id,currentPage, pageSize, type,keyword);
 	}
 
 	/**
@@ -216,7 +211,7 @@ public class ManagerService {
 	 * @return
 	 */
 	public int getUserSize(int type, String keyword, Long user_id) {
-		return userService.getUserSize(type, keyword, user_id);
+		return managerDao.getAllUserCount(user_id, type, keyword);
 	}
 
 	/**
@@ -226,7 +221,7 @@ public class ManagerService {
 	 * @param pageIndex
 	 * @return
 	 */
-	public List<BaseUser> getFoundUsersByState(int pageSize, int pageIndex, FoundUserRelationship ship) {
+	public List<BaseUser> getFoundUsersByState(int pageSize, int pageIndex, SysUserStatus ship) {
 		return userService.getFoundUsersByState(pageSize, pageIndex, ship);
 	}
 
@@ -235,7 +230,7 @@ public class ManagerService {
 	 * 
 	 * @return
 	 */
-	public int getFoundUserCountByState(FoundUserRelationship ship) {
+	public int getFoundUserCountByState(SysUserStatus ship) {
 		return userService.getFoundUsersCountByState(ship);
 	}
 
@@ -252,23 +247,15 @@ public class ManagerService {
 	 * 
 	 * @param user_id
 	 */
-	public void editUserFoundState(long user_id, FoundUserRelationship ship) {
-		managerDao.editUserFoundState(user_id, ship);
-		if (ship == FoundUserRelationship.GONE) {
+	public void editUserFoundState(long user_id, SysUserStatus ship) {
+		userService.setUserSysStatusTo(user_id, ship);
+		if (ship == SysUserStatus.BLACK) {
 			bottleService.clearPoolBottleByUserId(user_id);
-			userDynamicService.updateCommentStatus(user_id, ship);
+			userDynamicService.updateCommentStatus(user_id, DynamicCommentStatus.ILLEGAL);
 			hxTask.disconnect(String.valueOf(user_id));
 		}
 	}
 
-	/**
-	 * 移除状态
-	 * 
-	 * @param user_id
-	 */
-	public void removeUserFoundState(long user_id) {
-		managerDao.removeUserFoundState(user_id);
-	}
 
 	/**
 	 * 添加到邂逅瓶待选用户区
@@ -596,5 +583,29 @@ public class ManagerService {
 		ImagePathUtil.completeGiftsOwnPath(data, true);
 		r.addAttribute("data", data);
 		return r;
+	}
+	//----------签名更新相关-----------------------
+	public ModelMap loadSignatureUpdateUsers(Long user_id,int page, int count) {
+		ModelMap r = ResultUtil.getResultOKMap();
+		if (page == 1) {
+			int totalSize = userService.getSignatureUpdateUsersCount(user_id);
+			int pageCount = totalSize / count;
+			if (totalSize % count > 0) {
+				pageCount += 1;
+			}
+			if (pageCount == 0) {
+				pageCount = 1;
+			}
+			r.put("pageCount", pageCount);
+		}
+		r.put("currentPageIndex", page);
+		
+		r.addAttribute("data", userService.loadSignatureUpdateUsers(user_id,page,count));
+		return r;
+	}
+	
+	public ModelMap deleteUserSignature(long uid,Long user_id,int page,int count) {
+		userService.deleteUserSignature(uid);
+		return loadSignatureUpdateUsers(user_id,page,count);
 	}
 }

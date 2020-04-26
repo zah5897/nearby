@@ -147,9 +147,8 @@ public class GiftDao extends BaseDao<Gift> {
 				+ " (select tg.user_id ,sum(tg.val) as tval from (select o.*,o.count*g.price as val from  t_gift_own o left join t_gift g on o.gift_id=g.id) as tg group by tg.user_id) gift "
 				+ "on u.user_id=gift.user_id "
 				+ " left join  (select count(*) as like_count ,with_user_id from t_user_relationship where relationship=?  group by  with_user_id) lk  "
-				+ " on u.user_id=lk.with_user_id " + " left join t_found_user_relationship fu "
-				+ " on u.user_id=fu.uid "
-				+ "where  (u.type=? or u.type=?) and  (fu.state is null or fu.state<>1)  and DATE_SUB(CURDATE(), INTERVAL 365 DAY) <= date(create_time) order by mli desc limit ?,?";
+				+ " on u.user_id=lk.with_user_id "
+				+ "where  (u.type=? or u.type=?) and  u.sys_status<>1  and DATE_SUB(CURDATE(), INTERVAL 365 DAY) <= date(create_time) order by mli desc limit ?,?";
 
 		List<MeiLi> users = jdbcTemplate.query(sql, new Object[] { Relationship.LIKE.ordinal(),
 				UserType.OFFIEC.ordinal(), UserType.THRID_CHANNEL.ordinal(), (page - 1) * count, count },
@@ -181,9 +180,7 @@ public class GiftDao extends BaseDao<Gift> {
 				+ "  left join "
 				+ " (select tg.user_id ,sum(tg.val) as tval,tg.give_time from (select o.*,o.count*g.price as val from  t_gift_own o left join t_gift g on o.gift_id=g.id) as tg group by tg.user_id) gift "
 				+ " on u.user_id=gift.user_id "
-			    + " left join t_found_user_relationship fu "
-				+ " on u.user_id=fu.uid "
-				+ " where    (u.type=? or u.type=?) and  (fu.state is null or fu.state<>1)  and DATE_SUB(CURDATE(), INTERVAL 30 DAY) <= date(gift.give_time) order by u.meili desc limit ?,?";
+				+ " where    (u.type=? or u.type=?) and u.sys_status<>1  and DATE_SUB(CURDATE(), INTERVAL 30 DAY) <= date(gift.give_time) order by u.meili desc limit ?,?";
 		List<RankUser> users = jdbcTemplate.query(sql, new Object[] {  UserType.OFFIEC.ordinal(), UserType.THRID_CHANNEL.ordinal(), (page - 1) * count, count },new BeanPropertyRowMapper<RankUser>(RankUser.class));
 		return users;
 	}
@@ -202,8 +199,8 @@ public class GiftDao extends BaseDao<Gift> {
 		String sql = "select u.user_id ,u.nick_name, u.avatar,u.isvip,ifnull(gift.tval,'0') as sanbei from "
 				+ "t_user u left join "
 				+ "(select tg.from_uid ,sum(tg.val) as tval from (select o.*,o.count*g.price as val from  t_gift_own o left join t_gift g on o.gift_id=g.id) as tg group by tg.from_uid) gift "
-				+ "on u.user_id=gift.from_uid " + " left join t_found_user_relationship fu " + " on u.user_id=fu.uid "
-				+ "where  (u.type=? or  u.type=?) and  (fu.state is null or fu.state<>1)  order by sanbei desc limit ?,?";
+				+ "on u.user_id=gift.from_uid "
+				+ "where  (u.type=? or  u.type=?) and  u.sys_status<>1  order by sanbei desc limit ?,?";
 
 		List<MeiLi> users = jdbcTemplate.query(sql,
 				new Object[] { UserType.OFFIEC.ordinal(), UserType.THRID_CHANNEL.ordinal(), (page - 1) * count, count },
@@ -234,8 +231,8 @@ public class GiftDao extends BaseDao<Gift> {
 		String sql = "select u.user_id ,u.nick_name,u.lat,u.lng, u.avatar,u.isvip,ifnull(gift.tval,'0') as shanbei from "
 				+ "t_user u left join "
 				+ "(select tg.from_uid ,sum(tg.val) as tval,tg.give_time from (select o.*,o.count*g.price as val from  t_gift_own o left join t_gift g on o.gift_id=g.id) as tg group by tg.from_uid) gift "
-				+ "on u.user_id=gift.from_uid " + " left join t_found_user_relationship fu " + " on u.user_id=fu.uid "
-				+ "where  (u.type=? or  u.type=?) and  (fu.state is null or fu.state<>1)  and DATE_SUB(CURDATE(), INTERVAL 30 DAY) <= date(gift.give_time) order by shanbei desc limit ?,?";
+				+ "on u.user_id=gift.from_uid "  
+				+ "where  (u.type=? or  u.type=?) and  u.sys_status<>1  and DATE_SUB(CURDATE(), INTERVAL 30 DAY) <= date(gift.give_time) order by shanbei desc limit ?,?";
 
 		List<RankUser> users = jdbcTemplate.query(sql,
 				new Object[] { UserType.OFFIEC.ordinal(), UserType.THRID_CHANNEL.ordinal(), (page - 1) * count, count },new BeanPropertyRowMapper<RankUser>(RankUser.class));
@@ -243,26 +240,7 @@ public class GiftDao extends BaseDao<Gift> {
 	}
 	
 	
-//	public int getUserMeiLiVal(long user_id) {
-//		String sql = "select   gift.tval*5+lk.like_count as mli  from " + "t_user u left join "
-//				+ " (select tg.user_id ,sum(tg.val) as tval from (select o.*,o.count*g.price as val from  t_gift_own o left join t_gift g on o.gift_id=g.id) as tg group by tg.user_id) gift "
-//				+ "on u.user_id=gift.user_id "
-//				+ " left join  (select count(*) as like_count ,with_user_id from t_user_relationship where relationship=?  group by  with_user_id) lk  "
-//				+ " on u.user_id=lk.with_user_id " + " left join t_found_user_relationship fu "
-//				+ " on u.user_id=fu.uid "
-//				+ "where   u.user_id =?  and DATE_SUB(CURDATE(), INTERVAL 365 DAY) <= date(create_time)";
-//		try {
-//			List<Integer> ml = jdbcTemplate.queryForList(sql, new Object[] { Relationship.LIKE.ordinal(), user_id },
-//					Integer.class);
-//			if (ml.isEmpty()) {
-//				return 0;
-//			}
-//			return ml.get(0);
-//		} catch (Exception e) {
-//			return 0;
-//		}
-//	}
-
+ 
 	public int getUserBeLikeVal(long user_id) {
 		String beLikeCount = "select count(*) from t_user_relationship where with_user_id=? and relationship=? group by with_user_id";
 		try {

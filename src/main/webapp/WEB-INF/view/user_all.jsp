@@ -273,6 +273,9 @@
 			 if(currentItem.length>0){
 				 return;
 			 }
+			 
+			 var state=pageData['state'];
+			 
 			 var user_id=pageData['user_id'];
 			 
 			 var toAdd="<tr id='tr_"+user_id+"'>";
@@ -287,7 +290,12 @@
 			 
 			 var nick_name=pageData.nick_name;
 			 nick_name=nick_name==undefined?"":nick_name;
-			 toAdd+="<td>"+nick_name+"</td>";
+			 if(state==1){
+				 toAdd+="<td><font color='red'>"+nick_name+"</font></td>";
+			 }else{
+				 toAdd+="<td>"+nick_name+"</td>";
+			 }
+			 
 			 
 			 if(pageData.avatar!=null){
 				 toAdd+="<td><img id='img_"+user_id+"' src='"+pageData.avatar+"' alt='"+pageData.origin_avatar+"'  height='50' onclick='show(this)'/></td>";
@@ -314,8 +322,11 @@
 			  toAdd+="<a class='button border-main' id='meet_"+user_id+"' href='javascript:void(0)'	onclick='return add_to_meet_bottle("+user_id+")'><span class='icon-edit'></span>加入邂逅瓶</a>";
 			  toAdd+="<a class='button border-main' href='javascript:void(0)' id='found_"+user_id+"'	onclick='return add_to_found_user("+user_id+")'><span class='icon-edit'></span>添加到发现</a>";
 		
-			  toAdd+="<a class='button border-yellow' id='bleac_"+user_id+"' href='javascript:void(0)'	onclick='return add_to_found_black_list("+user_id+")'><span class='icon-edit'></span>加入黑名单</a>";
+			 
 			  
+			  if(state==0){
+				  toAdd+="<a class='button border-yellow' id='bleac_"+user_id+"' href='javascript:void(0)'	onclick='return add_to_found_black_list("+user_id+")'><span class='icon-edit'></span>加入黑名单</a>";
+			  }
 			  
 			  if(pageData.avatar&&pageData.avatar.indexOf('illegal.jpg')==-1){
 				  toAdd+="<a id="+user_id+" class='button border-yellow' href='javascript:void(0)'	onclick='return edit_avatar_state("+user_id+")'><span class='icon-edit'></span>头像违法</a>";

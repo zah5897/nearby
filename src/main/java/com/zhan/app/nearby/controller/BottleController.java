@@ -24,10 +24,8 @@ import com.zhan.app.nearby.util.ImageSaveUtils;
 import com.zhan.app.nearby.util.RedPacketUtils;
 import com.zhan.app.nearby.util.ResultUtil;
 
+import cn.ucloud.common.http.Http;
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
 
 @RestController
 @RequestMapping("/bottle")
@@ -192,7 +190,8 @@ public class BottleController {
 		ImagePathUtil.completeBottleDrawPath(bottle);
 		return ResultUtil.getResultOKMap().addAttribute("bottle", bottle);
 	}
-
+	
+	
 	@RequestMapping("list")
 	public ModelMap list(Long user_id, Integer count, Integer look_sex, Integer lock_sex, Integer type, Integer state,
 			String version, String _ua,String channel) {
@@ -204,12 +203,11 @@ public class BottleController {
 		if (type == null) {
 			type = -1;
 		}
-
 		if (type == BottleType.DM_TXT.ordinal() || type == BottleType.DM_VOICE.ordinal()) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "不支持弹幕瓶子");
 		}
 		if (_ua.startsWith("a")) {
-			if ("2.0.5".compareTo(version) == 0) { // ios审核临界版本号
+			if (version.compareTo(review_version)>=0) { // ios审核临界版本号
 				state = BottleState.IOS_REVIEW.ordinal();
 			}
 		}
@@ -219,6 +217,16 @@ public class BottleController {
 		return bottleService.getBottles(user_id, count, look_sex, type, state,version, _ua,channel);
 	}
 
+	
+	private String review_version="2.0.6";
+	@RequestMapping("set_ios_review_version")
+	public ModelMap set_ios_review(String review_version) {
+		 this.review_version=review_version;
+		 return ResultUtil.getResultOKMap().addAttribute("review_version", review_version);
+	}
+	
+	
+	
 	@RequestMapping("list_dm")
 	public ModelMap list_dm(Long user_id, Integer count, Integer look_sex, Integer type, Integer state) {
 		return bottleService.getDMBottles(user_id == null ? 0 : user_id, count == null ? 5 : count, type, state);

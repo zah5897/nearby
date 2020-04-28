@@ -19,6 +19,7 @@ import com.zhan.app.nearby.comm.DynamicState;
 import com.zhan.app.nearby.comm.ExchangeState;
 import com.zhan.app.nearby.comm.ImageStatus;
 import com.zhan.app.nearby.comm.SysUserStatus;
+import com.zhan.app.nearby.comm.UserFnStatus;
 import com.zhan.app.nearby.comm.UserType;
 import com.zhan.app.nearby.dao.base.BaseDao;
 import com.zhan.app.nearby.util.DateTimeUtil;
@@ -27,7 +28,6 @@ import com.zhan.app.nearby.util.TextUtils;
 @Repository("managerDao")
 public class ManagerDao extends BaseDao<ManagerUser> {
 	public static final String TABLE_USER_DYNAMIC = "t_user_dynamic";
-	public static final String TABLE_HOME_FOUND_SELECTED = "t_home_found_selected";
 	public static final String TABLE_DYNAMIC_COMMENT = "t_dynamic_comment";
 	public static final String TABLE_LIKE_DYNAMIC_STATE = "t_like_dynamic";
 	public static final String TABLE_TOPIC = "t_topic";
@@ -39,18 +39,16 @@ public class ManagerDao extends BaseDao<ManagerUser> {
 	public List<UserDynamic> getHomeFoundSelected(Long user_id,int pageIndex, int pageSize) {
 		if(user_id==null) {
 			String sql = "select dynamic.*, user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday,user.type ,user.isvip from "
-					+ TABLE_USER_DYNAMIC + " dynamic left join " + TABLE_HOME_FOUND_SELECTED
-					+ " selected on dynamic.id=selected.dynamic_id left join t_user user on  dynamic.user_id=user.user_id  where selected.selected_state=?   order by dynamic.id desc limit ?,?";
+					+ TABLE_USER_DYNAMIC + " dynamic   left join t_user user on  dynamic.user_id=user.user_id  where dynamic.found_status=?  order by dynamic.id desc limit ?,?";
 			return jdbcTemplate.query(sql,
-					new Object[] { ImageStatus.SELECTED.ordinal(), (pageIndex - 1) * pageSize, pageSize },
+					new Object[] { UserFnStatus.ENABLE.ordinal(), (pageIndex - 1) * pageSize, pageSize },
 					new DynamicMapper());
 		}else {
 			String sql = "select dynamic.*, user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday,user.type ,user.isvip from "
-					+ TABLE_USER_DYNAMIC + " dynamic left join " + TABLE_HOME_FOUND_SELECTED
-					+ " selected on dynamic.id=selected.dynamic_id left join t_user user on  dynamic.user_id=user.user_id  "
-					+ " where selected.selected_state=?  and dynamic.user_id=?   order by dynamic.id desc limit ?,?";
+					+ TABLE_USER_DYNAMIC + " dynamic   left join t_user user on  dynamic.user_id=user.user_id  "
+					+ " where dynamic.found_status=?  and dynamic.user_id=?   order by dynamic.id desc limit ?,?";
 			return jdbcTemplate.query(sql,
-					new Object[] { ImageStatus.SELECTED.ordinal(),user_id, (pageIndex - 1) * pageSize, pageSize },
+					new Object[] { UserFnStatus.ENABLE.ordinal(),user_id, (pageIndex - 1) * pageSize, pageSize },
 					new DynamicMapper());
 		}
 
@@ -60,27 +58,14 @@ public class ManagerDao extends BaseDao<ManagerUser> {
 		
 		
 		
-		
-//		String sql = "select dynamic.*  ,user.user_id  ,user.nick_name ,user.avatar,user.sex,user.isvip ,user.birthday,user.type from "
-//				+ TABLE_USER_DYNAMIC
-//				+ " dynamic left join t_user user on  dynamic.user_id=user.user_id  where dynamic.id not in(select dynamic_id from "
-//				+ TABLE_HOME_FOUND_SELECTED
-//				+ " where selected_state=? or selected_state=? )  and dynamic.state=1  order by dynamic.id desc limit ?,?";
-//		return jdbcTemplate.query(sql, new Object[] { ImageStatus.SELECTED.ordinal(), ImageStatus.IGNORE.ordinal(),
-//				(pageIndex - 1) * pageSize, pageSize }, new DynamicMapper());
-		
-		
-		
 		String sql = "select dynamic.*  ,user.user_id  ,user.nick_name ,user.avatar,user.sex,user.isvip ,user.birthday,user.type from "
 				+ TABLE_USER_DYNAMIC
-				+ " dynamic left join t_user user on  dynamic.user_id=user.user_id  where dynamic.id not in(select dynamic_id from "
-				+ TABLE_HOME_FOUND_SELECTED
-				+ " where selected_state=? or selected_state=? )  and dynamic.state=1  ";
+				+ " dynamic left join t_user user on  dynamic.user_id=user.user_id  where dynamic.found_status<>? and dynamic.state=?";
 		
 		List<Object> param=new ArrayList<>();
 		
-		param.add(ImageStatus.SELECTED.ordinal());
-		param.add(ImageStatus.IGNORE.ordinal());
+		param.add(UserFnStatus.ENABLE.ordinal());
+		param.add(DynamicState.T_FORMAL.ordinal());
 		
 		if(!TextUtils.isEmpty(nick_name)) {
 			sql+=" and dynamic.user_id in (select user_id from t_user where nick_name like ?)";
@@ -120,24 +105,22 @@ public class ManagerDao extends BaseDao<ManagerUser> {
 
 	public int getHomeFoundSelectedCount(Long user_id) {
 		if(user_id==null) {
-			String sql = "select  count(*) from " + TABLE_USER_DYNAMIC + " dynamic left join " + TABLE_HOME_FOUND_SELECTED
-					+ " selected on dynamic.id=selected.dynamic_id    where selected.selected_state=? and dynamic.state=1 ";
-			return jdbcTemplate.queryForObject(sql, new Object[] { ImageStatus.SELECTED.ordinal() }, Integer.class);
+			String sql = "select  count(*) from " + TABLE_USER_DYNAMIC + " dynamic    where dynamic.found_status=? and dynamic.state=? ";
+			return jdbcTemplate.queryForObject(sql, new Object[] { UserFnStatus.ENABLE.ordinal(),DynamicState.T_FORMAL.ordinal() }, Integer.class);
 		}else {
-			String sql = "select  count(*) from " + TABLE_USER_DYNAMIC + " dynamic left join " + TABLE_HOME_FOUND_SELECTED
-					+ " selected on dynamic.id=selected.dynamic_id    where selected.selected_state=? and dynamic.state=1 and  dynamic.user_id=?";
-			return jdbcTemplate.queryForObject(sql, new Object[] { ImageStatus.SELECTED.ordinal(),user_id }, Integer.class);
+			String sql = "select  count(*) from " + TABLE_USER_DYNAMIC + " dynamic      where dynamic.found_status=? and dynamic.state=? and  dynamic.user_id=?";
+			return jdbcTemplate.queryForObject(sql, new Object[] {  UserFnStatus.ENABLE.ordinal(),DynamicState.T_FORMAL.ordinal(),user_id }, Integer.class);
 		}
 	}
 
 	// 获取未选中的（前提为被审核通过的）
 	public int getUnSelectedCount(Long user_id,String nick_name) {
 		String sql = "select count(*) from " + TABLE_USER_DYNAMIC
-				+ " dynamic    where dynamic.id not in(select dynamic_id from " + TABLE_HOME_FOUND_SELECTED
-				+ " where selected_state=? ) and dynamic.state=1 ";
+				+ " dynamic    where dynamic.found_status<>?  and dynamic.state=? ";
 		
 		List<Object> param=new ArrayList<Object>();
-		param.add(ImageStatus.SELECTED.ordinal());
+		param.add(UserFnStatus.ENABLE.ordinal());
+		param.add(DynamicState.T_FORMAL.ordinal());
 		
 		if(!TextUtils.isEmpty(nick_name)) {
 			sql+=" and dynamic.user_id in (select user_id from t_user where nick_name like ?)";
@@ -153,8 +136,8 @@ public class ManagerDao extends BaseDao<ManagerUser> {
 	}
 
 	public int removeFromSelected(long id) {
-		String sql = "delete from " + TABLE_HOME_FOUND_SELECTED + " where dynamic_id=? and selected_state=?";
-		return jdbcTemplate.update(sql, new Object[] { id, ImageStatus.SELECTED.ordinal() });
+		String sql = "update from " + TABLE_USER_DYNAMIC + " set found_status=? where  id=?";
+		return jdbcTemplate.update(sql, new Object[] {UserFnStatus.DEFAULT.ordinal(), id    });
 	}
 
 	public int removeDyanmicByState(long id, DynamicState state) {
@@ -179,29 +162,12 @@ public class ManagerDao extends BaseDao<ManagerUser> {
 	}
 
 	public int addToSelected(long id) {
-		String checkHas = "select count(*) from " + TABLE_HOME_FOUND_SELECTED
-				+ " where dynamic_id=? and selected_state=?";
-		int count = jdbcTemplate.queryForObject(checkHas, new Object[] { id, ImageStatus.SELECTED.ordinal() },
-				Integer.class);
-
-		if (count < 1) {
-			String sql = "insert into " + TABLE_HOME_FOUND_SELECTED + " values (?, ?)";
-			return jdbcTemplate.update(sql, new Object[] { id, ImageStatus.SELECTED.ordinal() });
-		}
-		return 0;
+		String sql = "update from " + TABLE_USER_DYNAMIC + " set found_status=? where  id=?";
+		return jdbcTemplate.update(sql, new Object[] {UserFnStatus.ENABLE.ordinal(), id    });
 	}
 
 	public int ignore(long id) {
-		String checkHas = "select count(*) from " + TABLE_HOME_FOUND_SELECTED
-				+ " where dynamic_id=? and selected_state=?";
-		int count = jdbcTemplate.queryForObject(checkHas, new Object[] { id, ImageStatus.IGNORE.ordinal() },
-				Integer.class);
-
-		if (count < 1) {
-			String sql = "insert into " + TABLE_HOME_FOUND_SELECTED + " values (?, ?)";
-			return jdbcTemplate.update(sql, new Object[] { id, ImageStatus.IGNORE.ordinal() });
-		}
-		return 0;
+		return 0; 
 	}
 
 //	public long insertTopic(Topic topic) {
@@ -316,19 +282,8 @@ public class ManagerDao extends BaseDao<ManagerUser> {
 	}
 	 
 
-	public int editUserMeetBottle(long user_id, int fun,String ip,String by) {
-		if (fun == 1) {
-			String checkHas = "select count(*) from t_user_meet_bottle_recommend where uid=?";
-			int count = jdbcTemplate.queryForObject(checkHas, new Object[] { user_id }, Integer.class);
-			if (count < 1) {
-				String sql = "insert into t_user_meet_bottle_recommend values (?,?,?,?)";
-				return jdbcTemplate.update(sql, new Object[] { user_id,ip ,by,new Date()});
-			}
-		} else {
-			return jdbcTemplate.update("delete from t_user_meet_bottle_recommend where uid=?",
-					new Object[] { user_id });
-		}
-
+	public int editUserMeetBottle(long user_id, UserFnStatus fun) {
+		jdbcTemplate.update("update t_user set bottle_meet_status=? where user_id=?",fun.ordinal(),user_id);
 		return 1;
 	}
 

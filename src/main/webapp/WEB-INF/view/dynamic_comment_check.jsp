@@ -234,8 +234,12 @@ td {
 			  toAdd+="<td><div class='button-group'>";
 			  //操作单元格
 			  if(state==0){
-				 // toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return changeBottleState("+id+",1)'><span class='icon-edit'></span>通过</a>";
+				  toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return changeBottleState("+id+",1)'><span class='icon-edit'></span>通过</a>";
 				  toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return changeBottleState("+id+",2)'><span class='icon-edit'></span>删除</a>";
+			  }else if(state==1){
+				  toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return changeBottleState("+id+",2)'><span class='icon-edit'></span>删除</a>";
+			  }else {
+				  toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return changeBottleState("+id+",1)'><span class='icon-edit'></span>恢复正常</a>";
 			  } 
 			  toAdd+="</div></td></tr>";
 			 tr.after(toAdd);

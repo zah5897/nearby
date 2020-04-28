@@ -58,7 +58,7 @@
   
    <h2><span class="icon-user"></span>评论管理</h2>
    <ul>
-    <li><a href="<%=path %>/manager/forword?path=dynamic_comment_check" target="right"><span class="icon-caret-right"></span>动态评论</a></li>
+    <li><a href="<%=path %>/manager/forword?path=dynamic_comment_check" target="right"><span class="icon-caret-right"></span>动态评论审核</a></li>
     <li><a href="<%=path %>/manager/forword?path=signature_manager" target="right"><span class="icon-caret-right"></span>签名管理</a></li>
   </ul> 
   
@@ -102,6 +102,7 @@
   
   <h2><span class="icon-user"></span>瓶子管理</h2>
    <ul>
+    <li><a href="<%=path %>/manager/forword?path=bottle_check" target="right"><span class="icon-caret-right"></span>瓶子审核</a></li>
     <li><a href="<%=path %>/manager/forword?path=bottle_manager" target="right"><span class="icon-caret-right"></span>瓶子列表</a></li>
   
   </ul> 
@@ -156,7 +157,7 @@ function dateFtt(fmt,date)
     "h+" : date.getHours(),                   //小时   
     "m+" : date.getMinutes(),                 //分   
     "s+" : date.getSeconds(),                 //秒   
-    "q+" : Math.floor((date.getMonth()+3)/3),  //季度   
+    "q+" : Math.floor( (date.getMonth()+3)/3),  
     "S"  : date.getMilliseconds()           //毫秒  
   };   
   if(/(y+)/.test(fmt))   

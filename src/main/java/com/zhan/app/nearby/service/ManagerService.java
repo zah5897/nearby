@@ -26,6 +26,7 @@ import com.zhan.app.nearby.comm.DynamicCommentStatus;
 import com.zhan.app.nearby.comm.DynamicState;
 import com.zhan.app.nearby.comm.ExchangeState;
 import com.zhan.app.nearby.comm.SysUserStatus;
+import com.zhan.app.nearby.comm.UserFnStatus;
 import com.zhan.app.nearby.comm.VideoStatus;
 import com.zhan.app.nearby.dao.ManagerDao;
 import com.zhan.app.nearby.dao.UserDao;
@@ -61,13 +62,12 @@ public class ManagerService {
 	@Autowired
 	private AppointmentService appointmentService;
 
-	
 	@Autowired
 	private VideoService videoService;
-	
+
 	@Autowired
 	private GiftService giftService;
-	
+
 	@Autowired
 	private HXAsyncTask hxTask;
 
@@ -104,8 +104,8 @@ public class ManagerService {
 		return userDynamicService.getPageCountByState(state);
 	}
 
-	public List<UserDynamic> getHomeFoundSelected(Long user_id,int pageIndex, int pageSize) {
-		return managerDao.getHomeFoundSelected(user_id,pageIndex, pageSize);
+	public List<UserDynamic> getHomeFoundSelected(Long user_id, int pageIndex, int pageSize) {
+		return managerDao.getHomeFoundSelected(user_id, pageIndex, pageSize);
 	}
 
 	// 根据状态获取动态
@@ -113,16 +113,16 @@ public class ManagerService {
 		return userDynamicService.getDyanmicByState(pageIndex, pageSize, state);
 	}
 
-	public int getUnSelectedCount(Long user_id,String nick_name) {
-		return managerDao.getUnSelectedCount(user_id,nick_name);
+	public int getUnSelectedCount(Long user_id, String nick_name) {
+		return managerDao.getUnSelectedCount(user_id, nick_name);
 	}
 
-	public List<UserDynamic> getUnSelected(Long user_id,String nick_name,int pageIndex, int pageSize) {
-		return managerDao.getUnSelected(user_id,nick_name,pageIndex, pageSize);
+	public List<UserDynamic> getUnSelected(Long user_id, String nick_name, int pageIndex, int pageSize) {
+		return managerDao.getUnSelected(user_id, nick_name, pageIndex, pageSize);
 	}
 
-	public List<UserDynamic> getUnSelected(String nick_name,int pageIndex, int pageSize) {
-		return managerDao.getUnSelected(null,nick_name,pageIndex, pageSize);
+	public List<UserDynamic> getUnSelected(String nick_name, int pageIndex, int pageSize) {
+		return managerDao.getUnSelected(null, nick_name, pageIndex, pageSize);
 	}
 
 	public int removeFromSelected(long id) {
@@ -188,7 +188,6 @@ public class ManagerService {
 		return managerDao.listNewUser(pageIndex, pageSize, type);
 	}
 
-
 	// 动态审核违规
 	public int updateDynamicState(long id, DynamicState state) {
 		return managerDao.updateDynamicState(id, state);
@@ -202,7 +201,7 @@ public class ManagerService {
 	 * @return
 	 */
 	public List<ManagerUser> getAllUser(int pageSize, int currentPage, int type, String keyword, Long user_id) {
-		return managerDao.listAllUser(user_id,currentPage, pageSize, type,keyword);
+		return managerDao.listAllUser(user_id, currentPage, pageSize, type, keyword);
 	}
 
 	/**
@@ -221,8 +220,8 @@ public class ManagerService {
 	 * @param pageIndex
 	 * @return
 	 */
-	public List<BaseUser> getFoundUsersByState(int pageSize, int pageIndex, SysUserStatus ship) {
-		return userService.getFoundUsersByState(pageSize, pageIndex, ship);
+	public List<BaseUser> getFoundUsers(int pageSize, int pageIndex) {
+		return userService.getFoundUsers(pageSize, pageIndex);
 	}
 
 	/**
@@ -230,10 +229,33 @@ public class ManagerService {
 	 * 
 	 * @return
 	 */
-	public int getFoundUserCountByState(SysUserStatus ship) {
-		return userService.getFoundUsersCountByState(ship);
+	public int getFoundUsersCount() {
+		return userService.getFoundUsersCount( );
 	}
 
+	
+
+	/**
+	 * 获取发现黑名单用户
+	 * 
+	 * @param pageSize
+	 * @param pageIndex
+	 * @return
+	 */
+	public List<BaseUser> getBlackUsers(int pageSize, int pageIndex) {
+		return userService.getBlackUsers(pageSize, pageIndex);
+	}
+
+	/**
+	 * 获取黑名单总数
+	 * 
+	 * @return
+	 */
+	public int getBlackUsersCount() {
+		return userService.getBlackUsersCount( );
+	}
+
+	
 	public List<BaseUser> getAllMeetBottleRecommendUser(int pageSize, int pageIndex, String keyword) {
 		return userService.getAllMeetBottleRecommendUser(pageSize, pageIndex, keyword);
 	}
@@ -247,23 +269,20 @@ public class ManagerService {
 	 * 
 	 * @param user_id
 	 */
-	public void editUserFoundState(long user_id, SysUserStatus ship) {
-		userService.setUserSysStatusTo(user_id, ship);
-		if (ship == SysUserStatus.BLACK) {
+	public void editUserFoundState(long user_id, UserFnStatus fn) {
+		userService.setUserFoundFn(user_id, fn);
+		if (fn == UserFnStatus.DEFAULT) {
 			bottleService.clearPoolBottleByUserId(user_id);
-			userDynamicService.updateCommentStatus(user_id, DynamicCommentStatus.ILLEGAL);
-			hxTask.disconnect(String.valueOf(user_id));
 		}
 	}
-
 
 	/**
 	 * 添加到邂逅瓶待选用户区
 	 * 
 	 * @param user_id
 	 */
-	public void editUserMeetBottle(long user_id, int fun, String ip, String by) {
-		managerDao.editUserMeetBottle(user_id, fun, ip, by);
+	public void editUserMeetBottle(long user_id, UserFnStatus fun) {
+		managerDao.editUserMeetBottle(user_id, fun);
 		bottleService.removeMeetBottle(user_id);
 	}
 
@@ -322,21 +341,12 @@ public class ManagerService {
 		return mainService.getReportSizeByApproval(approval_type);
 	}
 
-	public List<Bottle> listBottleByState(Long user_id,int state, int pageSize, int pageIndex, Long bottle_id) {
-		long realId;
-		if (bottle_id == null || bottle_id < 1) {
-			realId = 0;
-		} else {
-			realId = bottle_id;
-		}
-		return bottleService.getBottlesByState(user_id,state, pageSize, pageIndex, realId);
+	public List<Bottle> listBottleByState(Long user_id, int state, int pageSize, int pageIndex) {
+		return bottleService.getBottlesByState(user_id, state, pageSize, pageIndex);
 	}
 
-	public int getBottleCountWithState(Long uid,int state, Long bottle_id) {
-		if (bottle_id != null && bottle_id > 0) {
-			return 1;
-		}
-		return bottleService.getBottleCountWithState(uid,state);
+	public int getBottleCountWithState(Long uid, int state) {
+		return bottleService.getBottleCountWithState(uid, state);
 	}
 
 	public void changeBottleState(int id, int to_state) {
@@ -363,8 +373,8 @@ public class ManagerService {
 		userService.editAvatarState(id, state);
 	}
 
-	public void editAvatarStateByUserId(long uid) {
-		userService.editAvatarStateByUserId(uid);
+	public void editAvatarStateToIllegal(long uid) {
+		userService.editAvatarStateToIllegal(uid);
 	}
 
 	public String getMeetUserAvatar(String content) {
@@ -414,7 +424,7 @@ public class ManagerService {
 		managerDao.updateMPwd(name, MD5Util.getMd5(pwd));
 	}
 
-	//----------------约会相关------------------------------------------------
+	// ----------------约会相关------------------------------------------------
 	public ModelMap loadAppointMents(int status, int page, int count) {
 
 		ModelMap r = ResultUtil.getResultOKMap();
@@ -431,9 +441,7 @@ public class ManagerService {
 		}
 		r.put("currentPageIndex", page);
 
-		
-		
-		List<Appointment> data=appointmentService.listToCheck(status, page, count);
+		List<Appointment> data = appointmentService.listToCheck(status, page, count);
 		ImagePathUtil.completePath(data);
 		r.addAttribute("data", data);
 		return r;
@@ -456,21 +464,19 @@ public class ManagerService {
 		}
 		r.put("currentPageIndex", page);
 
-		List<Appointment> data=appointmentService.listToCheck(status, page, count);
+		List<Appointment> data = appointmentService.listToCheck(status, page, count);
 		ImagePathUtil.completePath(data);
 		r.addAttribute("data", data);
 		return r;
 	}
 
-	
-	//----------短视频相关--------------------------------------------------------------
-	
-	
-	public ModelMap loadShortvideos(int status, int page, int count,boolean isUserCert) {
+	// ----------短视频相关--------------------------------------------------------------
+
+	public ModelMap loadShortvideos(int status, int page, int count, boolean isUserCert) {
 
 		ModelMap r = ResultUtil.getResultOKMap();
 		if (page == 1) {
-			int totalSize = videoService.getCountByStatus(status,isUserCert);
+			int totalSize = videoService.getCountByStatus(status, isUserCert);
 			int pageCount = totalSize / count;
 			if (totalSize % count > 0) {
 				pageCount += 1;
@@ -481,8 +487,8 @@ public class ManagerService {
 			r.put("pageCount", pageCount);
 		}
 		r.put("currentPageIndex", page);
-		
-		List<Video> data=videoService.loadByStatus(status, page, count,isUserCert);
+
+		List<Video> data = videoService.loadByStatus(status, page, count, isUserCert);
 		ImagePathUtil.completeVideosPath(data);
 		r.addAttribute("data", data);
 		return r;
@@ -493,7 +499,7 @@ public class ManagerService {
 		videoService.changeStatus(id, newStatus);
 		ModelMap r = ResultUtil.getResultOKMap();
 		if (page == 1) {
-			int totalSize = videoService.getCountByStatus(status,false);
+			int totalSize = videoService.getCountByStatus(status, false);
 			int pageCount = totalSize / count;
 			if (totalSize % count > 0) {
 				pageCount += 1;
@@ -505,18 +511,18 @@ public class ManagerService {
 		}
 		r.put("currentPageIndex", page);
 
-		List<Video> data=videoService.loadByStatus(status, page, count,false);
+		List<Video> data = videoService.loadByStatus(status, page, count, false);
 		ImagePathUtil.completeVideosPath(data);
 		r.addAttribute("data", data);
 		return r;
 	}
 
-	public ModelMap userShortvideoCert(int id, long uid,int isOK,int status,int page, int count) {
-		videoService.changeStatus(id, isOK==1?VideoStatus.CHECKED.ordinal():VideoStatus.DEL.ordinal());
-		userService.changeUserCertStatus(uid,isOK==1?1:0);
+	public ModelMap userShortvideoCert(int id, long uid, int isOK, int status, int page, int count) {
+		videoService.changeStatus(id, isOK == 1 ? VideoStatus.CHECKED.ordinal() : VideoStatus.DEL.ordinal());
+		userService.changeUserCertStatus(uid, isOK == 1 ? 1 : 0);
 		ModelMap r = ResultUtil.getResultOKMap();
 		if (page == 1) {
-			int totalSize = videoService.getCountByStatus(status,true);
+			int totalSize = videoService.getCountByStatus(status, true);
 			int pageCount = totalSize / count;
 			if (totalSize % count > 0) {
 				pageCount += 1;
@@ -528,15 +534,14 @@ public class ManagerService {
 		}
 		r.put("currentPageIndex", page);
 
-		List<Video> data=videoService.loadByStatus(status, page, count,true);
+		List<Video> data = videoService.loadByStatus(status, page, count, true);
 		ImagePathUtil.completeVideosPath(data);
 		r.addAttribute("data", data);
 		return r;
 	}
-	//----------动态评论相关--------------------------------------------------------------
-	
-	
-	public ModelMap loadDynamicComment(Long user_id,int page, int count) {
+	// ----------动态评论相关--------------------------------------------------------------
+
+	public ModelMap loadDynamicComment(Long user_id, int page, int count) {
 
 		ModelMap r = ResultUtil.getResultOKMap();
 		if (page == 1) {
@@ -551,19 +556,20 @@ public class ManagerService {
 			r.put("pageCount", pageCount);
 		}
 		r.put("currentPageIndex", page);
-		
-		List<DynamicComment> data=userDynamicService.loadDynamicCommentToCheck(user_id,page, count);
+
+		List<DynamicComment> data = userDynamicService.loadDynamicCommentToCheck(user_id, page, count);
 		r.addAttribute("data", data);
 		return r;
 	}
-	public ModelMap change_dynamic_comment_status(Long user_id,int id,  int status,int page, int count) {
-		userDynamicService.changeCommentStatus(id,status);
-		return loadDynamicComment(user_id,page,count);
+
+	public ModelMap change_dynamic_comment_status(Long user_id, int id, int status, int page, int count) {
+		userDynamicService.changeCommentStatus(id, status);
+		return loadDynamicComment(user_id, page, count);
 	}
-	
-	//----------礼物清单-----------------------
-	
-	public ModelMap loadGiftHistoryList(Long user_id,int page, int count) {
+
+	// ----------礼物清单-----------------------
+
+	public ModelMap loadGiftHistoryList(Long user_id, int page, int count) {
 
 		ModelMap r = ResultUtil.getResultOKMap();
 		if (page == 1) {
@@ -578,14 +584,15 @@ public class ManagerService {
 			r.put("pageCount", pageCount);
 		}
 		r.put("currentPageIndex", page);
-		
-		List<GiftOwn> data=giftService.getGifNoticeByManager(user_id, page, count);
+
+		List<GiftOwn> data = giftService.getGifNoticeByManager(user_id, page, count);
 		ImagePathUtil.completeGiftsOwnPath(data, true);
 		r.addAttribute("data", data);
 		return r;
 	}
-	//----------签名更新相关-----------------------
-	public ModelMap loadSignatureUpdateUsers(Long user_id,int page, int count) {
+
+	// ----------签名更新相关-----------------------
+	public ModelMap loadSignatureUpdateUsers(Long user_id, int page, int count) {
 		ModelMap r = ResultUtil.getResultOKMap();
 		if (page == 1) {
 			int totalSize = userService.getSignatureUpdateUsersCount(user_id);
@@ -599,13 +606,13 @@ public class ManagerService {
 			r.put("pageCount", pageCount);
 		}
 		r.put("currentPageIndex", page);
-		
-		r.addAttribute("data", userService.loadSignatureUpdateUsers(user_id,page,count));
+
+		r.addAttribute("data", userService.loadSignatureUpdateUsers(user_id, page, count));
 		return r;
 	}
-	
-	public ModelMap deleteUserSignature(long uid,Long user_id,int page,int count) {
+
+	public ModelMap deleteUserSignature(long uid, Long user_id, int page, int count) {
 		userService.deleteUserSignature(uid);
-		return loadSignatureUpdateUsers(user_id,page,count);
+		return loadSignatureUpdateUsers(user_id, page, count);
 	}
 }

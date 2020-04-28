@@ -393,24 +393,19 @@ public class BottleDao extends BaseDao<Bottle> {
 		return -1;
 	}
 
-	public List<Bottle> getBottlesByState(Long user_id,int state, int pageSize, int pageIndex, long bottle_id) {
+	public List<Bottle> getBottlesByState(Long user_id,int state, int pageSize, int pageIndex) {
 
 		Object[] param;
-		String sql;
-		if (bottle_id > 0) {
-			sql = "select b.*,u.nick_name,u.avatar from t_bottle_pool p left join  t_bottle b on p.bottle_id=b.id left join t_user u on b.user_id=u.user_id where b.id=? and  b.state=? and b.type<>? order by p.create_time  desc limit ?,?";
-			if (state == -1) {
-				sql = "select b.*,u.nick_name,u.avatar from t_bottle_pool p left join  t_bottle b on p.bottle_id=b.id left join t_user u on b.user_id=u.user_id where b.id=? and  b.state<>? and b.type<>? order by p.create_time desc limit ?,?";
-			}
-			param = new Object[] { bottle_id, state, BottleType.MEET.ordinal(), (pageIndex - 1) * pageSize, pageSize };
-		} else {
-			sql = "select b.*,u.nick_name,u.avatar from t_bottle_pool p left join  t_bottle b on p.bottle_id=b.id left join t_user u on b.user_id=u.user_id where   b.state=? and b.type<>? order by p.create_time  desc limit ?,?";
-			if (state == -1) {
-				sql = "select b.*,u.nick_name,u.avatar from t_bottle_pool p left join  t_bottle b on p.bottle_id=b.id left join t_user u on b.user_id=u.user_id where     b.state<>? and b.type<>? order by p.create_time desc limit ?,?";
-			}
-			param = new Object[] { state, BottleType.MEET.ordinal(), (pageIndex - 1) * pageSize, pageSize };
+		String sql  = "select b.*,u.nick_name,u.avatar from t_bottle b left join t_user u on b.user_id=u.user_id where  b.state=? and b.type<>? ";
+		if (state == -1) {
+			sql = "select b.*,u.nick_name,u.avatar from t_bottle b left join t_user u on b.user_id=u.user_id where  b.state<>? and b.type<>? ";
 		}
-
+		param = new Object[] { state, BottleType.MEET.ordinal(), (pageIndex - 1) * pageSize, pageSize };
+		if(user_id!=null&&user_id>0) {
+			sql+=" and b.user_id=? ";			
+			param = new Object[] { state, BottleType.MEET.ordinal(), user_id,(pageIndex - 1) * pageSize, pageSize };
+		}
+		sql+=" order by b.id desc limit ?,?";
 		return jdbcTemplate.query(sql, param, new BeanPropertyRowMapper<Bottle>(Bottle.class) {
 			@Override
 			public Bottle mapRow(ResultSet rs, int rowNumber) throws SQLException {
@@ -427,9 +422,9 @@ public class BottleDao extends BaseDao<Bottle> {
 	}
 
 	public int getBottleCountWithState(Long user_id,int state) {
-		String sql = "select count(*) from t_bottle_pool p left join t_bottle b on p.bottle_id=b.id where b.state=?";
+		String sql = "select count(*) from  t_bottle b where b.state=?";
 		if (state == -1) {
-			sql = "select count(*) from t_bottle_pool p left join  t_bottle  b on p.bottle_id=b.id where b.state<>?";
+			sql = "select count(*) from   t_bottle  b where b.state<>?";
 		}
 		
 		if(user_id!=null) {

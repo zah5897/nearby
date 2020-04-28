@@ -76,6 +76,8 @@ public class UserDynamic implements Serializable {
 	private int comment_count;
 	private int flower_count;
 	
+	
+	private int found_status;
 
 	public long getId() {
 		return id;
@@ -299,6 +301,14 @@ public class UserDynamic implements Serializable {
 
 	public void setFlower_count(int flower_count) {
 		this.flower_count = flower_count;
+	}
+
+	public int getFound_status() {
+		return found_status;
+	}
+
+	public void setFound_status(int found_status) {
+		this.found_status = found_status;
 	}
 
 	 

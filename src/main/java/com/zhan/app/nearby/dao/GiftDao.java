@@ -19,6 +19,7 @@ import com.zhan.app.nearby.bean.MeiLi;
 import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.bean.user.RankUser;
 import com.zhan.app.nearby.comm.Relationship;
+import com.zhan.app.nearby.comm.SysUserStatus;
 import com.zhan.app.nearby.comm.UserType;
 import com.zhan.app.nearby.dao.base.BaseDao;
 import com.zhan.app.nearby.util.ImagePathUtil;
@@ -91,11 +92,11 @@ public class GiftDao extends BaseDao<Gift> {
 	public List<GiftOwn> loadGiftNotice(int page, int count) {
 		String sql = "select go.*,re.nick_name as re_name,re.isvip as re_is_vip,re.avatar as re_avatar,se.nick_name as se_name,se.isvip as se_is_vip,se.avatar as se_avatar,g.name,g.image_url,g.price,g.old_price"
 				+ " from t_gift_own go left join t_gift g on g.id=go.gift_id "
-				+ " left join t_user re on re.user_id=go.user_id " + " left join t_user se on se.user_id=go.from_uid "
+				+ " left join t_user re on re.user_id=go.user_id  left join t_user se on se.user_id=go.from_uid  where re.sys_status<>? and se.sys_status<>? "
 				+ " order by give_time desc limit ?,?";
 
 		int offset = (page - 1) * count;
-		return jdbcTemplate.query(sql, new Object[] { offset, count }, new RowMapper<GiftOwn>() {
+		return jdbcTemplate.query(sql, new Object[] {SysUserStatus.BLACK.ordinal(),SysUserStatus.BLACK.ordinal(), offset, count }, new RowMapper<GiftOwn>() {
 			@Override
 			public GiftOwn mapRow(ResultSet rs, int rowNum) throws SQLException {
 				GiftOwn own = new GiftOwn();
@@ -290,7 +291,8 @@ public class GiftDao extends BaseDao<Gift> {
 	}
 
 	public List<GiftOwn> getGifNotice(long user_id, int page, int count) {
-		String sql = "select o.*,o.gift_id as id,g.price as price,o.from_uid as give_uid ,g.image_url as image_url,g.name as name from t_gift_own o left join t_gift g on o.gift_id=g.id where o.user_id=? order by o.give_time desc limit ?,?";
+		String sql = "select o.*,o.gift_id as id,g.price as price,o.from_uid as give_uid ,g.image_url as image_url,g.name as name from t_gift_own o"
+				+ "  left join t_gift g on o.gift_id=g.id where o.user_id=? order by o.give_time desc limit ?,?";
 		return jdbcTemplate.query(sql, new Object[] { user_id, (page - 1) * count, count },
 				new BeanPropertyRowMapper<GiftOwn>(GiftOwn.class));
 

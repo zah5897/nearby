@@ -35,18 +35,14 @@ td {
 						style="line-height: 17px; display: inline-block">
 							<option value="-1">全部</option>
 							<option value="0">正常状态</option>
-							<option value="1">黑名单</option>
-							<option value="2">审核状态</option>
+							<option value="1">审核状态</option>
+							<option value="2">黑名单</option>
+							<option value="3">精选</option>
 					</select></li>
 					<li>
-			         <input type="text" placeholder="请输入用户id" name="user_id_input" class="input" style="width:250px; line-height:17px;display:inline-block" />
+			         <input type="text" placeholder="请输入发送者id" name="user_id_input" class="input" style="width:250px; line-height:17px;display:inline-block" />
                      <a href="javascript:void(0)" class="button border-main icon-search" onclick="doSearchById()" > 搜索</a>
                    </li> 
-					<li>
-			         <input type="text" placeholder="请输入瓶子ID" name="bottle_id" class="input" style="width:250px; line-height:17px;display:inline-block" />
-                     <a href="javascript:void(0)" class="button border-main icon-search" onclick="doSearch()" > 搜索</a>
-                   </li> 
-                     
 				</ul>
 			</div>
 
@@ -54,15 +50,13 @@ td {
 
 			<table class="table table-hover text-center">
 				<tr>
-					<th width="8%">ID</th>
-					<th width="8%">设备</th>
-					<th width="13%">发送者</th>
+					<th width="10%">设备</th>
+					<th width="15%">发送者</th>
 					<th width="10%">头像</th>
 					<th width="5%">类型</th>
 					<th width="10%">内容</th>
 					<th width="10%">时间</th>
-					<th width="5%">状态</th>
-					<th width="25%">操作</th>
+					<th width="40%">操作</th>
 				</tr>
 				<tr id="bottom">
 					<td colspan="8">
@@ -199,9 +193,6 @@ td {
 			 var id=pageData['id'];
 			 
 			 var toAdd="<tr id='tr_"+id+"'>";
-			 toAdd+="<td><input type='checkbox' name='id[]' value='"+id+"' />"+id+"</td>";
-			 
-			 
 			 
 			 var from=pageData['_from'];
 			 var channel=pageData['channel'];
@@ -211,11 +202,11 @@ td {
 				 if(!channel){
 					 channel="iPhone"; 
 				 }
-				 txtFrom="IOS#"+channel;
+				 txtFrom=channel;
 			 }else if(from==2){
-				 txtFrom="AND#"+channel;
+				 txtFrom=channel;
 			 }else{
-				 txtFrom="Old#"+channel;
+				 txtFrom=channel;
 			 }
 			 
 			 toAdd+="<td>"+txtFrom+"</td>";
@@ -260,26 +251,18 @@ td {
 			 
 			 var state=pageData["state"];
 			 
-			 var stateStr="正常";
-			 if(state==1){
-				 stateStr="黑屋 ";
-			 }else if(state==2){
-				 stateStr="ios"
-			 }
-			 
-			 toAdd+="<td>"+stateStr+"</td>";
 			 //操作单元格
 			  toAdd+="<td><div class='button-group'>";
 			  //操作单元格
 			  if(state==0){
-				 
-				  toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return changeBottleState("+id+",2)'><span class='icon-edit'></span>精选推荐</a>";
-				  toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return changeBottleState("+id+",1)'><span class='icon-edit'></span>关小黑屋</a>";
+				  toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return changeBottleState("+id+",1)'><span class='icon-edit'></span>审核通过</a>";
+				  toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return changeBottleState("+id+",3)'><span class='icon-edit'></span>精选推荐</a>";
+				  toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return changeBottleState("+id+",2)'><span class='icon-edit'></span>关小黑屋</a>";
 			  }else  {
 				  toAdd+="<a class='button border-main' href='javascript:void(0)'	onclick='return changeBottleState("+id+",0)'><span class='icon-edit'></span>恢复正常</a>";
 			  } 
 			  
-			  toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return add_to_found_black_list("+pageData["sender"]["user_id"]+",1)'><span class='icon-edit'></span>拉黑名单</a>";
+			  toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return add_user_black("+pageData["sender"]["user_id"]+",1)'><span class='icon-edit'></span>拉黑名单</a>";
 			  
 			  toAdd+="</div></td></tr>";
 			 tr.after(toAdd);
@@ -289,8 +272,8 @@ td {
 	    	parent.showOriginImg(img);
 	    }
 	    
-	    function add_to_found_black_list(user_id){
-			$.post("<%=path%>/manager/edit_user_found_state",{'user_id':user_id,'fun':1,'state':1},function(result){
+	    function add_user_black(user_id){
+			$.post("<%=path%>/manager/add_user_black",{'user_id':user_id,'fun':1,'state':1},function(result){
 				 var json=JSON.parse(result);
 				 if(json.code==0){
 			        	parent.toast("操作成功！");

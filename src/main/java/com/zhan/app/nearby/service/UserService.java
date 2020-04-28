@@ -21,7 +21,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.servlet.tags.form.TextareaTag;
 
 import com.zhan.app.nearby.bean.Avatar;
 import com.zhan.app.nearby.bean.City;
@@ -40,11 +39,11 @@ import com.zhan.app.nearby.comm.AvatarIMGStatus;
 import com.zhan.app.nearby.comm.PushMsgType;
 import com.zhan.app.nearby.comm.Relationship;
 import com.zhan.app.nearby.comm.SysUserStatus;
+import com.zhan.app.nearby.comm.UserFnStatus;
 import com.zhan.app.nearby.comm.UserType;
 import com.zhan.app.nearby.dao.TagDao;
 import com.zhan.app.nearby.dao.UserDao;
 import com.zhan.app.nearby.dao.VipDao;
-import com.zhan.app.nearby.exception.AppException;
 import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.task.CommAsyncTask;
 import com.zhan.app.nearby.task.FaceCheckTask;
@@ -756,8 +755,8 @@ public class UserService {
 	 * @param pageIndex
 	 * @return
 	 */
-	public List<BaseUser> getFoundUsersByState(int pageSize, int pageIndex, SysUserStatus ship) {
-		return userDao.getFoundUsersByState(pageSize, pageIndex, ship);
+	public List<BaseUser> getFoundUsers(int pageSize, int pageIndex) {
+		return userDao.getFoundUsers(pageSize, pageIndex);
 	}
 
 	/**
@@ -765,9 +764,32 @@ public class UserService {
 	 * 
 	 * @return
 	 */
-	public int getFoundUsersCountByState(SysUserStatus ship) {
-		return userDao.getFoundUsersCountByState(ship);
+	public int getFoundUsersCount(   ) {
+		return userDao.getFoundUsersCount( );
 	}
+	
+	
+	/**
+	 * 鑾峰彇鍙戠幇榛戝悕鍗曠敤鎴�
+	 * 
+	 * @param pageSize
+	 * @param pageIndex
+	 * @return
+	 */
+	public List<BaseUser> getBlackUsers(int pageSize, int pageIndex) {
+		return userDao.getBlackUsers(pageSize, pageIndex);
+	}
+
+	/**
+	 * 鑾峰彇榛戝悕鍗曟�绘暟
+	 * 
+	 * @return
+	 */
+	public int getBlackUsersCount(   ) {
+		return userDao.getBlackUsersCount( );
+	}
+	
+	
 
 	public List<BaseUser> getAllMeetBottleRecommendUser(int pageSize, int pageIndex, String keyword) {
 		return userDao.getAllMeetBottleRecommendUser(pageSize, pageIndex, keyword);
@@ -868,7 +890,7 @@ public class UserService {
 	public void editAvatarState(int id, int state) {
 		if (state == AvatarIMGStatus.ILLEGAL.ordinal()) {
 			long uid = userDao.editAvatarState(id, AvatarIMGStatus.ILLEGAL.ordinal());
-			userDao.setUserSysStatusToNormal(uid);
+			userDao.clearUserFnStatus(uid);
 			bottleService.clearIllegalMeetBottle(uid);
 		} else {
 			userDao.updateAvatarState(id, state);
@@ -876,8 +898,22 @@ public class UserService {
 
 	}
 
+//	@Transactional
+//	public void editAvatarStateByUserId(long uid) {
+//		String avatarName = userDao.getCurrentAvatar(uid);
+//		try {
+//			Integer id = userDao.getAvatarIdByName(avatarName);
+//			if (id != null) {
+//				userDao.editAvatarState(id, AvatarIMGStatus.ILLEGAL.ordinal());
+//			}
+//		} catch (Exception e) {
+//			userDao.editAvatarStateByUserId(uid, AvatarIMGStatus.ILLEGAL.ordinal());
+//		}
+//		userDao.setUserSysStatusToNormal(uid);
+//		bottleService.clearIllegalMeetBottle(uid);
+//	}
 	@Transactional
-	public void editAvatarStateByUserId(long uid) {
+	public void editAvatarStateToIllegal(long uid) {
 		String avatarName = userDao.getCurrentAvatar(uid);
 		try {
 			Integer id = userDao.getAvatarIdByName(avatarName);
@@ -887,7 +923,7 @@ public class UserService {
 		} catch (Exception e) {
 			userDao.editAvatarStateByUserId(uid, AvatarIMGStatus.ILLEGAL.ordinal());
 		}
-		userDao.setUserSysStatusToNormal(uid);
+		userDao.clearUserFnStatus(uid);
 		bottleService.clearIllegalMeetBottle(uid);
 	}
 
@@ -1039,7 +1075,7 @@ public class UserService {
 		for (String ip : ips) {
 			List<Long> uids = userDao.loadIllegalRegistUids(ip);
 			for (long uid : uids) {
-				editAvatarStateByUserId(uid);
+				editAvatarStateToIllegal(uid);
 				bottleService.clearUserBottle(uid);
 				deleteIllegalAvatarFileRightNow(uid);
 				userDao.deleteIllegalUser(uid);
@@ -1047,15 +1083,12 @@ public class UserService {
 		}
 	}
 
-	// 杩欓噷鏄‘瀹歩sFace=1鐨勬儏鍐碉紝闇�瑕佹坊鍔犲埌棣栭〉鎺ㄨ崘鍜岄倐閫呯摱涓�
 	public void addRecommendAndMeetBottle(long user_id) {
-		userDao.setUserSysStatusToCanFound(user_id);
-		managerService.editUserMeetBottle(user_id, 1, "127.0.0.1", "admin");
+       userDao.setUserFnStatusEnable(user_id);
 	}
 
 	public void removeRecommendAndMeetBottle(long user_id) {
-		userDao.setUserSysStatusToNormal(user_id);
-		managerService.editUserMeetBottle(user_id, 0, "127.0.0.1", "admin"); // 从邂逅瓶里面删除
+		userDao.clearUserFnStatus(user_id);
 	}
 
 	public List<Avatar> listNotCheckedAvatars(int count) {
@@ -1603,10 +1636,10 @@ public class UserService {
 	public void setUserSysStatusToNormal(long uid) {
 		userDao.setUserSysStatusToNormal(uid);
 	}
-	public void setUserSysStatusToCanFound(long uid) {
-		userDao.setUserSysStatusToCanFound(uid);
-	}
 	public void setUserSysStatusTo(long uid,SysUserStatus status) {
 		userDao.setUserSysStatusTo(uid,status.ordinal());
+	}
+	public void setUserFoundFn(long uid,UserFnStatus fn) {
+		userDao.setUserFoundFn(uid, fn);
 	}
 }

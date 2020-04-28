@@ -29,6 +29,7 @@ import com.zhan.app.nearby.comm.AccountStateType;
 import com.zhan.app.nearby.comm.AvatarIMGStatus;
 import com.zhan.app.nearby.comm.Relationship;
 import com.zhan.app.nearby.comm.SysUserStatus;
+import com.zhan.app.nearby.comm.UserFnStatus;
 import com.zhan.app.nearby.comm.UserType;
 import com.zhan.app.nearby.dao.base.BaseDao;
 import com.zhan.app.nearby.util.DateTimeUtil;
@@ -337,10 +338,10 @@ public class UserDao extends BaseDao<BaseUser> {
 
 	public List<BaseUser> getFoundUserRandom(long user_id, int realCount, int gender) {
 
-		String sql = "select u.user_id,u.nick_name,u.avatar from   t_user u  where u.sys_status<>? and u.user_id<>? and u.avatar is not null and u.sex<>? order by  RAND() limit ?";
+		String sql = "select u.user_id,u.nick_name,u.avatar from   t_user u  where u.found_status=? and u.user_id<>? and u.avatar is not null and u.sex<>? order by  RAND() limit ?";
 
 		List<BaseUser> users = jdbcTemplate.query(sql,
-				new Object[] { SysUserStatus.BLACK.ordinal(), user_id, gender, realCount },
+				new Object[] { UserFnStatus.ENABLE.ordinal(), user_id, gender, realCount },
 				getEntityMapper());
 		return users;
 	}
@@ -569,9 +570,9 @@ public class UserDao extends BaseDao<BaseUser> {
 	 * @param pageIndex
 	 * @return
 	 */
-	public List<BaseUser> getFoundUsersByState(int pageSize, int pageIndex, SysUserStatus status) {
-		String sql = "select u.* from  t_user u    where u.sys_status=? order by u.last_login_time desc limit ?,?";
-		return jdbcTemplate.query(sql, new Object[] { status.ordinal(), (pageIndex - 1) * pageSize, pageSize },
+	public List<BaseUser> getFoundUsers(int pageSize, int pageIndex) {
+		String sql = "select u.* from  t_user u    where u.found_status=? order by u.last_login_time desc limit ?,?";
+		return jdbcTemplate.query(sql, new Object[] { UserFnStatus.ENABLE.ordinal(), (pageIndex - 1) * pageSize, pageSize },
 				getEntityMapper());
 	}
 
@@ -580,11 +581,36 @@ public class UserDao extends BaseDao<BaseUser> {
 	 * 
 	 * @return
 	 */
-	public int getFoundUsersCountByState(SysUserStatus status) {
-		return jdbcTemplate.queryForObject("select count(*) from t_user where sys_status=?",
-				new Object[] { status.ordinal() }, Integer.class);
+	public int getFoundUsersCount() {
+		return jdbcTemplate.queryForObject("select count(*) from t_user where found_status=?",
+				new Object[] { UserFnStatus.ENABLE.ordinal() }, Integer.class);
 	}
 
+	
+	/**
+	 * 鑾峰彇鍙戠幇榛戝悕鍗曠敤鎴�
+	 * 
+	 * @param pageSize
+	 * @param pageIndex
+	 * @return
+	 */
+	public List<BaseUser> getBlackUsers(int pageSize, int pageIndex) {
+		String sql = "select u.* from  t_user u    where u.sys_status=? order by u.last_login_time desc limit ?,?";
+		return jdbcTemplate.query(sql, new Object[] { SysUserStatus.BLACK.ordinal(), (pageIndex - 1) * pageSize, pageSize },
+				getEntityMapper());
+	}
+
+	/**
+	 * 鑾峰彇鍙戠幇鐢ㄦ埛榛戝悕鍗曟�绘暟
+	 * 
+	 * @return
+	 */
+	public int getBlackUsersCount() {
+		return jdbcTemplate.queryForObject("select count(*) from t_user where sys_status=?",
+				new Object[] { SysUserStatus.BLACK.ordinal() }, Integer.class);
+	}
+	
+	
 	/**
 	 * 鑾峰彇閭傞�呯摱鎺ㄨ崘鐢ㄦ埛
 	 * 
@@ -1022,20 +1048,6 @@ public class UserDao extends BaseDao<BaseUser> {
 		jdbcTemplate.update("delete from t_user where user_id=" + uid);
 	}
 
-//	public int addToFound(long user_id) {
-//		int count = jdbcTemplate.update("update t_found_user_relationship set state=?,action_time=? where uid=?",
-//				new Object[] { FoundUserRelationship.VISIBLE.ordinal(), new Date(), user_id });
-//		if (count != 1) {
-//			String sql = "insert into t_found_user_relationship values (?, ?,?)";
-//			return jdbcTemplate.update(sql,
-//					new Object[] { user_id, FoundUserRelationship.VISIBLE.ordinal(), new Date() });
-//		}
-//		return count;
-//	}
-
-//	public void removeFromFound(long user_id) {
-//		jdbcTemplate.update("delete from  t_found_user_relationship where uid=" + user_id);
-//	}
 
 	public boolean isFollowed(long user_id, long target_id) {
 		return jdbcTemplate.queryForObject("select count(*) from t_user_follow where uid=? and target_id=?",
@@ -1388,15 +1400,27 @@ public class UserDao extends BaseDao<BaseUser> {
 		
 	}
 
+	public void clearUserFnStatus(long uid) {
+		int val=UserFnStatus.DEFAULT.ordinal();
+		jdbcTemplate.update("update t_user set bottle_meet_status=?,found_status=? where user_id=?",val,val,uid);
+	}
+	
+	public void setUserFnStatusEnable(long uid) {
+		int val=UserFnStatus.ENABLE.ordinal();
+		jdbcTemplate.update("update t_user set bottle_meet_status=?,found_status=? where user_id=?",val,val,uid);
+	}
+	public void setUserFoundFn(long uid,UserFnStatus fn) {
+		jdbcTemplate.update("update t_user set found_status=? where user_id=?",fn.ordinal(),uid);
+	}
+	public void setUserBottleMeetFn(long uid,UserFnStatus fn) {
+		jdbcTemplate.update("update t_user set bottle_meet_status=? where user_id=?",fn.ordinal(),uid);
+	}
+	
 	public void setUserSysStatusToNormal(long uid) {
 		jdbcTemplate.update("update t_user set sys_status=? where user_id=?",SysUserStatus.NORMAL.ordinal(),uid);
-	}
-	public void setUserSysStatusToCanFound(long uid) {
-		jdbcTemplate.update("update t_user set sys_status=? where user_id=?",SysUserStatus.CAN_FOUND.ordinal(),uid);
 	}
 
 	public void setUserSysStatusTo(long uid, int ordinal) {
 		jdbcTemplate.update("update t_user set sys_status=? where user_id=?",ordinal,uid);
-
 	}
 }

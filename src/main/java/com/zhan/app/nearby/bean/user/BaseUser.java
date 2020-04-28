@@ -120,6 +120,10 @@ public class BaseUser implements Serializable {
 	private int online_status; //用户在线状态   -1 未知， 0离线，1在线
 	
 	private int sys_status;//0 正常状态，1黑名单状态
+	
+	private int found_status;//0 正常状态，1 首页发现推荐
+	
+	private int bottle_meet_status;//0 正常状态，1 邂逅瓶子推荐
 	 
 	public int getSys_status() {
 		return sys_status;
@@ -431,6 +435,22 @@ public class BaseUser implements Serializable {
 
 	public void setVideo_cert_status(int video_cert_status) {
 		this.video_cert_status = video_cert_status;
+	}
+
+	public int getFound_status() {
+		return found_status;
+	}
+
+	public void setFound_status(int found_status) {
+		this.found_status = found_status;
+	}
+
+	public int getBottle_meet_status() {
+		return bottle_meet_status;
+	}
+
+	public void setBottle_meet_status(int bottle_meet_status) {
+		this.bottle_meet_status = bottle_meet_status;
 	}
  
  

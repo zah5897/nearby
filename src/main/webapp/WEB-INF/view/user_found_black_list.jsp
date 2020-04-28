@@ -168,7 +168,7 @@
 			}
 		}
 		function del_from_found_user_black(user_id){
-			$.post("<%=path%>/manager/remove_user_found_state",{'user_id':user_id,'state':1,'pageIndex':currentPageIndex,'pageSize':pageSize},function(result){
+			$.post("<%=path%>/manager/remove_user_black",{'user_id':user_id,'state':1,'pageIndex':currentPageIndex,'pageSize':pageSize},function(result){
 				 var json=JSON.parse(result);
 				 if(json.code==0){
 			        	$("table tr[id*='tr_'").each(function(i){

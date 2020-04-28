@@ -36,9 +36,11 @@
 				  <li>
 				    <select id="user_type" name="user_type" class="input" onchange="changeType(this)"  style="line-height:17px;display:inline-block">
                           <option value="-1">所有用户</option>
-                          <option value="0">游客用户</option>
                           <option value="1">正式用户</option>
-                          <option value="2">非正式用户</option>
+                          <!-- 
+                           <option value="0">游客用户</option>
+                           <option value="2">非正式用户</option>
+                           -->
                       </select>
 				  </li>
 				  <li>
@@ -219,8 +221,9 @@
 		function edit_fun(user_id){
 			alert(user_id);
 		}
-		function add_to_found_black_list(user_id){
-			$.post("<%=path%>/manager/edit_user_found_state",{'user_id':user_id,'fun':1,'state':1},function(result){
+		
+		function add_user_black(user_id){
+			$.post("<%=path%>/manager/add_user_black",{'user_id':user_id,'fun':1},function(result){
 				 var json=JSON.parse(result);
 				 if(json.code==0){
 			        	parent.toast("操作成功！");
@@ -231,8 +234,9 @@
 		    });
 		}
 		
+		
 		function edit_avatar_state(user_id){
-			$.post("<%=path%>/manager/edit_avatar_state_by_user_id",{'user_id':user_id},function(result){
+			$.post("<%=path%>/manager/edit_avatar_state_to_illegal",{'user_id':user_id},function(result){
 				 
 				 var json=JSON.parse(result);
 				 if(json.code==0){
@@ -246,7 +250,7 @@
 		}
 		
 		function add_to_found_user(user_id){
-			$.post("<%=path%>/manager/edit_user_found_state",{'user_id':user_id,'fun':1,'state':0},function(result){
+			$.post("<%=path%>/manager/add_user_found",{'user_id':user_id,'fun':1,'state':0},function(result){
 				 var json=JSON.parse(result);
 				 if(json.code==0){
 			        	parent.toast("操作成功！");
@@ -257,7 +261,7 @@
 		    });
 		}
 		function add_to_meet_bottle(user_id){
-			$.post("<%=path%>/manager/edit_user_meet_bottle_recomend",{'user_id':user_id,'fun':1},function(result){
+			$.post("<%=path%>/manager/add_user_meet_bottle",{'user_id':user_id,'fun':1},function(result){
 				 var json=JSON.parse(result);
 			        if(json.code==0){
 			        	parent.toast("操作成功！");
@@ -325,7 +329,7 @@
 			 
 			  
 			  if(state==0){
-				  toAdd+="<a class='button border-yellow' id='bleac_"+user_id+"' href='javascript:void(0)'	onclick='return add_to_found_black_list("+user_id+")'><span class='icon-edit'></span>加入黑名单</a>";
+				  toAdd+="<a class='button border-yellow' id='bleac_"+user_id+"' href='javascript:void(0)'	onclick='return add_user_black("+user_id+")'><span class='icon-edit'></span>加入黑名单</a>";
 			  }
 			  
 			  if(pageData.avatar&&pageData.avatar.indexOf('illegal.jpg')==-1){

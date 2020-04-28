@@ -264,9 +264,11 @@ public class BottleService {
 		checkExistAndClear(bottle);
 		bottle.setCreate_time(new Date());
 
+		bottle.setState(BottleState.CREATE.ordinal());
 		bottleDao.insert(bottle);
 
-		if (bottle.getId() > 0 && bottle.getState() != BottleState.BLACK.ordinal()) {
+		//瓶子需要审核 ,邂逅瓶子除外
+		if (bottle.getId() > 0 && bottle.getType()==BottleType.MEET.ordinal()) {
 			bottleDao.insertToPool(bottle);
 		}
 	}
@@ -507,8 +509,8 @@ public class BottleService {
 		return 0;
 	}
 
-	public List<Bottle> getBottlesByState(Long user_id,int state, int pageSize, int pageIndex, long bottle_id) {
-		return bottleDao.getBottlesByState(user_id ,state, pageSize, pageIndex, bottle_id);
+	public List<Bottle> getBottlesByState(Long user_id,int state, int pageSize, int pageIndex) {
+		return bottleDao.getBottlesByState(user_id ,state, pageSize, pageIndex);
 	}
 
 	public int getBottleCountWithState(Long user_id,int state) {
@@ -516,6 +518,10 @@ public class BottleService {
 	}
 
 	public void changeBottleState(int id, int to_state) {
+		if(to_state==BottleState.NORMAL.ordinal()) {
+			Bottle b=getBottleById(id);
+			bottleDao.insertToPool(b);
+		}
 		bottleDao.changeBottleState(id, to_state);
 	}
 

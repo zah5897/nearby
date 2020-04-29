@@ -53,10 +53,22 @@ public class ManagerDao extends BaseDao<ManagerUser> {
 		}
 
 	}
-
-	public List<UserDynamic> getUnSelected(Long user_id,String nick_name,int pageIndex, int pageSize ) {
+    public List<UserDynamic> getUnCheckedDynamic(Long user_id,int page,int count ) {
 		
-		
+    	
+    	if(user_id!=null) {
+    		String sql = "select dynamic.*  ,user.user_id  ,user.nick_name ,user.avatar,user.sex,user.isvip ,user.birthday,user.type from "
+    				+ TABLE_USER_DYNAMIC
+    				+ " dynamic left join t_user user on  dynamic.user_id=user.user_id  where   dynamic.state=? and dynamic.user_id=? order by dynamic.id desc limit ?,?";
+    		return jdbcTemplate.query(sql, new Object[] {DynamicState.CREATE.ordinal(),user_id,(page-1)*count,count}, new DynamicMapper());
+    	}else {
+    		String sql = "select dynamic.*  ,user.user_id  ,user.nick_name ,user.avatar,user.sex,user.isvip ,user.birthday,user.type from "
+    				+ TABLE_USER_DYNAMIC
+    				+ " dynamic left join t_user user on  dynamic.user_id=user.user_id  where   dynamic.state=?   order by dynamic.id desc limit ?,?";
+    		return jdbcTemplate.query(sql, new Object[] {DynamicState.CREATE.ordinal(),(page-1)*count,count}, new DynamicMapper());
+    	}
+	}
+	public List<UserDynamic> getUnSelectedDynamic(Long user_id,String nick_name,int pageIndex, int pageSize ) {
 		
 		String sql = "select dynamic.*  ,user.user_id  ,user.nick_name ,user.avatar,user.sex,user.isvip ,user.birthday,user.type from "
 				+ TABLE_USER_DYNAMIC
@@ -64,8 +76,8 @@ public class ManagerDao extends BaseDao<ManagerUser> {
 		
 		List<Object> param=new ArrayList<>();
 		
-		param.add(UserFnStatus.ENABLE.ordinal());
-		param.add(DynamicState.T_FORMAL.ordinal());
+		param.add(UserFnStatus.DEFAULT.ordinal());
+		param.add(DynamicState.CHECKED.ordinal());
 		
 		if(!TextUtils.isEmpty(nick_name)) {
 			sql+=" and dynamic.user_id in (select user_id from t_user where nick_name like ?)";
@@ -80,36 +92,28 @@ public class ManagerDao extends BaseDao<ManagerUser> {
 		param.add((pageIndex - 1) * pageSize);
 		param.add(pageSize);
 		return jdbcTemplate.query(sql, param.toArray(), new DynamicMapper());
-	 
-//		if(!TextUtils.isEmpty(nick_name)) {
-//
-//			String sql = "select dynamic.*  ,user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.isvip,user.birthday,user.type from "
-//					+ TABLE_USER_DYNAMIC
-//					+ " dynamic left join t_user user on  dynamic.user_id=user.user_id  where dynamic.id not in(select dynamic_id from "
-//					+ TABLE_HOME_FOUND_SELECTED
-//					+ " where selected_state=? or selected_state=? )  and dynamic.state=1  and dynamic.user_id in (select user_id from t_user where nick_name like ?) order by dynamic.id desc limit ?,?";
-//			return jdbcTemplate.query(sql, new Object[] { ImageStatus.SELECTED.ordinal(), ImageStatus.IGNORE.ordinal(),"%"+nick_name+"%",
-//					(pageIndex - 1) * pageSize, pageSize }, new DynamicMapper());
-//		}
-//		
-//		
-//		String sql = "select dynamic.*  ,user.user_id  ,user.nick_name ,user.avatar,user.sex,user.isvip ,user.birthday,user.type from "
-//				+ TABLE_USER_DYNAMIC
-//				+ " dynamic left join t_user user on  dynamic.user_id=user.user_id  where dynamic.id not in(select dynamic_id from "
-//				+ TABLE_HOME_FOUND_SELECTED
-//				+ " where selected_state=? or selected_state=? )  and dynamic.state=1  order by dynamic.id desc limit ?,?";
-//		return jdbcTemplate.query(sql, new Object[] { ImageStatus.SELECTED.ordinal(), ImageStatus.IGNORE.ordinal(),
-//				(pageIndex - 1) * pageSize, pageSize }, new DynamicMapper());
-
 	}
-
+    public List<UserDynamic> getUnCheckDynamic( int page, int count ) {
+		String sql = "select dynamic.*  ,user.user_id  ,user.nick_name ,user.avatar,user.sex,user.isvip ,user.birthday,user.type from "
+				+ TABLE_USER_DYNAMIC
+				+ " dynamic left join t_user user on  dynamic.user_id=user.user_id  where   dynamic.state=? order by dynamic.id desc limit ?,?";
+		
+		return jdbcTemplate.query(sql, new Object[] {DynamicState.CREATE.ordinal(),(page-1)*count,count}, new DynamicMapper());
+	}
+    public List<UserDynamic> getIllegalDynamic( int page, int count ) {
+    	String sql = "select dynamic.*  ,user.user_id  ,user.nick_name ,user.avatar,user.sex,user.isvip ,user.birthday,user.type from "
+    			+ TABLE_USER_DYNAMIC
+    			+ " dynamic left join t_user user on  dynamic.user_id=user.user_id  where   dynamic.state=? order by dynamic.id desc limit ?,?";
+    	
+    	return jdbcTemplate.query(sql, new Object[] {DynamicState.ILLEGAL.ordinal(),(page-1)*count,count}, new DynamicMapper());
+    }
 	public int getHomeFoundSelectedCount(Long user_id) {
 		if(user_id==null) {
 			String sql = "select  count(*) from " + TABLE_USER_DYNAMIC + " dynamic    where dynamic.found_status=? and dynamic.state=? ";
-			return jdbcTemplate.queryForObject(sql, new Object[] { UserFnStatus.ENABLE.ordinal(),DynamicState.T_FORMAL.ordinal() }, Integer.class);
+			return jdbcTemplate.queryForObject(sql, new Object[] { UserFnStatus.ENABLE.ordinal(),DynamicState.CHECKED.ordinal() }, Integer.class);
 		}else {
 			String sql = "select  count(*) from " + TABLE_USER_DYNAMIC + " dynamic      where dynamic.found_status=? and dynamic.state=? and  dynamic.user_id=?";
-			return jdbcTemplate.queryForObject(sql, new Object[] {  UserFnStatus.ENABLE.ordinal(),DynamicState.T_FORMAL.ordinal(),user_id }, Integer.class);
+			return jdbcTemplate.queryForObject(sql, new Object[] {  UserFnStatus.ENABLE.ordinal(),DynamicState.CHECKED.ordinal(),user_id }, Integer.class);
 		}
 	}
 
@@ -119,8 +123,8 @@ public class ManagerDao extends BaseDao<ManagerUser> {
 				+ " dynamic    where dynamic.found_status<>?  and dynamic.state=? ";
 		
 		List<Object> param=new ArrayList<Object>();
-		param.add(UserFnStatus.ENABLE.ordinal());
-		param.add(DynamicState.T_FORMAL.ordinal());
+		param.add(UserFnStatus.DEFAULT.ordinal());
+		param.add(DynamicState.CHECKED.ordinal());
 		
 		if(!TextUtils.isEmpty(nick_name)) {
 			sql+=" and dynamic.user_id in (select user_id from t_user where nick_name like ?)";
@@ -134,20 +138,30 @@ public class ManagerDao extends BaseDao<ManagerUser> {
 		
 		return jdbcTemplate.queryForObject(sql,param.toArray(), Integer.class);
 	}
+	public int getUnCheckedDynamicCount() {
+		String sql = "select count(*) from " + TABLE_USER_DYNAMIC
+				+ " dynamic    where   dynamic.state="+DynamicState.CREATE.ordinal();
+		return jdbcTemplate.queryForObject(sql,Integer.class);
+	}
+	public int getIllegalDynamicCount() {
+		String sql = "select count(*) from " + TABLE_USER_DYNAMIC
+				+ " dynamic    where   dynamic.state="+DynamicState.ILLEGAL.ordinal();
+		return jdbcTemplate.queryForObject(sql,Integer.class);
+	}
 
 	public int removeFromSelected(long id) {
-		String sql = "update from " + TABLE_USER_DYNAMIC + " set found_status=? where  id=?";
+		String sql = "update from " + TABLE_USER_DYNAMIC + " set found_status=? where id=?";
 		return jdbcTemplate.update(sql, new Object[] {UserFnStatus.DEFAULT.ordinal(), id    });
 	}
 
-	public int removeDyanmicByState(long id, DynamicState state) {
+	public int removeDyanmicByIdAndState(long id, DynamicState state) {
 		String sql = "delete from " + TABLE_USER_DYNAMIC + " where id=? and state=?";
 		return jdbcTemplate.update(sql, new Object[] { id, state.ordinal() });
 	}
 
 	// 修改动态的状态
 	public int updateDynamicState(long id, DynamicState state) {
-		if(state==DynamicState.T_ILLEGAL) {
+		if(state==DynamicState.ILLEGAL) {
 			String sql = "update  t_user_dynamic set state=?,local_image_name=? where id=? ";
 			return jdbcTemplate.update(sql, new Object[] { state.ordinal(),"illegal.jpg", id });
 		}else {
@@ -165,14 +179,6 @@ public class ManagerDao extends BaseDao<ManagerUser> {
 		String sql = "update from " + TABLE_USER_DYNAMIC + " set found_status=? where  id=?";
 		return jdbcTemplate.update(sql, new Object[] {UserFnStatus.ENABLE.ordinal(), id    });
 	}
-
-	public int ignore(long id) {
-		return 0; 
-	}
-
-//	public long insertTopic(Topic topic) {
-//		return saveObj(jdbcTemplate, TABLE_TOPIC, topic);
-//	}
 
 	public List<Topic> loadTopic() {
 		return jdbcTemplate.query("select *from " + TABLE_TOPIC, new BeanPropertyRowMapper<Topic>(Topic.class));

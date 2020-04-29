@@ -748,12 +748,12 @@ dd{padding:8px 0 15px 0;}
 }
 .table{width:100%;max-width:100%;border-collapse:collapse;border-spacing:0;}
 .table th{border-bottom:2px solid #ddd;vertical-align:bottom;padding:8px;text-align:left;}
-.table td{border-top:1px solid #ddd;padding:8px;vertical-align:top;}
+.table td{border-top:1px solid #ddd;padding:0px;vertical-align:top;}
 .table-striped > tbody > tr:nth-child(odd) > td, .table-striped > tbody > tr:nth-child(odd) > th{background-color:#f9f9f9;}/*条纹-IE9以下无效果*/
 .table-bordered th,.table-bordered td{border:solid 1px #ddd;}
 .table-bordered th{border-bottom:2px solid #ddd;}
 .table-hover > tbody > tr:hover > td,.table-hover > tbody > tr:hover > th{background-color:#f9f9f9;}/*不支持IE6*/
-.table-condensed th,.table-condensed td{padding:5px;}
+.table-condensed th,.table-condensed td{padding:0px;}
 @media (max-width:760px){
 .table-responsive{width:100%;overflow-x:scroll;overflow-y:hidden;-webkit-overflow-scrolling:touch;-ms-overflow-style:-ms-autohiding-scrollbar;}
 .table-responsive .table tr th, .table-responsive .table tr td{white-space:nowrap;}

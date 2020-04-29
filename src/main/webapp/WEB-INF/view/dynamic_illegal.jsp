@@ -95,7 +95,7 @@
 			if (currentPage == index) {
 				return false;
 			}
-			$.post("<%=path%>/manager/list_dynamic_by_state",{'pageIndex':index,'state':2},function(result){
+			$.post("<%=path%>/manager/list_illegal_dynamic",{'pageIndex':index},function(result){
 				 var json=JSON.parse(result);
 			        if(json.code==0){
 			        	$("table tr[id*='tr_'").each(function(i){
@@ -110,7 +110,7 @@
 
 		//刷新表格
 		function refreshTable(json){
-			var pageData=json["selecteds"];
+			var pageData=json["data"];
 			if(pageData){
 				for(var i=0;i<pageData.length;i++){
 					var tr;
@@ -184,7 +184,7 @@
 			        $("#tr_"+id).remove();//移除当前的元素
 			        
 			        var json=JSON.parse(result);
-			        var pageData=json["pageData"];
+			        var pageData=json["data"];
 			        
 			        var last2tr=$("table tr").eq(-2);
 					 if(last2tr.size()==0){
@@ -204,7 +204,7 @@
 			        $("#tr_"+id).remove();//移除当前的元素
 			        
 			        var json=JSON.parse(result);
-			        var pageData=json["pageData"];
+			        var pageData=json["data"];
 			        
 			        var last2tr=$("table tr").eq(-2);
 					 if(last2tr.size()==0){
@@ -288,7 +288,7 @@
 							//reviewTableTr(result);
 
 							var json = JSON.parse(result);
-							var pageData = json["pageData"];
+							var pageData = json["data"];
 							for (var i = 0; i < chk_value.length; i++) {
 								$("#tr_" + chk_value[i]).remove();//移除当前的元素
 							}

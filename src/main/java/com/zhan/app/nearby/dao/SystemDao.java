@@ -55,7 +55,7 @@ public class SystemDao extends BaseDao<Report> {
 							user.setUser_id(report.getTarget_id());
 							user.setNick_name(rs.getString("nick_name"));
 							user.setSex(rs.getString("sex"));
-							user.setAge(DateTimeUtil.getAge(rs.getDate("birthday")));
+							user.setBirthday(rs.getDate("birthday"));
 							int city_id = rs.getInt("city_id");
 							user.setCity_id(city_id);
 							user.setCity(cityDao.getCityById(city_id));

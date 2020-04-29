@@ -205,7 +205,7 @@
 			        $("#tr_"+id).remove();//移除当前的元素
 			        
 			        var json=JSON.parse(result);
-			        var pageData=json["pageData"];
+			        var pageData=json["selecteds"];
 			        
 			        var last2tr=$("table tr").eq(-2);
 					 if(last2tr.size()==0){
@@ -289,7 +289,7 @@
 							//reviewTableTr(result);
 
 							var json = JSON.parse(result);
-							var pageData = json["pageData"];
+							var pageData = json["selecteds"];
 							for (var i = 0; i < chk_value.length; i++) {
 								$("#tr_" + chk_value[i]).remove();//移除当前的元素
 							}

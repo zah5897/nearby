@@ -121,8 +121,12 @@ public class MainService {
 		}
 		List<UserDynamic> dynamics = userDynamicDao.getHomeFoundSelected(user_id, last_id, count, city);
 		ModelMap result = ResultUtil.getResultOKMap();
+		if(dynamics.size()>0) {
+			result.put("last_id", dynamics.get(dynamics.size() - 1).getId());
+		}else {
+			result.put("last_id", 0);
+		}
 		result.put("hasMore", dynamics.size() == count);
-		result.put("last_id", dynamics.get(dynamics.size() - 1).getId());
 		ImagePathUtil.completeDynamicsPath(dynamics, true);
 		result.put("images", dynamics);
 		return result;

@@ -56,7 +56,7 @@
 			
 		 
 			
-			<table class="table table-hover text-center">
+			<table class="table table-hover text-center" style="">
 				<tr>
 					<th width="10%">ID</th>
 					<th width="5%">设备</th>

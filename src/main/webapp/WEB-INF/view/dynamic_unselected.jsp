@@ -136,7 +136,7 @@
 
 		//刷新表格
 		function refreshTable(json){
-			var pageData=json["selecteds"];
+			var pageData=json["data"];
 			if(pageData){
 				for(var i=0;i<pageData.length;i++){
 					var tr;
@@ -207,11 +207,11 @@
 		 
 		
 		function add(id) {
-				$.post("<%=path%>/manager/add_to_selected",{id:id,currentPage:currentPage,'nick_name':nickName,'user_id':user_id},function(result){
+				$.post("<%=path%>/manager/add_dy_to_selected",{id:id,currentPage:currentPage,'nick_name':nickName,'user_id':user_id},function(result){
 			        $("#tr_"+id).remove();//移除当前的元素
 			        
 			        var json=JSON.parse(result);
-			        var pageData=json["pageData"];
+			        var pageData=json["data"];
 			        
 			        var last2tr=$("table tr").eq(-2);
 					 if(last2tr.size()==0){
@@ -226,35 +226,13 @@
 			        refreshPageIndex(json["pageCount"],json["currentPageIndex"]);
 			    });
 		}
-		function ignore(id) {
-				$.post("<%=path%>/manager/ignore",{id:id,currentPage:currentPage,'nick_name':nickName,'user_id':user_id},function(result){
-			        $("#tr_"+id).remove();//移除当前的元素
-			        
-			        var json=JSON.parse(result);
-			        var pageData=json["pageData"];
-			        
-			        var last2tr=$("table tr").eq(-2);
-					 if(last2tr.size()==0){
-					      alert("指定的table id或行数不存在！");
-					     return;
-					 }
-					 if(pageData){
-						 reviewTableTr(pageData,last2tr);
-					 }else{
-						 page(json["currentPageIndex"]);
-					 }
-			        refreshPageIndex(json["pageCount"],json["currentPageIndex"]);
-			    });
-		}
-
 		
 		function del(id) {
-			
 			$.post("<%=path%>/manager/dynamic_del",{id:id,currentPage:currentPage,'nick_name':nickName,'user_id':user_id},function(result){
 		        $("#tr_"+id).remove();//移除当前的元素
 		        
 		        var json=JSON.parse(result);
-		        var pageData=json["pageData"];
+		        var pageData=json["data"];
 		        
 		        var last2tr=$("table tr").eq(-2);
 				 if(last2tr.size()==0){
@@ -276,7 +254,7 @@
 		        $("#tr_"+id).remove();//移除当前的元素
 		        
 		        var json=JSON.parse(result);
-		        var pageData=json["pageData"];
+		        var pageData=json["data"];
 		        
 		        var last2tr=$("table tr").eq(-2);
 				 if(last2tr.size()==0){
@@ -355,7 +333,7 @@
 						}, function(result) {
 
 							var json = JSON.parse(result);
-							var pageData = json["pageData"];
+							var pageData = json["data"];
 							for (var i = 0; i < chk_value.length; i++) {
 								$("#tr_" + chk_value[i]).remove();//移除当前的元素
 							}

@@ -51,6 +51,7 @@ public class DynamicMapper implements RowMapper<UserDynamic> {
 		user.setSex(rs.getString("sex"));
 		user.setType(rs.getShort("type"));
 		Date birthday = rs.getDate("birthday");
+		user.setBirthday(birthday);
 		try {
 			int is_vip = rs.getInt("isvip");
 			user.setIsvip(is_vip);
@@ -60,7 +61,6 @@ public class DynamicMapper implements RowMapper<UserDynamic> {
 			user.setVideo_cert_status(rs.getInt("video_cert_status"));
 		} catch (Exception e) {
 		}
-		user.setAge(DateTimeUtil.getAge(birthday));
 		ImagePathUtil.completeAvatarPath(user, true);
 
 		dynamic.setUser(user);

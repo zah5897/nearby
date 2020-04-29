@@ -24,7 +24,6 @@ import com.zhan.app.nearby.util.ImageSaveUtils;
 import com.zhan.app.nearby.util.RedPacketUtils;
 import com.zhan.app.nearby.util.ResultUtil;
 
-import cn.ucloud.common.http.Http;
 import io.swagger.annotations.Api;
 
 @RestController

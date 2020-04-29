@@ -137,9 +137,7 @@ public class AppointmentDao extends BaseDao<Appointment> {
 			} catch (Exception e) {
                     
 			}
-			user.setAge(DateTimeUtil.getAge(user.getBirthday()));
 			ImagePathUtil.completeAvatarPath(user, true);
-
 			AppointmentTheme theme = new AppointmentTheme();
 			theme.setId(rs.getInt("tid"));
 			theme.setName(rs.getString("thname"));

@@ -211,9 +211,9 @@ public class UserDao extends BaseDao<BaseUser> {
 		return jdbcTemplate.update("update t_user set lat=?,lng=? where user_id=?", new Object[] { lat, lng, user_id });
 	}
 
-	public int updateVisitor(long user_id, String app_id, String device_token, String lat, String lng, String zh_cn) {
-		return jdbcTemplate.update("update t_user set app_id=?, device_token=?,zh_cn=?, lat=?,lng=? where user_id=?",
-				new Object[] { app_id, device_token, zh_cn, lat, lng, user_id });
+	public int updateVisitor(long user_id, String aid, String device_token, String lat, String lng, String zh_cn) {
+		return jdbcTemplate.update("update t_user set aid=?, device_token=?,zh_cn=?, lat=?,lng=? where user_id=?",
+				new Object[] { aid, device_token, zh_cn, lat, lng, user_id });
 	}
 
 	public DetailUser getUserDetailInfo(long user_id) {
@@ -459,18 +459,18 @@ public class UserDao extends BaseDao<BaseUser> {
 	}
 
 	public List<BaseUser> getRandomMeetBottleUser(int realCount) {
-		String sql = "select u.* from t_user_meet_bottle_recommend mb  left join t_user u on mb.uid=u.user_id order by  RAND() limit ?";
-		List<BaseUser> users = jdbcTemplate.query(sql, new Object[] { realCount }, getEntityMapper());
+		String sql = "select  *  from t_user where bottle_meet_status=?  order by  RAND() limit ?";
+		List<BaseUser> users = jdbcTemplate.query(sql, new Object[] {UserFnStatus.ENABLE.ordinal(),realCount }, getEntityMapper());
 		return users;
 	}
 
 	public void clearExpireMeetBottleUser() {
-		String sql = "delete from  t_user_meet_bottle_recommend where DATEDIFF(create_time,now()) <-2";
+		String sql = "update  t_user set bottle_meet_status=?  where DATEDIFF(create_time,now()) <-2";
 		jdbcTemplate.update(sql);
 	}
 
 	public void removeMeetBottleUserByUserId(long uid) {
-		jdbcTemplate.update("delete from t_user_meet_bottle_recommend where uid=" + uid);
+		jdbcTemplate.update("update  t_user set bottle_meet_status=? where uid=?",UserFnStatus.DEFAULT.ordinal() ,uid);
 	}
 
 	public String getUserAvatar(long user_id) {
@@ -563,25 +563,26 @@ public class UserDao extends BaseDao<BaseUser> {
 		}
 	}
 
-	/**
-	 * 鑾峰彇鍙戠幇榛戝悕鍗曠敤鎴�
-	 * 
-	 * @param pageSize
-	 * @param pageIndex
-	 * @return
-	 */
-	public List<BaseUser> getFoundUsers(int pageSize, int pageIndex) {
-		String sql = "select u.* from  t_user u    where u.found_status=? order by u.last_login_time desc limit ?,?";
-		return jdbcTemplate.query(sql, new Object[] { UserFnStatus.ENABLE.ordinal(), (pageIndex - 1) * pageSize, pageSize },
+ 
+	@SuppressWarnings("unchecked")
+	public List<BaseUser> getFoundUsers(Long user_id,int page, int count) {
+		
+		if(user_id!=null) {
+			String sql = "select u.* from  t_user u    where u.found_status=? and u.user_id=? order by u.last_login_time desc limit ?,?";
+			return jdbcTemplate.query(sql, new Object[] { UserFnStatus.ENABLE.ordinal(),user_id, (page - 1) * count, count },
+					getEntityMapper());
+		}
+		String sql = "select u.* from  t_user u    where u.found_status=?   order by u.last_login_time desc limit ?,?";
+		return jdbcTemplate.query(sql, new Object[] { UserFnStatus.ENABLE.ordinal(), (page - 1) * count, count },
 				getEntityMapper());
 	}
 
-	/**
-	 * 鑾峰彇鍙戠幇鐢ㄦ埛榛戝悕鍗曟�绘暟
-	 * 
-	 * @return
-	 */
-	public int getFoundUsersCount() {
+	 
+	public int getFoundUsersCount(Long user_id) {
+		if(user_id!=null) {
+			return jdbcTemplate.queryForObject("select count(*) from t_user where found_status=? and user_id=?",
+					new Object[] { UserFnStatus.ENABLE.ordinal(),user_id }, Integer.class);
+		}
 		return jdbcTemplate.queryForObject("select count(*) from t_user where found_status=?",
 				new Object[] { UserFnStatus.ENABLE.ordinal() }, Integer.class);
 	}
@@ -594,10 +595,20 @@ public class UserDao extends BaseDao<BaseUser> {
 	 * @param pageIndex
 	 * @return
 	 */
-	public List<BaseUser> getBlackUsers(int pageSize, int pageIndex) {
-		String sql = "select u.* from  t_user u    where u.sys_status=? order by u.last_login_time desc limit ?,?";
-		return jdbcTemplate.query(sql, new Object[] { SysUserStatus.BLACK.ordinal(), (pageIndex - 1) * pageSize, pageSize },
-				getEntityMapper());
+	@SuppressWarnings("unchecked")
+	public List<BaseUser> getBlackUsers(Long user_id,int page, int count) {
+		
+		if(user_id!=null) {
+			
+			String sql = "select u.* from  t_user u    where u.sys_status=? and u.user_id=? order by u.last_login_time desc limit ?,?";
+			return jdbcTemplate.query(sql, new Object[] { SysUserStatus.BLACK.ordinal(),user_id, (page - 1) * count, count },
+					getEntityMapper());
+		}else {
+			String sql = "select u.* from  t_user u    where u.sys_status=? order by u.last_login_time desc limit ?,?";
+			return jdbcTemplate.query(sql, new Object[] { SysUserStatus.BLACK.ordinal(), (page - 1) * count, count },
+					getEntityMapper());
+		}
+	
 	}
 
 	/**
@@ -605,7 +616,11 @@ public class UserDao extends BaseDao<BaseUser> {
 	 * 
 	 * @return
 	 */
-	public int getBlackUsersCount() {
+	public int getBlackUsersCount(Long user_id) {
+		if(user_id!=null) {
+			return jdbcTemplate.queryForObject("select count(*) from t_user where sys_status=? and user_id=?",
+					new Object[] { SysUserStatus.BLACK.ordinal(),user_id }, Integer.class);
+		}
 		return jdbcTemplate.queryForObject("select count(*) from t_user where sys_status=?",
 				new Object[] { SysUserStatus.BLACK.ordinal() }, Integer.class);
 	}
@@ -622,24 +637,24 @@ public class UserDao extends BaseDao<BaseUser> {
 	public List<BaseUser> getAllMeetBottleRecommendUser(int pageSize, int pageIndex, String keyword) {
 		if (TextUtils.isEmpty(keyword)) {
 			return jdbcTemplate.query(
-					"select u.* from t_user_meet_bottle_recommend mb left join t_user u on mb.uid=u.user_id order by mb.uid desc limit ?,?",
-					new Object[] { (pageIndex - 1) * pageSize, pageSize },
+					"select * from  t_user where bottle_meet_status=? order by user_id desc limit ?,?",
+					new Object[] {UserFnStatus.ENABLE.ordinal(), (pageIndex - 1) * pageSize, pageSize },
 					new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
 		} else {
 			return jdbcTemplate.query(
-					"select u.* from t_user_meet_bottle_recommend mb left join t_user u on mb.uid=u.user_id where u.nick_name like ? order by mb.uid desc limit ?,?",
-					new Object[] { "%" + keyword + "%", (pageIndex - 1) * pageSize, pageSize }, getEntityMapper());
+					"select * from  t_user  where nick_name like ? and bottle_meet_status=?  order by user_id desc limit ?,?",
+					new Object[] { "%" + keyword + "%",UserFnStatus.ENABLE.ordinal(), (pageIndex - 1) * pageSize, pageSize }, getEntityMapper());
 		}
 
 	}
 
 	public int getMeetBottleRecommendUserSize(String keyword) {
 		if (TextUtils.isEmpty(keyword)) {
-			return jdbcTemplate.queryForObject("select count(*) from t_user_meet_bottle_recommend", Integer.class);
+			return jdbcTemplate.queryForObject("select count(*) from t_user where bottle_meet_status="+UserFnStatus.ENABLE.ordinal(), Integer.class);
 		} else {
 			return jdbcTemplate.queryForObject(
-					"select count(*) from t_user_meet_bottle_recommend mb left join t_user u on mb.uid=u.user_id where u.nick_name like ?",
-					new Object[] { "%" + keyword + "%" }, Integer.class);
+					"select count(*) from t_user  where u.nick_name like ? and bottle_meet_status=?",
+					new Object[] { "%" + keyword + "%",UserFnStatus.ENABLE.ordinal() }, Integer.class);
 		}
 	}
 

@@ -31,6 +31,10 @@
 			
 			<div class="padding border-bottom">
 				<ul class="search">
+				  <li>
+			         <input type="text" placeholder="请输入用户id" name="user_id_input" class="input" style="width:250px; line-height:17px;display:inline-block" />
+                     <a href="javascript:void(0)" class="button border-main icon-search" onclick="doSearchById()" > 搜索</a>
+                   </li>
 				</ul>
 			</div>
 			
@@ -64,6 +68,7 @@
 	    var currentPageIndex = 0;
 	    var pageSize = 10;
 	    var pageCount = 100;
+	    var user_id;
 	    //默认加载第一页
 	    $(document).ready(function(){ 
 		    page(1);
@@ -87,14 +92,27 @@
 	    function end(){
 	    	page(pageCount);
 	    }
-	    
+	    function doSearchById(){
+	    	var key=$("[name='user_id_input']").val().replace(/^\s+|\s+$/g,"");
+	    	if(user_id==''){
+	    		if(key==''){
+		    		return;
+		    	}
+	    	}
+	    	if(user_id==key){
+	    		return;
+	    	}
+	    	user_id=key;
+	    	currentPageIndex=0;
+	    	page(1);
+	    }
 	   
 	     //获取对应页面
 		function page(index) {
 			if (currentPageIndex == index) {
 				return false;
 			}
-			$.post("<%=path%>/manager/list_user_found",{'pageIndex':index,'pageSize':pageSize,'state':1},function(result){
+			$.post("<%=path%>/manager/list_user_black",{'pageIndex':index,'pageSize':pageSize,'user_id':user_id},function(result){
 				 var json=JSON.parse(result);
 			        if(json.code==0){
 			        	$("table tr[id*='tr_'").each(function(i){
@@ -167,8 +185,8 @@
 				return startIndex+4;
 			}
 		}
-		function del_from_found_user_black(user_id){
-			$.post("<%=path%>/manager/remove_user_black",{'user_id':user_id,'state':1,'pageIndex':currentPageIndex,'pageSize':pageSize},function(result){
+		function del_from_found_user_black(uid){
+			$.post("<%=path%>/manager/remove_user_black",{'user_id':user_id,'uid':uid,'pageIndex':currentPageIndex,'pageSize':pageSize},function(result){
 				 var json=JSON.parse(result);
 				 if(json.code==0){
 			        	$("table tr[id*='tr_'").each(function(i){

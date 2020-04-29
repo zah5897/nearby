@@ -49,7 +49,7 @@
      <!--  
     <li><a href="<%=path %>/manager/forword?path=user_found_list" target="right"><span class="icon-caret-right"></span>发现用户列表</a></li>
      -->
-    <li><a href="<%=path %>/manager/forword?path=user_found_black_list" target="right"><span class="icon-caret-right"></span>黑名单用户</a></li>
+    <li><a href="<%=path %>/manager/forword?path=user_black_list" target="right"><span class="icon-caret-right"></span>黑名单用户</a></li>
    <!--  
      <li><a href="<%=path %>/manager/forword?path=user_meet_bottle_recommend" target="right"><span class="icon-caret-right"></span>邂逅瓶推荐用户</a></li>
     -->

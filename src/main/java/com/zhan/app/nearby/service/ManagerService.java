@@ -20,6 +20,7 @@ import com.zhan.app.nearby.bean.Topic;
 import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.bean.Video;
 import com.zhan.app.nearby.bean.VipUser;
+import com.zhan.app.nearby.bean.type.BottleType;
 import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.cache.UserCacheService;
 import com.zhan.app.nearby.comm.DynamicCommentStatus;
@@ -71,10 +72,6 @@ public class ManagerService {
 	@Autowired
 	private HXAsyncTask hxTask;
 
-	public int getHomeFoundSelectedCount(Long user_id) {
-		return managerDao.getHomeFoundSelectedCount(user_id);
-	}
-
 	public boolean mLogin(HttpServletRequest request, String name, String pwd) {
 		Integer i = managerDao.queryM(name, pwd);
 		if (i > 0) {
@@ -100,49 +97,83 @@ public class ManagerService {
 		return userCacheService.getManagerAuthName(ip);
 	}
 
-	public int getPageCountByState(int state) {
-		return userDynamicService.getPageCountByState(state);
+	public ModelMap getHomeFoundSelected(Long user_id, int pageIndex, int pageSize) {
+		ModelMap reMap = ResultUtil.getResultOKMap();
+		if (pageIndex == 1) {
+			int totalSize = managerDao.getHomeFoundSelectedCount(user_id);
+			reMap.put("pageCount", getPageCount(totalSize, pageSize));
+		}
+		List<UserDynamic> dys = managerDao.getHomeFoundSelected(user_id, pageIndex, pageSize);
+		ImagePathUtil.completeDynamicsPath(dys, true);
+		reMap.put("data", dys);
+		reMap.put("currentPageIndex", pageIndex);
+		return reMap;
 	}
 
-	public List<UserDynamic> getHomeFoundSelected(Long user_id, int pageIndex, int pageSize) {
-		return managerDao.getHomeFoundSelected(user_id, pageIndex, pageSize);
+	private int getPageCount(int totalSize, int pageSize) {
+		int pageCount = totalSize / pageSize;
+		if (totalSize % 10 > 0) {
+			pageCount += 1;
+		}
+		if (pageCount == 0) {
+			pageCount = 1;
+		}
+		return pageCount;
 	}
 
-	// 根据状态获取动态
-	public List<UserDynamic> getDyanmicByState(int pageIndex, int pageSize, DynamicState state) {
-		return userDynamicService.getDyanmicByState(pageIndex, pageSize, state);
+	public ModelMap getUnSelected(Long user_id, String nick_name, int pageIndex, int pageSize) {
+		ModelMap reMap = ResultUtil.getResultOKMap();
+		if (pageIndex == 1) {
+			int total = managerDao.getUnSelectedCount(user_id, nick_name);
+			reMap.put("pageCount", getPageCount(total, pageSize));
+		}
+		List<UserDynamic> dys = managerDao.getUnSelectedDynamic(user_id, nick_name, pageIndex, pageSize);
+		ImagePathUtil.completeDynamicsPath(dys, true);
+		reMap.put("data", dys);
+		reMap.put("currentPageIndex", pageIndex);
+		return reMap;
 	}
 
-	public int getUnSelectedCount(Long user_id, String nick_name) {
-		return managerDao.getUnSelectedCount(user_id, nick_name);
+	public ModelMap getUnCheckDynamic(int page, int count) {
+		ModelMap reMap = ResultUtil.getResultOKMap();
+		if (page == 1) {
+			int total = managerDao.getUnCheckedDynamicCount();
+			reMap.put("pageCount", getPageCount(total, count));
+		}
+		List<UserDynamic> dys = managerDao.getUnCheckDynamic(page, count);
+		ImagePathUtil.completeDynamicsPath(dys, true);
+		reMap.put("data", dys);
+		reMap.put("currentPageIndex", page);
+		return reMap;
 	}
 
-	public List<UserDynamic> getUnSelected(Long user_id, String nick_name, int pageIndex, int pageSize) {
-		return managerDao.getUnSelected(user_id, nick_name, pageIndex, pageSize);
-	}
-
-	public List<UserDynamic> getUnSelected(String nick_name, int pageIndex, int pageSize) {
-		return managerDao.getUnSelected(null, nick_name, pageIndex, pageSize);
+	public ModelMap getIllegalDynamic(int page, int count) {
+		ModelMap reMap = ResultUtil.getResultOKMap();
+		if (page == 1) {
+			int total = managerDao.getIllegalDynamicCount();
+			reMap.put("pageCount", getPageCount(total, count));
+		}
+		List<UserDynamic> dys = managerDao.getIllegalDynamic(page, count);
+		ImagePathUtil.completeDynamicsPath(dys, true);
+		reMap.put("data", dys);
+		reMap.put("currentPageIndex", page);
+		return reMap;
 	}
 
 	public int removeFromSelected(long id) {
 		return managerDao.removeFromSelected(id);
 	}
 
-	public int removeDyanmicByState(long id, DynamicState state) {
-		return managerDao.removeDyanmicByState(id, state);
+	public int removeDyanmicByIdAndState(long id, DynamicState state) {
+		return managerDao.removeDyanmicByIdAndState(id, state);
 	}
 
 	public int removeUserDynamic(long id) {
 		return managerDao.removeUserDynamic(id);
 	}
 
-	public int addToSelected(long id) {
+	public int addDyToSelected(long id) {
 		return managerDao.addToSelected(id);
-	}
-
-	public int ignore(long id) {
-		return managerDao.ignore(id);
 	}
 
 	public boolean updateWelcome(String welcome) {
@@ -200,17 +231,20 @@ public class ManagerService {
 	 * @param currentPage
 	 * @return
 	 */
-	public List<ManagerUser> getAllUser(int pageSize, int currentPage, int type, String keyword, Long user_id) {
-		return managerDao.listAllUser(user_id, currentPage, pageSize, type, keyword);
-	}
+	public ModelMap getAllUser(String keyword, int type, Long user_id, int page, int count) {
 
-	/**
-	 * 获取用户总数
-	 * 
-	 * @return
-	 */
-	public int getUserSize(int type, String keyword, Long user_id) {
-		return managerDao.getAllUserCount(user_id, type, keyword);
+		ModelMap r = ResultUtil.getResultOKMap();
+		List<ManagerUser> users = managerDao.listAllUser(user_id, page, count, type, keyword);
+
+		if (page == 1) {
+			int totalSize = managerDao.getAllUserCount(user_id, type, keyword);
+
+			r.put("pageCount", getPageCount(totalSize, count));
+		}
+		ImagePathUtil.completeManagerUserAvatarsPath(users, true);
+		r.put("users", users);
+		r.put("currentPageIndex", page);
+		return r;
 	}
 
 	/**
@@ -220,48 +254,60 @@ public class ManagerService {
 	 * @param pageIndex
 	 * @return
 	 */
-	public List<BaseUser> getFoundUsers(int pageSize, int pageIndex) {
-		return userService.getFoundUsers(pageSize, pageIndex);
+	public ModelMap getFoundUsers(Long user_id, int page, int count) {
+		List<BaseUser> users = userService.getFoundUsers(user_id, page, count);
+		ModelMap r = ResultUtil.getResultOKMap();
+		if (page == 1) {
+			int totalSize = userService.getFoundUsersCount(user_id);
+			int pageCount = totalSize / count;
+			if (totalSize % 10 > 0) {
+				pageCount += 1;
+			}
+			if (pageCount == 0) {
+				pageCount = 1;
+			}
+			r.put("pageCount", pageCount);
+		}
+		ImagePathUtil.completeAvatarsPath(users, true);
+		r.put("users", users);
+		r.put("currentPageIndex", page);
+		return r;
+
 	}
 
-	/**
-	 * 获取黑名单总数
-	 * 
-	 * @return
-	 */
-	public int getFoundUsersCount() {
-		return userService.getFoundUsersCount( );
+	public ModelMap getBlackUsers(Long user_id, int page, int count) {
+		ModelMap result = ResultUtil.getResultOKMap();
+		List<BaseUser> users = userService.getBlackUsers(user_id, page, count);
+		if (page == 1) {
+			int totalSize = userService.getBlackUsersCount(user_id);
+			int pageCount = totalSize / count;
+			if (totalSize % 10 > 0) {
+				pageCount += 1;
+			}
+			if (pageCount == 0) {
+				pageCount = 1;
+			}
+			result.put("pageCount", pageCount);
+		}
+		ImagePathUtil.completeAvatarsPath(users, true);
+		result.put("users", users);
+		result.put("currentPageIndex", page);
+		return result;
 	}
 
-	
+	public ModelMap getAllMeetBottleRecommendUser(int pageSize, int pageIndex, String keyword) {
+		ModelMap r = ResultUtil.getResultOKMap();
+		List<BaseUser> users = userService.getAllMeetBottleRecommendUser(pageSize, pageIndex, keyword);
 
-	/**
-	 * 获取发现黑名单用户
-	 * 
-	 * @param pageSize
-	 * @param pageIndex
-	 * @return
-	 */
-	public List<BaseUser> getBlackUsers(int pageSize, int pageIndex) {
-		return userService.getBlackUsers(pageSize, pageIndex);
-	}
+		if (pageIndex == 1) {
+			int totalSize = userService.getMeetBottleRecommendUserSize(keyword);
+			r.put("pageCount", getPageCount(totalSize, pageSize));
+		}
+		ImagePathUtil.completeAvatarsPath(users, true);
+		r.put("users", users);
+		r.put("currentPageIndex", pageIndex);
+		return r;
 
-	/**
-	 * 获取黑名单总数
-	 * 
-	 * @return
-	 */
-	public int getBlackUsersCount() {
-		return userService.getBlackUsersCount( );
-	}
-
-	
-	public List<BaseUser> getAllMeetBottleRecommendUser(int pageSize, int pageIndex, String keyword) {
-		return userService.getAllMeetBottleRecommendUser(pageSize, pageIndex, keyword);
-	}
-
-	public int getMeetBottleRecommendUserSize(String keyword) {
-		return userService.getMeetBottleRecommendUserSize(keyword);
 	}
 
 	/**
@@ -293,17 +339,17 @@ public class ManagerService {
 	 * @param pageIndex
 	 * @return
 	 */
-	public List<Object> getExchangeHistory(int pageSize, int pageIndex, int type) {
-		return managerDao.getExchangeHistory(pageSize, pageIndex, type);
-	}
+	public ModelMap getExchangeHistory(int pageSize, int pageIndex, int type) {
+		ModelMap r = ResultUtil.getResultOKMap();
+		List<Object> exchanges = managerDao.getExchangeHistory(pageSize, pageIndex, type);
+		if (pageIndex == 1) {
+			int totalSize = managerDao.getExchangeHistorySize(type);
 
-	/**
-	 * 获取提现总记录数
-	 * 
-	 * @return
-	 */
-	public int getExchangeHistorySize(int type) {
-		return managerDao.getExchangeHistorySize(type);
+			r.put("pageCount", getPageCount(totalSize, pageSize));
+		}
+		r.put("exchanges", exchanges);
+		r.put("currentPageIndex", pageIndex);
+		return r;
 	}
 
 	/**
@@ -333,20 +379,37 @@ public class ManagerService {
 	 * @param pageIndex
 	 * @return
 	 */
-	public List<Report> getReports(int approval_type, int pageSize, int pageIndex) {
-		return mainService.listManagerReport(approval_type, pageSize, pageIndex);
+	public ModelMap getReports(int approval_type, int pageSize, int pageIndex) {
+
+		ModelMap r = ResultUtil.getResultOKMap();
+		List<Report> exchanges = mainService.listManagerReport(approval_type, pageSize, pageIndex);
+		if (pageIndex == 1) {
+			int totalSize = mainService.getReportSizeByApproval(approval_type);
+
+			r.put("pageCount", getPageCount(totalSize, pageSize));
+		}
+		r.put("reports", exchanges);
+		r.put("currentPageIndex", pageIndex);
+		return r;
 	}
 
-	public int getReportSize(int approval_type) {
-		return mainService.getReportSizeByApproval(approval_type);
-	}
-
-	public List<Bottle> listBottleByState(Long user_id, int state, int pageSize, int pageIndex) {
-		return bottleService.getBottlesByState(user_id, state, pageSize, pageIndex);
-	}
-
-	public int getBottleCountWithState(Long uid, int state) {
-		return bottleService.getBottleCountWithState(uid, state);
+	public ModelMap listBottleByState(Long user_id, int state, int pageSize, int pageIndex) {
+		ModelMap r = ResultUtil.getResultOKMap();
+		List<Bottle> exchanges = bottleService.getBottlesByState(user_id, state, pageSize, pageIndex);
+		for (Bottle b : exchanges) {
+			if (b.getType() == BottleType.MEET.ordinal()) {
+				b.setContent(getMeetUserAvatar(b.getContent()));
+			} else if (b.getType() == BottleType.DRAW_GUESS.ordinal()) {
+				ImagePathUtil.completeBottleDrawPath(b);
+			}
+		}
+		if (pageIndex == 1) {
+			int totalSize = bottleService.getBottleCountWithState(user_id, state);
+			r.put("pageCount", getPageCount(totalSize, pageSize));
+		}
+		r.put("bottles", exchanges);
+		r.put("currentPageIndex", pageIndex);
+		return r;
 	}
 
 	public void changeBottleState(int id, int to_state) {
@@ -386,24 +449,33 @@ public class ManagerService {
 		return false;
 	}
 
-	@SuppressWarnings("unchecked")
-	public List<BaseUser> listConfirmAvatars(int pageSize, int pageIndex, Long user_id, int state) {
-		return (List<BaseUser>) ImagePathUtil
-				.completeAvatarsPath(userService.listConfirmAvatars(state, pageSize, pageIndex, user_id), false); // state=0为变动，1为
+	public ModelMap listConfirmAvatars(int pageSize, int pageIndex, Long user_id, int state) {
+		ModelMap r = ResultUtil.getResultOKMap();
+		List<BaseUser> users = userService.listConfirmAvatars(state, pageSize, pageIndex, user_id);
+		ImagePathUtil.completeAvatarsPath(users, true);
+		r.addAttribute("users", users);
+		if (pageIndex == 1) {
+			int totalSize = userService.getCountOfConfirmAvatars(user_id, state);
+			r.put("pageCount", getPageCount(totalSize, pageSize));
+		}
+		r.put("currentPageIndex", pageIndex);
+		return r;
+
 	}
 
-	@SuppressWarnings("unchecked")
-	public List<BaseUser> listAvatarsByUid(int pageSize, int pageIndex, Long user_id, String nickName) {
-		return (List<BaseUser>) ImagePathUtil
-				.completeAvatarsPath(userService.listAvatarsByUid(pageSize, pageIndex, user_id, nickName), false); // state=0为变动，1为
-	}
+	public ModelMap listAvatarsByUid(int pageSize, int pageIndex, Long user_id, String nickName) {
 
-	public int getCountOfConfirmAvatars(Long user_id, int state) {
-		return userService.getCountOfConfirmAvatars(user_id, state);
-	}
+		ModelMap r = ResultUtil.getResultOKMap();
+		List<BaseUser> users = userService.listAvatarsByUid(pageSize, pageIndex, user_id, nickName);
+		ImagePathUtil.completeAvatarsPath(users, true);
+		r.addAttribute("users", users);
+		if (pageIndex == 1) {
+			int totalSize = userService.getCountOfUserAvatars(user_id, nickName);
 
-	public int getCountOfUserAvatars(Long user_id, String nickName) {
-		return userService.getCountOfUserAvatars(user_id, nickName);
+			r.put("pageCount", getPageCount(totalSize, pageSize));
+		}
+		r.put("currentPageIndex", pageIndex);
+		return r;
 	}
 
 	public void charge_vip(long user_id, int month, String mark) {

@@ -264,13 +264,14 @@ public class BottleService {
 		checkExistAndClear(bottle);
 		bottle.setCreate_time(new Date());
 
-		bottle.setState(BottleState.CREATE.ordinal());
+		bottle.setState(BottleState.NORMAL.ordinal());
 		bottleDao.insert(bottle);
 
+		bottleDao.insertToPool(bottle);
 		//瓶子需要审核 ,邂逅瓶子除外
-		if (bottle.getId() > 0 && bottle.getType()==BottleType.MEET.ordinal()) {
-			bottleDao.insertToPool(bottle);
-		}
+		//if (bottle.getId() > 0 && bottle.getType()==BottleType.MEET.ordinal()) {
+			//bottleDao.insertToPool(bottle);
+		//}
 	}
 
 	@Transactional

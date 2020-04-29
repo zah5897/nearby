@@ -97,7 +97,7 @@ public class ImageController {
 						dynamic.setDescription(content);
 
 						dynamic.set_from(DeviceUtil.getRequestDevice(_ua));
-						dynamic.setState(DynamicState.T_CREATE.ordinal());
+						dynamic.setState(DynamicState.CREATE.ordinal());
 						dynamic.setLocal_image_name(imagePath);
 						dynamic.setCreate_time(new Date());
 						 userDynamicService.insertDynamic(dynamic);
@@ -164,7 +164,7 @@ public class ImageController {
 			dynamic.setLng(lnt);	
 		}
 		dynamic.set_from(DeviceUtil.getRequestDevice(_ua));
-		dynamic.setState(DynamicState.T_CREATE.ordinal());
+		dynamic.setState(DynamicState.CREATE.ordinal());
 		dynamic.setLocal_image_name(image_names);
 		dynamic.setCreate_time(new Date());
 	    userDynamicService.insertDynamic(dynamic);

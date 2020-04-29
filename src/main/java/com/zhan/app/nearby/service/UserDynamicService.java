@@ -195,10 +195,10 @@ public class UserDynamicService {
 		return userDynamicDao.loadSubComm(pid, did, count, last_id);
 	}
 
-	public List<UserDynamic> getDyanmicByState(int pageIndex, int pageSize, DynamicState state) {
-		return userDynamicDao.getDyanmicByState(pageIndex, pageSize, state);
-
-	}
+//	public List<UserDynamic> getDyanmicByState(int pageIndex, int pageSize, DynamicState state) {
+//		return userDynamicDao.getDyanmicByState(pageIndex, pageSize, state);
+//
+//	}
 
 	public int updateDynamicState(long id, DynamicState state) {
 		return userDynamicDao.updateDynamicState(id, state);
@@ -208,9 +208,7 @@ public class UserDynamicService {
 		return userDynamicDao.updateDynamicImgToIllegal(id);
 	}
 
-	public int getPageCountByState(int state) {
-		return userDynamicDao.getPageCountByState(state);
-	}
+	 
 
 	public void clearIllegalDynamic() {
 		List<UserDynamic> dys = userDynamicDao.getIllegalDyanmic();

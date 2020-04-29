@@ -34,7 +34,7 @@ public class DynamicMsgMapper implements RowMapper<DynamicMessage> {
 		user.setSex(rs.getString("sex"));
 		user.setType(rs.getShort("type"));
 		Date birthday = rs.getTimestamp("birthday");
-		user.setAge(DateTimeUtil.getAge(birthday));
+		user.setBirthday(birthday);
 		dynamicMsg.setUser(user);
 		return dynamicMsg;
 	}

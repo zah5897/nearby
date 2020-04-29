@@ -146,7 +146,10 @@ public class MsgController {
 			@ApiImplicitParam(name = "count", value = "count", required = true, paramType = "query") })
 	
 	@RequestMapping("list")
-	public ModelMap list_no_meet(long user_id,String token,Long last_id,int count) {
+	public ModelMap list_no_meet(Long user_id,String token,Long last_id,int count) {
+		if(user_id==null) {
+			return ResultUtil.getResultFailed();
+		}
 		return dynamicMsgService.loadMsg(user_id,token, last_id, count,true);
 	}
 	@ApiOperation(httpMethod = "POST", value = "获取当前账户的消息列表") // swagger 当前接口注解

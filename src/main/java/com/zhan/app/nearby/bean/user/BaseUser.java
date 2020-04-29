@@ -108,7 +108,7 @@ public class BaseUser implements Serializable {
 	
 	@Transient // 忽略保存
 	private int my_follow_count;
-
+	@Transient // 忽略保存
 	private String age;
 
 	private String channel;
@@ -225,10 +225,6 @@ public class BaseUser implements Serializable {
 
 	public void setChannel(String channel) {
 		this.channel = channel;
-	}
-
-	public void setAge(String age) {
-		this.age = age;
 	}
 
 	public String getAge() {

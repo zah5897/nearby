@@ -107,28 +107,12 @@ public class WebManagerController {
 		return new ModelAndView(path);
 	}
 
-	// 列出已经选择到首页的动态 返回json
 	@RequestMapping(value = "/selected_dynamic_list")
 	public @ResponseBody ModelMap selected_dynamic_list(HttpServletRequest request, Long user_id, int pageIndex) {
 		if (!managerService.isLogin(request)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
-		int pageCount = getSelectedPageCount(user_id);
-		if (pageIndex == 0) {
-			pageIndex = 1;
-		} else if (pageIndex < 0) {
-			pageIndex = pageCount;
-		}
-		List<UserDynamic> dys = managerService.getHomeFoundSelected(user_id, pageIndex, 10);
-		if (dys != null && dys.size() > 0) {
-			ImagePathUtil.completeDynamicsPath(dys, true);
-		}
-
-		ModelMap reMap = ResultUtil.getResultOKMap();
-		reMap.put("selecteds", dys);
-		reMap.put("pageCount", pageCount);
-		reMap.put("currentPageIndex", pageIndex);
-		return reMap;
+		return managerService.getHomeFoundSelected(user_id, pageIndex, 10);
 	}
 
 	// 未选择出现在首页的列表
@@ -139,55 +123,7 @@ public class WebManagerController {
 		if (!managerService.isLogin(request)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
-
-		int pageCount = getUnSelectPageCount(user_id, nick_name);
-		if (pageIndex == 0) {
-			pageIndex = 1;
-		} else if (pageIndex < 0) {
-			pageIndex = pageCount;
-		} else if (pageIndex > pageCount) {
-			pageIndex = pageCount;
-		}
-
-		List<UserDynamic> dys = managerService.getUnSelected(user_id, nick_name, pageIndex, 10);
-		if (dys != null && dys.size() > 0) {
-			ImagePathUtil.completeDynamicsPath(dys, true);
-		}
-		ModelMap reMap = ResultUtil.getResultOKMap();
-		reMap.put("selecteds", dys);
-		reMap.put("pageCount", pageCount);
-		reMap.put("currentPageIndex", pageIndex);
-		return reMap;
-	}
-
-	private int getSelectedPageCount(Long user_id) {
-		int count = managerService.getHomeFoundSelectedCount(user_id);
-		int pageCount = count / 10;
-		if (count % 10 > 0) {
-			pageCount += 1;
-		}
-
-		return pageCount == 0 ? 1 : pageCount;
-	}
-
-	private int getUnSelectPageCount(Long user_id, String nick_name) {
-		int count = managerService.getUnSelectedCount(user_id, nick_name);
-		int pageCount = count / 10;
-		if (count % 10 > 0) {
-			pageCount += 1;
-		}
-
-		return pageCount == 0 ? 1 : pageCount;
-	}
-
-	private int getPageCountByState(int state) {
-		int count = managerService.getPageCountByState(state);
-		int pageCount = count / 10;
-		if (count % 10 > 0) {
-			pageCount += 1;
-		}
-
-		return pageCount == 0 ? 1 : pageCount;
+		return  managerService.getUnSelected(user_id, nick_name, pageIndex, 10);
 	}
 
 	@RequestMapping(value = "/remove_from_selected")
@@ -197,21 +133,8 @@ public class WebManagerController {
 		if (!managerService.isLogin(request)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
-
 		managerService.removeFromSelected(id);
-		ModelMap r = ResultUtil.getResultOKMap();
-
-		List<UserDynamic> dys = managerService.getHomeFoundSelected(user_id, currentPage, 10);
-		r.put("pageCount", getSelectedPageCount(user_id));
-		if (dys != null && dys.size() > 0) {
-			UserDynamic dy = dys.get(dys.size() - 1);
-			ImagePathUtil.completeDynamicPath(dy, true);
-			r.put("pageData", dy);
-			r.put("currentPageIndex", currentPage);
-		} else {
-			r.put("currentPageIndex", currentPage - 1 > 0 ? currentPage - 1 : 1);
-		}
-		return r;
+		return selected_dynamic_list(request,user_id,currentPage);
 	}
 
 	// 删除多个
@@ -232,80 +155,20 @@ public class WebManagerController {
 		for (long id : idlist) {
 			managerService.removeFromSelected(id);
 		}
-		ModelMap r = ResultUtil.getResultOKMap();
-		r.put("pageCount", getSelectedPageCount(user_id));
-		List<UserDynamic> dys = managerService.getHomeFoundSelected(user_id, currentPage, 10);
-		if (dys != null && dys.size() > 0) {
-			ImagePathUtil.completeDynamicsPath(dys, true);
-			if (idlist.size() >= dys.size()) {
-				r.put("pageData", dys);
-			} else {
-				int from = dys.size() - idlist.size();
-				List<UserDynamic> subList = dys.subList(from, dys.size());
-				r.put("pageData", subList);
-			}
-			r.put("currentPageIndex", currentPage);
-		} else {
-			r.put("currentPageIndex", currentPage - 1 > 0 ? currentPage - 1 : 1);
-		}
-		return r;
+		return selected_dynamic_list(request,user_id,currentPage);
 	}
 
 	// 添加到首页推荐
-	@RequestMapping(value = "/add_to_selected")
-	public @ResponseBody ModelMap add_to_selected(HttpServletRequest request, Long user_id, String nick_name, long id,
+	@RequestMapping(value = "/add_dy_to_selected")
+	public @ResponseBody ModelMap add_dy_to_selected(HttpServletRequest request, Long user_id, String nick_name, long id,
 			int currentPage) {
 
 		if (!managerService.isLogin(request)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
-
-		managerService.addToSelected(id);
-		ModelMap r = ResultUtil.getResultOKMap();
-		r.put("pageCount", getUnSelectPageCount(user_id, nick_name));
-
-		List<UserDynamic> dys = managerService.getUnSelected(user_id, nick_name, currentPage, 10);
-		if (dys != null && dys.size() > 0) {
-			UserDynamic dy = dys.get(dys.size() - 1);
-			if (dy.getId() < id) {
-				ImagePathUtil.completeDynamicPath(dy, true);
-				r.put("pageData", dy);
-			}
-			r.put("currentPageIndex", currentPage);
-		} else {
-			r.put("currentPageIndex", currentPage - 1 > 0 ? currentPage - 1 : 1);
-		}
-
-		return r;
+		managerService.addDyToSelected(id);
+		return unselected_dynamic_list(request,user_id,currentPage,nick_name);
 	}
-
-	// 忽略
-	@RequestMapping(value = "/ignore")
-	public @ResponseBody ModelMap ignore(HttpServletRequest request, Long user_id, long id, int currentPage) {
-
-		if (!managerService.isLogin(request)) {
-			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
-		}
-
-		managerService.ignore(id);
-		ModelMap r = ResultUtil.getResultOKMap();
-		r.put("pageCount", getUnSelectPageCount(user_id, null));
-
-		List<UserDynamic> dys = managerService.getUnSelected(user_id, null, currentPage, 10);
-		if (dys != null && dys.size() > 0) {
-			UserDynamic dy = dys.get(dys.size() - 1);
-			if (dy.getId() < id) {
-				ImagePathUtil.completeDynamicPath(dy, true);
-				r.put("pageData", dy);
-			}
-			r.put("currentPageIndex", currentPage);
-		} else {
-			r.put("currentPageIndex", currentPage - 1 > 0 ? currentPage - 1 : 1);
-		}
-
-		return r;
-	}
-
 	// 添加多个到首页推荐
 	@RequestMapping(value = "/add_batch_to_selected")
 	public @ResponseBody ModelMap add_batch_to_selected(HttpServletRequest request, Long user_id, String nick_name,
@@ -321,41 +184,10 @@ public class WebManagerController {
 
 		List<Long> idList = JSONUtil.jsonToList(ids, new TypeReference<List<Long>>() {
 		});
-		int len = idList.size();
 		for (long id : idList) {
-			managerService.addToSelected(id);
+			managerService.addDyToSelected(id);
 		}
-		ModelMap r = ResultUtil.getResultOKMap();
-		// List<UserDynamic> dys = managerService.getUnSelected(currentPage,
-		// 10);
-		// if (dys != null) {
-		// ImagePathUtil.completeImagePath(dys, true);
-		// if (len >= dys.size()) {
-		// r.put("pageData", dys);
-		// } else {
-		// int from = dys.size() - len;
-		// List<UserDynamic> subList = dys.subList(from, dys.size());
-		// r.put("pageData", subList);
-		// }
-		//
-		// }
-
-		r.put("pageCount", getUnSelectPageCount(user_id, nick_name));
-		List<UserDynamic> dys = managerService.getUnSelected(user_id, nick_name, currentPage, 10);
-		if (dys != null && dys.size() > 0) {
-			ImagePathUtil.completeDynamicsPath(dys, true);
-			if (len >= dys.size()) {
-				r.put("pageData", dys);
-			} else {
-				int from = dys.size() - len;
-				List<UserDynamic> subList = dys.subList(from, dys.size());
-				r.put("pageData", subList);
-			}
-			r.put("currentPageIndex", currentPage);
-		} else {
-			r.put("currentPageIndex", currentPage - 1 > 0 ? currentPage - 1 : 1);
-		}
-		return r;
+		return unselected_dynamic_list(request,user_id,currentPage,nick_name);
 	}
 
 	@RequestMapping(value = "/get_welcome")
@@ -477,23 +309,6 @@ public class WebManagerController {
 		reMap.put("currentPageIndex", pageIndex);
 		return reMap;
 	}
-
-	// @RequestMapping(value = "/edit_user_from_found_list")
-	// public @ResponseBody ModelMap edit_user_from_found_list(String ids, int
-	// state, int currentPage) {
-	// if (TextUtils.isEmpty(ids)) {
-	// return ResultUtil.getResultMap(ERROR.ERR_FAILED);
-	// }
-	// JSONArray idsArray = JSON.parseArray(ids);
-	// int len = idsArray.size();
-	// for (int i = 0; i < len; i++) {
-	// String strId = idsArray.getString(i);
-	// long id = Long.parseLong(strId);
-	// managerService.editUserFromFound(id, state);
-	// }
-	// return list_new_user(currentPage);
-	// }
-
 	@RequestMapping(value = "/dynamic_del")
 	public @ResponseBody ModelMap dynamic_del(HttpServletRequest request, Long user_id, String nick_name, long id,
 			int currentPage) {
@@ -503,21 +318,7 @@ public class WebManagerController {
 		}
 
 		managerService.removeUserDynamic(id);
-		ModelMap r = ResultUtil.getResultOKMap();
-		r.put("pageCount", getUnSelectPageCount(user_id, nick_name));
-		List<UserDynamic> dys = managerService.getUnSelected(user_id, nick_name, currentPage, 10);
-		if (dys != null && dys.size() > 0) {
-			UserDynamic dy = dys.get(dys.size() - 1);
-			if (dy.getId() < id) {
-				ImagePathUtil.completeDynamicPath(dy, true);
-				r.put("pageData", dy);
-			}
-			r.put("currentPageIndex", currentPage);
-		} else {
-			r.put("currentPageIndex", currentPage - 1 > 0 ? currentPage - 1 : 1);
-		}
-
-		return r;
+		return unselected_dynamic_list(request,user_id,currentPage,nick_name);
 	}
 
 	// 未选中首页内执行违规操作
@@ -529,21 +330,8 @@ public class WebManagerController {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
 
-		managerService.updateDynamicState(id, DynamicState.T_ILLEGAL);
-		ModelMap r = ResultUtil.getResultOKMap();
-		r.put("pageCount", getUnSelectPageCount(user_id, nick_name));
-		List<UserDynamic> dys = managerService.getUnSelected(user_id, nick_name, currentPage, 10);
-		if (dys != null && dys.size() > 0) {
-			UserDynamic dy = dys.get(dys.size() - 1);
-			if (dy.getId() < id) {
-				ImagePathUtil.completeDynamicPath(dy, true);
-				r.put("pageData", dy);
-			}
-			r.put("currentPageIndex", currentPage);
-		} else {
-			r.put("currentPageIndex", currentPage - 1 > 0 ? currentPage - 1 : 1);
-		}
-		return r;
+		managerService.updateDynamicState(id, DynamicState.ILLEGAL);
+		return unselected_dynamic_list(request,user_id,currentPage,nick_name);
 	}
 
 	// 动态违规接口
@@ -553,52 +341,23 @@ public class WebManagerController {
 		if (!managerService.isLogin(request)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
-
-		managerService.updateDynamicState(id, DynamicState.T_ILLEGAL);
-		ModelMap r = ResultUtil.getResultOKMap();
-
-		List<UserDynamic> dys = managerService.getDyanmicByState(currentPage, 10, DynamicState.T_CREATE);
-		r.put("pageCount", getPageCountByState(DynamicState.T_CREATE.ordinal()));
-		if (dys != null && dys.size() > 0) {
-			UserDynamic dy = dys.get(dys.size() - 1);
-			ImagePathUtil.completeDynamicPath(dy, true);
-			r.put("pageData", dy);
-			r.put("currentPageIndex", currentPage);
-		} else {
-			r.put("currentPageIndex", currentPage - 1 > 0 ? currentPage - 1 : 1);
-		}
-		return r;
+		managerService.updateDynamicState(id, DynamicState.ILLEGAL);
+		return managerService.getUnCheckDynamic(currentPage,10);
 	}
 
 	// 根据状态列出动态
-	@RequestMapping(value = "/list_dynamic_by_state")
-	public @ResponseBody ModelMap list_dynamic_by_state(HttpServletRequest request, int pageIndex, int state) {
+	@RequestMapping(value = "/list_unchecked_dynamic")
+	public @ResponseBody ModelMap list_unchecked_dynamic(HttpServletRequest request, int pageIndex) {
 
 		if (!managerService.isLogin(request)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
-
-		int pageCount = getPageCountByState(state);
-		if (pageIndex == 0) {
-			pageIndex = 1;
-		} else if (pageIndex < 0) {
-			pageIndex = pageCount;
-		}
-		List<UserDynamic> dys = managerService.getDyanmicByState(pageIndex, 10, DynamicState.values()[state]);
-		if (dys != null && dys.size() > 0) {
-			ImagePathUtil.completeDynamicsPath(dys, true);
-		}
-
-		ModelMap reMap = ResultUtil.getResultOKMap();
-		reMap.put("selecteds", dys);
-		reMap.put("pageCount", pageCount);
-		reMap.put("currentPageIndex", pageIndex);
-		return reMap;
+		return managerService.getUnCheckDynamic(pageIndex,10);
 	}
 
 	// 批量审核通过
-	@RequestMapping(value = "/verify_batch")
-	public @ResponseBody ModelMap verify_batch(HttpServletRequest request, String ids, int currentPage) {
+	@RequestMapping(value = "/checked_batch")
+	public @ResponseBody ModelMap checked_batch(HttpServletRequest request, String ids, int currentPage) {
 
 		if (!managerService.isLogin(request)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
@@ -610,52 +369,31 @@ public class WebManagerController {
 		List<Long> idList = JSONUtil.jsonToList(ids, new TypeReference<List<Long>>() {
 		});
 
-		int len = idList.size();
 		for (long id : idList) {
-			managerService.updateDynamicState(id, DynamicState.T_FORMAL);
+			managerService.updateDynamicState(id, DynamicState.CHECKED);
 		}
-		ModelMap r = ResultUtil.getResultOKMap();
-		r.put("pageCount", getPageCountByState(DynamicState.T_CREATE.ordinal()));
-		List<UserDynamic> dys = managerService.getDyanmicByState(currentPage, 10, DynamicState.T_CREATE);
-		if (dys != null && dys.size() > 0) {
-			ImagePathUtil.completeDynamicsPath(dys, true);
-			if (len >= dys.size()) {
-				r.put("pageData", dys);
-			} else {
-				int from = dys.size() - len;
-				List<UserDynamic> subList = dys.subList(from, dys.size());
-				r.put("pageData", subList);
-			}
-			r.put("currentPageIndex", currentPage);
-		} else {
-			r.put("currentPageIndex", currentPage - 1 > 0 ? currentPage - 1 : 1);
-		}
-		return r;
+		return managerService.getUnCheckDynamic(currentPage,10);
 	}
 
 	// 批量审核通过
-	@RequestMapping(value = "/verify_batch_singl")
+	@RequestMapping(value = "/dy_checked_ok")
 	public @ResponseBody ModelMap verify_batch_singl(HttpServletRequest request, long id, int currentPage) {
 
 		if (!managerService.isLogin(request)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
 
-		managerService.updateDynamicState(id, DynamicState.T_FORMAL);
-		ModelMap r = ResultUtil.getResultOKMap();
-		r.put("pageCount", getPageCountByState(DynamicState.T_CREATE.ordinal()));
-		List<UserDynamic> dys = managerService.getDyanmicByState(currentPage, 10, DynamicState.T_CREATE);
-		if (dys != null && dys.size() > 0) {
-			UserDynamic dy = dys.get(dys.size() - 1);
-			ImagePathUtil.completeDynamicPath(dy, true);
-			r.put("pageData", dy);
-			r.put("currentPageIndex", currentPage);
-		} else {
-			r.put("currentPageIndex", currentPage - 1 > 0 ? currentPage - 1 : 1);
-		}
-		return r;
+		managerService.updateDynamicState(id, DynamicState.CHECKED);
+		return managerService.getUnCheckDynamic(currentPage,10);
 	}
+	@RequestMapping(value = "/list_illegal_dynamic")
+	public @ResponseBody ModelMap list_illegal_dynamic(HttpServletRequest request, int pageIndex) {
 
+		if (!managerService.isLogin(request)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		return managerService.getIllegalDynamic(pageIndex,10);
+	}
 	// 删除违规动态（多个）
 	@RequestMapping(value = "/removes_illegal_dynamics")
 	public @ResponseBody ModelMap removes_illegal_dynamics(HttpServletRequest request, String ids, int currentPage) {
@@ -669,28 +407,10 @@ public class WebManagerController {
 		}
 		List<Long> idList = JSONUtil.jsonToList(ids, new TypeReference<List<Long>>() {
 		});
-
-		int len = idList.size();
 		for (long id : idList) {
-			managerService.removeDyanmicByState(id, DynamicState.T_ILLEGAL);
+			managerService.removeDyanmicByIdAndState(id, DynamicState.ILLEGAL);
 		}
-		ModelMap r = ResultUtil.getResultOKMap();
-		r.put("pageCount", getPageCountByState(DynamicState.T_ILLEGAL.ordinal()));
-		List<UserDynamic> dys = managerService.getDyanmicByState(currentPage, 10, DynamicState.T_ILLEGAL);
-		if (dys != null && dys.size() > 0) {
-			ImagePathUtil.completeDynamicsPath(dys, true);
-			if (len >= dys.size()) {
-				r.put("pageData", dys);
-			} else {
-				int from = dys.size() - len;
-				List<UserDynamic> subList = dys.subList(from, dys.size());
-				r.put("pageData", subList);
-			}
-			r.put("currentPageIndex", currentPage);
-		} else {
-			r.put("currentPageIndex", currentPage - 1 > 0 ? currentPage - 1 : 1);
-		}
-		return r;
+		return managerService.getIllegalDynamic(currentPage,10);
 	}
 
 	// 删除违规动态（单个）
@@ -700,21 +420,8 @@ public class WebManagerController {
 		if (!managerService.isLogin(request)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
-
-		managerService.removeDyanmicByState(id, DynamicState.T_ILLEGAL);
-		ModelMap r = ResultUtil.getResultOKMap();
-
-		List<UserDynamic> dys = managerService.getDyanmicByState(currentPage, 10, DynamicState.T_ILLEGAL);
-		r.put("pageCount", getPageCountByState(DynamicState.T_ILLEGAL.ordinal()));
-		if (dys != null && dys.size() > 0) {
-			UserDynamic dy = dys.get(dys.size() - 1);
-			ImagePathUtil.completeDynamicPath(dy, true);
-			r.put("pageData", dy);
-			r.put("currentPageIndex", currentPage);
-		} else {
-			r.put("currentPageIndex", currentPage - 1 > 0 ? currentPage - 1 : 1);
-		}
-		return r;
+		managerService.removeDyanmicByIdAndState(id, DynamicState.ILLEGAL);
+		return managerService.getIllegalDynamic(currentPage,10);
 	}
 
 	// 违规动态恢复到待审核区
@@ -724,21 +431,8 @@ public class WebManagerController {
 		if (!managerService.isLogin(request)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
-
-		managerService.updateDynamicState(id, DynamicState.T_CREATE);
-		ModelMap r = ResultUtil.getResultOKMap();
-
-		List<UserDynamic> dys = managerService.getDyanmicByState(currentPage, 10, DynamicState.T_ILLEGAL);
-		r.put("pageCount", getPageCountByState(DynamicState.T_ILLEGAL.ordinal()));
-		if (dys != null && dys.size() > 0) {
-			UserDynamic dy = dys.get(dys.size() - 1);
-			ImagePathUtil.completeDynamicPath(dy, true);
-			r.put("pageData", dy);
-			r.put("currentPageIndex", currentPage);
-		} else {
-			r.put("currentPageIndex", currentPage - 1 > 0 ? currentPage - 1 : 1);
-		}
-		return r;
+		managerService.updateDynamicState(id, DynamicState.CREATE);
+		return managerService.getIllegalDynamic(currentPage,10);
 	}
 
 	// 获取所有用户
@@ -749,80 +443,25 @@ public class WebManagerController {
 		if (!managerService.isLogin(request)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
-
-		ModelMap r = ResultUtil.getResultOKMap();
-		List<ManagerUser> users = managerService.getAllUser(pageSize, pageIndex, type, keyword, user_id);
-
-		if (pageIndex == 1) {
-			int totalSize = managerService.getUserSize(type, keyword, user_id);
-			int pageCount = totalSize / pageSize;
-			if (totalSize % 10 > 0) {
-				pageCount += 1;
-			}
-			if (pageCount == 0) {
-				pageCount = 1;
-			}
-			r.put("pageCount", pageCount);
-		}
-		ImagePathUtil.completeManagerUserAvatarsPath(users, true);
-		r.put("users", users);
-		r.put("currentPageIndex", pageIndex);
-		return r;
+		return managerService.getAllUser(keyword,type,user_id,pageIndex, pageSize);
 	}
 
 	// 获取所有发现用户黑名单
 	@RequestMapping(value = "/list_user_black")
-	public @ResponseBody ModelMap list_user_black(HttpServletRequest request, int pageSize, int pageIndex) {
-
+	public @ResponseBody ModelMap list_user_black(HttpServletRequest request,Long user_id, int pageSize, int pageIndex) {
 		if (!managerService.isLogin(request)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
-
-		ModelMap r = ResultUtil.getResultOKMap();
-		List<BaseUser> users = managerService.getBlackUsers(pageSize, pageIndex);
-
-		if (pageIndex == 1) {
-			int totalSize = managerService.getBlackUsersCount();
-			int pageCount = totalSize / pageSize;
-			if (totalSize % 10 > 0) {
-				pageCount += 1;
-			}
-			if (pageCount == 0) {
-				pageCount = 1;
-			}
-			r.put("pageCount", pageCount);
-		}
-		ImagePathUtil.completeAvatarsPath(users, true);
-		r.put("users", users);
-		r.put("currentPageIndex", pageIndex);
-		return r;
+		return  managerService.getBlackUsers(user_id,pageIndex, pageSize);
 	}
-
+	 
 	@RequestMapping(value = "/list_user_found")
-	public @ResponseBody ModelMap list_user_found(HttpServletRequest request, int pageSize, int pageIndex) {
+	public @ResponseBody ModelMap list_user_found(HttpServletRequest request,Long user_id, int pageSize, int pageIndex) {
 
 		if (!managerService.isLogin(request)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
-
-		ModelMap r = ResultUtil.getResultOKMap();
-		List<BaseUser> users = managerService.getFoundUsers(pageSize, pageIndex);
-
-		if (pageIndex == 1) {
-			int totalSize = managerService.getFoundUsersCount();
-			int pageCount = totalSize / pageSize;
-			if (totalSize % 10 > 0) {
-				pageCount += 1;
-			}
-			if (pageCount == 0) {
-				pageCount = 1;
-			}
-			r.put("pageCount", pageCount);
-		}
-		ImagePathUtil.completeAvatarsPath(users, true);
-		r.put("users", users);
-		r.put("currentPageIndex", pageIndex);
-		return r;
+		 return managerService.getFoundUsers(user_id, pageIndex, pageSize);
 	}
 
 	// 获取所有用户
@@ -833,25 +472,7 @@ public class WebManagerController {
 		if (!managerService.isLogin(request)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
-
-		ModelMap r = ResultUtil.getResultOKMap();
-		List<BaseUser> users = managerService.getAllMeetBottleRecommendUser(pageSize, pageIndex, keyword);
-
-		if (pageIndex == 1) {
-			int totalSize = managerService.getMeetBottleRecommendUserSize(keyword);
-			int pageCount = totalSize / pageSize;
-			if (totalSize % 10 > 0) {
-				pageCount += 1;
-			}
-			if (pageCount == 0) {
-				pageCount = 1;
-			}
-			r.put("pageCount", pageCount);
-		}
-		ImagePathUtil.completeAvatarsPath(users, true);
-		r.put("users", users);
-		r.put("currentPageIndex", pageIndex);
-		return r;
+		return  managerService.getAllMeetBottleRecommendUser(pageSize, pageIndex, keyword);
 	}
 
 	@RequestMapping(value = "/add_user_black")
@@ -876,25 +497,25 @@ public class WebManagerController {
 
 	// 添加到发现用户黑名单
 	@RequestMapping(value = "/remove_user_black")
-	public @ResponseBody ModelMap remove_user_black(HttpServletRequest request, long user_id, Integer pageSize,
+	public @ResponseBody ModelMap remove_user_black(HttpServletRequest request,Long user_id, long uid, Integer pageSize,
 			Integer pageIndex, int state) {
 
 		if (!managerService.isLogin(request)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
-		userService.setUserSysStatusTo(user_id, SysUserStatus.NORMAL);
-		return list_user_black(request, pageSize, pageIndex);
+		userService.setUserSysStatusTo(uid, SysUserStatus.NORMAL);
+		return list_user_black(request,user_id, pageSize, pageIndex);
 	}
 
 	@RequestMapping(value = "/remove_user_found")
-	public @ResponseBody ModelMap remove_user_found(HttpServletRequest request, long user_id, Integer pageSize,
-			Integer pageIndex, int state) {
+	public @ResponseBody ModelMap remove_user_found(HttpServletRequest request, Long user_id,long uid, Integer pageSize,
+			Integer pageIndex) {
 
 		if (!managerService.isLogin(request)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
-		userService.setUserFoundFn(user_id, UserFnStatus.DEFAULT);
-		return ResultUtil.getResultOKMap();
+		userService.setUserFoundFn(uid, UserFnStatus.DEFAULT);
+		return  list_user_found(request, user_id, pageSize, pageIndex);
 	}
 
 	// 添加到邂逅瓶待选
@@ -917,22 +538,7 @@ public class WebManagerController {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
 
-		ModelMap r = ResultUtil.getResultOKMap();
-		List<Object> exchanges = managerService.getExchangeHistory(pageSize, pageIndex, type);
-		if (pageIndex == 1) {
-			int totalSize = managerService.getExchangeHistorySize(type);
-			int pageCount = totalSize / pageSize;
-			if (totalSize % 10 > 0) {
-				pageCount += 1;
-			}
-			if (pageCount == 0) {
-				pageCount = 1;
-			}
-			r.put("pageCount", pageCount);
-		}
-		r.put("exchanges", exchanges);
-		r.put("currentPageIndex", pageIndex);
-		return r;
+		return  managerService.getExchangeHistory(pageSize, pageIndex, type);
 	}
 
 	@RequestMapping(value = "/exchange_handle")
@@ -955,23 +561,7 @@ public class WebManagerController {
 		if (!managerService.isLogin(request)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
-
-		ModelMap r = ResultUtil.getResultOKMap();
-		List<Report> exchanges = managerService.getReports(type, pageSize, pageIndex);
-		if (pageIndex == 1) {
-			int totalSize = managerService.getReportSize(type);
-			int pageCount = totalSize / pageSize;
-			if (totalSize % 10 > 0) {
-				pageCount += 1;
-			}
-			if (pageCount == 0) {
-				pageCount = 1;
-			}
-			r.put("pageCount", pageCount);
-		}
-		r.put("reports", exchanges);
-		r.put("currentPageIndex", pageIndex);
-		return r;
+		return  managerService.getReports(type, pageSize, pageIndex);
 	}
 
 	// 获取提现申请记录
@@ -990,36 +580,10 @@ public class WebManagerController {
 	@RequestMapping(value = "/list_bottle")
 	public @ResponseBody ModelMap list_bottle(HttpServletRequest request, Long user_id, int type, int pageSize,
 			int pageIndex) {
-
 		if (!managerService.isLogin(request)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
-
-		ModelMap r = ResultUtil.getResultOKMap();
-		List<Bottle> exchanges = managerService.listBottleByState(user_id, type, pageSize, pageIndex);
-
-		for (Bottle b : exchanges) {
-			if (b.getType() == BottleType.MEET.ordinal()) {
-				b.setContent(managerService.getMeetUserAvatar(b.getContent()));
-			} else if (b.getType() == BottleType.DRAW_GUESS.ordinal()) {
-				ImagePathUtil.completeBottleDrawPath(b);
-			}
-		}
-
-		if (pageIndex == 1) {
-			int totalSize = managerService.getBottleCountWithState(user_id, type);
-			int pageCount = totalSize / pageSize;
-			if (totalSize % pageSize > 0) {
-				pageCount += 1;
-			}
-			if (pageCount == 0) {
-				pageCount = 1;
-			}
-			r.put("pageCount", pageCount);
-		}
-		r.put("bottles", exchanges);
-		r.put("currentPageIndex", pageIndex);
-		return r;
+		 return  managerService.listBottleByState(user_id, type, pageSize, pageIndex);
 	}
 
 	// 获取提现申请记录
@@ -1150,48 +714,16 @@ public class WebManagerController {
 		if (!managerService.isLogin(request)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
-
-		ModelMap r = ResultUtil.getResultOKMap();
-		r.addAttribute("users", managerService.listConfirmAvatars(pageSize, pageIndex, user_id, state));
-		if (pageIndex == 1) {
-			int totalSize = managerService.getCountOfConfirmAvatars(user_id, state);
-			int pageCount = totalSize / pageSize;
-			if (totalSize % pageSize > 0) {
-				pageCount += 1;
-			}
-			if (pageCount == 0) {
-				pageCount = 1;
-			}
-			r.put("pageCount", pageCount);
-		}
-		r.put("currentPageIndex", pageIndex);
-		return r;
+		return managerService.listConfirmAvatars(pageSize, pageIndex, user_id, state);
 	}
-
 	// 获取需要審核的用戶头像
 	@RequestMapping(value = "/list_avatars_by_uid")
 	public @ResponseBody ModelMap list_avatars_by_uid(HttpServletRequest request, int pageSize, int pageIndex,
 			Long user_id, String nick_name) {
-
 		if (!managerService.isLogin(request)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
-
-		ModelMap r = ResultUtil.getResultOKMap();
-		r.addAttribute("users", managerService.listAvatarsByUid(pageSize, pageIndex, user_id, nick_name));
-		if (pageIndex == 1) {
-			int totalSize = managerService.getCountOfUserAvatars(user_id, nick_name);
-			int pageCount = totalSize / pageSize;
-			if (totalSize % pageSize > 0) {
-				pageCount += 1;
-			}
-			if (pageCount == 0) {
-				pageCount = 1;
-			}
-			r.put("pageCount", pageCount);
-		}
-		r.put("currentPageIndex", pageIndex);
-		return r;
+		 return managerService.listAvatarsByUid(pageSize, pageIndex, user_id, nick_name);
 	}
 
 	// 充值会员

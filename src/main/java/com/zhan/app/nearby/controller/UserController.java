@@ -278,7 +278,6 @@ public class UserController {
 		userService.saveAvatar(id, user.getAvatar());
 		ModelMap result = ResultUtil.getResultOKMap();
 		user.setUser_id(id);
-		user.setAge(String.valueOf(DateTimeUtil.getAge(user.getBirthday())));
 		ImagePathUtil.completeAvatarPath(user, true); // 补全图片链接地址
 		if (city_id != null) {
 			City city = cityService.getFullCity(city_id);
@@ -366,9 +365,7 @@ public class UserController {
 		userService.saveAvatar(id, user.getAvatar());
 		ModelMap result = ResultUtil.getResultOKMap();
 		user.setUser_id(id);
-		user.setAge(DateTimeUtil.getAge(user.getBirthday()));
 		ImagePathUtil.completeAvatarPath(user, true); // 补全图片链接地址
-
 		if (city_id != null) {
 			City city = cityService.getFullCity(city_id);
 			user.setBirth_city(city);
@@ -401,15 +398,7 @@ public class UserController {
 		} else {
 			user.set_ua(decode(_ua));
 		}
-//		if (TextUtils.isEmpty(login_channel)&&user.getUser_id()>0){
-//			String openid=userService.getOpenIdByUid(user.getUser_id());
-//			if(!openid.endsWith(user.getOpenid())) {
-//				return ResultUtil.getResultMap(ERROR.ERR_PARAM,"user_id对应的openid和本次openid不符");
-//			}
-//			user.setOpenid(openid);
-//		}else {
-//			user.setOpenid(login_channel+"#"+user.getOpenid());
-//		}
+
 		if (userService.getUserCountByOpenid(user.getOpenid()) >= 1) {
 			return userService.doLogin(user, user.get_ua(), aid, getDefaultCityId());
 		}
@@ -442,7 +431,6 @@ public class UserController {
 		}
 		ModelMap result = ResultUtil.getResultOKMap();
 		user.setUser_id(id);
-		user.setAge(DateTimeUtil.getAge(user.getBirthday()));
 		userService.saveAvatar(id, user.getAvatar());
 		ImagePathUtil.completeAvatarPath(user, true); // 补全图片链接地址
 
@@ -533,7 +521,6 @@ public class UserController {
 		userService.saveAvatar(id, user.getAvatar());
 		ModelMap result = ResultUtil.getResultOKMap();
 		user.setUser_id(id);
-		user.setAge(DateTimeUtil.getAge(user.getBirthday()));
 		ImagePathUtil.completeAvatarPath(user, true); // 补全图片链接地址
 
 		if (city_id != null) {
@@ -599,8 +586,6 @@ public class UserController {
 				userService.saveUserOnline(user.getUser_id());
 				userService.updateToken(user, device_token); // 更新token，弱登录
 				user.set_ua(null);
-				user.setAge(DateTimeUtil.getAge(user.getBirthday()));
-				// userCacheService.cacheLoginToken(user); // 缓存token，缓解检查登陆查询
 
 				ImagePathUtil.completeAvatarPath(user, true); // 补全图片链接地址
 				if (user.getCity() == null) {
@@ -1223,7 +1208,7 @@ public class UserController {
 
 	@ApiOperation(httpMethod = "POST", value = "check_in") // swagger 当前接口注解
 	@RequestMapping("check_in")
-	public Map<String, Object> check_in(long user_id, String token, String aid) {
+	public Map<String, Object> check_in(Long user_id, String token, String aid) {
 		return userService.checkIn(user_id, token, aid);
 	}
 	@ApiOperation(httpMethod = "POST", value = "getContact") // swagger 当前接口注解

@@ -268,8 +268,8 @@ public class UserService {
 	}
 
 	@Transactional
-	public int updateVisitor(long user_id, String app_id, String device_token, String lat, String lng, String zh_cn) {
-		int count = userDao.updateVisitor(user_id, app_id, device_token, lat, lng, zh_cn);
+	public int updateVisitor(long user_id, String aid, String device_token, String lat, String lng, String zh_cn) {
+		int count = userDao.updateVisitor(user_id, aid, device_token, lat, lng, zh_cn);
 		return count;
 	}
 
@@ -391,9 +391,6 @@ public class UserService {
 		if (user == null) {
 			return ResultUtil.getResultMap(ERROR.ERR_FAILED, "对应ID不存在");
 		}
-
-		user.setAge(String.valueOf(DateTimeUtil.getAge(user.getBirthday())));
-
 		List<UserDynamic> dys = userDynamicService.getUserDynamic(user_id_for, 1, 5);
 		user.setImages(dys);
 		// //
@@ -755,8 +752,8 @@ public class UserService {
 	 * @param pageIndex
 	 * @return
 	 */
-	public List<BaseUser> getFoundUsers(int pageSize, int pageIndex) {
-		return userDao.getFoundUsers(pageSize, pageIndex);
+	public List<BaseUser> getFoundUsers(Long user_id,int page, int count) {
+		return userDao.getFoundUsers(user_id,page,count);
 	}
 
 	/**
@@ -764,8 +761,8 @@ public class UserService {
 	 * 
 	 * @return
 	 */
-	public int getFoundUsersCount(   ) {
-		return userDao.getFoundUsersCount( );
+	public int getFoundUsersCount(  Long user_id ) {
+		return userDao.getFoundUsersCount(user_id );
 	}
 	
 	
@@ -776,8 +773,8 @@ public class UserService {
 	 * @param pageIndex
 	 * @return
 	 */
-	public List<BaseUser> getBlackUsers(int pageSize, int pageIndex) {
-		return userDao.getBlackUsers(pageSize, pageIndex);
+	public List<BaseUser> getBlackUsers(Long user_id,int page, int count) {
+		return userDao.getBlackUsers(user_id,page, count);
 	}
 
 	/**
@@ -785,8 +782,8 @@ public class UserService {
 	 * 
 	 * @return
 	 */
-	public int getBlackUsersCount(   ) {
-		return userDao.getBlackUsersCount( );
+	public int getBlackUsersCount( Long user_id  ) {
+		return userDao.getBlackUsersCount(user_id );
 	}
 	
 	
@@ -856,7 +853,10 @@ public class UserService {
 		return userDao.getSpecialUsersCount();
 	}
 
-	public Map<String, Object> checkIn(long user_id, String token, String aid) {
+	public Map<String, Object> checkIn(Long user_id, String token, String aid) {
+		if(user_id==null) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
 		if (checkLogin(user_id, token)) {
 			int count = userDao.todayCheckInCount(user_id);
 			if (count == 0) {
@@ -1415,8 +1415,6 @@ public class UserService {
 		saveUserOnline(user.getUser_id());
 		updateToken(user); // 鏇存柊token锛屽急鐧诲綍
 		user.set_ua(null);
-		user.setAge(String.valueOf(DateTimeUtil.getAge(user.getBirthday())));
-		// userCacheService.cacheLoginToken(user); // 缂撳瓨token锛岀紦瑙ｆ鏌ョ櫥闄嗘煡璇�
 
 		ImagePathUtil.completeAvatarPath(user, true); // 琛ュ叏鍥剧墖閾炬帴鍦板潃
 		if (user.getCity() == null) {

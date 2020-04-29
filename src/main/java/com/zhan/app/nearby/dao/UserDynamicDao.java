@@ -7,7 +7,6 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import org.apache.log4j.Logger;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -32,23 +31,25 @@ public class UserDynamicDao extends BaseDao<UserDynamic> {
 	public static final String TABLE_LIKE_DYNAMIC_STATE = "t_like_dynamic";
 	@Resource
 	private JdbcTemplate jdbcTemplate;
-	private static Logger log = Logger.getLogger(UserDynamicDao.class);
 	private static DynamicMapper dynamicMapper = new DynamicMapper();
 
 
 	public List<UserDynamic> getHomeFoundSelected(long user_id, Long last_id, int page_size, City city) {
-		String sql = "select dy.*,"
-				+ " coalesce((select relationship from t_like_dynamic t_like where t_like.dynamic_id=dy.id and t_like.user_id=?), '0') as like_state ,"
-				+ " u.user_id , u.nick_name ,u.avatar,u.sex ,u.birthday,u.video_cert_status ,u.type, u.isvip " + "from "
+		
+		String likeStateSql="coalesce((select relationship from t_like_dynamic t_like where t_like.dynamic_id=dy.id and t_like.user_id=?), '0') as like_state";
+		
+		if(last_id==null) {
+			String sql = "select dy.*,"+likeStateSql+" ,u.user_id , u.nick_name ,u.avatar,u.sex ,u.birthday,u.video_cert_status ,u.type, u.isvip  from "
+					+ getTableName() + " dy   left join t_user u on  dy.user_id=u.user_id "
+					+ " where (dy.user_id=? or dy.found_status=?)  " + cityIn(city)
+					+ " order by dy.id desc limit ?";
+			return jdbcTemplate.query(sql, new Object[] {user_id,user_id,UserFnStatus.ENABLE.ordinal(),page_size}, dynamicMapper);
+		}
+		String sql = "select dy.*,"+likeStateSql+" ,u.user_id , u.nick_name ,u.avatar,u.sex ,u.birthday,u.video_cert_status ,u.type, u.isvip  from "
 				+ getTableName() + " dy   left join t_user u on  dy.user_id=u.user_id "
-				+ " where dy.found_status=? and dy.id<?   " + cityIn(city)
-				+ " and   dy.user_id not in(select with_user_id from t_user_relationship where user_id=? and relationship=?) order by dy.id desc limit ?";
-
-		long lastID = (last_id == null ? Long.MAX_VALUE : last_id);
-		Object[] param = new Object[] { UserFnStatus.ENABLE.ordinal(), user_id, lastID, user_id,
-				Relationship.BLACK.ordinal(), page_size };
-		return jdbcTemplate.query(sql, param, dynamicMapper);
-
+				+ " where (dy.user_id=? or dy.found_status=?)  " + cityIn(city)
+				+ "  and dy.id<? order by dy.id desc limit ?";
+		return jdbcTemplate.query(sql, new Object[] {user_id,user_id,UserFnStatus.ENABLE.ordinal(),last_id,page_size}, dynamicMapper);
 	}
 
 	public void addFlowerCount(long dy_id, int count) {

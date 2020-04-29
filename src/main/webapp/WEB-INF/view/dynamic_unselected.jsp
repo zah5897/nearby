@@ -270,6 +270,30 @@
 		    });
 		 
 	}
+		
+      function ignore(id) {
+			$.post("<%=path%>/manager/ignore_unselected",{id:id,currentPage:currentPage,'nick_name':nickName,'user_id':user_id},function(result){
+		        $("#tr_"+id).remove();//移除当前的元素
+		        
+		        var json=JSON.parse(result);
+		        var pageData=json["data"];
+		        
+		        var last2tr=$("table tr").eq(-2);
+				 if(last2tr.size()==0){
+				      alert("指定的table id或行数不存在！");
+				     return;
+				 }
+				 if(pageData){
+					 reviewTableTr(pageData,last2tr);
+				 }else{
+					 page(json["currentPageIndex"]);
+				 }
+		        refreshPageIndex(json["pageCount"],json["currentPageIndex"]);
+		    });
+		 
+	}
+		
+		
 	  //
       function reviewTableTr(pageData,tr) {
 			 //获取table倒数第二行 $("#tab tr").eq(-2)

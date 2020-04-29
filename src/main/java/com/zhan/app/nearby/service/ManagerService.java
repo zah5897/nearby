@@ -224,6 +224,10 @@ public class ManagerService {
 		return managerDao.updateDynamicState(id, state);
 	}
 
+	// 动态审核违规
+	public int updateDynamicManagerFlag(long id,int flag) {
+		return managerDao.updateDynamicManagerFlag(id, flag);
+	}
 	/**
 	 * 获取所有用户
 	 * 

@@ -14,7 +14,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.zhan.app.nearby.bean.DynamicComment;
 import com.zhan.app.nearby.bean.DynamicMessage;
 import com.zhan.app.nearby.bean.UserDynamic;
+import com.zhan.app.nearby.comm.DynamicCommentStatus;
 import com.zhan.app.nearby.comm.DynamicMsgType;
+import com.zhan.app.nearby.comm.DynamicState;
 import com.zhan.app.nearby.comm.LikeDynamicState;
 import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.service.DynamicMsgService;
@@ -53,7 +55,7 @@ public class DynamicController {
 		//敏感词过滤
 		String newContent=BottleKeyWordUtil.filterContent(comment.getContent());
 		comment.setContent(newContent);
-		
+		comment.setStatus(DynamicCommentStatus.CHECKED.ordinal());
 		long id = userDynamicService.comment(comment);
 		ModelMap result;
 		if (id > 0) {

@@ -78,6 +78,7 @@ public class UserDynamic implements Serializable {
 	
 	
 	private int found_status;
+	private int manager_flag;
 
 	public long getId() {
 		return id;
@@ -309,6 +310,14 @@ public class UserDynamic implements Serializable {
 
 	public void setFound_status(int found_status) {
 		this.found_status = found_status;
+	}
+
+	public int getManager_flag() {
+		return manager_flag;
+	}
+
+	public void setManager_flag(int manager_flag) {
+		this.manager_flag = manager_flag;
 	}
 
 	 

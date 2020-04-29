@@ -132,7 +132,7 @@
 
 		//刷新表格
 		function refreshTable(json){
-			var pageData=json["selecteds"];
+			var pageData=json["data"];
 			if(pageData){
 				for(var i=0;i<pageData.length;i++){
 					var tr;
@@ -205,7 +205,7 @@
 			        $("#tr_"+id).remove();//移除当前的元素
 			        
 			        var json=JSON.parse(result);
-			        var pageData=json["selecteds"];
+			        var pageData=json["data"];
 			        
 			        var last2tr=$("table tr").eq(-2);
 					 if(last2tr.size()==0){
@@ -256,7 +256,7 @@
 			 toAdd+="<td>"+time+"</td>";
 			 
 			 toAdd+="<td>"+pageData["praise_count"]+"|"+pageData["comment_count"]+"</td>";
-			 toAdd+="<td><div class='button-group'><a class='button border-red' href='javascript:void(0)'	onclick='return del("+pageData["id"]+")'><span class='icon-trash-o'></span>删除</a></div></td>";
+			 toAdd+="<td><div class='button-group'><a class='button border-red' href='javascript:void(0)'	onclick='return del("+pageData["id"]+")'><span class='icon-trash-o'></span>移除推荐</a></div></td>";
 			 toAdd+="</tr>";
 			 tr.after(toAdd);
 		}
@@ -289,7 +289,7 @@
 							//reviewTableTr(result);
 
 							var json = JSON.parse(result);
-							var pageData = json["selecteds"];
+							var pageData = json["data"];
 							for (var i = 0; i < chk_value.length; i++) {
 								$("#tr_" + chk_value[i]).remove();//移除当前的元素
 							}

@@ -72,7 +72,7 @@ public class ManagerDao extends BaseDao<ManagerUser> {
 		
 		String sql = "select dynamic.*  ,user.user_id  ,user.nick_name ,user.avatar,user.sex,user.isvip ,user.birthday,user.type from "
 				+ TABLE_USER_DYNAMIC
-				+ " dynamic left join t_user user on  dynamic.user_id=user.user_id  where dynamic.found_status<>? and dynamic.state=?";
+				+ " dynamic left join t_user user on  dynamic.user_id=user.user_id  where dynamic.found_status=? and dynamic.state=? and dynamic.manager_flag<>1 ";
 		
 		List<Object> param=new ArrayList<>();
 		
@@ -120,7 +120,7 @@ public class ManagerDao extends BaseDao<ManagerUser> {
 	// 获取未选中的（前提为被审核通过的）
 	public int getUnSelectedCount(Long user_id,String nick_name) {
 		String sql = "select count(*) from " + TABLE_USER_DYNAMIC
-				+ " dynamic    where dynamic.found_status<>?  and dynamic.state=? ";
+				+ " dynamic    where dynamic.found_status<>?  and dynamic.state=? and manager_flag<>1 ";
 		
 		List<Object> param=new ArrayList<Object>();
 		param.add(UserFnStatus.DEFAULT.ordinal());
@@ -169,6 +169,11 @@ public class ManagerDao extends BaseDao<ManagerUser> {
 			return jdbcTemplate.update(sql, new Object[] { state.ordinal(), id });
 		}
 	}
+	// 修改动态的状态
+	public int updateDynamicManagerFlag(long id, int flag) {
+			String sql = "update  t_user_dynamic set manager_flag=? where id=? ";
+			return jdbcTemplate.update(sql, flag,id);
+	}
 
 	public int removeUserDynamic(long id) {
 		String sql = "delete from " + TABLE_USER_DYNAMIC + " where id=?";
@@ -176,7 +181,7 @@ public class ManagerDao extends BaseDao<ManagerUser> {
 	}
 
 	public int addToSelected(long id) {
-		String sql = "update from " + TABLE_USER_DYNAMIC + " set found_status=? where  id=?";
+		String sql = "update   " + TABLE_USER_DYNAMIC + " set found_status=? where  id=?";
 		return jdbcTemplate.update(sql, new Object[] {UserFnStatus.ENABLE.ordinal(), id    });
 	}
 

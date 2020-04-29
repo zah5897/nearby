@@ -333,6 +333,20 @@ public class WebManagerController {
 		managerService.updateDynamicState(id, DynamicState.ILLEGAL);
 		return unselected_dynamic_list(request,user_id,currentPage,nick_name);
 	}
+	
+	
+	// 未选中首页内执行违规操作
+		@RequestMapping(value = "/ignore_unselected")
+		public @ResponseBody ModelMap ignore_unselected(HttpServletRequest request, Long user_id, String nick_name,
+				long id, int currentPage) {
+
+			if (!managerService.isLogin(request)) {
+				return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+			}
+			managerService.updateDynamicManagerFlag(id, 1);
+			return unselected_dynamic_list(request,user_id,currentPage,nick_name);
+		}
+	
 
 	// 动态违规接口
 	@RequestMapping(value = "/dy_illegal")
@@ -498,7 +512,7 @@ public class WebManagerController {
 	// 添加到发现用户黑名单
 	@RequestMapping(value = "/remove_user_black")
 	public @ResponseBody ModelMap remove_user_black(HttpServletRequest request,Long user_id, long uid, Integer pageSize,
-			Integer pageIndex, int state) {
+			Integer pageIndex) {
 
 		if (!managerService.isLogin(request)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);

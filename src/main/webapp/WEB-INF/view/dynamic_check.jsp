@@ -150,15 +150,15 @@ td {
 	 
 	
 	function getPageIndexItem(i){
-		 if(i==currentPageIndex){
+		 if(i==currentPage){
       		  return "<a  class='pg_flag' href='javascript:void(0)' onclick='return page("+i+")'><span class='current'>"+i+"</span></a>";
       	  }else{
       		  return "<a class='pg_flag' href='javascript:void(0)' onclick='return page("+i+")'>"+i+"</a>";
       	  }
 	}
 	function getStartIndex(){
-	   if(currentPageIndex-2>0){
-		   return currentPageIndex-2;
+	   if(currentPage-2>0){
+		   return currentPage-2;
 	   }else{
 		   return 1;
 	   }

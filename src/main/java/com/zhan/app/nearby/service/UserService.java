@@ -383,7 +383,7 @@ public class UserService {
 		return userDao.getAllUserIds(last_id, page);
 	}
 
-	public ModelMap getUserCenterData(String token, String aid, Long user_id_for, Long uid) {
+	public ModelMap getUserCenterData(String token, String aid, Long user_id_for, Long uid,boolean canLoadVideoData) {
 		if (user_id_for == null || user_id_for <= 0) {
 			return ResultUtil.getResultMap(ERROR.ERR_FAILED, "对应用户不存在");
 		}
@@ -391,16 +391,8 @@ public class UserService {
 		if (user == null) {
 			return ResultUtil.getResultMap(ERROR.ERR_FAILED, "对应ID不存在");
 		}
-		List<UserDynamic> dys = userDynamicService.getUserDynamic(user_id_for, 1, 5);
+		List<UserDynamic> dys = userDynamicService.getUserDynamic(user_id_for, 1, 5,canLoadVideoData);
 		user.setImages(dys);
-		// //
-		// Map<String, Object> userJson = new HashMap<>();
-		// userJson.put("about_me", user);
-		// Map<String, Object> secret_me = new HashMap<String, Object>();
-		// userJson.put("secret_me", secret_me);
-		// userJson.put("my_tags", new HashMap<>());
-		// ModelMap result = ResultUtil.getResultOKMap();
-		// result.put("user", userJson);
 
 		ImagePathUtil.completeAvatarPath(user, true);
 		setTagByIds(user);
@@ -456,14 +448,6 @@ public class UserService {
 		if (user == null) {
 			return ResultUtil.getResultMap(ERROR.ERR_FAILED);
 		}
-		// //
-		// Map<String, Object> userJson = new HashMap<>();
-		// userJson.put("about_me", user);
-		// Map<String, Object> secret_me = new HashMap<String, Object>();
-		// userJson.put("secret_me", secret_me);
-		// userJson.put("my_tags", new HashMap<>());
-		// ModelMap result = ResultUtil.getResultOKMap();
-		// result.put("user", userJson);
 
 		ImagePathUtil.completeAvatarPath(user, true);
 		setTagByIds(user);
@@ -478,8 +462,8 @@ public class UserService {
 		user.setAvatars(getUserAvatars(user_id_for));
 
 		if (!TextUtils.isEmpty(user.getContact()) && uid != user_id_for) {
-			if (!userDao.hadGetContact(uid == null ? 0 : uid, user_id_for == null ? 0 : user_id_for)) {
-				user.setContact("花费金币查看");
+			if(!isVip(uid)) {
+				user.setContact("vip可看");
 			}
 		}
 

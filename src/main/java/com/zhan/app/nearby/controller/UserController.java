@@ -1138,14 +1138,14 @@ public class UserController {
 
 	@Deprecated
 	@RequestMapping("center_page")
-	public ModelMap center_page(Long user_id_for, String token, String aid, long user_id) {
-		return userService.getUserCenterData(token, aid, user_id_for, user_id);
+	public ModelMap center_page(Long user_id_for, String token, String aid, long user_id,String version) {
+		return userService.getUserCenterData(token, aid, user_id_for, user_id,version.compareTo("2.1.0")>=0);
 	}
 
 	@Deprecated
 	@RequestMapping("center_page/{user_id_for}")
-	public ModelMap center_page_path(@PathVariable Long user_id_for, String token, String aid, Long user_id) {
-		return userService.getUserCenterData(token, aid, user_id_for, user_id);
+	public ModelMap center_page_path(@PathVariable Long user_id_for, String token, String aid, Long user_id,String version) {
+		return userService.getUserCenterData(token, aid, user_id_for, user_id,version.compareTo("2.1.0")>=0);
 	}
 	@ApiOperation(httpMethod = "POST", value = "center_page_v2") // swagger 当前接口注解
 	@RequestMapping("center_page_v2")

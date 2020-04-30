@@ -578,7 +578,7 @@ public class BottleDao extends BaseDao<Bottle> {
 		String sql = "delete from t_bottle_pool   where  type=? and  bottle_id<?  order by bottle_id desc";
 		jdbcTemplate.update(sql, new Object[] { type, last_id });
 	}
-
+	
 	public void keepVoiceByDay(int day) {
 		String sql = "delete  from t_bottle_pool  where type=?  and  TO_DAYS( NOW( ) ) - TO_DAYS( create_time) > ?";
 		jdbcTemplate.update(sql, new Object[] { BottleType.VOICE.ordinal(), day });

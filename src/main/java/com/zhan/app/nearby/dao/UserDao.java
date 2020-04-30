@@ -890,17 +890,6 @@ public class UserDao extends BaseDao<BaseUser> {
 		return contact;
 	}
 
-	public int markContactRel(long user_id, long target_uid) {
-		return jdbcTemplate.update("insert into t_contact_get_rel (uid,target_uid) values(?,?)",
-				new Object[] { user_id, target_uid });
-	}
-
-	public boolean hadGetContact(long user_id, long target_uid) {
-		int count = jdbcTemplate.queryForObject("select count(*) from t_contact_get_rel where uid=? and target_uid=?",
-				new Object[] { user_id, target_uid }, Integer.class);
-		return count > 0;
-	}
-
 	public boolean checkExistByIdAndPwd(long user_id, String md5_pwd) {
 		int count = jdbcTemplate.queryForObject("select count(*) from t_user where user_id=? and password=?",
 				new Object[] { user_id, md5_pwd }, Integer.class);
@@ -1245,12 +1234,6 @@ public class UserDao extends BaseDao<BaseUser> {
 	}
 
 	public void close(long uid) {
-
-//		jdbcTemplate.update("delete from t_bottle_scan where user_id="+uid);//鍒犻櫎鐡跺瓙
-//		jdbcTemplate.update("delete from t_check_in_record where uid="+uid);//鍒犻櫎绛惧埌
-//		jdbcTemplate.update("delete from t_coin_exchange where uid="+uid);//鍒犻櫎浜ゆ槗淇℃伅
-//		jdbcTemplate.update("delete from t_contact_get_rel where uid="+uid+" or target_uid="+uid);//鍒犻櫎鑾峰彇鑱旂郴鏂瑰紡鐨勮褰�
-
 		jdbcTemplate.update("update t_user set account_state=? where user_id=?",
 				new Object[] { AccountStateType.CLOSE.ordinal(), uid });
 

@@ -42,14 +42,14 @@ public class UserDynamicDao extends BaseDao<UserDynamic> {
 			String sql = "select dy.*,"+likeStateSql+" ,u.user_id , u.nick_name ,u.avatar,u.sex ,u.birthday,u.video_cert_status ,u.type, u.isvip  from "
 					+ getTableName() + " dy   left join t_user u on  dy.user_id=u.user_id "
 					+ " where (dy.user_id=? or dy.found_status=?)  " + cityIn(city)
-					+ " order by dy.id desc limit ?";
-			return jdbcTemplate.query(sql, new Object[] {user_id,user_id,UserFnStatus.ENABLE.ordinal(),page_size}, dynamicMapper);
+					+ " and dy.user_id not in (select with_user_id from t_user_relationship where user_id=? and relationship=?) order by dy.id desc limit ?";
+			return jdbcTemplate.query(sql, new Object[] {user_id,user_id,UserFnStatus.ENABLE.ordinal(),user_id,Relationship.BLACK.ordinal(),page_size}, dynamicMapper);
 		}
 		String sql = "select dy.*,"+likeStateSql+" ,u.user_id , u.nick_name ,u.avatar,u.sex ,u.birthday,u.video_cert_status ,u.type, u.isvip  from "
 				+ getTableName() + " dy   left join t_user u on  dy.user_id=u.user_id "
 				+ " where (dy.user_id=? or dy.found_status=?)  " + cityIn(city)
-				+ "  and dy.id<? order by dy.id desc limit ?";
-		return jdbcTemplate.query(sql, new Object[] {user_id,user_id,UserFnStatus.ENABLE.ordinal(),last_id,page_size}, dynamicMapper);
+				+ "  and dy.id<? and  dy.user_id not in (select with_user_id from t_user_relationship where user_id=? and relationship=?) order by dy.id desc limit ?";
+		return jdbcTemplate.query(sql, new Object[] {user_id,user_id,UserFnStatus.ENABLE.ordinal(),last_id,user_id,Relationship.BLACK.ordinal(),page_size}, dynamicMapper);
 	}
 
 	public void addFlowerCount(long dy_id, int count) {

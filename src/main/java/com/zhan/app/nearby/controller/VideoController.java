@@ -4,18 +4,26 @@ import java.util.Date;
 import java.util.List;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.bean.Video;
 import com.zhan.app.nearby.bean.VideoComment;
+import com.zhan.app.nearby.comm.DynamicState;
 import com.zhan.app.nearby.exception.ERROR;
+import com.zhan.app.nearby.service.UserDynamicService;
 import com.zhan.app.nearby.service.UserService;
 import com.zhan.app.nearby.service.VideoService;
+import com.zhan.app.nearby.task.CommAsyncTask;
 import com.zhan.app.nearby.util.BottleKeyWordUtil;
+import com.zhan.app.nearby.util.DeviceUtil;
+import com.zhan.app.nearby.util.IPUtil;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.ResultUtil;
 import com.zhan.app.nearby.util.TextUtils;
@@ -34,7 +42,11 @@ public class VideoController {
 	private VideoService videoService;
 	@Resource
 	private UserService userService;
-
+	@Autowired
+	private UserDynamicService userDynamicService;
+	@Autowired 
+	private CommAsyncTask commAsyncTask;
+	
 	@RequestMapping("send")
 	@ApiOperation(httpMethod = "POST", value = "发送短视频") // swagger 当前接口注解
 	@ApiImplicitParams({ @ApiImplicitParam(name = "user_id", value = "用户id", required = true, paramType = "query"),
@@ -46,8 +58,8 @@ public class VideoController {
 			@ApiImplicitParam(name = "thumb_img_name", value = "视频预览图，上传在UCloud上面的文件名称", paramType = "query"),
 			@ApiImplicitParam(name = "secret_level", value = "视频等级，0为公开，1为私密，默认公开",dataType = "Integer", paramType = "query"),
 			@ApiImplicitParam(name = "duration", value = "视频时长单位秒", required = true, paramType = "query",dataType = "Float") })
-	public ModelMap send(long user_id, String token, String aid, String title, String video_name, String thumb_img_name,
-			float duration,Integer type,Integer secret_level) {
+	public ModelMap send(HttpServletRequest request, long user_id, String token, String aid, String title, String video_name, String thumb_img_name,
+			float duration,Integer type,Integer secret_level,String _ua,String lat,String lng,String addr,String ios_addr) {
 		if(!userService.checkLogin(user_id, token)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
@@ -85,7 +97,28 @@ public class VideoController {
 		video.setCreate_time(new Date());
 		video.setSecret_level(secret_level);
 		videoService.save(video);
+		
 		ImagePathUtil.completeVideoPath(video);
+		UserDynamic dynamic=new UserDynamic();
+		dynamic.set_from(DeviceUtil.getRequestDevice(_ua));
+		dynamic.setIp(IPUtil.getIpAddress(request));
+		dynamic.setUser_id(user_id);
+		String content = BottleKeyWordUtil.filterContent(title);
+		dynamic.setDescription(content);
+		dynamic.setState(DynamicState.CREATE.ordinal());
+		dynamic.setLocal_image_name(thumb_img_name);
+		dynamic.setCreate_time(new Date());
+		dynamic.setLat(lat);
+		dynamic.setLng(lng);
+		dynamic.setAddr(addr);
+		
+		dynamic.setVideo_file_short_name(video_name);
+		dynamic.setDuration(duration);
+		dynamic.setType(1);
+		dynamic.setSecret_level(secret_level);
+		commAsyncTask.getDynamicLocation(IPUtil.getIpAddress(request), dynamic, ios_addr);
+		userDynamicService.insertDynamic(dynamic);
+		
 		return ResultUtil.getResultOKMap().addAttribute("data", video);
 	}
 

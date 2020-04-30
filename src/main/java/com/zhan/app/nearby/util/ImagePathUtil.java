@@ -11,6 +11,7 @@ import com.zhan.app.nearby.bean.Gift;
 import com.zhan.app.nearby.bean.GiftOwn;
 import com.zhan.app.nearby.bean.Image;
 import com.zhan.app.nearby.bean.ManagerUser;
+import com.zhan.app.nearby.bean.SimpleDynamic;
 import com.zhan.app.nearby.bean.Topic;
 import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.bean.Video;
@@ -27,10 +28,9 @@ public class ImagePathUtil {
 	public static String HOST_PROFIX_BOTTLE_DRAW = "http://nearby-bottle-draw.cn-bj.ufileos.com/";
 	public static String HOST_PROFIX_VIDEO = "http://nearby-video.cn-bj.ufileos.com/";
 	public static String HOST_PROFIX_VIDEO_THUMB = "http://nearby-video-thumb.cn-bj.ufileos.com/";
-	
-	
+
 	public static String HOST_PROFIX_APPOINTMENT_IMG = "http://nearby-appointment-img.cn-bj.ufileos.com/";
-	
+
 	public static String completeStrAvatarPath(String avatar) {
 		if (TextUtils.isEmpty(avatar)) {
 			return "";
@@ -41,7 +41,7 @@ public class ImagePathUtil {
 		}
 
 		String path = HOST_PROFIX_AVATAR + ImageSaveUtils.FILE_AVATAR + avatar;
-		 return path;
+		return path;
 	}
 
 	public static BaseUser completeAvatarPath(BaseUser user, boolean thumbAndOrigin) {
@@ -102,31 +102,29 @@ public class ImagePathUtil {
 		if (appointment == null) {
 			return;
 		}
-		String image_names=appointment.getImage();
+		String image_names = appointment.getImage();
 		if (TextUtils.isEmpty(image_names)) {
 			return;
 		}
 		image_names.replace("，", ",");
-		String[] names=image_names.split(",");
-		List<String> images=new ArrayList<String>();
-		for(String name:names) {
+		String[] names = image_names.split(",");
+		List<String> images = new ArrayList<String>();
+		for (String name : names) {
 			if (name.startsWith("http")) {
 				images.add(name);
-			}else {
+			} else {
 				String path = HOST_PROFIX_APPOINTMENT_IMG + name;
 				images.add(path);
 			}
 		}
 		appointment.setImages(images);
 	}
-	
+
 	public static void completePath(List<Appointment> appointments) {
-		 for(Appointment app:appointments) {
-			 completePath(app);
-		 }
+		for (Appointment app : appointments) {
+			completePath(app);
+		}
 	}
-	
-	
 
 	public static List<Avatar> completeAvatarsPath(List<Avatar> avatars) {
 		if (avatars == null || avatars.size() == 0) {
@@ -174,35 +172,55 @@ public class ImagePathUtil {
 	}
 
 	public static void completeDynamicPath(UserDynamic dynamic, boolean thumbAndOrigin) {
-
 		if (dynamic == null) {
 			return;
 		}
-
 		String shortName = dynamic.getLocal_image_name();
-		if (!TextUtils.isEmpty(shortName)) {
-			dynamic.setThumb(HOST_PROFIX_IMAGES + ImageSaveUtils.FILE_IMAGES + shortName);
-			dynamic.setOrigin(dynamic.getThumb());
+		if (dynamic.getType() == 1) { // 短视频
+			if (!TextUtils.isEmpty(shortName)) {
+				dynamic.setThumb(HOST_PROFIX_VIDEO_THUMB + shortName);
+				dynamic.setOrigin(dynamic.getThumb());
+			}
+			if (!TextUtils.isEmpty(dynamic.getVideo_file_short_name())) {
+				dynamic.setVideo_url(HOST_PROFIX_VIDEO + dynamic.getVideo_file_short_name());
+			}
+		} else {
+			if (!TextUtils.isEmpty(shortName)) {
+				dynamic.setThumb(HOST_PROFIX_IMAGES + ImageSaveUtils.FILE_IMAGES + shortName);
+				dynamic.setOrigin(dynamic.getThumb());
+			}
 		}
+	 
 	}
 
-	public static void completeImagesPath(List<Image> images, boolean thumbAndOrigin) {
+	public static void completeImagesPath(List<SimpleDynamic> images, boolean thumbAndOrigin) {
 		if (images != null && images.size() > 0) {
-			for (Image img : images) {
+			for (SimpleDynamic img : images) {
 				completeImagePath(img, thumbAndOrigin);
 			}
 		}
 	}
 
-	public static void completeImagePath(Image image, boolean thumbAndOrigin) {
+	public static void completeImagePath(SimpleDynamic image, boolean thumbAndOrigin) {
 
 		if (image == null) {
 			return;
 		}
 		String shortName = image.getLocal_image_name();
-		if (!TextUtils.isEmpty(shortName)) {
-			image.setThumb(HOST_PROFIX_IMAGES + ImageSaveUtils.FILE_IMAGES + shortName);
-			image.setOrigin(image.getThumb());
+
+		if (image.getType() == 1) { // 短视频
+			if (!TextUtils.isEmpty(shortName)) {
+				image.setThumb(HOST_PROFIX_VIDEO_THUMB + shortName);
+				image.setOrigin(image.getThumb());
+			}
+			if (!TextUtils.isEmpty(image.getVideo_file_short_name())) {
+				image.setVideo_url(HOST_PROFIX_VIDEO + image.getVideo_file_short_name());
+			}
+		} else {
+			if (!TextUtils.isEmpty(shortName)) {
+				image.setThumb(HOST_PROFIX_IMAGES + ImageSaveUtils.FILE_IMAGES + shortName);
+				image.setOrigin(image.getThumb());
+			}
 		}
 	}
 

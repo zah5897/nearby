@@ -100,6 +100,7 @@ public class ImageController {
 						dynamic.setState(DynamicState.CREATE.ordinal());
 						dynamic.setLocal_image_name(imagePath);
 						dynamic.setCreate_time(new Date());
+						dynamic.setType(0);
 						 userDynamicService.insertDynamic(dynamic);
 						commAsyncTask.getDynamicLocation(IPUtil.getIpAddress(multipartRequest), dynamic, ios_addr);
 						// 预先放在首页推荐

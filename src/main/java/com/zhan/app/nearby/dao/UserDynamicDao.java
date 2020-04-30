@@ -15,6 +15,7 @@ import org.springframework.stereotype.Repository;
 import com.zhan.app.nearby.bean.City;
 import com.zhan.app.nearby.bean.DynamicComment;
 import com.zhan.app.nearby.bean.Image;
+import com.zhan.app.nearby.bean.SimpleDynamic;
 import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.bean.UserDynamicRelationShip;
 import com.zhan.app.nearby.bean.mapper.DynamicMapper;
@@ -96,10 +97,6 @@ public class UserDynamicDao extends BaseDao<UserDynamic> {
 				dynamicMapper);
 	}
 
-//	private String fiflterBlock() {
-//		return " and dynamic.user_id not in (select with_user_id from t_user_relationship where user_id=? and relationship=?) ";
-//	}
-
 	private String cityIn(City city) {
 		if (city == null) {
 			return "";
@@ -117,24 +114,46 @@ public class UserDynamicDao extends BaseDao<UserDynamic> {
 		return jdbcTemplate.update(sql, new Object[] {UserFnStatus.ENABLE.ordinal(), dynamic_id    });
 	}
 
-	public List<UserDynamic> getUserDynamic(long user_id, int page, int count) {
+	public List<UserDynamic> getUserDynamic(long user_id, int page, int count,boolean canLoadVideoData) {
+		
+		if(canLoadVideoData) {
+			String sql = "select dy.*,coalesce(t_like.relationship, '0') as like_state,u.nick_name,u.avatar,u.sex,u.type,u.birthday,u.isvip  from "
+					+ getTableName()
+					+ " dy left join t_like_dynamic t_like on dy.id=t_like.dynamic_id and dy.user_id=t_like.user_id "
+					+ " left join t_user u on dy.user_id=u.user_id  where dy.state=? and dy.user_id=?  order by dy.id desc limit ?,?";
+			return jdbcTemplate.query(sql,
+					new Object[] { DynamicState.CHECKED.ordinal(), user_id, (page - 1) * count, count }, dynamicMapper);
+		}
+		
 		String sql = "select dy.*,coalesce(t_like.relationship, '0') as like_state,u.nick_name,u.avatar,u.sex,u.type,u.birthday,u.isvip  from "
 				+ getTableName()
 				+ " dy left join t_like_dynamic t_like on dy.id=t_like.dynamic_id and dy.user_id=t_like.user_id "
-				+ " left join t_user u on dy.user_id=u.user_id  where dy.state=? and dy.user_id=?  order by dy.id desc limit ?,?";
+				+ " left join t_user u on dy.user_id=u.user_id  where  dy.type=0  and dy.state=? and dy.user_id=?  order by dy.id desc limit ?,?";
 		return jdbcTemplate.query(sql,
 				new Object[] { DynamicState.CHECKED.ordinal(), user_id, (page - 1) * count, count }, dynamicMapper);
 	}
 
 	// 获取自身的动态
-	public List<UserDynamic> getMyDynamic(long user_id, int page, int count) {
-		String sql = "select dy.*,coalesce(t_like.relationship, '0') as like_state,u.nick_name,u.avatar,u.sex,u.type,u.birthday,u.isvip  from "
-				+ getTableName()
-				+ " dy left join t_like_dynamic t_like on dy.id=t_like.dynamic_id and dy.user_id=t_like.user_id"
-				+ "  left join t_user u on dy.user_id=u.user_id  where dy.state<>? and  dy.user_id=? order by dy.id desc limit ?,?";
+	public List<UserDynamic> getMyDynamic(long user_id, int page, int count,boolean canLoadVideoData) {
+		
+		if(canLoadVideoData) {
+			String sql = "select dy.*,coalesce(t_like.relationship, '0') as like_state,u.nick_name,u.avatar,u.sex,u.type,u.birthday,u.isvip  from "
+					+ getTableName()
+					+ " dy left join t_like_dynamic t_like on dy.id=t_like.dynamic_id and dy.user_id=t_like.user_id"
+					+ "  left join t_user u on dy.user_id=u.user_id  where dy.state<>? and  dy.user_id=? order by dy.id desc limit ?,?";
 
-		return jdbcTemplate.query(sql,
-				new Object[] { DynamicState.ILLEGAL.ordinal(), user_id, (page - 1) * count, count }, dynamicMapper);
+			return jdbcTemplate.query(sql,
+					new Object[] { DynamicState.ILLEGAL.ordinal(), user_id, (page - 1) * count, count }, dynamicMapper);
+		} 
+		
+			String sql = "select dy.*,coalesce(t_like.relationship, '0') as like_state,u.nick_name,u.avatar,u.sex,u.type,u.birthday,u.isvip  from "
+					+ getTableName()
+					+ " dy left join t_like_dynamic t_like on dy.id=t_like.dynamic_id and dy.user_id=t_like.user_id"
+					+ "  left join t_user u on dy.user_id=u.user_id  where dy.type=0 and dy.state<>? and  dy.user_id=? order by dy.id desc limit ?,?";
+
+			return jdbcTemplate.query(sql,
+					new Object[] { DynamicState.ILLEGAL.ordinal(), user_id, (page - 1) * count, count }, dynamicMapper);
+		
 	}
 
 	public List<UserDynamic> getAllDynamic() {
@@ -247,11 +266,18 @@ public class UserDynamicDao extends BaseDao<UserDynamic> {
 	}
 
 	// 获取用户发布的动态里面的图片
-	public List<Image> getUserImages(long user_id, long last_image_id, int count) {
+	@SuppressWarnings("unchecked")
+	public List<SimpleDynamic> getUserImages(long user_id, long last_image_id, int count,boolean canLoadVideoData) {
+		if(canLoadVideoData) {
+			return jdbcTemplate.query(
+					"select * where  state=? and  user_id=? and local_image_name<>? and id<? order by id desc limit ?",
+					new Object[] { DynamicState.CHECKED.ordinal(), user_id, "", last_image_id, count },
+					getEntityMapper(SimpleDynamic.class));
+		}
 		return jdbcTemplate.query(
-				"select id,local_image_name,from t_user_dynamic  where state=? and  user_id=? and local_image_name<>? and id<? order by id desc limit ?",
+				"select * where type=0 and  state=? and  user_id=? and local_image_name<>? and id<? order by id desc limit ?",
 				new Object[] { DynamicState.CHECKED.ordinal(), user_id, "", last_image_id, count },
-				new BeanPropertyRowMapper<Image>(Image.class));
+				getEntityMapper(SimpleDynamic.class));
 	}
 
 	public int updateCityId(long dy_id, int province_id, int city_id, int district_id) {
@@ -364,7 +390,7 @@ public class UserDynamicDao extends BaseDao<UserDynamic> {
 
 	public int getDynamicCommentCount(Long user_id) {
 		if(user_id==null) {
-			return jdbcTemplate.queryForObject("select count(*) from "+getTableName(DynamicComment.class) +" where status=?",new Object[] {DynamicCommentStatus.CREATE}, Integer.class);
+			return jdbcTemplate.queryForObject("select count(*) from "+getTableName(DynamicComment.class) +" where status<>?",new Object[] {DynamicCommentStatus.ILLEGAL}, Integer.class);
 		}else {
 			return jdbcTemplate.queryForObject("select count(*) from "+getTableName(DynamicComment.class) +" where  user_id=? ",new Object[] {user_id}, Integer.class);
 		}
@@ -375,10 +401,10 @@ public class UserDynamicDao extends BaseDao<UserDynamic> {
 		if(user_id==null) {
 			String sql = "select c.*,u.nick_name,u.avatar,u.sex,u.isvip  from t_dynamic_comment c "
 					+ "left join t_user u on c.user_id=u.user_id  "
-					+ " where c.status=?  order by c.id desc limit ?,?";
+					+ " where c.status<>?  order by c.id desc limit ?,?";
 			return jdbcTemplate
 					.query(sql,
-							new Object[] { DynamicCommentStatus.CREATE,(page-1)*count, count},
+							new Object[] { DynamicCommentStatus.ILLEGAL,(page-1)*count, count},
 							new DynamicCommentMapper());
 		}else {
 			String sql = "select c.*,u.nick_name,u.avatar,u.sex,u.isvip  from t_dynamic_comment c "

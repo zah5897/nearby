@@ -253,8 +253,8 @@ public class DynamicController {
 	 * @return
 	 */
 	@RequestMapping("list_image")
-	public ModelMap list_image(Long user_id, Long last_id, Integer count) {
-		return userDynamicService.getUserImages(user_id, last_id, count);
+	public ModelMap list_image(Long user_id, Long last_id, Integer count,String version) {
+		return userDynamicService.getUserImages(user_id, last_id, count,version);
 	}
 	
 

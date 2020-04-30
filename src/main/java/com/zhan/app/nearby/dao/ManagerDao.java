@@ -72,7 +72,7 @@ public class ManagerDao extends BaseDao<ManagerUser> {
 		
 		String sql = "select dynamic.*  ,user.user_id  ,user.nick_name ,user.avatar,user.sex,user.isvip ,user.birthday,user.type from "
 				+ TABLE_USER_DYNAMIC
-				+ " dynamic left join t_user user on  dynamic.user_id=user.user_id  where dynamic.found_status=? and dynamic.state=? and dynamic.manager_flag<>1 ";
+				+ " dynamic left join t_user user on  dynamic.user_id=user.user_id  where dynamic.type=0 and dynamic.found_status=? and dynamic.state=? and dynamic.manager_flag<>1 ";
 		
 		List<Object> param=new ArrayList<>();
 		
@@ -96,14 +96,14 @@ public class ManagerDao extends BaseDao<ManagerUser> {
     public List<UserDynamic> getUnCheckDynamic( int page, int count ) {
 		String sql = "select dynamic.*  ,user.user_id  ,user.nick_name ,user.avatar,user.sex,user.isvip ,user.birthday,user.type from "
 				+ TABLE_USER_DYNAMIC
-				+ " dynamic left join t_user user on  dynamic.user_id=user.user_id  where   dynamic.state=? order by dynamic.id desc limit ?,?";
+				+ " dynamic left join t_user user on  dynamic.user_id=user.user_id  where  dynamic.type=0 and   dynamic.state=? order by dynamic.id desc limit ?,?";
 		
 		return jdbcTemplate.query(sql, new Object[] {DynamicState.CREATE.ordinal(),(page-1)*count,count}, new DynamicMapper());
 	}
     public List<UserDynamic> getIllegalDynamic( int page, int count ) {
     	String sql = "select dynamic.*  ,user.user_id  ,user.nick_name ,user.avatar,user.sex,user.isvip ,user.birthday,user.type from "
     			+ TABLE_USER_DYNAMIC
-    			+ " dynamic left join t_user user on  dynamic.user_id=user.user_id  where   dynamic.state=? order by dynamic.id desc limit ?,?";
+    			+ " dynamic left join t_user user on  dynamic.user_id=user.user_id  where dynamic.type=0 and   dynamic.state=? order by dynamic.id desc limit ?,?";
     	
     	return jdbcTemplate.query(sql, new Object[] {DynamicState.ILLEGAL.ordinal(),(page-1)*count,count}, new DynamicMapper());
     }
@@ -120,7 +120,7 @@ public class ManagerDao extends BaseDao<ManagerUser> {
 	// 获取未选中的（前提为被审核通过的）
 	public int getUnSelectedCount(Long user_id,String nick_name) {
 		String sql = "select count(*) from " + TABLE_USER_DYNAMIC
-				+ " dynamic    where dynamic.found_status<>?  and dynamic.state=? and manager_flag<>1 ";
+				+ " dynamic    where dynamic.type=0 and  dynamic.found_status<>?  and dynamic.state=? and manager_flag<>1 ";
 		
 		List<Object> param=new ArrayList<Object>();
 		param.add(UserFnStatus.DEFAULT.ordinal());
@@ -138,14 +138,14 @@ public class ManagerDao extends BaseDao<ManagerUser> {
 		
 		return jdbcTemplate.queryForObject(sql,param.toArray(), Integer.class);
 	}
-	public int getUnCheckedDynamicCount() {
+	public int getUnCheckedDynamicCount() { //短视频和图片动态分开处理的，这里只拿图片动态
 		String sql = "select count(*) from " + TABLE_USER_DYNAMIC
-				+ " dynamic    where   dynamic.state="+DynamicState.CREATE.ordinal();
+				+ " dynamic    where  dynamic.type=0 and  dynamic.state="+DynamicState.CREATE.ordinal();
 		return jdbcTemplate.queryForObject(sql,Integer.class);
 	}
 	public int getIllegalDynamicCount() {
 		String sql = "select count(*) from " + TABLE_USER_DYNAMIC
-				+ " dynamic    where   dynamic.state="+DynamicState.ILLEGAL.ordinal();
+				+ " dynamic    where  dynamic.type=0 and  dynamic.state="+DynamicState.ILLEGAL.ordinal();
 		return jdbcTemplate.queryForObject(sql,Integer.class);
 	}
 

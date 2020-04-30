@@ -12,6 +12,7 @@ import org.springframework.ui.ModelMap;
 
 import com.zhan.app.nearby.bean.DynamicComment;
 import com.zhan.app.nearby.bean.Image;
+import com.zhan.app.nearby.bean.SimpleDynamic;
 import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.bean.UserDynamicRelationShip;
 import com.zhan.app.nearby.comm.DynamicCommentStatus;
@@ -59,15 +60,15 @@ public class UserDynamicService {
 		return result;
 	}
 
-	public List<UserDynamic> getUserDynamic(long user_id, int page, int count) {
-		List<UserDynamic> dynamics = userDynamicDao.getUserDynamic(user_id, page, count);
+	public List<UserDynamic> getUserDynamic(long user_id, int page, int count, boolean canLoadVideoData) {
+		List<UserDynamic> dynamics = userDynamicDao.getUserDynamic(user_id, page, count, canLoadVideoData);
 		ImagePathUtil.completeDynamicsPath(dynamics, true);
 		return dynamics;
 	}
 
 	// 获取用户自身的动态
-	public List<UserDynamic> getMyDynamic(long user_id, int page, int count) {
-		List<UserDynamic> dynamics = userDynamicDao.getMyDynamic(user_id, page, count);
+	public List<UserDynamic> getMyDynamic(long user_id, int page, int count, boolean canLoadVideoData) {
+		List<UserDynamic> dynamics = userDynamicDao.getMyDynamic(user_id, page, count, canLoadVideoData);
 		ImagePathUtil.completeDynamicsPath(dynamics, true);
 		return dynamics;
 	}
@@ -158,7 +159,7 @@ public class UserDynamicService {
 		return successid;
 	}
 
-	public ModelMap getUserImages(Long user_id, Long last_id, Integer count) {
+	public ModelMap getUserImages(Long user_id, Long last_id, Integer count, String version) {
 		if (user_id == null || user_id < 1) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "用户ID异常");
 		}
@@ -168,13 +169,14 @@ public class UserDynamicService {
 		if (count == null || count <= 0) {
 			count = 5;
 		}
-		List<Image> userImages = userDynamicDao.getUserImages(user_id, last_id, count);
+		List<SimpleDynamic> userImages = userDynamicDao.getUserImages(user_id, last_id, count,version.compareTo("2.1.0")>=0);
 		ImagePathUtil.completeImagesPath(userImages, true); // 补全图片路径
 		boolean hasMore = true;
 		if (userImages == null || userImages.size() < count) {
 			hasMore = false;
 		}
 		return ResultUtil.getResultOKMap().addAttribute("images", userImages).addAttribute("hasMore", hasMore);
+
 	}
 
 	public void updateCommentStatus(long user_id, DynamicCommentStatus ship) {
@@ -208,8 +210,6 @@ public class UserDynamicService {
 		return userDynamicDao.updateDynamicImgToIllegal(id);
 	}
 
-	 
-
 	public void clearIllegalDynamic() {
 		List<UserDynamic> dys = userDynamicDao.getIllegalDyanmic();
 		for (UserDynamic dy : dys) {
@@ -230,10 +230,12 @@ public class UserDynamicService {
 	public int getDynamicCommentCount(Long user_id) {
 		return userDynamicDao.getDynamicCommentCount(user_id);
 	}
-	public List<DynamicComment> loadDynamicCommentToCheck(Long user_id,int page,int count) {
-		return userDynamicDao.loadDynamicCommentToCheck(user_id,page,count);
+
+	public List<DynamicComment> loadDynamicCommentToCheck(Long user_id, int page, int count) {
+		return userDynamicDao.loadDynamicCommentToCheck(user_id, page, count);
 	}
-	public void changeCommentStatus(int id,int status) {
-		  userDynamicDao.changeCommentStatus(id,status);
+
+	public void changeCommentStatus(int id, int status) {
+		userDynamicDao.changeCommentStatus(id, status);
 	}
 }

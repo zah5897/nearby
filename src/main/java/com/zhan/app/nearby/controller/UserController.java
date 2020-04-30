@@ -1037,7 +1037,7 @@ public class UserController {
 	}
 	@ApiOperation(httpMethod = "POST", value = "dynamic") // swagger 当前接口注解
 	@RequestMapping("dynamic")
-	public ModelMap dynamic(long user_id, Long user_id_for, Integer page, Integer count) {
+	public ModelMap dynamic(long user_id, Long user_id_for, Integer page, Integer count,String version,String _ua) {
 
 		if (user_id_for == null || user_id_for < 1) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "请确定用户ID");
@@ -1050,10 +1050,13 @@ public class UserController {
 		}
 		ModelMap result = ResultUtil.getResultOKMap();
 		List<UserDynamic> dynamics;
+		
+		boolean canLoadVideoData=version.compareTo("2.1.0")>=0;//2.1.0及以上版本才支持加载视频动态
+		
 		if (user_id == user_id_for) {
-			dynamics = userDynamicService.getMyDynamic(user_id_for, page, count);
+			dynamics = userDynamicService.getMyDynamic(user_id_for, page, count,canLoadVideoData);
 		} else {
-			dynamics = userDynamicService.getUserDynamic(user_id_for, page, count);
+			dynamics = userDynamicService.getUserDynamic(user_id_for, page, count,canLoadVideoData);
 		}
 		result.put("dynamics", dynamics);
 

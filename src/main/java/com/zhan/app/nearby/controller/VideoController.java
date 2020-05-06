@@ -111,7 +111,7 @@ public class VideoController {
 		dynamic.setLat(lat);
 		dynamic.setLng(lng);
 		dynamic.setAddr(addr);
-		
+		dynamic.setShort_video_id(video.getId());
 		dynamic.setVideo_file_short_name(video_name);
 		dynamic.setDuration(duration);
 		dynamic.setType(1);
@@ -168,13 +168,20 @@ public class VideoController {
 		return ResultUtil.getResultOKMap().addAttribute("data", list).addAttribute("hasMore", list.size() == count).addAttribute("last_id", last_id);
 	}
 	
+	@RequestMapping("load_detail/{short_video_id}")
+	@ApiOperation(httpMethod = "POST", value = "根据id获取短视频") // swagger 当前接口注解
+	@ApiImplicitParams({
+			@ApiImplicitParam(name = "short_video_id", value = "路径变量，对应用户的user_id", required = true, paramType = "query")  })
+	public ModelMap load(@PathVariable Long short_video_id) {
+		return ResultUtil.getResultOKMap().addAttribute("data", videoService.loadByid(short_video_id));
+	}
 
 	@RequestMapping("load_latest_confirm_video/{uid}")
 	@ApiOperation(httpMethod = "POST", value = "获取某人最新的头像短视频") // swagger 当前接口注解
 	@ApiImplicitParams({
 			@ApiImplicitParam(name = "uid", value = "路径变量，对应用户的user_id", required = true, paramType = "query") 
 		 })
-	public ModelMap load_latest_confirm_video(@PathVariable Long uid   ) {
+	public ModelMap load_latest_confirm_video(@PathVariable Long uid) {
 		Video video = videoService.loadLatestConfirmVideo(uid);
 		return ResultUtil.getResultOKMap().addAttribute("video", video);
 	}

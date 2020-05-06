@@ -41,7 +41,14 @@ public class VideoService {
 		ImagePathUtil.completeVideosPath(list);
 		return list;
 	}
-
+	public Video loadByid(long id) {
+		List<Video> list = videoDao.loadByid(id);
+		ImagePathUtil.completeVideosPath(list);
+		if(list.isEmpty()) {
+			return null;
+		}
+		return list.get(0);
+	}
 	// 获取所有人的发布的已经通过审核的视频
 	public List<Video> list(long uid,Long last_id, int count, Integer type, Integer secret_level) {
 		List<Video> list = videoDao.listAll(uid,last_id, count, type, secret_level);

@@ -91,6 +91,10 @@ public class UserDynamic implements Serializable {
 	private String video_file_short_name;
 	private float duration;
 	private int secret_level; // 0 推荐，1 私密
+	
+	
+	private long short_video_id;
+	
 	public long getId() {
 		return id;
 	}
@@ -369,6 +373,14 @@ public class UserDynamic implements Serializable {
 
 	public void setSecret_level(int secret_level) {
 		this.secret_level = secret_level;
+	}
+
+	public long getShort_video_id() {
+		return short_video_id;
+	}
+
+	public void setShort_video_id(long short_video_id) {
+		this.short_video_id = short_video_id;
 	}
 
 	 

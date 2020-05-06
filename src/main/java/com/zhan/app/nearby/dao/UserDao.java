@@ -14,7 +14,6 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
-import org.springframework.ui.ModelMap;
 
 import com.zhan.app.nearby.bean.Avatar;
 import com.zhan.app.nearby.bean.City;
@@ -38,7 +37,6 @@ import com.zhan.app.nearby.util.ImageSaveUtils;
 import com.zhan.app.nearby.util.SQLUtil;
 import com.zhan.app.nearby.util.TextUtils;
 
-import io.swagger.models.auth.In;
 
 @Repository
 public class UserDao extends BaseDao<BaseUser> {

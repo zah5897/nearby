@@ -9,7 +9,6 @@ import org.springframework.jdbc.core.RowMapper;
 import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.comm.LikeDynamicState;
-import com.zhan.app.nearby.util.DateTimeUtil;
 import com.zhan.app.nearby.util.ImagePathUtil;
 
 public class DynamicMapper implements RowMapper<UserDynamic> {
@@ -29,6 +28,15 @@ public class DynamicMapper implements RowMapper<UserDynamic> {
 		dynamic.setTopic_id(rs.getLong("topic_id"));
 		dynamic.set_from(rs.getInt("_from"));
 
+		dynamic.setType(rs.getInt("type"));
+		dynamic.setVideo_file_short_name(rs.getString("video_file_short_name"));
+		dynamic.setDuration(rs.getFloat("duration"));
+		dynamic.setSecret_level(rs.getInt("secret_level"));
+		
+		if(dynamic.getType()==1) {
+			dynamic.setShort_video_id(rs.getLong("short_video_id"));
+		}
+		
 		try {
 			dynamic.setComment_count(rs.getInt("comment_count"));
 		} catch (Exception e) {

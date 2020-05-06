@@ -172,13 +172,13 @@ public class UserDynamicDao extends BaseDao<UserDynamic> {
 		return comments.get(0);
 	}
 
-	public List<DynamicComment> commentList(long dynamic_id, int count, long last_comment_id) {
+	public List<DynamicComment> commentList(long user_id,long dynamic_id, int count, long last_comment_id) {
 		String sql = "select c.*,u.nick_name,u.avatar,u.sex,u.isvip  from t_dynamic_comment c "
 				+ "left join t_user u on c.user_id=u.user_id  "
-				+ " where c.status=? and  c.dynamic_id=? and c.id<? and  c.pid=0 order by c.id desc limit ?";
+				+ " where (c.user_id=? or c.status=?) and  c.dynamic_id=? and c.id<? and  c.pid=0 order by c.id desc limit ?";
 		return jdbcTemplate
 				.query(sql,
-						new Object[] { DynamicCommentStatus.CHECKED.ordinal(), dynamic_id,
+						new Object[] {user_id, DynamicCommentStatus.CHECKED.ordinal(), dynamic_id,
 								last_comment_id <= 0 ? Long.MAX_VALUE : last_comment_id, count },
 						new DynamicCommentMapper());
 

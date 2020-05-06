@@ -90,8 +90,8 @@ public class UserDynamicService {
 		return comment;
 	}
 
-	public List<DynamicComment> commentList(long dynamic_id, int count, Long last_comment_id) {
-		List<DynamicComment> comments = userDynamicDao.commentList(dynamic_id, count,
+	public List<DynamicComment> commentList(long user_id,long dynamic_id, int count, Long last_comment_id) {
+		List<DynamicComment> comments = userDynamicDao.commentList(user_id,dynamic_id, count,
 				last_comment_id == null ? 0 : last_comment_id);
 		if (comments != null && comments.size() > 0) {
 			for (DynamicComment comment : comments) {

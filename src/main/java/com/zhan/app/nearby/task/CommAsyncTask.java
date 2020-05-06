@@ -119,6 +119,8 @@ public class CommAsyncTask {
 		ImagePathUtil.completeAvatarPath(user, true);
 		List<String> uids = userService.getOnlineUidLastetByLimit(900);
 
+		uids.remove(String.valueOf(uid));
+		
 		String[] toUid = new String[uids.size()];
 		uids.toArray(toUid);
 		HX_SessionUtil.pushOnLine(user, toUid);

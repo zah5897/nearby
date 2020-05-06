@@ -43,6 +43,13 @@ public class VideoDao extends BaseDao<Video> {
 		return jdbcTemplate.query(sql, new Object[] { user_id, last_id, VideoStatus.CHECKED.ordinal(), count },
 				videoMapper);
 	}
+	public List<Video> loadByid(long id) {
+		String sql = "select v.* ,u.user_id,u.nick_name ,u.avatar,u.sex ,u.isvip,p.create_time as pt ,s.create_time as st  from "
+				+ TABLE_VIDEO + " v left join t_user u on v.uid=u.user_id" + " left join " + TABLE_VIDEO_PRAISE_HISTORY
+				+ " p on p.video_id=v.id " + " left join " + TABLE_VIDEO_STORE_HISTORY + " s on s.video_id=v.id "
+				+ " where v.id=?";
+		return jdbcTemplate.query(sql, new Object[] { id},videoMapper);
+	}
 
 	public List<Video> listAll(long uid,Long last_id, int count, Integer type, Integer secret_level) {
 

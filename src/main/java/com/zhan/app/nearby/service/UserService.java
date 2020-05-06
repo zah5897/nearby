@@ -4,6 +4,7 @@ import java.io.UnsupportedEncodingException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -51,6 +52,7 @@ import com.zhan.app.nearby.task.HXAsyncTask;
 import com.zhan.app.nearby.task.MatchActiveUserTask;
 import com.zhan.app.nearby.util.AESUtil;
 import com.zhan.app.nearby.util.AddressUtil;
+import com.zhan.app.nearby.util.BottleKeyWordUtil;
 import com.zhan.app.nearby.util.DateTimeUtil;
 import com.zhan.app.nearby.util.HX_SessionUtil;
 import com.zhan.app.nearby.util.HttpService;
@@ -63,6 +65,7 @@ import com.zhan.app.nearby.util.TextUtils;
 @Service
 public class UserService {
 
+	private static String[] ignoreKeyword= {"微信","微","v","weixin","wx","微xin","QQ","扣扣","Q","手机","手机号","手机号码","微信号","qq号"};
 	@Resource
 	private UserDao userDao;
 	@Resource
@@ -293,6 +296,12 @@ public class UserService {
 			String signature, String my_tags, String interests, String animals, String musics, String weekday_todo,
 			String footsteps, String want_to_where, boolean isNick_modify, Integer birth_city_id, String contact,
 			String newSex) {
+		
+		
+		if(!TextUtils.isEmpty(contact)) {
+			contact=BottleKeyWordUtil.filterContactContent(contact,Arrays.asList(ignoreKeyword));
+		}
+		
 		int c= userDao.modify_info(user_id, nick_name, birthday, job, height, weight, signature, my_tags, interests,
 				animals, musics, weekday_todo, footsteps, want_to_where, birth_city_id, contact, newSex);
 		if(!TextUtils.isEmpty(signature)) {
@@ -383,7 +392,7 @@ public class UserService {
 		return userDao.getAllUserIds(last_id, page);
 	}
 
-	public ModelMap getUserCenterData(String token, String aid, Long user_id_for, Long uid,boolean canLoadVideoData) {
+	public ModelMap getUserCenterData(String token, String aid, Long user_id_for, Long uid,String version) {
 		if (user_id_for == null || user_id_for <= 0) {
 			return ResultUtil.getResultMap(ERROR.ERR_FAILED, "对应用户不存在");
 		}
@@ -391,7 +400,7 @@ public class UserService {
 		if (user == null) {
 			return ResultUtil.getResultMap(ERROR.ERR_FAILED, "对应ID不存在");
 		}
-		List<UserDynamic> dys = userDynamicService.getUserDynamic(user_id_for, 1, 5,canLoadVideoData);
+		List<UserDynamic> dys = userDynamicService.getUserDynamic(user_id_for, 1, 5,version.compareTo("2.1.0")>=0);
 		user.setImages(dys);
 
 		ImagePathUtil.completeAvatarPath(user, true);
@@ -440,10 +449,7 @@ public class UserService {
 		return r;
 	}
 
-	public ModelMap getUserCenterDataV2(String token, String aid, Long user_id_for, Long uid) {
-		if (user_id_for == null || user_id_for <= 0) {
-			return ResultUtil.getResultMap(ERROR.ERR_FAILED);
-		}
+	public ModelMap getUserCenterDataV2(String token, String aid, long user_id_for, long uid) {
 		DetailUser user = userDao.getUserDetailInfo(user_id_for);
 		if (user == null) {
 			return ResultUtil.getResultMap(ERROR.ERR_FAILED);
@@ -473,7 +479,12 @@ public class UserService {
 		
 		int relationShip = 0;
 		
-		if(user_id_for==uid) { //说明为本人自己
+		
+		
+		
+		String ut=String.valueOf(user_id_for);
+		String uu=String.valueOf(uid);
+		if(ut.equals(uu)) { //说明为本人自己
 			user.setHas_followed(1);
 			relationShip=4;
 			r.addAttribute("coins", giftService.getUserCoins(aid, user_id_for));
@@ -485,8 +496,8 @@ public class UserService {
 			
 		}else {
 			user.setHas_followed(userDao.isFollowed(uid, user_id_for) ? 1 : 0);
-			Relationship iWithHim = getRelationShip(uid == null ? 0 : uid, user_id_for);
-			Relationship heWithMe = getRelationShip(user_id_for, uid == null ? 0 : uid);
+			Relationship iWithHim = getRelationShip(uid, user_id_for);
+			Relationship heWithMe = getRelationShip(user_id_for, uid);
 			if (iWithHim == Relationship.LIKE && heWithMe == Relationship.LIKE) {
 				relationShip = 4;
 			} else if (iWithHim == Relationship.LIKE && heWithMe != Relationship.LIKE) {
@@ -504,9 +515,6 @@ public class UserService {
 			}
 			user.setHead_video(v);
 		}
-		
-		
-		
 		
 		r.put("user", user);
 		r.put("relationship", relationShip);
@@ -931,64 +939,24 @@ public class UserService {
 		if (TextUtils.isEmpty(weixin)) {
 			return ResultUtil.getResultOKMap().addAttribute("contact", weixin);
 		}
-		if (vipDao.isVip(user_id)) {
+		if (user_id==by_user_id||vipDao.isVip(user_id)) {
 			return ResultUtil.getResultOKMap().addAttribute("contact", weixin);
 		}else {
 			return ResultUtil.getResultMap(ERROR.ERR_NOT_VIP);
 		}
-//		// 閲戝竵鍑�1
-//		Map<String, Object> extraData = modifyUserExtra(user_id, aid, 1, -1);
-//		if (extraData != null && extraData.containsKey("all_coins")) {
-//			int all_coins = (int) extraData.get("all_coins");
-//			if (all_coins < 0) {
-//				throw new AppException(ERROR.ERR_COINS_SHORT);
-//			} else {
-//				modifyUserExtra(by_user_id, aid, 1, 1);
-//				try {
-//					userDao.markContactRel(user_id, by_user_id);
-//				} catch (Exception e) {
-//					// 涓婚敭绾︽潫瀵艰嚧鎻掑叆璇け璐�
-//				}
-//			}
-//		}
-		//return ResultUtil.getResultOKMap().addAttribute("contact", weixin).addAttribute("contact_cost_coins", 1);
 	}
 
 	public ModelMap autoLogin(long user_id, String md5_pwd, String aid, String device_token) {
 		boolean exist = userDao.checkExistByIdAndPwd(user_id, md5_pwd);
 		if (exist) {
-
-//			checkHowLongNotOpenApp(user_id);
 			userDao.uploadLastLoginTime(user_id);
-
 			String token = UUID.randomUUID().toString();
 			if (TextUtils.isEmpty(device_token)) {
 				userDao.updateToken(user_id, token, new Date());
 			} else {
 				userDao.updateToken(user_id, token, new Date(), device_token);
 			}
-
 			saveUserOnline(user_id);
-
-//			ModelMap result = ResultUtil.getResultOKMap();
-//			DetailUser user = userDao.getUserDetailInfo(user_id);
-//			user.setToken(token);
-//			ImagePathUtil.completeAvatarPath(user, true); // 琛ュ叏鍥剧墖閾炬帴鍦板潃
-//
-//			VipUser vip = loadUserVipInfo(aid, user.getUser_id());
-//
-//			if (vip != null && vip.getDayDiff() >= 0) {
-//				user.setVip(true);
-//				user.setIs_vip(true);
-//			}
-//
-//			result.put("user", user);
-//			result.put("all_coins", loadUserCoins(aid, user.getUser_id()));
-//			result.put("vip", vip);
-//			// 触发随机匹配会话
-//			checkHowLongNotOpenApp(user);
-//			return result;
-
 			return getUserDetailResult(user_id, token, aid);
 		} else {
 			return ResultUtil.getResultMap(ERROR.ERR_FAILED);

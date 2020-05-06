@@ -767,7 +767,7 @@ public class UserController {
 	@RequestMapping("modify_avatar")
 	@ApiOperation(httpMethod = "POST", value = "modify_avatar") // swagger 当前接口注解
 	public ModelMap modify_avatar(DefaultMultipartHttpServletRequest multipartRequest, long user_id, String aid,
-			String token) {
+			String token,String version) {
 		if (!userService.checkLogin(user_id, token)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
@@ -799,7 +799,7 @@ public class UserController {
 			}
 		}
 
-		return userService.getUserCenterData("", aid, user_id, user_id);
+		return userService.getUserCenterData("", aid, user_id, user_id,version);
 	}
 
 	/**
@@ -812,7 +812,7 @@ public class UserController {
 	 */
 	@ApiOperation(httpMethod = "POST", value = "modify_avatar_v2") // swagger 当前接口注解
 	@RequestMapping("modify_avatar_v2")
-	public ModelMap modify_avatar_v2(long user_id, String aid, String token, String image_names) {
+	public ModelMap modify_avatar_v2(long user_id, String aid, String token, String image_names,String version) {
 		if (!userService.checkLogin(user_id, token)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
@@ -832,7 +832,7 @@ public class UserController {
 		userService.updateAvatar(user_id, image_names);
 		userService.saveAvatar(user_id, image_names);
 		userService.doCheckIsFace(user);
-		return userService.getUserCenterData("", aid, user_id, user_id);
+		return userService.getUserCenterData("", aid, user_id, user_id,version);
 	}
 
 	/**
@@ -875,7 +875,7 @@ public class UserController {
 	@ApiOperation(httpMethod = "POST", value = "upload_avatars") // swagger 当前接口注解
 	@RequestMapping("upload_avatars")
 	public ModelMap upload_avatars(DefaultMultipartHttpServletRequest multipartRequest, long user_id, String aid,
-			String token) {
+			String token,String version) {
 		if (!userService.checkLogin(user_id, token)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
@@ -902,7 +902,7 @@ public class UserController {
 				userService.updateAvatar(user_id, avatarFiles.get(avatarFiles.size() - 1));
 			}
 
-			return userService.getUserCenterData("", aid, user_id, user_id);
+			return userService.getUserCenterData("", aid, user_id, user_id,version);
 			// return ResultUtil.getResultOKMap().addAttribute("avatars",
 			// userService.getUserAvatars(user_id));
 		}
@@ -911,7 +911,7 @@ public class UserController {
 	@ApiOperation(httpMethod = "POST", value = "upload_avatars_v2") // swagger 当前接口注解
 	@RequestMapping("upload_avatars_v2")
 	public ModelMap upload_avatars_v2(DefaultMultipartHttpServletRequest multipartRequest, long user_id, String aid,
-			String token, String image_names) {
+			String token, String image_names,String version) {
 		if (!userService.checkLogin(user_id, token)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
@@ -926,12 +926,12 @@ public class UserController {
 		if (avatars.length > 0) {
 			userService.updateAvatar(user_id, avatars[avatars.length - 1]);
 		}
-		return userService.getUserCenterData("", aid, user_id, user_id);
+		return userService.getUserCenterData("", aid, user_id, user_id,version);
 	}
 	@ApiOperation(httpMethod = "POST", value = "delete_avatar") // swagger 当前接口注解
 	@RequestMapping("delete_avatar")
 	public ModelMap delete_avatar(HttpServletRequest request, long user_id, String token, String aid,
-			String avatar_ids) {
+			String avatar_ids,String version) {
 		if (!userService.checkLogin(user_id, token)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
@@ -941,7 +941,7 @@ public class UserController {
 		for (String sid : ids) {
 			userService.deleteAvatar(user_id, sid);
 		}
-		return userService.getUserCenterData("", aid, user_id, user_id);
+		return userService.getUserCenterData("", aid, user_id, user_id,version);
 	}
 
 	/**
@@ -969,7 +969,7 @@ public class UserController {
 	public ModelMap modify_info(long user_id, String aid, String token, String nick_name, String birthday, String jobs,
 			String height, String weight, String signature, String my_tags, String interest, String favourite_animal,
 			String favourite_music, String weekday_todo, String footsteps, String want_to_where, Integer birth_city_id,
-			String contact, String sex) {
+			String contact, String sex,String version) {
 
 		if (!userService.checkLogin(user_id, token)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
@@ -1005,15 +1005,11 @@ public class UserController {
 		if(!TextUtils.isEmpty(want_to_where)) {
 			want_to_where=BottleKeyWordUtil.filterContent(want_to_where);
 		}
-		if(!TextUtils.isEmpty(contact)) {
-			contact=BottleKeyWordUtil.filterContent(contact);
-		}
-		
 		userService.modify_info(user_id, nick_name, birthday, jobs, height, weight, signature, my_tags, interest,
 				favourite_animal, favourite_music, weekday_todo, footsteps, want_to_where, isNick_modify, birth_city_id,
 				contact, newSex);
 		userService.updateModifySexTimes(user_id);
-		return userService.getUserCenterData(token, aid, user_id, user_id);
+		return userService.getUserCenterData(token, aid, user_id, user_id,version);
 	}
 
 	/**
@@ -1026,14 +1022,14 @@ public class UserController {
 	 */
 	@ApiOperation(httpMethod = "POST", value = "detial_info") // swagger 当前接口注解
 	@RequestMapping("detial_info")
-	public ModelMap detial_info(Long user_id, String aid, Long user_id_for, Integer count) {
+	public ModelMap detial_info(Long user_id, String aid, Long user_id_for, Integer count,String version) {
 		if (user_id_for != null && user_id_for > 0) {
 			user_id = user_id_for;
 		}
 		if (count == null || count <= 0) {
 			count = 4;
 		}
-		return userService.getUserCenterData("", aid, user_id, user_id);
+		return userService.getUserCenterData("", aid, user_id, user_id,version);
 	}
 	@ApiOperation(httpMethod = "POST", value = "dynamic") // swagger 当前接口注解
 	@RequestMapping("dynamic")
@@ -1139,13 +1135,13 @@ public class UserController {
 	@Deprecated
 	@RequestMapping("center_page")
 	public ModelMap center_page(Long user_id_for, String token, String aid, long user_id,String version) {
-		return userService.getUserCenterData(token, aid, user_id_for, user_id,version.compareTo("2.1.0")>=0);
+		return userService.getUserCenterData(token, aid, user_id_for, user_id,version);
 	}
 
 	@Deprecated
 	@RequestMapping("center_page/{user_id_for}")
 	public ModelMap center_page_path(@PathVariable Long user_id_for, String token, String aid, Long user_id,String version) {
-		return userService.getUserCenterData(token, aid, user_id_for, user_id,version.compareTo("2.1.0")>=0);
+		return userService.getUserCenterData(token, aid, user_id_for, user_id,version);
 	}
 	@ApiOperation(httpMethod = "POST", value = "center_page_v2") // swagger 当前接口注解
 	@RequestMapping("center_page_v2")

@@ -217,7 +217,7 @@ public class BottleController {
 	}
 
 	
-	private String review_version="2.0.6";
+	private String review_version="2.0.7";
 	@RequestMapping("set_ios_review_version")
 	public ModelMap set_ios_review(String review_version) {
 		 this.review_version=review_version;

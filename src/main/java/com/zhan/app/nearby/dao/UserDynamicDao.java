@@ -14,7 +14,6 @@ import org.springframework.stereotype.Repository;
 
 import com.zhan.app.nearby.bean.City;
 import com.zhan.app.nearby.bean.DynamicComment;
-import com.zhan.app.nearby.bean.Image;
 import com.zhan.app.nearby.bean.SimpleDynamic;
 import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.bean.UserDynamicRelationShip;
@@ -390,7 +389,7 @@ public class UserDynamicDao extends BaseDao<UserDynamic> {
 
 	public int getDynamicCommentCount(Long user_id) {
 		if(user_id==null) {
-			return jdbcTemplate.queryForObject("select count(*) from "+getTableName(DynamicComment.class) +" where status<>?",new Object[] {DynamicCommentStatus.ILLEGAL}, Integer.class);
+			return jdbcTemplate.queryForObject("select count(*) from "+getTableName(DynamicComment.class) +" where status<>?",new Object[] {DynamicCommentStatus.ILLEGAL.ordinal()}, Integer.class);
 		}else {
 			return jdbcTemplate.queryForObject("select count(*) from "+getTableName(DynamicComment.class) +" where  user_id=? ",new Object[] {user_id}, Integer.class);
 		}
@@ -404,7 +403,7 @@ public class UserDynamicDao extends BaseDao<UserDynamic> {
 					+ " where c.status<>?  order by c.id desc limit ?,?";
 			return jdbcTemplate
 					.query(sql,
-							new Object[] { DynamicCommentStatus.ILLEGAL,(page-1)*count, count},
+							new Object[] { DynamicCommentStatus.ILLEGAL.ordinal(),(page-1)*count, count},
 							new DynamicCommentMapper());
 		}else {
 			String sql = "select c.*,u.nick_name,u.avatar,u.sex,u.isvip  from t_dynamic_comment c "

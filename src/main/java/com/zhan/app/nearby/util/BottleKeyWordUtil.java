@@ -2,6 +2,7 @@ package com.zhan.app.nearby.util;
 
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -21,6 +22,34 @@ public class BottleKeyWordUtil {
 			bottleKeyWords = checkFilterWord(content);
 			if (bottleKeyWords != null && bottleKeyWords.size() > 0) {
 				for (String key : bottleKeyWords) {
+					content = content.replace(key, getStar(key.length()));
+				}
+			}
+		} catch (IOException e) {
+			log.error(e.getMessage());
+		}
+
+		return content;
+	}
+	
+	/**
+	 * 忽略某些关键字
+	 * @param content
+	 * @param ignore
+	 * @return
+	 */
+	public static String filterContactContent(String content,List<String> ignore) {
+		if (TextUtils.isEmpty(content)) {
+			return "";
+		}
+		Set<String> bottleKeyWords;
+		try {
+			bottleKeyWords = checkFilterWord(content);
+			if (bottleKeyWords != null && bottleKeyWords.size() > 0) {
+				for (String key : bottleKeyWords) {
+					if(ignore.contains(key)) {
+						continue;
+					}
 					content = content.replace(key, getStar(key.length()));
 				}
 			}

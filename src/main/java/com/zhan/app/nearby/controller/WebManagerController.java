@@ -22,13 +22,8 @@ import org.springframework.web.multipart.support.DefaultMultipartHttpServletRequ
 import org.springframework.web.servlet.ModelAndView;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.zhan.app.nearby.bean.Bottle;
 import com.zhan.app.nearby.bean.ManagerUser;
-import com.zhan.app.nearby.bean.Report;
 import com.zhan.app.nearby.bean.Topic;
-import com.zhan.app.nearby.bean.UserDynamic;
-import com.zhan.app.nearby.bean.type.BottleType;
-import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.comm.DynamicState;
 import com.zhan.app.nearby.comm.SysUserStatus;
 import com.zhan.app.nearby.comm.UserFnStatus;
@@ -37,7 +32,6 @@ import com.zhan.app.nearby.service.MainService;
 import com.zhan.app.nearby.service.ManagerService;
 import com.zhan.app.nearby.service.UserService;
 import com.zhan.app.nearby.task.CommAsyncTask;
-import com.zhan.app.nearby.util.IPUtil;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.ImageSaveUtils;
 import com.zhan.app.nearby.util.JSONUtil;

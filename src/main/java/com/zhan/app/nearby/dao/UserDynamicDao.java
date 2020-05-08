@@ -212,15 +212,19 @@ public class UserDynamicDao extends BaseDao<UserDynamic> {
 						dynamic.getId() });
 	}
 
-	public void updateBrowserCount(long dynamic_id, int browser_count) {
-		jdbcTemplate.update("update " + getTableName() + " set browser_count=? where id=?",
-				new Object[] { browser_count, dynamic_id });
+	public void updateBrowserCount(long dynamic_id) {
+		jdbcTemplate.update("update  " + getTableName() + " set browser_count=browser_count+1 where id=?", dynamic_id);
 	}
 
 	public long getUserIdByDynamicId(long dynamic_id) {
 			String sql = "select user_id  from " + getTableName() + " where id=?";
 			List<Long> ids= jdbcTemplate.queryForList(sql, new Object[] { dynamic_id }, Long.class);
 			return ids.get(0);
+	}
+	public int getDynamicType(long id) {
+		String sql = "select type  from " + getTableName() + " where id=?";
+		List<Integer> ids= jdbcTemplate.queryForList(sql, new Object[] { id }, Integer.class);
+		return ids.get(0);
 	}
 
 	public long updateLikeState(UserDynamicRelationShip dynamicRelationShip) {
@@ -421,5 +425,18 @@ public class UserDynamicDao extends BaseDao<UserDynamic> {
 
 	public void changeCommentStatus(int id, int status) {
 		 jdbcTemplate.update("update "+getTableName(DynamicComment.class)+" set status=? where id=?",status,id);
+	}
+
+	public List<UserDynamic> loadVideoDynamic(long user_id, long last_id, int count, int secret_level) {
+		
+		String sql = "select dynamic.*,user.user_id  , user.nick_name , user.avatar,user.sex , user.birthday ,user.type , user.isvip,"
+				+ "coalesce((select relationship from t_like_dynamic t_like where t_like.dynamic_id=dynamic.id and t_like.user_id=?), '0') as like_state  from " 
+				+ getTableName() + " dynamic  left join t_user user on  dynamic.user_id=user.user_id  "
+				+ "where dynamic.type=1 and (dynamic.state=? or dynamic.user_id=?) and dynamic.secret_level=? and dynamic.id<?  and dynamic.user_id not in(select with_user_id from t_user_relationship where user_id=? and relationship=?)   order by dynamic.id desc  limit ?";
+
+		Object[] param = new Object[] { user_id, DynamicState.CHECKED.ordinal(),user_id, secret_level, last_id,user_id,
+				Relationship.BLACK.ordinal(), count };
+		return jdbcTemplate.query(sql, param, dynamicMapper);
+		
 	}
 }

@@ -33,10 +33,6 @@ public class DynamicMapper implements RowMapper<UserDynamic> {
 		dynamic.setDuration(rs.getFloat("duration"));
 		dynamic.setSecret_level(rs.getInt("secret_level"));
 		
-		if(dynamic.getType()==1) {
-			dynamic.setShort_video_id(rs.getLong("short_video_id"));
-		}
-		
 		try {
 			dynamic.setComment_count(rs.getInt("comment_count"));
 		} catch (Exception e) {

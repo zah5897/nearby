@@ -90,8 +90,8 @@ public class UserDynamicService {
 		return comment;
 	}
 
-	public List<DynamicComment> commentList(long user_id,long dynamic_id, int count, Long last_comment_id) {
-		List<DynamicComment> comments = userDynamicDao.commentList(user_id,dynamic_id, count,
+	public List<DynamicComment> commentList(long user_id, long dynamic_id, int count, Long last_comment_id) {
+		List<DynamicComment> comments = userDynamicDao.commentList(user_id, dynamic_id, count,
 				last_comment_id == null ? 0 : last_comment_id);
 		if (comments != null && comments.size() > 0) {
 			for (DynamicComment comment : comments) {
@@ -118,12 +118,15 @@ public class UserDynamicService {
 		userDynamicDao.updateAddress(dynamic);
 	}
 
-	public void updateBrowserCount(long dynamic_id, int browser_count) {
-		userDynamicDao.updateBrowserCount(dynamic_id, browser_count);
+	public void updateBrowserCount(long dynamic_id) {
+		userDynamicDao.updateBrowserCount(dynamic_id);
 	}
 
 	public long getUserIdByDynamicId(long dynamic_id) {
 		return userDynamicDao.getUserIdByDynamicId(dynamic_id);
+	}
+	public int getDynamicType(long id) {
+		return userDynamicDao.getDynamicType(id);
 	}
 
 	public long updateLikeState(Long user_id, long dynamic_id, LikeDynamicState like) {
@@ -168,7 +171,8 @@ public class UserDynamicService {
 		if (count == null || count <= 0) {
 			count = 5;
 		}
-		List<SimpleDynamic> userImages = userDynamicDao.getUserImages(user_id, last_id, count,version.compareTo("2.1.0")>=0);
+		List<SimpleDynamic> userImages = userDynamicDao.getUserImages(user_id, last_id, count,
+				version.compareTo("2.1.0") >= 0);
 		ImagePathUtil.completeImagesPath(userImages, true); // 补全图片路径
 		boolean hasMore = true;
 		if (userImages == null || userImages.size() < count) {
@@ -236,5 +240,13 @@ public class UserDynamicService {
 
 	public void changeCommentStatus(int id, int status) {
 		userDynamicDao.changeCommentStatus(id, status);
+	}
+
+	public List<UserDynamic> loadVideoDynamic(long user_id, Long last_id, int count, int secret_level) {
+
+		List<UserDynamic> dys = userDynamicDao.loadVideoDynamic(user_id, last_id == null ? Long.MAX_VALUE : last_id,
+				count, secret_level);
+		ImagePathUtil.completeDynamicsPath(dys, true);
+		return dys;
 	}
 }

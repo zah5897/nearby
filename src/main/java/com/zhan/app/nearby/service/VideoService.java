@@ -22,11 +22,10 @@ public class VideoService {
 
 	public void save(Video video) {
 //		video.setId(ObjectId.get().toString());
-		long id = videoDao.insert(video);
+	    videoDao.insert(video);
 		if(video.getType()==3) {//发布了短视频认证，修改其认证状态
 			userDao.changeUserCertStatus(video.getUid(), -1); //审核中
 		}
-		video.setId(id);
 	}
 
 	public List<Video> mine(long user_id, Long last_id, int count) {

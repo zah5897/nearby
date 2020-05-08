@@ -20,11 +20,8 @@ import com.zhan.app.nearby.comm.Relationship;
 import com.zhan.app.nearby.dao.DynamicMsgDao;
 import com.zhan.app.nearby.dao.UserDao;
 import com.zhan.app.nearby.exception.ERROR;
-import com.zhan.app.nearby.task.CommAsyncTask;
 import com.zhan.app.nearby.task.HXAsyncTask;
-import com.zhan.app.nearby.util.HX_SessionUtil;
 import com.zhan.app.nearby.util.ImagePathUtil;
-import com.zhan.app.nearby.util.PushUtils;
 import com.zhan.app.nearby.util.ResultUtil;
 
 @Service
@@ -40,10 +37,7 @@ public class DynamicMsgService {
 
 	@Autowired
 	private HXAsyncTask hxTask;
-	
-	@Autowired
-	private CommAsyncTask commAsyncTask;
-	
+
 	@Autowired
 	private BottleService bottleService;
 
@@ -56,7 +50,7 @@ public class DynamicMsgService {
 	 * @param content
 	 * @return
 	 */
-	public long insertActionMsg(DynamicMsgType type, long by_user_id, long obj_id, long user_id, String content) {
+	public void insertActionMsg(DynamicMsgType type, long by_user_id, long obj_id, long user_id, String content) {
 
 		DynamicMessage msg = new DynamicMessage();
 		msg.setUser_id(user_id);
@@ -66,9 +60,7 @@ public class DynamicMsgService {
 		msg.setContent(content);
 		msg.setCreate_time(new Date());
 		msg.setStatus(DynamicMsgStatus.DEFAULE.ordinal());
-		long id = dynamicMsgDao.insert(msg);
-		PushUtils.pushActionMsg(redisTemplate, id, type, user_id, obj_id);
-		return id;
+		dynamicMsgDao.insert(msg);
 	}
 
 	public List<DynamicMessage> msg_list(Long user_id, long last_id, int type) {
@@ -110,7 +102,7 @@ public class DynamicMsgService {
 			BaseUser me = userDao.getBaseUser(user_id);
 			BaseUser he = userDao.getBaseUser(msg.getBy_user_id());
 			if (msg.getType() == DynamicMsgType.TYPE_MEET.ordinal()) {
-				Bottle bottle=bottleService.getBottleById( msg.getObj_id());
+				Bottle bottle = bottleService.getBottleById(msg.getObj_id());
 				hxTask.replayBottle(me, he, bottle);
 			} else if (msg.getType() == DynamicMsgType.TYPE_LIKE.ordinal()) {
 				hxTask.createChatSessionRandMsg(me, he);
@@ -136,30 +128,31 @@ public class DynamicMsgService {
 
 	}
 
-	public ModelMap loadMsg(long user_id,String token, Long last_id, int count,boolean noMeet) {
+	public ModelMap loadMsg(long user_id, String token, Long last_id, int count, boolean noMeet) {
 		ModelMap result = ResultUtil.getResultOKMap();
-	
-		List<DynamicMessage> msgs = dynamicMsgDao.loadMsg(user_id, last_id, count,noMeet);
-		 
+
+		List<DynamicMessage> msgs = dynamicMsgDao.loadMsg(user_id, last_id, count, noMeet);
+
 		result.addAttribute("msgs", msgs);
-		
-		if(last_id==null) {
-			int unread_count = dynamicMsgDao.getUnReadMsgCount(user_id,noMeet);
+
+		if (last_id == null) {
+			int unread_count = dynamicMsgDao.getUnReadMsgCount(user_id, noMeet);
 			result.addAttribute("unread_count", unread_count);
 		}
 
-		if(!msgs.isEmpty()) {
-			last_id=msgs.get(msgs.size()-1).getId();
+		if (!msgs.isEmpty()) {
+			last_id = msgs.get(msgs.size() - 1).getId();
 		}
-		return result.addAttribute("hasMore", msgs.size()==count).addAttribute("last_id", last_id);
+		return result.addAttribute("hasMore", msgs.size() == count).addAttribute("last_id", last_id);
 
 	}
 
 	public int clearMeetMsg(long user_id) {
 		return dynamicMsgDao.clearMeetMsg(user_id);
 	}
-	public void clearMsg(long user_id,long last_id) {
-		 dynamicMsgDao.clearMsg(user_id, last_id);
+
+	public void clearMsg(long user_id, long last_id) {
+		dynamicMsgDao.clearMsg(user_id, last_id);
 	}
 
 	public int delMeetMsg(long user_id, long id) {

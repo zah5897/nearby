@@ -1,18 +1,10 @@
 package com.zhan.app.nearby.util;
 
-import org.springframework.data.redis.core.RedisTemplate;
-
-import com.zhan.app.nearby.comm.DynamicMsgType;
-
 public class PushUtils {
 	public static final String APP_NAME = "nearby";
 	public static final String KEY_NEARBY_PUSH = "nearby_push_queue";
 
 	public static int TYPE = 1; // 开发模式
-	public static void pushActionMsg(final RedisTemplate<String, String> redisTemplate, final long msg_id,
-			final DynamicMsgType type, final long user_id, final long id) {
-		
-	}
 //	public static void pushActionMsg(final RedisTemplate<String, String> redisTemplate, final long msg_id,
 //			final DynamicMsgType type, final long user_id, final long id) {
 //

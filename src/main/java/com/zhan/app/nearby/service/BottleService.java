@@ -403,7 +403,8 @@ public class BottleService {
 						bottle.setUser_id(withUserID);
 						bottle.setType(BottleType.MEET.ordinal());
 						bottle.setContent(String.valueOf(withUserID));
-						bottleID = bottleDao.insert(bottle);
+						bottleDao.insert(bottle);
+						bottleID=bottle.getId();
 					}
 				}
 				userDao.updateRelationship(user_id, withUserID, Relationship.LIKE);

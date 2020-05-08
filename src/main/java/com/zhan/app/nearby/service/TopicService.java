@@ -19,13 +19,13 @@ public class TopicService {
 	private UserDynamicDao userDynamicDao;
 
 	public void insert(Topic topic) {
-		long id = topicDao.insert(topic);
-		topic.setId(id);
+		topicDao.insert(topic);
 	}
 
 	public List<Topic> list() {
 		return topicDao.list();
 	}
+
 	public List<Topic> history(long current_topic_id) {
 		return topicDao.history(current_topic_id);
 	}

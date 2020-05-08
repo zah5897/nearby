@@ -1416,7 +1416,7 @@ public class UserDao extends BaseDao<BaseUser> {
 		jdbcTemplate.update("update t_user set sys_status=? where user_id=?",SysUserStatus.NORMAL.ordinal(),uid);
 	}
 
-	public void setUserSysStatusTo(long uid, int ordinal) {
-		jdbcTemplate.update("update t_user set sys_status=? where user_id=?",ordinal,uid);
+	public void setUserSysStatusTo(long uid, SysUserStatus status) {
+		jdbcTemplate.update("update t_user set sys_status=? where user_id=?",status.ordinal(),uid);
 	}
 }

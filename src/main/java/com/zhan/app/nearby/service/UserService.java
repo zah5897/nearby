@@ -1587,7 +1587,7 @@ public class UserService {
 		userDao.setUserSysStatusToNormal(uid);
 	}
 	public void setUserSysStatusTo(long uid,SysUserStatus status) {
-		userDao.setUserSysStatusTo(uid,status.ordinal());
+		userDao.setUserSysStatusTo(uid,status);
 	}
 	public void setUserFoundFn(long uid,UserFnStatus fn) {
 		userDao.setUserFoundFn(uid, fn);

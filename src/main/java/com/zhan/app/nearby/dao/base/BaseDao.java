@@ -53,9 +53,9 @@ public class BaseDao<T> {
 	}
 
 	// 泛型插入
-	public int insert(T t) {
+	public void insert(T t) {
 		ModelEntityPropertyWrapper wrapper = prepare(t.getClass());
-		return insertObj(t, wrapper);
+		insertObj(t, wrapper);
 	}
 
 	// 任意entity 对象

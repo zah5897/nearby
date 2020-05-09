@@ -32,7 +32,7 @@ public class DynamicMapper implements RowMapper<UserDynamic> {
 		dynamic.setVideo_file_short_name(rs.getString("video_file_short_name"));
 		dynamic.setDuration(rs.getFloat("duration"));
 		dynamic.setSecret_level(rs.getInt("secret_level"));
-		
+
 		try {
 			dynamic.setComment_count(rs.getInt("comment_count"));
 		} catch (Exception e) {
@@ -66,6 +66,17 @@ public class DynamicMapper implements RowMapper<UserDynamic> {
 		} catch (Exception e) {
 		}
 		ImagePathUtil.completeAvatarPath(user, true);
+
+		try {
+			Object loginTime = rs.getObject("check_time");
+			if (loginTime != null) {
+				user.setOnline_status(1);
+			} else {
+				user.setOnline_status(0);
+			}
+		} catch (Exception e) {
+			user.setOnline_status(-1);
+		}
 
 		dynamic.setUser(user);
 		return dynamic;

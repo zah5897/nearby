@@ -126,4 +126,14 @@ public class VideoService {
 		return v;
 		
 	}
+
+	public int getUserCertVideoCount(int status) {
+		return videoDao.getUserCertVideoCount(status);
+	}
+
+	public List<Video> getUserCertVideo(int status, int page, int count) {
+		List<Video> videos= videoDao.getUserCertVideo(status, page, count);
+		ImagePathUtil.completeVideosPath(videos);
+		return videos;
+	}
 }

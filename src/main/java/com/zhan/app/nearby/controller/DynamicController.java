@@ -8,6 +8,7 @@ import javax.annotation.Resource;
 
 import org.apache.log4j.Logger;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -140,6 +141,12 @@ public class DynamicController {
 			result.put("dynamic_id", dynamic_id);
 		}
 		return result;
+	}
+	
+	@RequestMapping("detail_by_comment_id")
+	public ModelMap detail_by_comment_id(long comment_id,Long user_id) {
+	    long dynamic_id=userDynamicService.getDynamicId(comment_id);
+		 return detail(dynamic_id, user_id);
 	}
 
 	@RequestMapping("comment_sub_list")

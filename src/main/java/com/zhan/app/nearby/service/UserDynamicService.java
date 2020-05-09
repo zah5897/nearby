@@ -14,6 +14,7 @@ import com.zhan.app.nearby.bean.DynamicComment;
 import com.zhan.app.nearby.bean.SimpleDynamic;
 import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.bean.UserDynamicRelationShip;
+import com.zhan.app.nearby.bean.Video;
 import com.zhan.app.nearby.comm.DynamicCommentStatus;
 import com.zhan.app.nearby.comm.DynamicState;
 import com.zhan.app.nearby.comm.LikeDynamicState;
@@ -106,10 +107,11 @@ public class UserDynamicService {
 		if (dynamic != null) {
 			if (user_id == null || user_id < 1) {
 				dynamic.setLike_state(LikeDynamicState.UNLIKE.ordinal());
+			}else {
+				int likeState = userDynamicDao.getLikeState(user_id, dynamic_id);
+				dynamic.setLike_state(likeState);
+				dynamic.getUser().setHas_followed(userDao.isFollowed(user_id, dynamic.getUser().getUser_id()) ? 1 : 0);
 			}
-			int likeState = userDynamicDao.getLikeState(user_id, dynamic_id);
-			dynamic.setLike_state(likeState);
-			dynamic.getUser().setHas_followed(userDao.isFollowed(user_id, dynamic.getUser().getUser_id()) ? 1 : 0);
 		}
 		return dynamic;
 	}
@@ -248,5 +250,23 @@ public class UserDynamicService {
 				count, secret_level);
 		ImagePathUtil.completeDynamicsPath(dys, true);
 		return dys;
+	}
+
+	public long getDynamicId(long comment_id) {
+		return userDynamicDao.getDynamicId(comment_id);
+	}
+
+	public int getVideoCountToCheck(int status) {
+		return userDynamicDao.getVideoCountToCheck(status);
+	}
+
+	public List<UserDynamic> getVideoList(int status, int page, int count) {
+		List<UserDynamic> dys = userDynamicDao.getVideoList(status, page, count);
+		ImagePathUtil.completeDynamicsPath(dys, true);
+		return dys;
+	}
+
+	public void changeVideoStatus(int id, int newStatus) {
+		userDynamicDao.changeVideoStatus(id,newStatus);
 	}
 }

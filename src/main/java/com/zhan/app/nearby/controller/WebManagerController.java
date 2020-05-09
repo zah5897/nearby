@@ -814,7 +814,7 @@ public class WebManagerController {
 		if (!managerService.isLogin(request)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
-		return managerService.loadShortvideos(status, page, count, false);
+		return managerService.loadShortvideos(status, page, count);
 	}
 
 	@RequestMapping(value = "/changeShortvideoStatus")
@@ -832,7 +832,7 @@ public class WebManagerController {
 		if (!managerService.isLogin(request)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
-		return managerService.loadShortvideos(status, page, count, true);
+		return managerService.loadUserCertVideos(status, page, count);
 	}
 
 	@RequestMapping(value = "/user_shortvideo_cert_ok")

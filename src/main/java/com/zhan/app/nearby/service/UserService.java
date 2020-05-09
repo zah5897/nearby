@@ -53,7 +53,6 @@ import com.zhan.app.nearby.task.MatchActiveUserTask;
 import com.zhan.app.nearby.util.AESUtil;
 import com.zhan.app.nearby.util.AddressUtil;
 import com.zhan.app.nearby.util.BottleKeyWordUtil;
-import com.zhan.app.nearby.util.DateTimeUtil;
 import com.zhan.app.nearby.util.HX_SessionUtil;
 import com.zhan.app.nearby.util.HttpService;
 import com.zhan.app.nearby.util.IPUtil;
@@ -1587,6 +1586,11 @@ public class UserService {
 		userDao.setUserSysStatusToNormal(uid);
 	}
 	public void setUserSysStatusTo(long uid,SysUserStatus status) {
+		if(status==SysUserStatus.BLACK) {
+			setUserFoundFn(uid,UserFnStatus.DEFAULT);
+			removeRecommendAndMeetBottle(uid);
+			bottleService.clearIllegalMeetBottle(uid);
+		}
 		userDao.setUserSysStatusTo(uid,status);
 	}
 	public void setUserFoundFn(long uid,UserFnStatus fn) {

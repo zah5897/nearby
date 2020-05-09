@@ -34,10 +34,8 @@ td {
 						onchange="changeType(this)"
 						style="line-height: 17px; display: inline-block">
 							<option value="0">新发布</option>
-							<option value="1">已审核</option>
-							<option value="2">复审</option>
-							<option value="3">违规</option>
-							<option value="4">已删除</option>
+							<option value="1">已过审</option>
+							<option value="2">违规</option>
 					</select></li>
 				</ul>
 			</div>
@@ -48,9 +46,9 @@ td {
 				<tr>
 					<th width="8%">ID</th>
 					<th width="8%">自设备</th>
-					<th width="10%">发送者</th>
+					<th width="15%">发送者</th>
 					<th width="15%">预览图</th>
-					<th width="15%">类型</th>
+					<th width="15%">私密类型</th>
 					<th width="10%">日期</th>
 					<th width="25%">操作</th>
 				</tr>
@@ -209,60 +207,44 @@ td {
 			 
 			 var toAdd="<tr id='tr_"+id+"'>";
 			 toAdd+="<td>"+id+"</td>";
-			 toAdd+="<td>"+pageData['channel']+"</td>";
+			 var device=parent.getDeviceTxt(pageData['_from']);
+			 toAdd+="<td>"+device+"</td>";
 			 
-			// var nick_name=pageData.publisher.nick_name;
 			 var uid=pageData.user.user_id;
-			// nick_name=nick_name==undefined?"":nick_name;
-			 toAdd+="<td>"+uid+"</td>";
+			 toAdd+="<td>"+uid+"|"+pageData.user.nick_name+"</td>";
 			 
-			 var thumb_url=pageData.thumb_url
+			 var thumb_url=pageData.thumb
 			 
 			 if(!thumb_url){
 				 thumb_url=pageData.user.avatar;
 			 }
 			 
-			 toAdd+="<td><img  vu='"+pageData.url+"'  src='"+thumb_url+"' alt='"+thumb_url+"'  height='50' onclick='showVideo(this)'/></td>";
+			 toAdd+="<td><img  vu='"+pageData.video_url+"'  src='"+thumb_url+"' alt='"+thumb_url+"'  height='50' onclick='showVideo(this)'/></td>";
 			 
 			 var typeStr;
-			 var type=pageData.type;
 			 var secret_level=pageData.secret_level;
-			 if(type==0){
-				 typeStr="短视频"
-			 }else if(type==1){
-				 typeStr="短视频头像"
-			 }else if(type==2){
-				 typeStr="短视频动态"
-			 }else{
-				 typeStr="视频认证"
-			 }
+		 
 			 
 			 
 			 if(secret_level==0){
-				 typeStr+="|公开"
+				 typeStr="公开"
 			 }else if(secret_level==1){
-				 typeStr+="|私密"
+				 typeStr="私密"
 			 }
 			 
 			 toAdd+="<td>"+typeStr+"</td>";
 			 toAdd+="<td>"+pageData.create_time+"</td>";
-			 var state=pageData["status"];
+			 var state=pageData["state"];
 			 //操作单元格
 			  toAdd+="<td><div class='button-group'>";
 			  //操作单元格
 			  if(state==0){
 				  toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return changeBottleState("+id+",1)'><span class='icon-edit'></span>通过</a>";
-				  toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return changeBottleState("+id+",3)'><span class='icon-edit'></span>违规</a>";
+				  toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return changeBottleState("+id+",2)'><span class='icon-edit'></span>违规</a>";
 			  }else if(state==1) {
-				  toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return changeBottleState("+id+",3)'><span class='icon-edit'></span>违规</a>";
+				  toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return changeBottleState("+id+",2)'><span class='icon-edit'></span>违规</a>";
 			  }else if(state==2) {
-				  toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return changeBottleState("+id+",3)'><span class='icon-edit'></span>违规</a>";
-			  }else if(state==3) {
 				  toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return changeBottleState("+id+",1)'><span class='icon-edit'></span>通过</a>";
-				  toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return changeBottleState("+id+",4)'><span class='icon-edit'></span>删除</a>";
-			  }else{
-				  toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return changeBottleState("+id+",1)'><span class='icon-edit'></span>通过</a>";
- 
 			  }
 			  toAdd+="</div></td></tr>";
 			 tr.after(toAdd);

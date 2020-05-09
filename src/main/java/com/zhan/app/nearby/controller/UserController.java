@@ -1033,11 +1033,8 @@ public class UserController {
 	}
 	@ApiOperation(httpMethod = "POST", value = "dynamic") // swagger 当前接口注解
 	@RequestMapping("dynamic")
-	public ModelMap dynamic(long user_id, Long user_id_for, Integer page, Integer count,String version,String _ua) {
+	public ModelMap dynamic(long user_id, long user_id_for, Integer page, Integer count,String version,String _ua) {
 
-		if (user_id_for == null || user_id_for < 1) {
-			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "请确定用户ID");
-		}
 		if (count == null) {
 			count = 10;
 		}

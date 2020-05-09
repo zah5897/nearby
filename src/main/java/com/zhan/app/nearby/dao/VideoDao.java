@@ -43,15 +43,16 @@ public class VideoDao extends BaseDao<Video> {
 		return jdbcTemplate.query(sql, new Object[] { user_id, last_id, VideoStatus.CHECKED.ordinal(), count },
 				videoMapper);
 	}
+
 	public List<Video> loadByid(long id) {
 		String sql = "select v.* ,u.user_id,u.nick_name ,u.avatar,u.sex ,u.isvip,p.create_time as pt ,s.create_time as st  from "
 				+ TABLE_VIDEO + " v left join t_user u on v.uid=u.user_id" + " left join " + TABLE_VIDEO_PRAISE_HISTORY
 				+ " p on p.video_id=v.id " + " left join " + TABLE_VIDEO_STORE_HISTORY + " s on s.video_id=v.id "
 				+ " where v.id=?";
-		return jdbcTemplate.query(sql, new Object[] { id},videoMapper);
+		return jdbcTemplate.query(sql, new Object[] { id }, videoMapper);
 	}
 
-	public List<Video> listAll(long uid,Long last_id, int count, Integer type, Integer secret_level) {
+	public List<Video> listAll(long uid, Long last_id, int count, Integer type, Integer secret_level) {
 
 		String sql = "select v.* ,u.user_id,u.nick_name ,u.avatar,u.sex,u.isvip,o.check_time,p.create_time as pt ,s.create_time as st from "
 				+ TABLE_VIDEO + " v left join t_user u on v.uid=u.user_id  left join " + TABLE_VIDEO_PRAISE_HISTORY
@@ -223,45 +224,62 @@ public class VideoDao extends BaseDao<Video> {
 	};
 
 	public int getCountByStatus(int status, boolean isUserCert) {
-		if(isUserCert) {
-			return jdbcTemplate.queryForObject("select count(*) from " + getTableName() + " where type=3 and status=" + status,
-					Integer.class);
-		}else {
-			return jdbcTemplate.queryForObject("select count(*) from " + getTableName() + " where type<>3 and status=" + status,
-					Integer.class);
+		if (isUserCert) {
+			return jdbcTemplate.queryForObject(
+					"select count(*) from " + getTableName() + " where type=3 and status=" + status, Integer.class);
+		} else {
+			return jdbcTemplate.queryForObject(
+					"select count(*) from " + getTableName() + " where type<>3 and status=" + status, Integer.class);
 		}
-		
-		
+
 	}
 
-	public List<Video> loadByStatus(int status, int page, int count,boolean isUserCert) {
-		if(isUserCert) {
+	public List<Video> loadByStatus(int status, int page, int count, boolean isUserCert) {
+		if (isUserCert) {
 			String sql = "select v.* ,u.user_id,u.nick_name ,u.avatar,u.sex ,u.isvip from " + TABLE_VIDEO
 					+ " v left join t_user u on v.uid=u.user_id where  v.type=3 and  v.status=?  order by v.id desc limit ?,?";
 			return jdbcTemplate.query(sql, new Object[] { status, (page - 1) * count, count }, videoMapper);
-		}else {
+		} else {
 			String sql = "select v.* ,u.user_id,u.nick_name ,u.avatar,u.sex ,u.isvip from " + TABLE_VIDEO
 					+ " v left join t_user u on v.uid=u.user_id where  v.type<>3 and  v.status=?  order by v.id desc limit ?,?";
 			return jdbcTemplate.query(sql, new Object[] { status, (page - 1) * count, count }, videoMapper);
 		}
 	}
+
 	public List<Video> loadLatestConfirmVideo(long uid) {
-			String sql = "select v.* ,u.user_id,u.nick_name ,u.avatar,u.sex ,u.isvip from " + TABLE_VIDEO
-					+ " v left join t_user u on v.uid=u.user_id where  v.type=3 and  v.uid=? order by v.id desc limit 1";
-			return jdbcTemplate.query(sql, new Object[] {uid}, videoMapper);
-		 
+		String sql = "select v.* ,u.user_id,u.nick_name ,u.avatar,u.sex ,u.isvip from " + TABLE_VIDEO
+				+ " v left join t_user u on v.uid=u.user_id where  v.type=3 and  v.uid=? order by v.id desc limit 1";
+		return jdbcTemplate.query(sql, new Object[] { uid }, videoMapper);
+
 	}
+
 	public List<Video> loadConfirmdVideo(long uid) {
 		String sql = "select v.* ,u.user_id,u.nick_name ,u.avatar,u.sex ,u.isvip from " + TABLE_VIDEO
 				+ " v left join t_user u on v.uid=u.user_id where  v.type=3 and  v.uid=? and  v.status=?  order by v.id desc limit 1";
-		return jdbcTemplate.query(sql, new Object[] {uid, VideoStatus.CHECKED.ordinal()}, videoMapper);
-	 
-}
+		return jdbcTemplate.query(sql, new Object[] { uid, VideoStatus.CHECKED.ordinal() }, videoMapper);
+
+	}
+
 	public void changeStatus(int id, int newStatus) {
-		jdbcTemplate.update("update " + getTableName() + " set status=? where id=?",newStatus, id );
+		jdbcTemplate.update("update " + getTableName() + " set status=? where id=?", newStatus, id);
 	}
 
 	public int getTodayConfirmVideCount(long uid) {
-		return jdbcTemplate.queryForObject("select count(*) from "+getTableName()+" where uid=? and type=3 and to_days(create_time)=to_days(now())",new Object[] {uid}, Integer.class);
+		return jdbcTemplate.queryForObject(
+				"select count(*) from " + getTableName()
+						+ " where uid=? and type=3 and to_days(create_time)=to_days(now())",
+				new Object[] { uid }, Integer.class);
+	}
+
+	public int getUserCertVideoCount(int status) {
+		return jdbcTemplate.queryForObject("select count(*) from " + getTableName() + " where status=" + status,
+				Integer.class);
+	}
+
+	public List<Video> getUserCertVideo(int status, int page, int count) {
+		String sql = "select v.* ,u.user_id,u.nick_name ,u.avatar,u.sex ,u.isvip from " + TABLE_VIDEO
+				+ " v left join t_user u on v.uid=u.user_id where v.status=?  order by v.id desc limit ?,?";
+		return jdbcTemplate.query(sql, new Object[] { status, (page - 1) * count, count }, videoMapper);
+
 	}
 }

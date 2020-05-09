@@ -225,9 +225,10 @@ public class ManagerService {
 	}
 
 	// 动态审核违规
-	public int updateDynamicManagerFlag(long id,int flag) {
+	public int updateDynamicManagerFlag(long id, int flag) {
 		return managerDao.updateDynamicManagerFlag(id, flag);
 	}
+
 	/**
 	 * 获取所有用户
 	 * 
@@ -506,14 +507,7 @@ public class ManagerService {
 		ModelMap r = ResultUtil.getResultOKMap();
 		if (page == 1) {
 			int totalSize = appointmentService.getCheckCount(status);
-			int pageCount = totalSize / count;
-			if (totalSize % count > 0) {
-				pageCount += 1;
-			}
-			if (pageCount == 0) {
-				pageCount = 1;
-			}
-			r.put("pageCount", pageCount);
+			r.put("pageCount", getPageCount(totalSize, count));
 		}
 		r.put("currentPageIndex", page);
 
@@ -529,14 +523,7 @@ public class ManagerService {
 		ModelMap r = ResultUtil.getResultOKMap();
 		if (page == 1) {
 			int totalSize = appointmentService.getCheckCount(status);
-			int pageCount = totalSize / count;
-			if (totalSize % count > 0) {
-				pageCount += 1;
-			}
-			if (pageCount == 0) {
-				pageCount = 1;
-			}
-			r.put("pageCount", pageCount);
+			r.put("pageCount", getPageCount(totalSize, count));
 		}
 		r.put("currentPageIndex", page);
 
@@ -548,47 +535,33 @@ public class ManagerService {
 
 	// ----------短视频相关--------------------------------------------------------------
 
-	public ModelMap loadShortvideos(int status, int page, int count, boolean isUserCert) {
-
+	public ModelMap loadShortvideos(int status, int page, int count) {
 		ModelMap r = ResultUtil.getResultOKMap();
 		if (page == 1) {
-			int totalSize = videoService.getCountByStatus(status, isUserCert);
-			int pageCount = totalSize / count;
-			if (totalSize % count > 0) {
-				pageCount += 1;
-			}
-			if (pageCount == 0) {
-				pageCount = 1;
-			}
-			r.put("pageCount", pageCount);
+			int totalSize = userDynamicService.getVideoCountToCheck(status);
+			r.put("pageCount", getPageCount(totalSize, count));
 		}
 		r.put("currentPageIndex", page);
 
-		List<Video> data = videoService.loadByStatus(status, page, count, isUserCert);
-		ImagePathUtil.completeVideosPath(data);
+		List<UserDynamic> data = userDynamicService.getVideoList(status, page, count);
 		r.addAttribute("data", data);
 		return r;
 	}
 
 	public ModelMap changeShortvideoStatus(int id, int status, int page, int count, int newStatus) {
+		userDynamicService.changeVideoStatus(id, newStatus);
+		return loadShortvideos(status, page, count);
+	}
 
-		videoService.changeStatus(id, newStatus);
+	public ModelMap loadUserCertVideos(int status, int page, int count) {
 		ModelMap r = ResultUtil.getResultOKMap();
 		if (page == 1) {
-			int totalSize = videoService.getCountByStatus(status, false);
-			int pageCount = totalSize / count;
-			if (totalSize % count > 0) {
-				pageCount += 1;
-			}
-			if (pageCount == 0) {
-				pageCount = 1;
-			}
-			r.put("pageCount", pageCount);
+			int totalSize = videoService.getUserCertVideoCount(status);
+			r.put("pageCount", getPageCount(totalSize, count));
 		}
 		r.put("currentPageIndex", page);
 
-		List<Video> data = videoService.loadByStatus(status, page, count, false);
-		ImagePathUtil.completeVideosPath(data);
+		List<Video> data = videoService.getUserCertVideo(status, page, count);
 		r.addAttribute("data", data);
 		return r;
 	}
@@ -596,24 +569,7 @@ public class ManagerService {
 	public ModelMap userShortvideoCert(int id, long uid, int isOK, int status, int page, int count) {
 		videoService.changeStatus(id, isOK == 1 ? VideoStatus.CHECKED.ordinal() : VideoStatus.DEL.ordinal());
 		userService.changeUserCertStatus(uid, isOK == 1 ? 1 : 0);
-		ModelMap r = ResultUtil.getResultOKMap();
-		if (page == 1) {
-			int totalSize = videoService.getCountByStatus(status, true);
-			int pageCount = totalSize / count;
-			if (totalSize % count > 0) {
-				pageCount += 1;
-			}
-			if (pageCount == 0) {
-				pageCount = 1;
-			}
-			r.put("pageCount", pageCount);
-		}
-		r.put("currentPageIndex", page);
-
-		List<Video> data = videoService.loadByStatus(status, page, count, true);
-		ImagePathUtil.completeVideosPath(data);
-		r.addAttribute("data", data);
-		return r;
+		 return loadUserCertVideos(status,page,count);
 	}
 	// ----------动态评论相关--------------------------------------------------------------
 
@@ -622,14 +578,7 @@ public class ManagerService {
 		ModelMap r = ResultUtil.getResultOKMap();
 		if (page == 1) {
 			int totalSize = userDynamicService.getDynamicCommentCount(user_id);
-			int pageCount = totalSize / count;
-			if (totalSize % count > 0) {
-				pageCount += 1;
-			}
-			if (pageCount == 0) {
-				pageCount = 1;
-			}
-			r.put("pageCount", pageCount);
+			r.put("pageCount", getPageCount(totalSize, count));
 		}
 		r.put("currentPageIndex", page);
 
@@ -650,14 +599,7 @@ public class ManagerService {
 		ModelMap r = ResultUtil.getResultOKMap();
 		if (page == 1) {
 			int totalSize = giftService.getGiftHistoryCount(user_id);
-			int pageCount = totalSize / count;
-			if (totalSize % count > 0) {
-				pageCount += 1;
-			}
-			if (pageCount == 0) {
-				pageCount = 1;
-			}
-			r.put("pageCount", pageCount);
+			r.put("pageCount", getPageCount(totalSize, count));
 		}
 		r.put("currentPageIndex", page);
 
@@ -672,14 +614,7 @@ public class ManagerService {
 		ModelMap r = ResultUtil.getResultOKMap();
 		if (page == 1) {
 			int totalSize = userService.getSignatureUpdateUsersCount(user_id);
-			int pageCount = totalSize / count;
-			if (totalSize % count > 0) {
-				pageCount += 1;
-			}
-			if (pageCount == 0) {
-				pageCount = 1;
-			}
-			r.put("pageCount", pageCount);
+			r.put("pageCount", getPageCount(totalSize, count));
 		}
 		r.put("currentPageIndex", page);
 

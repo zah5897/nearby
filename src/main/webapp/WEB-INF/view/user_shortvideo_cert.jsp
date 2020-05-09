@@ -37,10 +37,8 @@ td {
 			<table class="table table-hover text-center">
 				<tr>
 					<th width="8%">ID</th>
-					<th width="8%">自设备</th>
 					<th width="10%">发送者</th>
 					<th width="15%">预览图</th>
-					<th width="15%">类型</th>
 					<th width="10%">日期</th>
 					<th width="25%">操作</th>
 				</tr>
@@ -199,7 +197,6 @@ td {
 			 
 			 var toAdd="<tr id='tr_"+id+"'>";
 			 toAdd+="<td>"+id+"</td>";
-			 toAdd+="<td>"+pageData['channel']+"</td>";
 			 
 			// var nick_name=pageData.publisher.nick_name;
 			 var uid=pageData.user.user_id;
@@ -214,25 +211,6 @@ td {
 			 
 			 toAdd+="<td><img  vu='"+pageData.url+"'  src='"+thumb_url+"' alt='"+thumb_url+"'  height='50' onclick='showVideo(this)'/></td>";
 			 
-			 var typeStr;
-			 var type=pageData.type;
-			 var secret_level=pageData.secret_level;
-			 if(type==0){
-				 typeStr="短视频"
-			 }else if(type==1){
-				 typeStr="短视频头像"
-			 }else if(type==2){
-				 typeStr="短视频动态"
-			 }
-			 
-			 
-			 if(secret_level==0){
-				 typeStr+="|公开"
-			 }else if(secret_level==1){
-				 typeStr+="|私密"
-			 }
-			 
-			 toAdd+="<td>"+typeStr+"</td>";
 			 toAdd+="<td>"+pageData.create_time+"</td>";
 			 var state=pageData["status"];
 			 //操作单元格

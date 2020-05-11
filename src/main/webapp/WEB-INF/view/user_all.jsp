@@ -249,12 +249,11 @@
 		    });
 		}
 		
-		function add_to_found_user(user_id){
-			$.post("<%=path%>/manager/add_user_found",{'user_id':user_id,'fun':1,'state':0},function(result){
+		function nick_name_illegal(user_id){
+			$.post("<%=path%>/manager/nick_name_illegal",{'user_id':user_id},function(result){
 				 var json=JSON.parse(result);
 				 if(json.code==0){
-			        	parent.toast("操作成功！");
-			        	$("#found_"+user_id).hide();
+					 $("#td_nick_name_"+user_id).html(json.nick_name);
 			        }else{
 			        	parent.toast("操作失败！");
 			        }
@@ -290,14 +289,14 @@
 			 if(!channel){
 				 channel="iPhone" 
 			 }
-			 toAdd+="<td>"+parent.getDeviceTxt(pageData['_from'])+"#"+channel+"</td>";
+			 toAdd+="<td>"+channel+"</td>";
 			 
 			 var nick_name=pageData.nick_name;
 			 nick_name=nick_name==undefined?"":nick_name;
 			 if(state==1){
-				 toAdd+="<td><font color='red'>"+nick_name+"</font></td>";
+				 toAdd+="<td id='td_nick_name_"+user_id+"'><font color='red'>"+nick_name+"</font></td>";
 			 }else{
-				 toAdd+="<td>"+nick_name+"</td>";
+				 toAdd+="<td id='td_nick_name_"+user_id+"'>"+nick_name+"</td>";
 			 }
 			 
 			 
@@ -323,13 +322,12 @@
 			 toAdd+="<td>"+typeStr+"</td>";
 			 //操作单元格
 			  toAdd+="<td><div class='button-group'>";
-			  toAdd+="<a class='button border-main' id='meet_"+user_id+"' href='javascript:void(0)'	onclick='return add_to_meet_bottle("+user_id+")'><span class='icon-edit'></span>加入邂逅瓶</a>";
-			  toAdd+="<a class='button border-main' href='javascript:void(0)' id='found_"+user_id+"'	onclick='return add_to_found_user("+user_id+")'><span class='icon-edit'></span>添加到发现</a>";
+			  toAdd+="<a class='button border-main' href='javascript:void(0)'	onclick='return nick_name_illegal("+user_id+")'><span class='icon-edit'></span>昵称违规</a>";
 		
 			 
 			  
 			  if(state==0){
-				  toAdd+="<a class='button border-yellow' id='bleac_"+user_id+"' href='javascript:void(0)'	onclick='return add_user_black("+user_id+")'><span class='icon-edit'></span>加入黑名单</a>";
+				  toAdd+="<a class='button border-yellow' id='black_"+user_id+"' href='javascript:void(0)'	onclick='return add_user_black("+user_id+")'><span class='icon-edit'></span>加入黑名单</a>";
 			  }
 			  
 			  if(pageData.avatar&&pageData.avatar.indexOf('illegal.jpg')==-1){

@@ -109,4 +109,8 @@ public class AppointmentService {
 		return appointmentDao.loadById(id);
 	}
 
+	public void markDataBlack(long uid) {
+		appointmentDao.markDataBlack(uid);
+	}
+
 }

@@ -15,7 +15,6 @@ import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.SpringContextUtil;
 import com.zhan.app.nearby.util.TextUtils;
 import com.zhan.app.nearby.util.baidu.FaceCheckHelper;
-import com.zhan.app.nearby.util.baidu.ImgCheckHelper;
 import com.zhan.app.nearby.util.ucloud.imgcheck.UCloudImgCheckHelper;
 
 @Component
@@ -40,7 +39,7 @@ public class FaceCheckTask {
 			userService.addRecommendAndMeetBottle(baseUser.getUser_id());
 		}else {
 			userService.updateAvatarIsFace(baseUser.getUser_id(), 0);
-			userService.removeRecommendAndMeetBottle(baseUser.getUser_id());
+			userService.clearUserMeetAndFound(baseUser.getUser_id());
 		}
 	}
 

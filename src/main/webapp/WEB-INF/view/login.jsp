@@ -16,6 +16,11 @@
 <link rel="stylesheet" href="<%=path%>/css/admin.css">
 <script src="<%=path%>/js/jquery.js"></script>
 <script src="<%=path%>/js/pintuer.js"></script>
+<script>
+    if (window.top!=null && window.top.document.URL!=document.URL){
+		window.top.location= document.URL;
+	}
+</script>
 </head>
 <body>
 	<div class="bg"></div>

@@ -32,8 +32,12 @@
 			<div class="padding border-bottom">
 				<ul class="search">
 				  <li>
-			         <input type="text" placeholder="请输入用户id" name="user_id_input" class="input" style="width:250px; line-height:17px;display:inline-block" />
-                     <a href="javascript:void(0)" class="button border-main icon-search" onclick="doSearchById()" > 搜索</a>
+			         <input type="text" placeholder="请输入用户昵称" name="nick_name_input" class="input" style="width:250px; line-height:17px;display:inline-block" />
+                     <a href="javascript:void(0)" class="button border-main icon-search" onclick="doSearchByNickname()" > 搜索</a>
+                   </li>
+				  <li>
+			         <input type="text" placeholder="请输入用户手机号" name="mobile_input" class="input" style="width:250px; line-height:17px;display:inline-block" />
+                     <a href="javascript:void(0)" class="button border-main icon-search" onclick="doSearchByMobile()" > 搜索</a>
                    </li>
 				</ul>
 			</div>
@@ -68,7 +72,8 @@
 	    var currentPageIndex = 0;
 	    var pageSize = 10;
 	    var pageCount = 100;
-	    var user_id;
+	    var nick_name;
+	    var mobile;
 	    //默认加载第一页
 	    $(document).ready(function(){ 
 		    page(1);
@@ -92,17 +97,31 @@
 	    function end(){
 	    	page(pageCount);
 	    }
-	    function doSearchById(){
-	    	var key=$("[name='user_id_input']").val().replace(/^\s+|\s+$/g,"");
-	    	if(user_id==''){
+	    function doSearchByMobile(){
+	    	var key=$("[name='mobile_input']").val().replace(/^\s+|\s+$/g,"");
+	    	if(mobile==''){
 	    		if(key==''){
 		    		return;
 		    	}
 	    	}
-	    	if(user_id==key){
+	    	if(mobile==key){
 	    		return;
 	    	}
-	    	user_id=key;
+	    	mobile=key;
+	    	currentPageIndex=0;
+	    	page(1);
+	    }
+	    function doSearchByNickname(){
+	    	var key=$("[name='nick_name_input']").val().replace(/^\s+|\s+$/g,"");
+	    	if(nick_name==''){
+	    		if(key==''){
+		    		return;
+		    	}
+	    	}
+	    	if(nick_name==key){
+	    		return;
+	    	}
+	    	nick_name=key;
 	    	currentPageIndex=0;
 	    	page(1);
 	    }
@@ -112,7 +131,7 @@
 			if (currentPageIndex == index) {
 				return false;
 			}
-			$.post("<%=path%>/manager/list_user_black",{'pageIndex':index,'pageSize':pageSize,'user_id':user_id},function(result){
+			$.post("<%=path%>/manager/list_user_black",{'pageIndex':index,'pageSize':pageSize,'mobile':mobile,'nick_name':nick_name},function(result){
 				 var json=JSON.parse(result);
 			        if(json.code==0){
 			        	$("table tr[id*='tr_'").each(function(i){
@@ -186,7 +205,7 @@
 			}
 		}
 		function del_from_found_user_black(uid){
-			$.post("<%=path%>/manager/remove_user_black",{'user_id':user_id,'uid':uid,'pageIndex':currentPageIndex,'pageSize':pageSize},function(result){
+			$.post("<%=path%>/manager/remove_user_black",{'mobile':mobile,'nick_name':nick_name,'uid':uid,'pageIndex':currentPageIndex,'pageSize':pageSize},function(result){
 				 var json=JSON.parse(result);
 				 if(json.code==0){
 			        	$("table tr[id*='tr_'").each(function(i){

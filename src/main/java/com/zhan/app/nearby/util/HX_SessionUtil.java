@@ -1,11 +1,8 @@
 package com.zhan.app.nearby.util;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Random;
-
-import org.apache.taglibs.standard.extra.spath.SPathFilter;
 
 import com.easemob.server.example.Main;
 import com.zhan.app.nearby.bean.Bottle;
@@ -14,7 +11,6 @@ import com.zhan.app.nearby.bean.type.BottleType;
 import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.comm.ChatConversationType;
 import com.zhan.app.nearby.comm.PushMsgType;
-import com.zhan.app.nearby.service.VipService;
 
 public class HX_SessionUtil {
 

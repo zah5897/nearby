@@ -97,13 +97,13 @@ public class ManagerService {
 		return userCacheService.getManagerAuthName(ip);
 	}
 
-	public ModelMap getHomeFoundSelected(Long user_id, int pageIndex, int pageSize) {
+	public ModelMap getHomeFoundSelected(Long user_id, int pageIndex, int pageSize,String nick_name) {
 		ModelMap reMap = ResultUtil.getResultOKMap();
 		if (pageIndex == 1) {
-			int totalSize = managerDao.getHomeFoundSelectedCount(user_id);
+			int totalSize = managerDao.getHomeFoundSelectedCount(user_id,nick_name);
 			reMap.put("pageCount", getPageCount(totalSize, pageSize));
 		}
-		List<UserDynamic> dys = managerDao.getHomeFoundSelected(user_id, pageIndex, pageSize);
+		List<UserDynamic> dys = managerDao.getHomeFoundSelected(user_id, pageIndex, pageSize,nick_name);
 		ImagePathUtil.completeDynamicsPath(dys, true);
 		reMap.put("data", dys);
 		reMap.put("currentPageIndex", pageIndex);
@@ -280,11 +280,11 @@ public class ManagerService {
 
 	}
 
-	public ModelMap getBlackUsers(Long user_id, int page, int count) {
+	public ModelMap getBlackUsers(String nick_name,String mobile, int page, int count) {
 		ModelMap result = ResultUtil.getResultOKMap();
-		List<BaseUser> users = userService.getBlackUsers(user_id, page, count);
+		List<BaseUser> users = userService.getBlackUsers(nick_name,mobile, page, count);
 		if (page == 1) {
-			int totalSize = userService.getBlackUsersCount(user_id);
+			int totalSize = userService.getBlackUsersCount(nick_name,mobile);
 			int pageCount = totalSize / count;
 			if (totalSize % 10 > 0) {
 				pageCount += 1;

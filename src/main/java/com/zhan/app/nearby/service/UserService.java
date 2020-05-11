@@ -37,6 +37,7 @@ import com.zhan.app.nearby.bean.user.SimpleUser;
 import com.zhan.app.nearby.cache.UserCacheService;
 import com.zhan.app.nearby.comm.AccountStateType;
 import com.zhan.app.nearby.comm.AvatarIMGStatus;
+import com.zhan.app.nearby.comm.DynamicCommentStatus;
 import com.zhan.app.nearby.comm.PushMsgType;
 import com.zhan.app.nearby.comm.Relationship;
 import com.zhan.app.nearby.comm.SysUserStatus;
@@ -64,7 +65,8 @@ import com.zhan.app.nearby.util.TextUtils;
 @Service
 public class UserService {
 
-	private static String[] ignoreKeyword= {"微信","微","v","weixin","wx","微xin","QQ","扣扣","Q","手机","手机号","手机号码","微信号","qq号"};
+	private static String[] ignoreKeyword = { "微信", "微", "v", "weixin", "wx", "微xin", "QQ", "扣扣", "Q", "手机", "手机号",
+			"手机号码", "微信号", "qq号" };
 	@Resource
 	private UserDao userDao;
 	@Resource
@@ -95,10 +97,12 @@ public class UserService {
 	private CommAsyncTask commAsyncTask;
 
 	@Autowired
+	private AppointmentService appointmentService;
+
+	@Autowired
 	private HXAsyncTask hxTask;
-	
-	
-	@Autowired 
+
+	@Autowired
 	private VideoService videoService;
 
 	public BaseUser getBasicUser(long id) {
@@ -182,12 +186,11 @@ public class UserService {
 		commAsyncTask.getUserLocationByIP(user, user.getIp());
 		return id;
 	}
-	
+
 	public void userOnLineNotify(long uid) {
 		commAsyncTask.userOnLineNotify(uid);
 	}
-	
-	
+
 	public void doCheckIsFace(BaseUser user) {
 		faceCheckTask.doCheckFace(user);
 	}
@@ -295,16 +298,15 @@ public class UserService {
 			String signature, String my_tags, String interests, String animals, String musics, String weekday_todo,
 			String footsteps, String want_to_where, boolean isNick_modify, Integer birth_city_id, String contact,
 			String newSex) {
-		
-		
-		if(!TextUtils.isEmpty(contact)) {
-			contact=BottleKeyWordUtil.filterContactContent(contact,Arrays.asList(ignoreKeyword));
+
+		if (!TextUtils.isEmpty(contact)) {
+			contact = BottleKeyWordUtil.filterContactContent(contact, Arrays.asList(ignoreKeyword));
 		}
-		
-		int c= userDao.modify_info(user_id, nick_name, birthday, job, height, weight, signature, my_tags, interests,
+
+		int c = userDao.modify_info(user_id, nick_name, birthday, job, height, weight, signature, my_tags, interests,
 				animals, musics, weekday_todo, footsteps, want_to_where, birth_city_id, contact, newSex);
-		if(!TextUtils.isEmpty(signature)) {
-			 userDao.updateSignatureRecord(user_id,signature);
+		if (!TextUtils.isEmpty(signature)) {
+			userDao.updateSignatureRecord(user_id, signature);
 		}
 		return c;
 	}
@@ -323,7 +325,6 @@ public class UserService {
 		}
 		return count;
 	}
-
 
 	public void checkHowLongNotOpenApp(long uid) {
 		checkHowLongNotOpenApp(getBasicUser(uid));
@@ -391,7 +392,7 @@ public class UserService {
 		return userDao.getAllUserIds(last_id, page);
 	}
 
-	public ModelMap getUserCenterData(String token, String aid, Long user_id_for, Long uid,String version) {
+	public ModelMap getUserCenterData(String token, String aid, Long user_id_for, Long uid, String version) {
 		if (user_id_for == null || user_id_for <= 0) {
 			return ResultUtil.getResultMap(ERROR.ERR_FAILED, "对应用户不存在");
 		}
@@ -399,7 +400,7 @@ public class UserService {
 		if (user == null) {
 			return ResultUtil.getResultMap(ERROR.ERR_FAILED, "对应ID不存在");
 		}
-		List<UserDynamic> dys = userDynamicService.getUserDynamic(user_id_for, 1, 5,version.compareTo("2.1.0")>=0);
+		List<UserDynamic> dys = userDynamicService.getUserDynamic(user_id_for, 1, 5, version.compareTo("2.1.0") >= 0);
 		user.setImages(dys);
 
 		ImagePathUtil.completeAvatarPath(user, true);
@@ -414,11 +415,8 @@ public class UserService {
 		ModelMap r = ResultUtil.getResultOKMap();
 		user.setAvatars(getUserAvatars(user_id_for));
 
-		
-		
-	
 		if (!TextUtils.isEmpty(user.getContact()) && uid != user_id_for) {
-			if(!isVip(uid)) {
+			if (!isVip(uid)) {
 				user.setContact("vip可看");
 			}
 		}
@@ -467,33 +465,29 @@ public class UserService {
 		user.setAvatars(getUserAvatars(user_id_for));
 
 		if (!TextUtils.isEmpty(user.getContact()) && uid != user_id_for) {
-			if(!isVip(uid)) {
+			if (!isVip(uid)) {
 				user.setContact("vip可看");
 			}
 		}
 
 		user.setFans_count(userDao.getFansCount(user.getUser_id()));
 		user.setMy_follow_count(userDao.getFollowCount(user.getUser_id()));
-		
-		
+
 		int relationShip = 0;
-		
-		
-		
-		
-		String ut=String.valueOf(user_id_for);
-		String uu=String.valueOf(uid);
-		if(ut.equals(uu)) { //说明为本人自己
+
+		String ut = String.valueOf(user_id_for);
+		String uu = String.valueOf(uid);
+		if (ut.equals(uu)) { // 说明为本人自己
 			user.setHas_followed(1);
-			relationShip=4;
+			relationShip = 4;
 			r.addAttribute("coins", giftService.getUserCoins(aid, user_id_for));
-			Video v=videoService.loadLatestConfirmVideo(user_id_for);
-			if(v!=null) {
+			Video v = videoService.loadLatestConfirmVideo(user_id_for);
+			if (v != null) {
 				v.setUser(null);
 			}
 			user.setHead_video(v);
-			
-		}else {
+
+		} else {
 			user.setHas_followed(userDao.isFollowed(uid, user_id_for) ? 1 : 0);
 			Relationship iWithHim = getRelationShip(uid, user_id_for);
 			Relationship heWithMe = getRelationShip(user_id_for, uid);
@@ -507,14 +501,14 @@ public class UserService {
 				relationShip = 7;
 			}
 			r.addAttribute("coins", 0);
-			
-			Video v=videoService.loadConfirmdVideo(user_id_for);
-			if(v!=null) {
+
+			Video v = videoService.loadConfirmdVideo(user_id_for);
+			if (v != null) {
 				v.setUser(null);
 			}
 			user.setHead_video(v);
 		}
-		
+
 		r.put("user", user);
 		r.put("relationship", relationShip);
 		r.addAttribute("meili", user.getMeili());
@@ -743,8 +737,8 @@ public class UserService {
 	 * @param pageIndex
 	 * @return
 	 */
-	public List<BaseUser> getFoundUsers(Long user_id,int page, int count) {
-		return userDao.getFoundUsers(user_id,page,count);
+	public List<BaseUser> getFoundUsers(Long user_id, int page, int count) {
+		return userDao.getFoundUsers(user_id, page, count);
 	}
 
 	/**
@@ -752,11 +746,10 @@ public class UserService {
 	 * 
 	 * @return
 	 */
-	public int getFoundUsersCount(  Long user_id ) {
-		return userDao.getFoundUsersCount(user_id );
+	public int getFoundUsersCount(Long user_id) {
+		return userDao.getFoundUsersCount(user_id);
 	}
-	
-	
+
 	/**
 	 * 鑾峰彇鍙戠幇榛戝悕鍗曠敤鎴�
 	 * 
@@ -764,8 +757,8 @@ public class UserService {
 	 * @param pageIndex
 	 * @return
 	 */
-	public List<BaseUser> getBlackUsers(Long user_id,int page, int count) {
-		return userDao.getBlackUsers(user_id,page, count);
+	public List<BaseUser> getBlackUsers(String nick_name, String mobile, int page, int count) {
+		return userDao.getBlackUsers(nick_name, mobile, page, count);
 	}
 
 	/**
@@ -773,11 +766,9 @@ public class UserService {
 	 * 
 	 * @return
 	 */
-	public int getBlackUsersCount( Long user_id  ) {
-		return userDao.getBlackUsersCount(user_id );
+	public int getBlackUsersCount(String nick_name, String mobile) {
+		return userDao.getBlackUsersCount(nick_name, mobile);
 	}
-	
-	
 
 	public List<BaseUser> getAllMeetBottleRecommendUser(int pageSize, int pageIndex, String keyword) {
 		return userDao.getAllMeetBottleRecommendUser(pageSize, pageIndex, keyword);
@@ -845,7 +836,7 @@ public class UserService {
 	}
 
 	public Map<String, Object> checkIn(Long user_id, String token, String aid) {
-		if(user_id==null) {
+		if (user_id == null) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
 		if (checkLogin(user_id, token)) {
@@ -881,7 +872,7 @@ public class UserService {
 	public void editAvatarState(int id, int state) {
 		if (state == AvatarIMGStatus.ILLEGAL.ordinal()) {
 			long uid = userDao.editAvatarState(id, AvatarIMGStatus.ILLEGAL.ordinal());
-			userDao.clearUserFnStatus(uid);
+			userDao.clearUserMeetAndFound(uid);
 			bottleService.clearIllegalMeetBottle(uid);
 		} else {
 			userDao.updateAvatarState(id, state);
@@ -914,7 +905,7 @@ public class UserService {
 		} catch (Exception e) {
 			userDao.editAvatarStateByUserId(uid, AvatarIMGStatus.ILLEGAL.ordinal());
 		}
-		userDao.clearUserFnStatus(uid);
+		userDao.clearUserMeetAndFound(uid);
 		bottleService.clearIllegalMeetBottle(uid);
 	}
 
@@ -938,9 +929,9 @@ public class UserService {
 		if (TextUtils.isEmpty(weixin)) {
 			return ResultUtil.getResultOKMap().addAttribute("contact", weixin);
 		}
-		if (user_id==by_user_id||vipDao.isVip(user_id)) {
+		if (user_id == by_user_id || vipDao.isVip(user_id)) {
 			return ResultUtil.getResultOKMap().addAttribute("contact", weixin);
-		}else {
+		} else {
 			return ResultUtil.getResultMap(ERROR.ERR_NOT_VIP);
 		}
 	}
@@ -983,7 +974,7 @@ public class UserService {
 
 	public void saveUserOnline(long uid) {
 		userDao.saveUserOnline(uid);
-	    userOnLineNotify(uid);
+		userOnLineNotify(uid);
 	}
 
 	public List<LoginUser> getOnlineUsers(int page, int count) {
@@ -991,15 +982,19 @@ public class UserService {
 		ImagePathUtil.completeAvatarsPath(users, true);
 		return users;
 	}
+
 	public int getOnlineUserCountLastetByMinute(int minuts) {
 		return userDao.getOnlineUserCountLastetByMinute(minuts);
 	}
+
 	public List<Long> getOnlineUidLastetByMinute(int minuts) {
 		return userDao.getOnlineUidLastetByMinute(minuts);
 	}
+
 	public List<String> getOnlineUidLastetByLimit(int limit) {
 		return userDao.getOnlineUidLastetByLimit(limit);
 	}
+
 	@Transactional
 	public void removeOnline(long uid) {
 		userDao.removeOnline(uid);
@@ -1035,11 +1030,7 @@ public class UserService {
 	}
 
 	public void addRecommendAndMeetBottle(long user_id) {
-       userDao.setUserFnStatusEnable(user_id);
-	}
-
-	public void removeRecommendAndMeetBottle(long user_id) {
-		userDao.clearUserFnStatus(user_id);
+		userDao.setUserFnStatusEnable(user_id);
 	}
 
 	public List<Avatar> listNotCheckedAvatars(int count) {
@@ -1231,21 +1222,20 @@ public class UserService {
 		return ResultUtil.getResultOKMap().addAttribute("users", users).addAttribute("hasMore", users.size() == c)
 				.addAttribute("last_id", last_id);
 	}
-	
+
 	public ModelMap getFollowUsers(long user_id, boolean isFollowMe, Integer page, Integer count) {
 		int c = count == null ? 20 : count;
-		List<RankUser> users = userDao.getFollowUsersByUid(user_id, page == null ? 1 : page, count==null?10:count);
+		List<RankUser> users = userDao.getFollowUsersByUid(user_id, page == null ? 1 : page,
+				count == null ? 10 : count);
 		ImagePathUtil.completeAvatarsPath(users, true);
 		long last_id = users.size() == 0 ? 0 : users.get(users.size() - 1).getUser_id();
 		return ResultUtil.getResultOKMap().addAttribute("users", users).addAttribute("hasMore", users.size() == c)
 				.addAttribute("last_id", last_id);
 	}
-	
-	
 
-	public ModelMap getUserFans(long user_id,Integer page, Integer count) {
+	public ModelMap getUserFans(long user_id, Integer page, Integer count) {
 		int c = count == null ? 20 : count;
-		List<RankUser> users = userDao.getFansByUid(user_id, page==null?1:page, count==null?10:count);
+		List<RankUser> users = userDao.getFansByUid(user_id, page == null ? 1 : page, count == null ? 10 : count);
 		ImagePathUtil.completeAvatarsPath(users, true);
 		long last_id = users.size() == 0 ? 0 : users.get(users.size() - 1).getUser_id();
 		return ResultUtil.getResultOKMap().addAttribute("users", users).addAttribute("hasMore", users.size() == c)
@@ -1536,16 +1526,18 @@ public class UserService {
 		userDao.updateUserVipVal(user_id, isVip);
 	}
 
-	public void updateUserLOcation(long uid,String lat, String lng) {
-		userDao.updateUserLocation(uid,lat,lng);
+	public void updateUserLOcation(long uid, String lat, String lng) {
+		userDao.updateUserLocation(uid, lat, lng);
 	}
 
 	public void changeUserCertStatus(long uid, int certStatus) {
-		userDao.changeUserCertStatus(uid,certStatus);
+		userDao.changeUserCertStatus(uid, certStatus);
 	}
+
 	public ModelMap loadConfirmdVideo(long uid) {
 		return ResultUtil.getResultOKMap().addAttribute("video", videoService.loadConfirmdVideo(uid));
 	}
+
 	public ModelMap loadConfirmVideo(long uid) {
 		return ResultUtil.getResultOKMap().addAttribute("video", videoService.loadConfirmdVideo(uid));
 	}
@@ -1559,41 +1551,58 @@ public class UserService {
 	}
 
 	public void updateNotifyTime(List<String> uids) {
-		for(String id:uids) {
+		for (String id : uids) {
 			userDao.updateNotifyTime(Long.parseLong(id));
 		}
 	}
 
 	public void exitApp(long user_id) {
-		  userDao.cleanOnline(user_id);
+		userDao.cleanOnline(user_id);
 	}
-	 
+
 	public int getSignatureUpdateUsersCount(Long user_id) {
 		return userDao.getSignatureUpdateUsersCount(user_id);
 	}
-	
-	public List<SimpleUser> loadSignatureUpdateUsers(Long user_id,int page,int count){
-		List<SimpleUser> users=userDao.loadSignatureUpdateUsers(user_id,page,count);
-		ImagePathUtil.completeAvatarsPath( users,true);
+
+	public List<SimpleUser> loadSignatureUpdateUsers(Long user_id, int page, int count) {
+		List<SimpleUser> users = userDao.loadSignatureUpdateUsers(user_id, page, count);
+		ImagePathUtil.completeAvatarsPath(users, true);
 		return users;
 	}
 
 	public void deleteUserSignature(Long uid) {
 		userDao.deleteUserSignature(uid);
 	}
-	
+
 	public void setUserSysStatusToNormal(long uid) {
 		userDao.setUserSysStatusToNormal(uid);
 	}
-	public void setUserSysStatusTo(long uid,SysUserStatus status) {
-		if(status==SysUserStatus.BLACK) {
-			setUserFoundFn(uid,UserFnStatus.DEFAULT);
-			removeRecommendAndMeetBottle(uid);
-			bottleService.clearIllegalMeetBottle(uid);
+
+	public void setUserSysStatusTo(long uid, SysUserStatus status) {
+		if (status == SysUserStatus.BLACK) {
+			userDao.clearUserMeetAndFound(uid); // 清理用户的推荐邂逅瓶状态，首页推荐状态，
+			bottleService.clearIllegalMeetBottleAndMarkBlack(uid); // 清理用户的邂逅瓶子，标记用户的瓶子为黑名单状态
+			userDao.markDynamicIllegal(uid);// 标记用户发的动态为黑名单状态
+			userDynamicService.updateCommentStatus(uid, DynamicCommentStatus.ILLEGAL); // 标记评论为黑名单
+			appointmentService.markDataBlack(uid); // 标记约会为黑名单
 		}
-		userDao.setUserSysStatusTo(uid,status);
+		userDao.setUserSysStatusTo(uid, status);
 	}
-	public void setUserFoundFn(long uid,UserFnStatus fn) {
+
+	public void setUserFoundFn(long uid, UserFnStatus fn) {
 		userDao.setUserFoundFn(uid, fn);
+	}
+
+	public void clearUserMeetAndFound(long uid) {
+		userDao.clearUserMeetAndFound(uid);
+	}
+
+	public String nickNameIllegal(long user_id) {
+		String nickName = userDao.getNickNameById(user_id).get(0);
+		char[] arr = nickName.toCharArray();
+		Arrays.fill(arr, 0, arr.length, '*');
+		String starName = new String(arr);
+		userDao.updateNickName(user_id, starName);
+		return starName;
 	}
 }

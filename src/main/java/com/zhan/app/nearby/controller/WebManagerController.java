@@ -102,11 +102,11 @@ public class WebManagerController {
 	}
 
 	@RequestMapping(value = "/selected_dynamic_list")
-	public @ResponseBody ModelMap selected_dynamic_list(HttpServletRequest request, Long user_id, int pageIndex) {
+	public @ResponseBody ModelMap selected_dynamic_list(HttpServletRequest request, Long user_id, int pageIndex,String nick_name) {
 		if (!managerService.isLogin(request)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
-		return managerService.getHomeFoundSelected(user_id, pageIndex, 10);
+		return managerService.getHomeFoundSelected(user_id, pageIndex, 10,nick_name);
 	}
 
 	// 未选择出现在首页的列表
@@ -122,19 +122,19 @@ public class WebManagerController {
 
 	@RequestMapping(value = "/remove_from_selected")
 	public @ResponseBody ModelMap remove_from_selected(HttpServletRequest request, Long user_id, long id,
-			int currentPage) {
+			int currentPage,String nick_name) {
 
 		if (!managerService.isLogin(request)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
 		managerService.removeFromSelected(id);
-		return selected_dynamic_list(request,user_id,currentPage);
+		return selected_dynamic_list(request,user_id,currentPage,nick_name);
 	}
 
 	// 删除多个
 	@RequestMapping(value = "/removes_from_selected")
 	public @ResponseBody ModelMap removes_from_selected(HttpServletRequest request, Long user_id, String ids,
-			int currentPage) {
+			int currentPage,String nick_name) {
 
 		if (!managerService.isLogin(request)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
@@ -149,7 +149,7 @@ public class WebManagerController {
 		for (long id : idlist) {
 			managerService.removeFromSelected(id);
 		}
-		return selected_dynamic_list(request,user_id,currentPage);
+		return selected_dynamic_list(request,user_id,currentPage,nick_name);
 	}
 
 	// 添加到首页推荐
@@ -456,11 +456,11 @@ public class WebManagerController {
 
 	// 获取所有发现用户黑名单
 	@RequestMapping(value = "/list_user_black")
-	public @ResponseBody ModelMap list_user_black(HttpServletRequest request,Long user_id, int pageSize, int pageIndex) {
+	public @ResponseBody ModelMap list_user_black(HttpServletRequest request,String nick_name,String mobile, int pageSize, int pageIndex) {
 		if (!managerService.isLogin(request)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
-		return  managerService.getBlackUsers(user_id,pageIndex, pageSize);
+		return  managerService.getBlackUsers(nick_name,mobile,pageIndex, pageSize);
 	}
 	 
 	@RequestMapping(value = "/list_user_found")
@@ -493,26 +493,25 @@ public class WebManagerController {
 		return ResultUtil.getResultOKMap();
 	}
 
-	@RequestMapping(value = "/add_user_found")
+	@RequestMapping(value = "/nick_name_illegal")
 	public @ResponseBody ModelMap add_user_found(HttpServletRequest request, long user_id) {
 
 		if (!managerService.isLogin(request)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
-		userService.setUserFoundFn(user_id, UserFnStatus.ENABLE);
-		return ResultUtil.getResultOKMap();
+		return ResultUtil.getResultOKMap().addAttribute("nick_name", userService.nickNameIllegal(user_id));
 	}
 
 	// 添加到发现用户黑名单
 	@RequestMapping(value = "/remove_user_black")
-	public @ResponseBody ModelMap remove_user_black(HttpServletRequest request,Long user_id, long uid, Integer pageSize,
+	public @ResponseBody ModelMap remove_user_black(HttpServletRequest request,String nick_name,String mobile, long uid, Integer pageSize,
 			Integer pageIndex) {
 
 		if (!managerService.isLogin(request)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
 		userService.setUserSysStatusTo(uid, SysUserStatus.NORMAL);
-		return list_user_black(request,user_id, pageSize, pageIndex);
+		return list_user_black(request,nick_name,mobile, pageSize, pageIndex);
 	}
 
 	@RequestMapping(value = "/remove_user_found")
@@ -524,17 +523,6 @@ public class WebManagerController {
 		}
 		userService.setUserFoundFn(uid, UserFnStatus.DEFAULT);
 		return  list_user_found(request, user_id, pageSize, pageIndex);
-	}
-
-	// 添加到邂逅瓶待选
-	@RequestMapping(value = "/add_user_meet_bottle")
-	public @ResponseBody ModelMap addToUserMeetBottle(HttpServletRequest request, long user_id, Integer pageSize,
-			Integer pageIndex, String keyword) {
-		if (!managerService.isLogin(request)) {
-			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
-		}
-		managerService.editUserMeetBottle(user_id, UserFnStatus.ENABLE);
-		return ResultUtil.getResultOKMap();
 	}
 
 	// 获取提现申请记录

@@ -18,6 +18,7 @@ import org.springframework.stereotype.Repository;
 import com.zhan.app.nearby.bean.Avatar;
 import com.zhan.app.nearby.bean.City;
 import com.zhan.app.nearby.bean.MeiLi;
+import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.bean.mapper.SimpkleUserMapper;
 import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.bean.user.DetailUser;
@@ -26,6 +27,7 @@ import com.zhan.app.nearby.bean.user.RankUser;
 import com.zhan.app.nearby.bean.user.SimpleUser;
 import com.zhan.app.nearby.comm.AccountStateType;
 import com.zhan.app.nearby.comm.AvatarIMGStatus;
+import com.zhan.app.nearby.comm.DynamicState;
 import com.zhan.app.nearby.comm.Relationship;
 import com.zhan.app.nearby.comm.SysUserStatus;
 import com.zhan.app.nearby.comm.UserFnStatus;
@@ -594,18 +596,32 @@ public class UserDao extends BaseDao<BaseUser> {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public List<BaseUser> getBlackUsers(Long user_id,int page, int count) {
+	public List<BaseUser> getBlackUsers(String nick_name,String mobile,int page, int count) {
 		
-		if(user_id!=null) {
-			
-			String sql = "select u.* from  t_user u    where u.sys_status=? and u.user_id=? order by u.last_login_time desc limit ?,?";
-			return jdbcTemplate.query(sql, new Object[] { SysUserStatus.BLACK.ordinal(),user_id, (page - 1) * count, count },
-					getEntityMapper());
-		}else {
-			String sql = "select u.* from  t_user u    where u.sys_status=? order by u.last_login_time desc limit ?,?";
-			return jdbcTemplate.query(sql, new Object[] { SysUserStatus.BLACK.ordinal(), (page - 1) * count, count },
-					getEntityMapper());
+		
+		String sql = "select * from  t_user where sys_status=? ";
+		
+		List<Object> param=new ArrayList<>();
+		
+		param.add(SysUserStatus.BLACK.ordinal());
+		
+		
+		if(TextUtils.isNotEmpty(nick_name)&&TextUtils.isNotEmpty(mobile)) {
+			sql+=" and (nick_name like ? or mobile=?) ";
+			param.add("%"+nick_name+"%");
+			param.add(mobile);
+		}else if(TextUtils.isNotEmpty(nick_name)) {
+			sql+=" and nick_name like ? ";
+			param.add("%"+nick_name+"%");
+		}else if(TextUtils.isNotEmpty(mobile)) {
+			sql+=" and mobile=? ";
+			param.add(mobile);
 		}
+		
+		sql+=" order by last_login_time desc limit ?,?";
+		param.add((page - 1) * count);
+		param.add(count);
+		return jdbcTemplate.query(sql,  param.toArray(),getEntityMapper());
 	
 	}
 
@@ -614,13 +630,22 @@ public class UserDao extends BaseDao<BaseUser> {
 	 * 
 	 * @return
 	 */
-	public int getBlackUsersCount(Long user_id) {
-		if(user_id!=null) {
-			return jdbcTemplate.queryForObject("select count(*) from t_user where sys_status=? and user_id=?",
-					new Object[] { SysUserStatus.BLACK.ordinal(),user_id }, Integer.class);
+	public int getBlackUsersCount(String nick_name,String mobile) {
+        String sql = "select count(*) from  t_user where sys_status=? ";
+		List<Object> param=new ArrayList<>();
+		param.add(SysUserStatus.BLACK.ordinal());
+		if(TextUtils.isNotEmpty(nick_name)&&TextUtils.isNotEmpty(mobile)) {
+			sql+=" and (nick_name like ? or mobile=?) ";
+			param.add("%"+nick_name+"%");
+			param.add(mobile);
+		}else if(TextUtils.isNotEmpty(nick_name)) {
+			sql+=" and nick_name like ? ";
+			param.add("%"+nick_name+"%");
+		}else if(TextUtils.isNotEmpty(mobile)) {
+			sql+=" and mobile=? ";
+			param.add(mobile);
 		}
-		return jdbcTemplate.queryForObject("select count(*) from t_user where sys_status=?",
-				new Object[] { SysUserStatus.BLACK.ordinal() }, Integer.class);
+		return jdbcTemplate.queryForObject(sql,  param.toArray(),Integer.class);
 	}
 	
 	
@@ -1087,6 +1112,7 @@ public class UserDao extends BaseDao<BaseUser> {
 		return jdbcTemplate.update(sql, new Object[] { user_id, task_id, new Date(), aid, uuid, extra });
 	}
 
+	@SuppressWarnings("unchecked")
 	public List<BaseUser> followUsers(long user_id, boolean isFollowMe, int page, int count) {
 
 		String sql = "select u.user_id,u.nick_name,u.avatar,u.meili,u.isvip from t_user_follow f left join t_user u on f.target_id =u.user_id "
@@ -1095,24 +1121,10 @@ public class UserDao extends BaseDao<BaseUser> {
 			sql = "select u.user_id,u.nick_name,u.avatar,u.meili,u.isvip from t_user_follow f left join t_user u on f.uid =u.user_id "
 				 + " where f.target_id=? limit ?,?";
 		}
-		return jdbcTemplate.query(sql, new Object[] { user_id, (page - 1) * count, count },
-				new BeanPropertyRowMapper<BaseUser>(BaseUser.class) {
-					@Override
-					public BaseUser mapRow(ResultSet rs, int rowNumber) throws SQLException {
-						BaseUser user = super.mapRow(rs, rowNumber);
-						int cid = rs.getInt("city_id");
-						if (cid > 0) {
-							City c = new City();
-							c.setId(cid);
-							c.setName(rs.getString("city_name"));
-							user.setCity(c);
-						}
-						return user;
-					}
-				});
+		return jdbcTemplate.query(sql, new Object[] { user_id, (page - 1) * count, count },getEntityMapper());
 	}
 
-	
+	//获取某人关注的人列表
 	public List<RankUser> getFollowUsersByUid(long user_id, int page, int count) {
 		String sql = "select u.user_id,u.nick_name,u.avatar,u.meili,u.isvip,u.lat,u.lng,ifnull(gift.tval,'0') as shanbei from t_user_follow f "
 				+ "  left join t_user u on f.target_id =u.user_id "
@@ -1125,12 +1137,11 @@ public class UserDao extends BaseDao<BaseUser> {
 				new BeanPropertyRowMapper<RankUser>(RankUser.class));
 	}
 	
+	//获取默认的粉丝列表
 	public List<RankUser> getFansByUid(long user_id, int page, int count) {
-		String sql = "select u.user_id,u.nick_name,u.avatar,u.meili,u.isvip,u.lat,u.lng,ifnull(gift.tval,'0') as shanbei from t_user_follow f "
+		String sql = "select u.user_id,u.nick_name,u.avatar,u.meili,u.isvip,u.lat,u.lng,ifnull(g.total_value,'0') as shanbei from t_user_follow f "
 				+ "  left join t_user u on f.uid =u.user_id "
-				+ " left join "
-				+ " (select tg.user_id ,sum(tg.val) as tval from (select o.*,o.count*g.price as val from  t_gift_own o left join t_gift g on o.gift_id=g.id) as tg group by tg.user_id) gift "
-				+ "on f.target_id=gift.user_id "
+				+ " left join t_user_gift_value g on f.uid=g.user_id "
 				+ " where f.target_id=? order by f.create_time desc limit ?,?";
 		 
 		return jdbcTemplate.query(sql, new Object[] { user_id, (page - 1) * count, count },
@@ -1156,6 +1167,7 @@ public class UserDao extends BaseDao<BaseUser> {
 	 * @return
 	 */
 //	@Cacheable(value="one_day",key="#root.methodName+'_'+#sex")
+	@SuppressWarnings("unchecked")
 	public List<BaseUser> getActiveUsers(int sex) {
 		String sql = "select u.user_id,u.nick_name,u.avatar from t_user u " + "where u.type=1 " + "and u.sex=? "
 //				+ "and u.create_time <DATE_SUB(CURDATE(), INTERVAL 3 MONTH) " //鍘绘帀涓変釜鏈堢殑娉ㄥ唽闄愬埗
@@ -1396,7 +1408,11 @@ public class UserDao extends BaseDao<BaseUser> {
 		
 	}
 
-	public void clearUserFnStatus(long uid) {
+	/**
+	 * 清除用户邂逅瓶/首页推荐状态
+	 * @param uid
+	 */
+	public void clearUserMeetAndFound(long uid) {
 		int val=UserFnStatus.DEFAULT.ordinal();
 		jdbcTemplate.update("update t_user set bottle_meet_status=?,found_status=? where user_id=?",val,val,uid);
 	}
@@ -1418,5 +1434,16 @@ public class UserDao extends BaseDao<BaseUser> {
 
 	public void setUserSysStatusTo(long uid, SysUserStatus status) {
 		jdbcTemplate.update("update t_user set sys_status=? where user_id=?",status.ordinal(),uid);
+	}
+
+	public void markDynamicIllegal(long uid) {
+        jdbcTemplate.update("update "+getTableName(UserDynamic.class) +" set state=? ,found_status=? where user_id=?",DynamicState.ILLEGAL.ordinal(),SysUserStatus.NORMAL.ordinal(),uid);		
+	}
+
+	public List<String> getNickNameById(long user_id) {
+		return jdbcTemplate.queryForList("select nick_name from t_user where user_id="+user_id,String.class);
+	}
+	public void updateNickName(long user_id, String string) {
+		jdbcTemplate.update("update "+getTableName()+" set nick_name=? where user_id=?",string,user_id);
 	}
 }

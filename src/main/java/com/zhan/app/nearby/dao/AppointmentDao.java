@@ -186,4 +186,8 @@ public class AppointmentDao extends BaseDao<Appointment> {
 
 	}
 
+	public void markDataBlack(long uid) {
+		jdbcTemplate.update("update "+getTableName()+" set status=? where uid=?",AppointmentStatus.ILLEGAL.ordinal(),uid);
+	}
+
 }

@@ -561,9 +561,14 @@ public class BottleService {
 	}
 
 	@Transactional
+	public void clearIllegalMeetBottleAndMarkBlack(long uid) {
+		bottleDao.clearIllegalMeetBottle(uid);
+	}
+	
+
+	@Transactional
 	public void clearIllegalMeetBottle(long uid) {
 		bottleDao.clearIllegalMeetBottle(uid);
-		userDao.removeMeetBottleUserByUserId(uid);
 	}
 
 	@Transactional

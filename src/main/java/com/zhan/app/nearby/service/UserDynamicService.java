@@ -184,9 +184,10 @@ public class UserDynamicService {
 
 	}
 
-	public void updateCommentStatus(long user_id, DynamicCommentStatus ship) {
-		userDynamicDao.updateCommentStatus(user_id, ship);
+	public void updateCommentStatus(long user_id, DynamicCommentStatus status) {
+		userDynamicDao.updateCommentStatus(user_id, status);
 	}
+ 
 
 	public List<UserDynamic> loadFollow(long user_id, long l, int i) {
 		List<UserDynamic> dy = userDynamicDao.loadFollow(user_id, l, i);

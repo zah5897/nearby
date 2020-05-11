@@ -208,18 +208,18 @@
 			        }
 		    });
 		}
-		function add_to_meet_bottle(user_id){
-			$.post("<%=path%>/manager/edit_user_meet_bottle_recomend",{'user_id':user_id,'fun':1},function(result){
+		
+		function nick_name_illegal(user_id){
+			$.post("<%=path%>/manager/nick_name_illegal",{'user_id':user_id},function(result){
 				 var json=JSON.parse(result);
 				 if(json.code==0){
-			        	parent.toast("操作成功！");
-			        	$("#meet_"+user_id).hide();
+					 $("#td_nick_name_"+user_id).html(json.nick_name);
 			        }else{
 			        	parent.toast("操作失败！");
 			        }
 		    });
 		}
-		 
+		
 	  //
       function reviewTableTr(pageData,tr) {
 			 var currentItem=$("tr#tr_"+pageData["user_id"]);
@@ -246,7 +246,7 @@
 			 }
 			
 			 
-			 toAdd+="<td>"+nick_name+"</td>";
+			 toAdd+="<td id='td_nick_name_"+user_id+"'>"+nick_name+"</td>";
 			 
 			 toAdd+="<td>"+(pageData["sex"]==0?"女":"男")+"</td>";
 			 //用户类型
@@ -265,8 +265,11 @@
 			 
 			 //操作单元格
 			  toAdd+="<td><div class='button-group'>";
+			  
+			  toAdd+="<a class='button border-main' href='javascript:void(0)'	onclick='return nick_name_illegal("+user_id+")'><span class='icon-edit'></span>昵称违规</a>";
+			  
+			  
 			  if(pageData.avatar&&pageData.avatar.indexOf('illegal.jpg')==-1){
-				  toAdd+="<a class='button border-main' href='javascript:void(0)'  id='meet_"+user_id+"'	onclick='return add_to_meet_bottle("+user_id+")'><span class='icon-edit'></span>加入邂逅瓶</a>";
 				  toAdd+="<a id="+user_id+" class='button border-yellow' href='javascript:void(0)'	onclick='return edit_avatar_state("+index+")'><span class='icon-edit'></span>头像违法</a>";
 				  toAdd+="<a id="+user_id+" class='button border-yellow' href='javascript:void(0)'	onclick='return edit_avatar_state_pass("+index+")'><span class='icon-edit'></span>审核通过</a>";
 			  }

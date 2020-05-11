@@ -104,7 +104,7 @@ public class UserDynamicDao extends BaseDao<UserDynamic> {
 
 	public int addHomeFoundSelected(long dynamic_id) {
 
-		String sql = "update from " + getTableName() + " set found_status=? where  id=?";
+		String sql = "update   " + getTableName() + " set found_status=? where  id=?";
 		return jdbcTemplate.update(sql, new Object[] { UserFnStatus.ENABLE.ordinal(), dynamic_id });
 	}
 
@@ -284,9 +284,9 @@ public class UserDynamicDao extends BaseDao<UserDynamic> {
 				new Object[] { province_id, city_id, district_id, dy_id });
 	}
 
-	public void updateCommentStatus(long user_id, DynamicCommentStatus ship) {
+	public void updateCommentStatus(long user_id, DynamicCommentStatus status) {
 		jdbcTemplate.update("update t_dynamic_comment set status=? where user_id=?",
-				new Object[] { ship.ordinal(), user_id });
+				new Object[] { status.ordinal(), user_id });
 	}
 
 	public List<UserDynamic> loadFollow(long user_id, long last_id, int count) {
@@ -398,6 +398,9 @@ public class UserDynamicDao extends BaseDao<UserDynamic> {
 					new Object[] { user_id }, Integer.class);
 		}
 	}
+	
+ 
+	
 
 	public List<DynamicComment> loadDynamicCommentToCheck(Long user_id, int page, int count) {
 

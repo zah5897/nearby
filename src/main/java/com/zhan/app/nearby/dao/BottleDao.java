@@ -498,8 +498,22 @@ public class BottleDao extends BaseDao<Bottle> {
 				new Object[] { BottleType.MEET.ordinal(), uid });
 		c = jdbcTemplate.update("delete from t_bottle where type=? and user_id=?",
 				new Object[] { BottleType.MEET.ordinal(), uid });
+		
 		return c;
 	}
+	
+	public int clearIllegalMeetBottleAndMarkBlack(long uid) {
+		int c = jdbcTemplate.update("delete from t_bottle_pool where type=? and user_id=?",
+				new Object[] { BottleType.MEET.ordinal(), uid });
+		c = jdbcTemplate.update("delete from t_bottle where type=? and user_id=?",
+				new Object[] { BottleType.MEET.ordinal(), uid });
+		
+		jdbcTemplate.update("update t_bottle  set state= ? where  user_id=?",
+				new Object[] { BottleState.BLACK.ordinal(), uid });
+		
+		return c;
+	}
+
 
 	public int clearPoolBottleByUserId(long uid) {
 		return jdbcTemplate.update("delete from t_bottle_pool where  user_id=?", new Object[] { uid });

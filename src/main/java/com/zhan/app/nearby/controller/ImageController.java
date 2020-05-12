@@ -24,7 +24,7 @@ import org.springframework.web.multipart.support.DefaultMultipartHttpServletRequ
 
 import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.cache.UserCacheService;
-import com.zhan.app.nearby.comm.DynamicState;
+import com.zhan.app.nearby.comm.DynamicStatus;
 import com.zhan.app.nearby.dao.BottleDao;
 import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.service.UserDynamicService;
@@ -97,7 +97,7 @@ public class ImageController {
 						dynamic.setDescription(content);
 
 						dynamic.set_from(DeviceUtil.getRequestDevice(_ua));
-						dynamic.setState(DynamicState.CREATE.ordinal());
+						dynamic.setState(DynamicStatus.CREATE.ordinal());
 						dynamic.setLocal_image_name(imagePath);
 						dynamic.setCreate_time(new Date());
 						dynamic.setType(0);
@@ -165,7 +165,7 @@ public class ImageController {
 			dynamic.setLng(lnt);	
 		}
 		dynamic.set_from(DeviceUtil.getRequestDevice(_ua));
-		dynamic.setState(DynamicState.CREATE.ordinal());
+		dynamic.setState(DynamicStatus.CREATE.ordinal());
 		dynamic.setLocal_image_name(image_names);
 		dynamic.setCreate_time(new Date());
 	    userDynamicService.insertDynamic(dynamic);

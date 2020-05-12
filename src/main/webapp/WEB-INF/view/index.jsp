@@ -64,8 +64,8 @@
   
    <h2><span class="icon-user"></span>评论管理</h2>
    <ul>
-    <li><a href="<%=path %>/manager/forword?path=dynamic_comment_check" target="right"><span class="icon-caret-right"></span>动态评论审核</a></li>
-    <li><a href="<%=path %>/manager/forword?path=signature_manager" target="right"><span class="icon-caret-right"></span>签名管理</a></li>
+    <li><a href="<%=path %>/manager/forword?path=dynamic_comment_check" target="right"><span class="icon-caret-right"></span>评论审核</a></li>
+    <li><a href="<%=path %>/manager/forword?path=signature_manager" target="right"><span class="icon-caret-right"></span>签名审核</a></li>
   </ul> 
   
    <h2><span class="icon-user"></span>礼物</h2>
@@ -84,14 +84,22 @@
     --> 
    <h2><span class="icon-user"></span>约会管理</h2>
    <ul>
-    <li><a href="<%=path %>/manager/forword?path=appointment_check" target="right"><span class="icon-caret-right"></span>约会审核</a></li>
+    <li><a href="<%=path %>/manager/forword?path=appointment_recommend" target="right"><span class="icon-caret-right"></span>推荐约会</a></li>
+    <li><a href="<%=path %>/manager/forword?path=appointment_ordinary" target="right"><span class="icon-caret-right"></span>普通约会</a></li>
+    <li><a href="<%=path %>/manager/forword?path=appointment_check" target="right"><span class="icon-caret-right"></span>待审核约会</a></li>
+    <li><a href="<%=path %>/manager/forword?path=appointment_illegal" target="right"><span class="icon-caret-right"></span>违规约会</a></li>
    </ul> 
   
  
-   <h2><span class="icon-user"></span>短视频管理</h2>
+    <h2><span class="icon-user"></span>短视频管理</h2>
    <ul>
-    <li><a href="<%=path %>/manager/forword?path=shortvideo_check" target="right"><span class="icon-caret-right"></span>短视频审核</a></li>
+    <li><a href="<%=path %>/manager/forword?path=shortvideo_recommend" target="right"><span class="icon-caret-right"></span>推荐视频</a></li>
+    <li><a href="<%=path %>/manager/forword?path=shortvideo_ordinary" target="right"><span class="icon-caret-right"></span>普通视频</a></li>
+    <li><a href="<%=path %>/manager/forword?path=shortvideo_check" target="right"><span class="icon-caret-right"></span>待审核视频</a></li>
+    <li><a href="<%=path %>/manager/forword?path=shortvideo_illegal" target="right"><span class="icon-caret-right"></span>违规视频</a></li>
    </ul> 
+ 
+   
    
     <!--  
    <h2><span class="icon-user"></span>金币管理</h2>
@@ -111,9 +119,8 @@
   
   <h2><span class="icon-user"></span>瓶子管理</h2>
    <ul>
-    <li><a href="<%=path %>/manager/forword?path=bottle_check" target="right"><span class="icon-caret-right"></span>瓶子审核</a></li>
     <li><a href="<%=path %>/manager/forword?path=bottle_manager" target="right"><span class="icon-caret-right"></span>瓶子列表</a></li>
-  
+    <li><a href="<%=path %>/manager/forword?path=bottle_black" target="right"><span class="icon-caret-right"></span>瓶子黑屋</a></li>
   </ul> 
   
   <!--  

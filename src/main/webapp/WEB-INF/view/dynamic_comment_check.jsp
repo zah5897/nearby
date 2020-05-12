@@ -33,8 +33,12 @@ td {
 			   
 				<ul class="search">
                    <li>
+			         <input type="text" placeholder="请输入用户昵称" name="nick_input" class="input" style="width:250px; line-height:17px;display:inline-block" />
+                     <a href="javascript:void(0)" class="button border-main icon-search" onclick="doSearch()" > 搜索</a>
+                   </li> 
+                   <li>
 			         <input type="text" placeholder="请输入用户id" name="user_id_input" class="input" style="width:250px; line-height:17px;display:inline-block" />
-                     <a href="javascript:void(0)" class="button border-main icon-search" onclick="doSearchById()" > 搜索</a>
+                     <a href="javascript:void(0)" class="button border-main icon-search" onclick="doSearch()" > 搜索</a>
                    </li> 
 				</ul>
 			</div>
@@ -69,11 +73,18 @@ td {
 	    var pageCount = 100;
 	    var type=0;
 	    var user_id;
+	    var nick_name;
 	    //默认加载第一页
 	    $(document).ready(function(){ 
 		    page(1);
 		}); 
-		
+	    function doSearch(){
+	    	user_id=$("[name='user_id_input']").val().replace(/^\s+|\s+$/g,"");
+	    	nick_name=$("[name='nick_input']").val().replace(/^\s+|\s+$/g,"");
+	    	currentPageIndex=0;
+	    	page(1);
+	    }
+	
 	     
 	    //前一页
 		function previous() {
@@ -98,7 +109,7 @@ td {
 			if (currentPageIndex == index) {
 				return false;
 			}
-			$.post("<%=path%>/manager/dynamic_comment_list",{'page':index,'count':pageSize,'status':type,'user_id':user_id},function(result){
+			$.post("<%=path%>/manager/dynamic_comment_list",{'page':index,'count':pageSize,'status':type,'user_id':user_id,'nick_name':nick_name},function(result){
 				 var json=JSON.parse(result);
 			        if(json.code==0){
 			        	$("table tr[id*='tr_'").each(function(i){
@@ -148,20 +159,6 @@ td {
 			 })
 			nextAflag.before(pageIndexHtml);
 		}
-		 function doSearchById(){
-		    	var key=$("[name='user_id_input']").val().replace(/^\s+|\s+$/g,"");
-		    	if(user_id==''){
-		    		if(key==''){
-			    		return;
-			    	}
-		    	}
-		    	if(user_id==key){
-		    		return;
-		    	}
-		    	user_id=key;
-		    	currentPageIndex=0;
-		    	page(1);
-		    }
 		
 		function getPageIndexItem(i){
 			 if(i==currentPageIndex){
@@ -233,14 +230,9 @@ td {
 			 //操作单元格
 			  toAdd+="<td><div class='button-group'>";
 			  //操作单元格
-			  if(state==0){
-				  toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return changeBottleState("+id+",1)'><span class='icon-edit'></span>通过</a>";
-				  toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return changeBottleState("+id+",2)'><span class='icon-edit'></span>删除</a>";
-			  }else if(state==1){
-				  toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return changeBottleState("+id+",2)'><span class='icon-edit'></span>删除</a>";
-			  }else {
-				  toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return changeBottleState("+id+",1)'><span class='icon-edit'></span>恢复正常</a>";
-			  } 
+			  toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return changeStatus("+id+",1)'><span class='icon-edit'></span>通过</a>";
+			  toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return changeStatus("+id+",2)'><span class='icon-edit'></span>违规</a>";
+			  
 			  toAdd+="</div></td></tr>";
 			 tr.after(toAdd);
 		}
@@ -250,12 +242,13 @@ td {
 	    }
 	   
 	    
- 	    function changeBottleState(id,newStatus){
+ 	    function changeStatus(id,newStatus){
 			$.post("<%=path%>/manager/change_dynamic_comment_status", {
 				'id' : id,
-				'status' : newStatus,
+				'toStatus' : newStatus,
 				'page' : currentPageIndex,
 				'user_id':user_id,
+				'nick_name':nick_name,
 				'count' : pageSize
 			}, function(result) {
 				var json = JSON.parse(result);

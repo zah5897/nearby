@@ -29,6 +29,7 @@ public class UserCacheService {
 	public static final String PERFIX_U_BIND_ZHIFUBAO = "user_bind_zhifubao";
 
 	public static final String MANAGER_AUTH_DATA = "manager_auth_data_";
+	public static final String COMMENT_RATE = "comment_rate";
 
 	@Resource
 	protected RedisTemplate<String, Object> redisTemplate;
@@ -275,15 +276,28 @@ public class UserCacheService {
 	 * @return 设置成功返回true，否则返回false
 	 */
 	public boolean tryLock(String key, Object value, long timeout) {
-		if(redisTemplate.hasKey(key)&&redisTemplate.boundHashOps(key).getExpire()>0) {
-              return false;			
-		}else {
+		if (redisTemplate.hasKey(key) && redisTemplate.boundHashOps(key).getExpire() > 0) {
+			return false;
+		} else {
 			redisTemplate.opsForValue().set(key, value, timeout, TimeUnit.SECONDS);
 			return true;
 		}
 	}
-	
+
 	public Object getLockIP(String key) {
 		return redisTemplate.opsForValue().get(key);
+	}
+
+	public long getCommentLastTime(long uid) {
+		Object obj = redisTemplate.opsForHash().get(COMMENT_RATE, String.valueOf(uid));
+		if (obj == null) {
+			return 0;
+		}
+		return Long.parseLong(obj.toString());
+
+	}
+
+	public void putCommentLastTime(long uid) {
+		redisTemplate.opsForHash().put(COMMENT_RATE, String.valueOf(uid), System.currentTimeMillis() / 1000);
 	}
 }

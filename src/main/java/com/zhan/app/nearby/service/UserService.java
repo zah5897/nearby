@@ -1585,6 +1585,7 @@ public class UserService {
 			userDao.markDynamicIllegal(uid);// 标记用户发的动态为黑名单状态
 			userDynamicService.updateCommentStatus(uid, DynamicCommentStatus.ILLEGAL); // 标记评论为黑名单
 			appointmentService.markDataBlack(uid); // 标记约会为黑名单
+			userDao.removetSignatureUpdateRecord(uid);
 		}
 		userDao.setUserSysStatusTo(uid, status);
 	}

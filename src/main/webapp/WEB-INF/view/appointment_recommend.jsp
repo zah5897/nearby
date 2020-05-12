@@ -110,7 +110,7 @@ td {
 			if (currentPageIndex == index) {
 				return false;
 			}
-			$.post("<%=path%>/manager/appointment_list",{'page':index,'count':pageSize,'status':0,'user_id':user_id,'nick_name':nick_name},function(result){
+			$.post("<%=path%>/manager/appointment_list",{'page':index,'count':pageSize,'status':6,'user_id':user_id,'nick_name':nick_name},function(result){
 				 var json=JSON.parse(result);
 			        if(json.code==0){
 			        	$("table tr[id*='tr_'").each(function(i){
@@ -208,8 +208,8 @@ td {
 			 //操作单元格
 			  toAdd+="<td><div class='button-group'>";
 			  //操作单元格
-			  toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return changestatus("+id+",1)'><span class='icon-edit'></span>通过</a>";
 			  toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return changestatus("+id+",3)'><span class='icon-edit'></span>违规</a>";
+			  toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return changestatus("+id+",1)'><span class='icon-edit'></span>移除推荐</a>";
 			  toAdd+="</div></td></tr>";
 			 tr.after(toAdd);
 		}

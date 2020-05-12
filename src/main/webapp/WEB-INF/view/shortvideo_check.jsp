@@ -29,14 +29,14 @@ td {
 		<div class="panel admin-panel">
 			<div class="padding border-bottom">
 				<ul class="search">
-					<li>状态筛选：</li>
-					<li><select id="user_type" name="user_type" class="input"
-						onchange="changeType(this)"
-						style="line-height: 17px; display: inline-block">
-							<option value="0">新发布</option>
-							<option value="1">已过审</option>
-							<option value="2">违规</option>
-					</select></li>
+					 <li>
+			         <input type="text" placeholder="请输入用户昵称" name="keywords" class="input" style="width:250px; line-height:17px;display:inline-block" />
+                     <a href="javascript:void(0)" class="button border-main icon-search" onclick="doSearch()" > 搜索</a>
+                   </li> 
+                   <li>
+			         <input type="text" placeholder="请输入用户id" name="user_id_input" class="input" style="width:250px; line-height:17px;display:inline-block" />
+                     <a href="javascript:void(0)" class="button border-main icon-search" onclick="doSearch()" > 搜索</a>
+                   </li> 
 				</ul>
 			</div>
 
@@ -45,12 +45,14 @@ td {
 			<table class="table table-hover text-center">
 				<tr>
 					<th width="8%">ID</th>
-					<th width="8%">自设备</th>
-					<th width="15%">发送者</th>
-					<th width="15%">预览图</th>
-					<th width="15%">私密类型</th>
-					<th width="10%">日期</th>
-					<th width="25%">操作</th>
+					<th width="8%">用户ID</th>
+					<th width="8%">用户名</th>
+					<th width="10%">时间</th>
+					<th width="5%">类型</th>
+					<th width="10%">视频</th>
+					<th width="10%">描述</th>
+					<th width="5%">点赞次数</th>
+					<th width="30%">操作</th>
 				</tr>
 				<tr id="bottom">
 					<td colspan="8">
@@ -69,13 +71,21 @@ td {
 	    var currentPageIndex = 0;
 	    var pageSize = 10;
 	    var pageCount = 100;
-	    var type=0;
+	    
+	    var nick_name;
+	    var user_id;
+	    
 	    //默认加载第一页
 	    $(document).ready(function(){ 
 		    page(1);
 		}); 
-		
-	     
+	    function doSearch(){
+	    	nick_name=$("[name='keywords']").val().replace(/^\s+|\s+$/g,"");
+	    	user_id=$("[name='user_id_input']").val().replace(/^\s+|\s+$/g,"");
+	    	currentPageIndex=0;
+	    	page(1);
+	    }
+	 
 	    //前一页
 		function previous() {
 			if(currentPageIndex>1){
@@ -99,7 +109,7 @@ td {
 			if (currentPageIndex == index) {
 				return false;
 			}
-			$.post("<%=path%>/manager/shortvideo_list",{'page':index,'count':pageSize,'status':type,'isUserCert':0},function(result){
+			$.post("<%=path%>/manager/shortvideo_list",{'page':index,'count':pageSize,'status':0,'user_id':user_id,'nick_name':nick_name},function(result){
 				 var json=JSON.parse(result);
 			        if(json.code==0){
 			        	$("table tr[id*='tr_'").each(function(i){
@@ -207,45 +217,36 @@ td {
 			 
 			 var toAdd="<tr id='tr_"+id+"'>";
 			 toAdd+="<td>"+id+"</td>";
-			 var device=parent.getDeviceTxt(pageData['_from']);
-			 toAdd+="<td>"+device+"</td>";
 			 
 			 var uid=pageData.user.user_id;
-			 toAdd+="<td>"+uid+"|"+pageData.user.nick_name+"</td>";
+			 toAdd+="<td>"+uid+"</td>";
+			 toAdd+="<td>"+pageData.user.nick_name+"</td>";
 			 
-			 var thumb_url=pageData.thumb
 			 
+			 toAdd+="<td>"+pageData.create_time+"</td>";
+			 
+			 var secret_level=pageData.secret_level;
+			 if(secret_level==0){
+				 toAdd+="<td>公开</td>";
+			 }else if(secret_level==1){
+				 toAdd+="<td>私密</td>";
+			 }
+			 
+			 
+             var thumb_url=pageData.thumb
 			 if(!thumb_url){
 				 thumb_url=pageData.user.avatar;
 			 }
-			 
 			 toAdd+="<td><img  vu='"+pageData.video_url+"'  src='"+thumb_url+"' alt='"+thumb_url+"'  height='50' onclick='showVideo(this)'/></td>";
 			 
-			 var typeStr;
-			 var secret_level=pageData.secret_level;
-		 
 			 
-			 
-			 if(secret_level==0){
-				 typeStr="公开"
-			 }else if(secret_level==1){
-				 typeStr="私密"
-			 }
-			 
-			 toAdd+="<td>"+typeStr+"</td>";
-			 toAdd+="<td>"+pageData.create_time+"</td>";
-			 var state=pageData["state"];
+			 toAdd+="<td>"+pageData.description+"</td>";
+			 toAdd+="<td>"+pageData.praise_count+"</td>";
 			 //操作单元格
 			  toAdd+="<td><div class='button-group'>";
 			  //操作单元格
-			  if(state==0){
-				  toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return changeBottleState("+id+",1)'><span class='icon-edit'></span>通过</a>";
-				  toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return changeBottleState("+id+",2)'><span class='icon-edit'></span>违规</a>";
-			  }else if(state==1) {
-				  toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return changeBottleState("+id+",2)'><span class='icon-edit'></span>违规</a>";
-			  }else if(state==2) {
-				  toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return changeBottleState("+id+",1)'><span class='icon-edit'></span>通过</a>";
-			  }
+			  toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return changeVideoStatus("+id+",1)'><span class='icon-edit'></span>通过</a>";
+			  toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return changeVideoStatus("+id+",2)'><span class='icon-edit'></span>违规</a>";
 			  toAdd+="</div></td></tr>";
 			 tr.after(toAdd);
 		}
@@ -253,15 +254,16 @@ td {
 	    function show(img){
 	    	parent.showOriginImg(img);
 	    }
-	   
 	    
- 	    function changeBottleState(id,newStatus){
+ 	    function changeVideoStatus(id,newStatus){
 			$.post("<%=path%>/manager/changeShortvideoStatus", {
 				'id' : id,
-				'status' : type,
+				'status' : 0,
 				'page' : currentPageIndex,
 				'count' : pageSize,
-				'to_state' : newStatus
+				'to_state' : newStatus,
+				'user_id':user_id,
+				'nick_name':nick_name
 			}, function(result) {
 				var json = JSON.parse(result);
 				if (json.code == 0) {
@@ -272,38 +274,7 @@ td {
 				}
 			});
 		}
-
-		function changeType(selectView) {
-			var typeSelect = $('#user_type option:selected').val();
-			if (type != typeSelect) {
-				type = typeSelect;
-				currentPageIndex = 0;
-				page(1);
-			}
-		}
-
-		var current_bottle_id = 0;
-
-		function doSearch() {
-
-			var key = $("[name='bottle_id']").val().replace(/^\s+|\s+$/g, "");
-
-			var intKey;
-
-			intKey = Number(key);
-
-			if (isNaN(intKey)) {
-				alert("请输入数字");
-				return;
-			}
-
-			if (intKey == current_bottle_id) {
-				return;
-			}
-			currentPageIndex = 0;
-			current_bottle_id = intKey;
-			page(1);
-		}
+		 
 	</script>
 </body>
 </html>

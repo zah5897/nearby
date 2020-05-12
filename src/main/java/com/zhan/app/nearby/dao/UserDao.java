@@ -27,7 +27,7 @@ import com.zhan.app.nearby.bean.user.RankUser;
 import com.zhan.app.nearby.bean.user.SimpleUser;
 import com.zhan.app.nearby.comm.AccountStateType;
 import com.zhan.app.nearby.comm.AvatarIMGStatus;
-import com.zhan.app.nearby.comm.DynamicState;
+import com.zhan.app.nearby.comm.DynamicStatus;
 import com.zhan.app.nearby.comm.Relationship;
 import com.zhan.app.nearby.comm.SysUserStatus;
 import com.zhan.app.nearby.comm.UserFnStatus;
@@ -1437,7 +1437,7 @@ public class UserDao extends BaseDao<BaseUser> {
 	}
 
 	public void markDynamicIllegal(long uid) {
-        jdbcTemplate.update("update "+getTableName(UserDynamic.class) +" set state=? ,found_status=? where user_id=?",DynamicState.ILLEGAL.ordinal(),SysUserStatus.NORMAL.ordinal(),uid);		
+        jdbcTemplate.update("update "+getTableName(UserDynamic.class) +" set state=? ,found_status=? where user_id=?",DynamicStatus.ILLEGAL.ordinal(),SysUserStatus.NORMAL.ordinal(),uid);		
 	}
 
 	public List<String> getNickNameById(long user_id) {
@@ -1445,5 +1445,9 @@ public class UserDao extends BaseDao<BaseUser> {
 	}
 	public void updateNickName(long user_id, String string) {
 		jdbcTemplate.update("update "+getTableName()+" set nick_name=? where user_id=?",string,user_id);
+	}
+
+	public void removetSignatureUpdateRecord(long uid) {
+		jdbcTemplate.update("delete from t_signature_update_record where uid="+uid);
 	}
 }

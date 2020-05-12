@@ -32,15 +32,8 @@ td {
 			</div>
 
 			<div class="padding border-bottom">
-
 				<ul class="search">
-					<li>类型：</li>
-					<li><select id="user_type" name="user_type" class="input"
-						onchange="changeType(this)"
-						style="line-height: 17px; display: inline-block">
-							<option value="0" selected="selected">未审批</option>
-							<option value="1">已审批</option>
-					</select></li>
+				 
 				</ul>
 			</div>
 
@@ -76,7 +69,6 @@ td {
 	    var currentPageIndex = 0;
 	    var pageSize = 10;
 	    var pageCount = 100;
-	    var type=0;
 	    //默认加载第一页
 	    $(document).ready(function(){ 
 		    page(1);
@@ -105,7 +97,7 @@ td {
 			if (currentPageIndex == index) {
 				return false;
 			}
-			$.post("<%=path%>/manager/list_report_history",{'pageIndex':index,'pageSize':pageSize,'type':type},function(result){
+			$.post("<%=path%>/manager/list_report_history",{'pageIndex':index,'pageSize':pageSize},function(result){
 				 var json=JSON.parse(result);
 			        if(json.code==0){
 			        	$("table tr[id*='tr_'").each(function(i){
@@ -194,7 +186,8 @@ td {
 			 
 			 toAdd+="<td>"+(type==0?"举报用户":"举报动态")+"</td>";
 			 
-			 toAdd+="<td>"+pageData["target_id"]+"</td>";
+			 var tuid=pageData["target_id"];
+			 toAdd+="<td>"+tuid+"</td>";
 			 
 			 if(type==0){
 				 var user=pageData["user"];
@@ -207,7 +200,7 @@ td {
 			 //用户类型
 			 toAdd+="<td>"+pageData.user_id+"</td>";
 			 
-			 toAdd+="<td>"+(pageData.content==null?"--":pageData.content)+"</td>";
+			 toAdd+="<td>"+pageData.tag_txt+"</td>";
 			 toAdd+="<td>"+pageData.create_time+"</td>";
 			 
 			 toAdd+="<td>"+(pageData.approval_result==0?"未审批":"已处理")+"</td>";
@@ -216,17 +209,10 @@ td {
 			 //操作单元格
 			  toAdd+="<td><div class='button-group'>";
 			  
+			  toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return handleReport("+id+","+tuid+")'><span class='icon-trash-o'></span>拉黑名单</a>";
+			  toAdd+="<a class='button border-blue' href='javascript:void(0)'	onclick='return ignore("+id+")'><span class='icon-trash-o'></span>没问题</a>";
 			  
-			  if(pageData.approval_result==0){
-				  var txt;
-				  if(pageData.type==0){
-					  txt="禁止该用户登录"
-				  }else{
-					  txt="删除该动态";
-				  }
-				  toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return handleReport("+id+")'><span class='icon-trash-o'></span>"+txt+"</a>";
-				  toAdd+="<a class='button border-blue' href='javascript:void(0)'	onclick='return ignore("+id+")'><span class='icon-trash-o'></span>没问题</a>";
-			  } 
+			  
 			  toAdd+="</div></td></tr>";
 			 tr.after(toAdd);
 		}
@@ -234,11 +220,10 @@ td {
 	  
 	  
 	  
-	  function handleReport(id){
-		  $.post("<%=path%>/manager/handleReport", {
+	  function handleReport(id,uid){
+		  $.post("<%=path%>/manager/report_to_black", {
 				'id' : id,
-				'type' : type,
-				 'isIgnore':false,
+				'uid':uid,
 				'pageIndex' : currentPageIndex,
 				'pageSize' : pageSize
 			}, function(result) {
@@ -252,10 +237,8 @@ td {
 			});
 		}
 	  function ignore(id){
-		  $.post("<%=path%>/manager/handleReport", {
+		  $.post("<%=path%>/manager/report_to_normal", {
 				'id' : id,
-				'type' : type,
-				 'isIgnore':true,
 				'pageIndex' : currentPageIndex,
 				'pageSize' : pageSize
 			}, function(result) {
@@ -267,15 +250,6 @@ td {
 					refreshTable(json);
 				}
 			});
-		}
-
-		function changeType(selectView) {
-			var typeSelect = $('#user_type option:selected').val();
-			if (type != typeSelect) {
-				type = typeSelect;
-				currentPageIndex = 0;
-				page(1);
-			}
 		}
 		
 		 function show(img){

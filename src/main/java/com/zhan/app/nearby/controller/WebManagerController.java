@@ -24,10 +24,12 @@ import org.springframework.web.servlet.ModelAndView;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.zhan.app.nearby.bean.ManagerUser;
 import com.zhan.app.nearby.bean.Topic;
-import com.zhan.app.nearby.comm.DynamicState;
+import com.zhan.app.nearby.comm.BottleState;
+import com.zhan.app.nearby.comm.DynamicStatus;
 import com.zhan.app.nearby.comm.SysUserStatus;
 import com.zhan.app.nearby.comm.UserFnStatus;
 import com.zhan.app.nearby.exception.ERROR;
+import com.zhan.app.nearby.service.AppointmentService;
 import com.zhan.app.nearby.service.MainService;
 import com.zhan.app.nearby.service.ManagerService;
 import com.zhan.app.nearby.service.UserService;
@@ -49,7 +51,8 @@ public class WebManagerController {
 	private MainService mainService;
 	@Resource
 	private UserService userService;
-
+	@Autowired
+	private AppointmentService appointmentService;
 	@Autowired
 	private CommAsyncTask commAsyncTask;
 
@@ -324,7 +327,7 @@ public class WebManagerController {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
 
-		managerService.updateDynamicState(id, DynamicState.ILLEGAL);
+		managerService.updateDynamicState(id, DynamicStatus.ILLEGAL);
 		return unselected_dynamic_list(request,user_id,currentPage,nick_name);
 	}
 	
@@ -349,7 +352,7 @@ public class WebManagerController {
 		if (!managerService.isLogin(request)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
-		managerService.updateDynamicState(id, DynamicState.ILLEGAL);
+		managerService.updateDynamicState(id, DynamicStatus.ILLEGAL);
 		return managerService.getUnCheckDynamic(currentPage,10);
 	}
 
@@ -378,7 +381,7 @@ public class WebManagerController {
 		});
 
 		for (long id : idList) {
-			managerService.updateDynamicState(id, DynamicState.CHECKED);
+			managerService.updateDynamicState(id, DynamicStatus.CHECKED);
 		}
 		return managerService.getUnCheckDynamic(currentPage,10);
 	}
@@ -391,7 +394,7 @@ public class WebManagerController {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
 
-		managerService.updateDynamicState(id, DynamicState.CHECKED);
+		managerService.updateDynamicState(id, DynamicStatus.CHECKED);
 		return managerService.getUnCheckDynamic(currentPage,10);
 	}
 	@RequestMapping(value = "/list_illegal_dynamic")
@@ -416,7 +419,7 @@ public class WebManagerController {
 		List<Long> idList = JSONUtil.jsonToList(ids, new TypeReference<List<Long>>() {
 		});
 		for (long id : idList) {
-			managerService.removeDyanmicByIdAndState(id, DynamicState.ILLEGAL);
+			managerService.removeDyanmicByIdAndState(id, DynamicStatus.ILLEGAL);
 		}
 		return managerService.getIllegalDynamic(currentPage,10);
 	}
@@ -428,7 +431,7 @@ public class WebManagerController {
 		if (!managerService.isLogin(request)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
-		managerService.removeDyanmicByIdAndState(id, DynamicState.ILLEGAL);
+		managerService.removeDyanmicByIdAndState(id, DynamicStatus.ILLEGAL);
 		return managerService.getIllegalDynamic(currentPage,10);
 	}
 
@@ -439,7 +442,7 @@ public class WebManagerController {
 		if (!managerService.isLogin(request)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
-		managerService.updateDynamicState(id, DynamicState.CREATE);
+		managerService.updateDynamicState(id, DynamicStatus.CREATE);
 		return managerService.getIllegalDynamic(currentPage,10);
 	}
 
@@ -551,48 +554,75 @@ public class WebManagerController {
 
 	// 获取提现申请记录
 	@RequestMapping(value = "/list_report_history")
-	public @ResponseBody ModelMap list_report_history(HttpServletRequest request, int type, int pageSize,
+	public @ResponseBody ModelMap list_report_history(HttpServletRequest request, int pageSize,
 			int pageIndex) {
 
 		if (!managerService.isLogin(request)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
-		return  managerService.getReports(type, pageSize, pageIndex);
+		return  managerService.getReports(pageSize, pageIndex);
 	}
 
 	// 获取提现申请记录
-	@RequestMapping(value = "/handleReport")
-	public @ResponseBody ModelMap handleReport(HttpServletRequest request, int id, int type, int pageSize,
-			int pageIndex, Boolean isIgnore) {
+	@RequestMapping(value = "/report_to_black")
+	public @ResponseBody ModelMap handleReport(HttpServletRequest request, int id,long uid, int pageSize,
+			int pageIndex) {
 
 		if (!managerService.isLogin(request)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
-
-		managerService.handleReport(id, isIgnore == null ? false : isIgnore);
-		return list_report_history(request, type, pageSize, pageIndex);
+		userService.setUserSysStatusTo(uid, SysUserStatus.BLACK);
+		managerService.deleteReport(id);
+		return list_report_history(request, pageSize, pageIndex);
+	}
+	@RequestMapping(value = "/report_to_normal")
+	public @ResponseBody ModelMap report_to_normal(HttpServletRequest request, int id,int pageSize,
+			int pageIndex) {
+		if (!managerService.isLogin(request)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		managerService.deleteReport(id);
+		return list_report_history(request, pageSize, pageIndex);
 	}
 
 	@RequestMapping(value = "/list_bottle")
-	public @ResponseBody ModelMap list_bottle(HttpServletRequest request, Long user_id, int type, int pageSize,
+	public @ResponseBody ModelMap list_bottle(HttpServletRequest request, Long user_id,String nick_name, int type, int pageSize,
 			int pageIndex) {
 		if (!managerService.isLogin(request)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
-		 return  managerService.listBottleByState(user_id, type, pageSize, pageIndex);
+		 return  managerService.listBottleByState(user_id,nick_name, type, pageSize, pageIndex);
 	}
+	
+	@RequestMapping(value = "/list_bottle_black")
+	public @ResponseBody ModelMap list_bottle_black(HttpServletRequest request, Long user_id,String nick_name, int pageSize,
+			int pageIndex) {
+		if (!managerService.isLogin(request)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		 return  managerService.listBottleByState(user_id,nick_name, BottleState.BLACK.ordinal(), pageSize, pageIndex);
+	}
+	
 
 	// 获取提现申请记录
-	@RequestMapping(value = "/changeBottleState")
-	public @ResponseBody ModelMap changeBottleState(HttpServletRequest request, Long user_id, int id, int type,
+	@RequestMapping(value = "/changeBottleStatus")
+	public @ResponseBody ModelMap changeBottleState(HttpServletRequest request, Long user_id,String nick_name, int id, int type,
 			int pageSize, int pageIndex, int to_state) {
 
 		if (!managerService.isLogin(request)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
 
-		managerService.changeBottleState(id, to_state);
-		return list_bottle(request, user_id, type, pageSize, pageIndex);
+		if(to_state>=0) {
+			managerService.changeBottleState(id, to_state);
+		}
+		if(to_state==-1) { //删除瓶子
+			managerService.deleteBottle(id);
+		}
+		if(to_state==-2) { //该用户加入黑名单
+			managerService.addUserToBlackByBottleID(id);
+		}
+		return list_bottle(request, user_id,nick_name, type, pageSize, pageIndex);
 	}
 
 	@RequestMapping(value = "/edit_key_words")
@@ -778,40 +808,42 @@ public class WebManagerController {
 
 	// -------------------------------约会相关--------------------------------------------------
 	@RequestMapping(value = "/appointment_list")
-	public @ResponseBody ModelMap appointment_list(HttpServletRequest request, int status, int page, int count)
+	public @ResponseBody ModelMap appointment_list(HttpServletRequest request,Long user_id,String nick_name,int status , int page, int count)
 			throws NoSuchAlgorithmException {
 		if (!managerService.isLogin(request)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
-		return managerService.loadAppointMents(status, page, count);
+		
+		return managerService.loadAppointMents(user_id,nick_name,status, page, count);
 	}
 
 	@RequestMapping(value = "/changeAppointMentStatus")
-	public @ResponseBody ModelMap changeAppointMentStatus(HttpServletRequest request, int id, int status, int page,
+	public @ResponseBody ModelMap changeAppointMentStatus(HttpServletRequest request,Long user_id,String nick_name, int id, int status, int page,
 			int count, int to_state) throws NoSuchAlgorithmException {
 		if (!managerService.isLogin(request)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
-		return managerService.changeAppointMentsStatus(id, status, page, count, to_state);
+		appointmentService.changeStatus(id, to_state);
+		return appointment_list(request,user_id,nick_name, status, page, count);
 	}
 
 	// ------------------------------短视频相关--------------------------------------------------
 	@RequestMapping(value = "/shortvideo_list")
-	public @ResponseBody ModelMap shortvideo_list(HttpServletRequest request, int status, int page, int count,
-			int isUserCert) throws NoSuchAlgorithmException {
+	public @ResponseBody ModelMap shortvideo_list(HttpServletRequest request,Long user_id,String nick_name, int status, int page, int count) throws NoSuchAlgorithmException {
 		if (!managerService.isLogin(request)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
-		return managerService.loadShortvideos(status, page, count);
+		return managerService.loadShortvideos(user_id,nick_name,status, page, count);
 	}
 
 	@RequestMapping(value = "/changeShortvideoStatus")
-	public @ResponseBody ModelMap changeShortvideoStatus(HttpServletRequest request, int id, int status, int page,
+	public @ResponseBody ModelMap changeShortvideoStatus(HttpServletRequest request,Long user_id,String nick_name, int id, int status, int page,
 			int count, int to_state) throws NoSuchAlgorithmException {
 		if (!managerService.isLogin(request)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
-		return managerService.changeShortvideoStatus(id, status, page, count, to_state);
+		managerService.changeShortvideoStatus(id, to_state);
+		return managerService.loadShortvideos(user_id,nick_name,status, page, count);
 	}
 
 	@RequestMapping(value = "/shortvideo_list_cert")
@@ -833,21 +865,21 @@ public class WebManagerController {
 	}
 
 	@RequestMapping(value = "/dynamic_comment_list")
-	public @ResponseBody ModelMap dynamic_comment_list(HttpServletRequest request, Long user_id, int status, int page,
+	public @ResponseBody ModelMap dynamic_comment_list(HttpServletRequest request, Long user_id, String nick_name, int page,
 			int count) throws NoSuchAlgorithmException {
 		if (!managerService.isLogin(request)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
-		return managerService.loadDynamicComment(user_id, page, count);
+		return managerService.loadDynamicComment(user_id,nick_name, page, count);
 	}
 
 	@RequestMapping(value = "/change_dynamic_comment_status")
-	public @ResponseBody ModelMap change_dynamic_comment_status(HttpServletRequest request, Long user_id, int id,
-			int status, int page, int count) throws NoSuchAlgorithmException {
+	public @ResponseBody ModelMap change_dynamic_comment_status(HttpServletRequest request, Long user_id,String nick_name, int id,
+			int toStatus, int page, int count) throws NoSuchAlgorithmException {
 		if (!managerService.isLogin(request)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
-		return managerService.change_dynamic_comment_status(user_id, id, status, page, count);
+		return managerService.change_dynamic_comment_status(user_id,nick_name, id,  page, count,toStatus);
 	}
 
 	@RequestMapping(value = "/gift_history_list")

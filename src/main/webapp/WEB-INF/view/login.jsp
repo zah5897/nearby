@@ -17,9 +17,18 @@
 <script src="<%=path%>/js/jquery.js"></script>
 <script src="<%=path%>/js/pintuer.js"></script>
 <script>
-    if (window.top!=null && window.top.document.URL!=document.URL){
-		window.top.location= document.URL;
-	}
+$(function(){
+	login.initPage();
+});
+var login = {
+	//初始化页面跳转，为了防止从iframe跳转到login页面直接在iframe中显示login页面
+	initPage : function() {
+		//alert(location.href);
+		if(window.top != window.self){
+			top.location.href = location.href;
+		}
+	},
+}
 </script>
 </head>
 <body>

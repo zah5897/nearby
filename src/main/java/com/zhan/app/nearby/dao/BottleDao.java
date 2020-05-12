@@ -24,6 +24,7 @@ import com.zhan.app.nearby.comm.MsgState;
 import com.zhan.app.nearby.dao.base.BaseDao;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.PropertyMapperUtil;
+import com.zhan.app.nearby.util.TextUtils;
 
 @Repository("bottleDao")
 public class BottleDao extends BaseDao<Bottle> {
@@ -308,6 +309,12 @@ public class BottleDao extends BaseDao<Bottle> {
 		return jdbcTemplate.update("delete from " + getTableName() + " where user_id=? and id=?",
 				new Object[] { user_id, bottle_id });
 	}
+	public int delete( long bottle_id) {
+		jdbcTemplate.update("delete from " + TABLE_BOTTLE_POOL + " where   bottle_id=?",
+				new Object[] {  bottle_id });
+		return jdbcTemplate.update("delete from " + getTableName() + " where    id=?",
+				new Object[] {  bottle_id });
+	}
 
 	public int logScan(long user_id, long bottle_id) {
 		String sql = "insert ignore  into t_bottle_scan (bottle_id,user_id,create_time)  values (?,?,?)";
@@ -393,20 +400,38 @@ public class BottleDao extends BaseDao<Bottle> {
 		return -1;
 	}
 
-	public List<Bottle> getBottlesByState(Long user_id,int state, int pageSize, int pageIndex) {
+	public List<Bottle> getBottlesByState(Long user_id,String nick_name,int state, int pageSize, int pageIndex) {
 
-		Object[] param;
+		
+		
+		List<Object> param=new ArrayList<>();
 		String sql  = "select b.*,u.nick_name,u.avatar from t_bottle b left join t_user u on b.user_id=u.user_id where  b.state=? and b.type<>? ";
 		if (state == -1) {
 			sql = "select b.*,u.nick_name,u.avatar from t_bottle b left join t_user u on b.user_id=u.user_id where  b.state<>? and b.type<>? ";
 		}
-		param = new Object[] { state, BottleType.MEET.ordinal(), (pageIndex - 1) * pageSize, pageSize };
-		if(user_id!=null&&user_id>0) {
-			sql+=" and b.user_id=? ";			
-			param = new Object[] { state, BottleType.MEET.ordinal(), user_id,(pageIndex - 1) * pageSize, pageSize };
+		
+		
+		param.add(state);
+		param.add(BottleType.MEET.ordinal());
+		
+		
+		
+		if(user_id!=null) {
+			sql+=" and b.user_id=? ";	
+			param.add(user_id);
 		}
+		
+		if(TextUtils.isNotEmpty(nick_name)) {
+			sql+=" and b.user_id in (select user_id from t_user where nick_name like ?) ";
+			param.add("%"+nick_name+"%");
+		}
+		
 		sql+=" order by b.id desc limit ?,?";
-		return jdbcTemplate.query(sql, param, new BeanPropertyRowMapper<Bottle>(Bottle.class) {
+		
+		param.add((pageIndex-1)*pageSize);
+		param.add(pageSize);
+		
+		return jdbcTemplate.query(sql, param.toArray(), new BeanPropertyRowMapper<Bottle>(Bottle.class) {
 			@Override
 			public Bottle mapRow(ResultSet rs, int rowNumber) throws SQLException {
 				Bottle b = super.mapRow(rs, rowNumber);

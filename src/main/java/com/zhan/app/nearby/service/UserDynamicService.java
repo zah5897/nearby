@@ -14,9 +14,8 @@ import com.zhan.app.nearby.bean.DynamicComment;
 import com.zhan.app.nearby.bean.SimpleDynamic;
 import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.bean.UserDynamicRelationShip;
-import com.zhan.app.nearby.bean.Video;
 import com.zhan.app.nearby.comm.DynamicCommentStatus;
-import com.zhan.app.nearby.comm.DynamicState;
+import com.zhan.app.nearby.comm.DynamicStatus;
 import com.zhan.app.nearby.comm.LikeDynamicState;
 import com.zhan.app.nearby.dao.UserDao;
 import com.zhan.app.nearby.dao.UserDynamicDao;
@@ -208,8 +207,8 @@ public class UserDynamicService {
 //
 //	}
 
-	public int updateDynamicState(long id, DynamicState state) {
-		return userDynamicDao.updateDynamicState(id, state);
+	public int updateDynamicState(long id, DynamicStatus status) {
+		return userDynamicDao.updateDynamicState(id, status);
 	}
 
 	public int updateDynamicImgToIllegal(long id) {
@@ -233,12 +232,12 @@ public class UserDynamicService {
 		userDynamicDao.addFlowerCount(dynamic_id, count);
 	}
 
-	public int getDynamicCommentCount(Long user_id) {
-		return userDynamicDao.getDynamicCommentCount(user_id);
+	public int getDynamicCommentToCheckCount(Long user_id,String nick_name) {
+		return userDynamicDao.getDynamicCommentToCheckCount(user_id,nick_name);
 	}
 
-	public List<DynamicComment> loadDynamicCommentToCheck(Long user_id, int page, int count) {
-		return userDynamicDao.loadDynamicCommentToCheck(user_id, page, count);
+	public List<DynamicComment> loadDynamicCommentToCheck(Long user_id,String nick_name, int page, int count) {
+		return userDynamicDao.loadDynamicCommentToCheck(user_id,nick_name, page, count);
 	}
 
 	public void changeCommentStatus(int id, int status) {
@@ -257,12 +256,12 @@ public class UserDynamicService {
 		return userDynamicDao.getDynamicId(comment_id);
 	}
 
-	public int getVideoCountToCheck(int status) {
-		return userDynamicDao.getVideoCountToCheck(status);
+	public int getVideoCountByStatus(Long uid,String nick_name,int status) {
+		return userDynamicDao.getVideoCountByStatus(uid,nick_name,status);
 	}
 
-	public List<UserDynamic> getVideoList(int status, int page, int count) {
-		List<UserDynamic> dys = userDynamicDao.getVideoList(status, page, count);
+	public List<UserDynamic> getVideoList(Long uid,String nick_name,int status, int page, int count) {
+		List<UserDynamic> dys = userDynamicDao.getVideoList(uid,nick_name,status, page, count);
 		ImagePathUtil.completeDynamicsPath(dys, true);
 		return dys;
 	}

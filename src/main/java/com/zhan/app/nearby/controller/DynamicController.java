@@ -7,14 +7,15 @@ import java.util.Map;
 import javax.annotation.Resource;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.zhan.app.nearby.bean.DynamicComment;
 import com.zhan.app.nearby.bean.DynamicMessage;
 import com.zhan.app.nearby.bean.UserDynamic;
+import com.zhan.app.nearby.cache.UserCacheService;
 import com.zhan.app.nearby.comm.DynamicCommentStatus;
 import com.zhan.app.nearby.comm.DynamicMsgType;
 import com.zhan.app.nearby.comm.LikeDynamicState;
@@ -46,18 +47,28 @@ public class DynamicController {
 
 	@Resource
 	private GiftService giftService;
-
+	@Autowired
+	private UserCacheService userCacheService;
 	@RequestMapping("comment")
 	public ModelMap comment(DynamicComment comment) {
 		if (comment.getUser_id() < 1L) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "用户id异常");
 		}
+		
+		
+		long lastTIme=userCacheService.getCommentLastTime(comment.getUser_id());
+		if(System.currentTimeMillis()/1000-lastTIme<10) {//每次评论不能少于10秒
+			 return ResultUtil.getResultMap(ERROR.ERR_FREUENT);
+		}
+		userCacheService.putCommentLastTime(comment.getUser_id());
+		
+		
 		comment.setComment_time(new Date());
 
 		// 敏感词过滤
 		String newContent = BottleKeyWordUtil.filterContent(comment.getContent());
 		comment.setContent(newContent);
-		comment.setStatus(DynamicCommentStatus.CHECKED.ordinal());
+		comment.setStatus(DynamicCommentStatus.CREATE.ordinal());
 		long id = userDynamicService.comment(comment);
 		ModelMap result;
 		if (id > 0) {

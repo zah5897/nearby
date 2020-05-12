@@ -29,13 +29,13 @@ td {
 		<div class="panel admin-panel">
 			<div class="padding border-bottom">
 				<ul class="search">
-					 <li>
-			         <input type="text" placeholder="请输入用户昵称" name="keywords" class="input" style="width:250px; line-height:17px;display:inline-block" />
-                     <a href="javascript:void(0)" class="button border-main icon-search" onclick="doSearch()" > 搜索</a>
+					<li>
+			         <input type="text" placeholder="请输入发送者昵称" name="nick_input" class="input" style="width:250px; line-height:17px;display:inline-block" />
+                     <a href="javascript:void(0)" class="button border-main icon-search" onclick="doSearchById()" > 搜索</a>
                    </li> 
-                   <li>
-			         <input type="text" placeholder="请输入用户id" name="user_id_input" class="input" style="width:250px; line-height:17px;display:inline-block" />
-                     <a href="javascript:void(0)" class="button border-main icon-search" onclick="doSearch()" > 搜索</a>
+					<li>
+			         <input type="text" placeholder="请输入发送者id" name="user_id_input" class="input" style="width:250px; line-height:17px;display:inline-block" />
+                     <a href="javascript:void(0)" class="button border-main icon-search" onclick="doSearchById()" > 搜索</a>
                    </li> 
 				</ul>
 			</div>
@@ -44,16 +44,13 @@ td {
 
 			<table class="table table-hover text-center">
 				<tr>
-					<th width="5%">ID</th>
-					<th width="5%">用户ID</th>
-					<th width="5%">用户名</th>
+					<th width="10%">设备</th>
+					<th width="15%">发送者</th>
 					<th width="10%">头像</th>
+					<th width="5%">类型</th>
+					<th width="10%">内容</th>
 					<th width="10%">时间</th>
-					<th width="5%">主题</th>
-					<th width="10%">地点</th>
-					<th width="10%">文字</th>
-					<th width="10%">图片</th>
-					<th width="30%">操作</th>
+					<th width="40%">操作</th>
 				</tr>
 				<tr id="bottom">
 					<td colspan="8">
@@ -72,21 +69,20 @@ td {
 	    var currentPageIndex = 0;
 	    var pageSize = 10;
 	    var pageCount = 100;
-	    var nick_name;
+	    var type=-1;
 	    var user_id;
-	    
-	    function doSearch(){
-	    	nick_name=$("[name='keywords']").val().replace(/^\s+|\s+$/g,"");
-	    	user_id=$("[name='user_id_input']").val().replace(/^\s+|\s+$/g,"");
-	    	currentPageIndex=0;
-	    	page(1);
-	    }
+	    var nick_name;
 	    //默认加载第一页
 	    $(document).ready(function(){ 
 		    page(1);
 		}); 
 		
-	     
+	    function doSearchById(){
+	    	user_id=$("[name='user_id_input']").val().replace(/^\s+|\s+$/g,"");
+	    	nick_name=$("[name='nick_input']").val().replace(/^\s+|\s+$/g,"");
+	    	currentPageIndex=0;
+	    	page(1);
+	    }
 	    //前一页
 		function previous() {
 			if(currentPageIndex>1){
@@ -110,7 +106,7 @@ td {
 			if (currentPageIndex == index) {
 				return false;
 			}
-			$.post("<%=path%>/manager/appointment_list",{'page':index,'count':pageSize,'status':0,'user_id':user_id,'nick_name':nick_name},function(result){
+			$.post("<%=path%>/manager/list_bottle_black",{'pageIndex':index,'pageSize':pageSize,'bottle_id':current_bottle_id,'user_id':user_id,'nick_name':nick_name},function(result){
 				 var json=JSON.parse(result);
 			        if(json.code==0){
 			        	$("table tr[id*='tr_'").each(function(i){
@@ -122,10 +118,10 @@ td {
 			
 			return true;
 		}
-
+		
 		//刷新表格
 		function refreshTable(json){
-			var pageData=json["data"];
+			var pageData=json["bottles"];
 			if(pageData){
 				for(var i=0;i<pageData.length;i++){
 					var tr;
@@ -142,7 +138,7 @@ td {
 			currentPageIndex=json["currentPageIndex"]
 			if(currentPageIndex==1){
 				pageCount=json["pageCount"];
-				//$("#new_count").text("对应新增用户数量："+json["totalCount"])
+				$("#new_count").text("对应新增用户数量："+json["totalCount"])
 			}
 			refreshPageIndex();		
 		}
@@ -185,31 +181,78 @@ td {
 		}
 	  //
       function reviewTableTr(pageData,tr) {
-			 var currentItem=$("tr#tr_"+pageData["id"]);
+			 var currentItem=$("tr#tr_"+pageData["user_id"]);
 			 if(currentItem.length>0){
 				 return;
 			 }
 			 var id=pageData['id'];
 			 
 			 var toAdd="<tr id='tr_"+id+"'>";
-			 toAdd+="<td>"+id+"</td>";
-			 var uid=pageData.user.user_id;
-			 toAdd+="<td>"+uid+"</td>";
-			 toAdd+="<td>"+pageData.user.nick_name+"</td>";
-			 toAdd+="<td><img  src='"+pageData.user.avatar+"' alt='"+pageData.user.avatar+"'  height='50'/></td>";
-			 toAdd+="<td>"+pageData.appointment_time+"</td>";
-			 toAdd+="<td>"+pageData.theme.name+"</td>";
-			 toAdd+="<td>"+pageData.street+"</td>";
-			 toAdd+="<td>"+pageData.description+"</td>";
 			 
-			 toAdd+="<td><img  src='"+pageData.images[0]+"' alt='"+pageData.images[0]+"'  height='50'/></td>";
+			 var from=pageData['_from'];
+			 var channel=pageData['channel'];
+			
+			 var txtFrom;
+			 if(from==1){
+				 if(!channel){
+					 channel="iPhone"; 
+				 }
+				 txtFrom=channel;
+			 }else if(from==2){
+				 txtFrom=channel;
+			 }else{
+				 txtFrom=channel;
+			 }
 			 
-			 var state=pageData["status"];
+			 toAdd+="<td>"+txtFrom+"</td>";
+			 
+			 
+			 var nick_name=pageData.sender.nick_name;
+			 var uid=pageData.sender.user_id;
+			 nick_name=nick_name==undefined?"":nick_name;
+			 toAdd+="<td>"+uid+"|"+nick_name+"</td>";
+			 toAdd+="<td><img  src='"+pageData.sender.avatar+"' alt='"+pageData.sender.origin_avatar+"'  height='50'/></td>";
+			 //类型
+			 var type=pageData["type"];
+			 var typeStr=type;
+			 
+			 
+			 if(type==0){
+				 typeStr="文字";
+			 }else if(type==1){
+				 typeStr="图片";
+			 }else if(type==2){
+				 typeStr="语音";
+			 }else if(type==3){
+				 typeStr="邂逅";
+			 }else if(type==4){
+				 typeStr="文本弹幕";
+			 }else if(type==5){
+				 typeStr="语音弹幕";
+			 }else if(type==6){
+				 typeStr="我画你猜";
+			 }else if(type==7){
+				 typeStr="红包";
+			 }
+			 
+			 toAdd+="<td>"+typeStr+"</td>";
+			 if(type==3||type==6){
+				 toAdd+="<td><img  src='"+pageData["content"]+"' alt='"+pageData["content"]+"'  height='50'/></td>";
+			 }else{
+				 toAdd+="<td>"+pageData["content"]+"</td>";
+			 }
+			
+			 toAdd+="<td>"+pageData['create_time']+"</td>";
+			 
+			 
 			 //操作单元格
 			  toAdd+="<td><div class='button-group'>";
 			  //操作单元格
-			  toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return changestatus("+id+",1)'><span class='icon-edit'></span>通过</a>";
-			  toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return changestatus("+id+",3)'><span class='icon-edit'></span>违规</a>";
+			  
+			    toAdd+="<a class='button border-main' href='javascript:void(0)'	onclick='return changeBottleStatus("+id+",0)'><span class='icon-edit'></span>移除黑屋</a>";
+			    toAdd+="<a class='button border-main' href='javascript:void(0)'	onclick='return changeBottleStatus("+id+",-1)'><span class='icon-edit'></span>删除</a>";
+			     toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return changeBottleStatus("+id+",-2)'><span class='icon-edit'></span>拉黑名单</a>";
+			  
 			  toAdd+="</div></td></tr>";
 			 tr.after(toAdd);
 		}
@@ -217,10 +260,9 @@ td {
 	    function show(img){
 	    	parent.showOriginImg(img);
 	    }
-	   
 	    
- 	    function changestatus(id,newStatus){
-			$.post("<%=path%>/manager/changeAppointMentStatus",{'user_id':user_id,'nick_name':nick_name,'id':id,'status':type,'page':currentPageIndex,'count':pageSize,'to_state':newStatus},function(result){
+ 	    function changeBottleStatus(id,state){
+			$.post("<%=path%>/manager/changeBottleStatus",{'user_id':user_id,'nick_name':nick_name,'id':id,'type':2,'pageIndex':currentPageIndex,'pageSize':pageSize,'to_state':state},function(result){
 				 var json=JSON.parse(result);
 			        if(json.code==0){
 			        	$("table tr[id*='tr_'").each(function(i){
@@ -230,6 +272,39 @@ td {
 			        }
 		    });
 		}
+		 
+		function changeType(selectView) {
+			var typeSelect = $('#user_type option:selected').val();
+			if (type != typeSelect) {
+				type = typeSelect;
+				currentPageIndex = 0;
+				page(1);
+			}
+		}
+		
+		var current_bottle_id=0;
+		
+		 function doSearch(){
+			 
+		    	var key=$("[name='bottle_id']").val().replace(/^\s+|\s+$/g,"");
+		    	 
+		    	var intKey;
+		    	  
+		    		intKey=Number(key);
+		    		
+		    		if(isNaN(intKey)){
+		    			alert("请输入数字");
+		    			return;
+		    		}
+		    		
+		    		 
+		    		if(intKey==current_bottle_id){
+		    			return;
+		    		}
+		    		currentPageIndex=0;
+		    		current_bottle_id=intKey;
+		    		page(1);
+		    }
 		
 	</script>
 </body>

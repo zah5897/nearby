@@ -11,14 +11,12 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
-import com.mchange.v2.c3p0.util.TestUtils;
 import com.zhan.app.nearby.bean.ManagerUser;
 import com.zhan.app.nearby.bean.Topic;
 import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.bean.mapper.DynamicMapper;
-import com.zhan.app.nearby.comm.DynamicState;
+import com.zhan.app.nearby.comm.DynamicStatus;
 import com.zhan.app.nearby.comm.ExchangeState;
-import com.zhan.app.nearby.comm.ImageStatus;
 import com.zhan.app.nearby.comm.SysUserStatus;
 import com.zhan.app.nearby.comm.UserFnStatus;
 import com.zhan.app.nearby.comm.UserType;
@@ -75,13 +73,13 @@ public class ManagerDao extends BaseDao<ManagerUser> {
 					+ TABLE_USER_DYNAMIC
 					+ " dynamic left join t_user user on  dynamic.user_id=user.user_id  where   dynamic.state=? and dynamic.user_id=? order by dynamic.id desc limit ?,?";
 			return jdbcTemplate.query(sql,
-					new Object[] { DynamicState.CREATE.ordinal(), user_id, (page - 1) * count, count },
+					new Object[] { DynamicStatus.CREATE.ordinal(), user_id, (page - 1) * count, count },
 					new DynamicMapper());
 		} else {
 			String sql = "select dynamic.*  ,user.user_id  ,user.nick_name ,user.avatar,user.sex,user.isvip ,user.birthday,user.type from "
 					+ TABLE_USER_DYNAMIC
 					+ " dynamic left join t_user user on  dynamic.user_id=user.user_id  where   dynamic.state=?   order by dynamic.id desc limit ?,?";
-			return jdbcTemplate.query(sql, new Object[] { DynamicState.CREATE.ordinal(), (page - 1) * count, count },
+			return jdbcTemplate.query(sql, new Object[] { DynamicStatus.CREATE.ordinal(), (page - 1) * count, count },
 					new DynamicMapper());
 		}
 	}
@@ -95,7 +93,7 @@ public class ManagerDao extends BaseDao<ManagerUser> {
 		List<Object> param = new ArrayList<>();
 
 		param.add(UserFnStatus.DEFAULT.ordinal());
-		param.add(DynamicState.CHECKED.ordinal());
+		param.add(DynamicStatus.CHECKED.ordinal());
 
 		if (!TextUtils.isEmpty(nick_name)) {
 			sql += " and dynamic.user_id in (select user_id from t_user where nick_name like ?)";
@@ -117,7 +115,7 @@ public class ManagerDao extends BaseDao<ManagerUser> {
 				+ TABLE_USER_DYNAMIC
 				+ " dynamic left join t_user user on  dynamic.user_id=user.user_id  where  dynamic.type=0 and   dynamic.state=? order by dynamic.id desc limit ?,?";
 
-		return jdbcTemplate.query(sql, new Object[] { DynamicState.CREATE.ordinal(), (page - 1) * count, count },
+		return jdbcTemplate.query(sql, new Object[] { DynamicStatus.CREATE.ordinal(), (page - 1) * count, count },
 				new DynamicMapper());
 	}
 
@@ -125,7 +123,7 @@ public class ManagerDao extends BaseDao<ManagerUser> {
 		String sql = "select dynamic.*  ,user.user_id  ,user.nick_name ,user.avatar,user.sex,user.isvip ,user.birthday,user.type from "
 				+ TABLE_USER_DYNAMIC
 				+ " dynamic left join t_user user on  dynamic.user_id=user.user_id  where dynamic.type=0 and   dynamic.state=? and dynamic.user_id not in (select user_id from t_user where sys_status<>1) order by dynamic.id desc limit ?,?";
-		return jdbcTemplate.query(sql, new Object[] { DynamicState.ILLEGAL.ordinal(), (page - 1) * count, count },
+		return jdbcTemplate.query(sql, new Object[] { DynamicStatus.ILLEGAL.ordinal(), (page - 1) * count, count },
 				new DynamicMapper());
 	}
 
@@ -159,7 +157,7 @@ public class ManagerDao extends BaseDao<ManagerUser> {
 
 		List<Object> param = new ArrayList<Object>();
 		param.add(UserFnStatus.DEFAULT.ordinal());
-		param.add(DynamicState.CHECKED.ordinal());
+		param.add(DynamicStatus.CHECKED.ordinal());
 
 		if (!TextUtils.isEmpty(nick_name)) {
 			sql += " and dynamic.user_id in (select user_id from t_user where nick_name like ?)";
@@ -176,7 +174,7 @@ public class ManagerDao extends BaseDao<ManagerUser> {
 
 	public int getUnCheckedDynamicCount() { // 短视频和图片动态分开处理的，这里只拿图片动态
 		String sql = "select count(*) from " + TABLE_USER_DYNAMIC
-				+ " dynamic    where  dynamic.type=0 and  dynamic.state=" + DynamicState.CREATE.ordinal();
+				+ " dynamic    where  dynamic.type=0 and  dynamic.state=" + DynamicStatus.CREATE.ordinal();
 		return jdbcTemplate.queryForObject(sql, Integer.class);
 	}
 
@@ -190,14 +188,14 @@ public class ManagerDao extends BaseDao<ManagerUser> {
 		return jdbcTemplate.update(sql, new Object[] { UserFnStatus.DEFAULT.ordinal(), id });
 	}
 
-	public int removeDyanmicByIdAndState(long id, DynamicState state) {
+	public int removeDyanmicByIdAndState(long id, DynamicStatus state) {
 		String sql = "delete from " + TABLE_USER_DYNAMIC + " where id=? and state=?";
 		return jdbcTemplate.update(sql, new Object[] { id, state.ordinal() });
 	}
 
 	// 修改动态的状态
-	public int updateDynamicState(long id, DynamicState state) {
-		if (state == DynamicState.ILLEGAL) {
+	public int updateDynamicState(long id, DynamicStatus state) {
+		if (state == DynamicStatus.ILLEGAL) {
 			String sql = "update  t_user_dynamic set state=?,local_image_name=? where id=? ";
 			return jdbcTemplate.update(sql, new Object[] { state.ordinal(), "illegal.jpg", id });
 		} else {

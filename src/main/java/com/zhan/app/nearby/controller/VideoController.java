@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.bean.Video;
-import com.zhan.app.nearby.comm.DynamicState;
+import com.zhan.app.nearby.comm.DynamicStatus;
 import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.service.UserDynamicService;
 import com.zhan.app.nearby.service.UserService;
@@ -102,7 +102,7 @@ public class VideoController {
 		dynamic.setUser_id(user_id);
 		String content = BottleKeyWordUtil.filterContent(title);
 		dynamic.setDescription(content);
-		dynamic.setState(DynamicState.CREATE.ordinal());
+		dynamic.setState(DynamicStatus.CREATE.ordinal());
 		dynamic.setLocal_image_name(thumb_img_name);
 		dynamic.setCreate_time(new Date());
 		dynamic.setLat(lat);

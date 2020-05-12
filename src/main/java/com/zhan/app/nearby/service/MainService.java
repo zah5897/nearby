@@ -556,8 +556,8 @@ public class MainService {
 		return list;
 	}
 
-	public List<Report> listManagerReport(int approval_type, int count, int page) {
-		List<Report> reports = systemDao.listManagerReport(approval_type, page, count);
+	public List<Report> listManagerReport(int count, int page) {
+		List<Report> reports = systemDao.listManagerReport(page, count);
 		if (reports != null) {
 			for (Report report : reports) {
 				if (report.getType() == 0) {
@@ -570,23 +570,12 @@ public class MainService {
 		return reports;
 	}
 
-	public int getReportSizeByApproval(int approval_type) {
-		return systemDao.getReportSizeByApproval(approval_type);
+	public int getReportSizeByApproval(   ) {
+		return systemDao.getReportSizeByApproval( );
 	}
 
-	public void handleReport(int id, boolean isIgnore) {
-		Report report = systemDao.getReport(id);
-		if (report != null) {
-			if (!isIgnore) {
-				if (report.getType() == 0) {
-					hxTask.disconnectUser(String.valueOf(report.getTarget_id()));
-					userDao.updateAccountState(report.getTarget_id(), AccountStateType.LOCK.ordinal());
-				} else {
-					userDynamicDao.delete(report.getUser_id(), report.getTarget_id());
-				}
-			}
-			systemDao.updateReportState(id, isIgnore ? -1 : 1);
-		}
+	public void deleteReport(int id) {
+		systemDao.deleteReport(id);
 	}
 
 	public void saveBGM(BGM bgm) {

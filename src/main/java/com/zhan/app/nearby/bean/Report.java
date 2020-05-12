@@ -21,6 +21,8 @@ public class Report implements Serializable{
 	private long user_id;
 	private long target_id;
 	private String tag_id;
+	@Transient
+	private String tag_txt;
 	private String content;
 	private int type;
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", locale = "zh", timezone = "GMT+8")
@@ -130,4 +132,14 @@ public class Report implements Serializable{
 	public long getApproval_time_v2() {
 		return approval_time_v2;
 	}
+
+	public String getTag_txt() {
+		return tag_txt;
+	}
+
+	public void setTag_txt(String tag_txt) {
+		this.tag_txt = tag_txt;
+	}
+	
+	
 }

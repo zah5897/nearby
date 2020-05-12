@@ -324,6 +324,11 @@ public class BottleService {
 		}
 		return ResultUtil.getResultMap(ERROR.ERR_FAILED);
 	}
+	@Transactional
+	public void delete(long id) {
+		  bottleDao.delete( id);
+		 
+	}
 
 	public ModelMap scan(long user_id, String bottle_id, int percent) {
 		if (!TextUtils.isEmpty(bottle_id)) {
@@ -511,8 +516,8 @@ public class BottleService {
 		return 0;
 	}
 
-	public List<Bottle> getBottlesByState(Long user_id,int state, int pageSize, int pageIndex) {
-		return bottleDao.getBottlesByState(user_id ,state, pageSize, pageIndex);
+	public List<Bottle> getBottlesByState(Long user_id,String nick_name,int state, int pageSize, int pageIndex) {
+		return bottleDao.getBottlesByState(user_id, nick_name, state, pageSize, pageIndex);
 	}
 
 	public int getBottleCountWithState(Long user_id,int state) {

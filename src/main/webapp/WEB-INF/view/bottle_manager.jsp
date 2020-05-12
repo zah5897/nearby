@@ -40,8 +40,12 @@ td {
 							<option value="3">精选</option>
 					</select></li>
 					<li>
-			         <input type="text" placeholder="请输入发送者id" name="user_id_input" class="input" style="width:250px; line-height:17px;display:inline-block" />
-                     <a href="javascript:void(0)" class="button border-main icon-search" onclick="doSearchById()" > 搜索</a>
+			         <input type="text" placeholder="请输入用户昵称" name="keywords" class="input" style="width:250px; line-height:17px;display:inline-block" />
+                     <a href="javascript:void(0)" class="button border-main icon-search" onclick="doSearch()" > 搜索</a>
+                   </li> 
+                   <li>
+			         <input type="text" placeholder="请输入用户id" name="user_id_input" class="input" style="width:250px; line-height:17px;display:inline-block" />
+                     <a href="javascript:void(0)" class="button border-main icon-search" onclick="doSearch()" > 搜索</a>
                    </li> 
 				</ul>
 			</div>
@@ -76,12 +80,18 @@ td {
 	    var pageSize = 10;
 	    var pageCount = 100;
 	    var type=-1;
+	    var nick_name;
 	    var user_id;
 	    //默认加载第一页
 	    $(document).ready(function(){ 
 		    page(1);
 		}); 
-		
+	    function doSearch(){
+	    	nick_name=$("[name='keywords']").val().replace(/^\s+|\s+$/g,"");
+	    	user_id=$("[name='user_id_input']").val().replace(/^\s+|\s+$/g,"");
+	    	currentPageIndex=0;
+	    	page(1);
+	    }
 	     
 	    //前一页
 		function previous() {
@@ -106,7 +116,7 @@ td {
 			if (currentPageIndex == index) {
 				return false;
 			}
-			$.post("<%=path%>/manager/list_bottle",{'pageIndex':index,'pageSize':pageSize,'type':type,'bottle_id':current_bottle_id,'user_id':user_id},function(result){
+			$.post("<%=path%>/manager/list_bottle",{'pageIndex':index,'pageSize':pageSize,'type':type,'bottle_id':current_bottle_id,'user_id':user_id,'nick_name':nick_name},function(result){
 				 var json=JSON.parse(result);
 			        if(json.code==0){
 			        	$("table tr[id*='tr_'").each(function(i){
@@ -118,12 +128,7 @@ td {
 			
 			return true;
 		}
-		 function doSearchById(){
-		    	var uid=$("[name='user_id_input']").val().replace(/^\s+|\s+$/g,"");
-		    	user_id=uid;
-		    	currentPageIndex=0;
-		    	page(1);
-		    }
+	 
 		//刷新表格
 		function refreshTable(json){
 			var pageData=json["bottles"];
@@ -249,20 +254,13 @@ td {
 			
 			 toAdd+="<td>"+pageData['create_time']+"</td>";
 			 
-			 var state=pageData["state"];
 			 
 			 //操作单元格
 			  toAdd+="<td><div class='button-group'>";
 			  //操作单元格
-			  if(state==0){
-				  toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return changeBottleState("+id+",1)'><span class='icon-edit'></span>审核通过</a>";
 				  toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return changeBottleState("+id+",3)'><span class='icon-edit'></span>精选推荐</a>";
 				  toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return changeBottleState("+id+",2)'><span class='icon-edit'></span>关小黑屋</a>";
-			  }else  {
-				  toAdd+="<a class='button border-main' href='javascript:void(0)'	onclick='return changeBottleState("+id+",0)'><span class='icon-edit'></span>恢复正常</a>";
-			  } 
-			  
-			  toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return add_user_black("+pageData["sender"]["user_id"]+",1)'><span class='icon-edit'></span>拉黑名单</a>";
+			      toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return changeBottleState("+id+",-2)'><span class='icon-edit'></span>拉黑名单</a>";
 			  
 			  toAdd+="</div></td></tr>";
 			 tr.after(toAdd);
@@ -271,21 +269,9 @@ td {
 	    function show(img){
 	    	parent.showOriginImg(img);
 	    }
-	    
-	    function add_user_black(user_id){
-			$.post("<%=path%>/manager/add_user_black",{'user_id':user_id,'fun':1,'state':1},function(result){
-				 var json=JSON.parse(result);
-				 if(json.code==0){
-			        	parent.toast("操作成功！");
-			        	$("#found_black_"+user_id).hide();
-			        }else{
-			        	parent.toast("操作失败！");
-			        }
-		    });
-		}
-	    
+ 
  	    function changeBottleState(id,state){
-			$.post("<%=path%>/manager/changeBottleState",{'user_id':user_id,'id':id,'type':type,'pageIndex':currentPageIndex,'pageSize':pageSize,'to_state':state,'bottle_id':current_bottle_id},function(result){
+			$.post("<%=path%>/manager/changeBottleStatus",{'user_id':user_id,'nick_name':nick_name,'id':id,'type':type,'pageIndex':currentPageIndex,'pageSize':pageSize,'to_state':state,'bottle_id':current_bottle_id,'nick_name':nick_name},function(result){
 				 var json=JSON.parse(result);
 			        if(json.code==0){
 			        	$("table tr[id*='tr_'").each(function(i){

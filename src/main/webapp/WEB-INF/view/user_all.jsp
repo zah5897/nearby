@@ -49,7 +49,7 @@
                    </li> 
                    <li>
 			         <input type="text" placeholder="请输入用户id" name="user_id_input" class="input" style="width:250px; line-height:17px;display:inline-block" />
-                     <a href="javascript:void(0)" class="button border-main icon-search" onclick="doSearchById()" > 搜索</a>
+                     <a href="javascript:void(0)" class="button border-main icon-search" onclick="doSearch()" > 搜索</a>
                    </li> 
 				</ul>
 			</div>
@@ -113,34 +113,12 @@
 	    }
 	    
 	    function doSearch(){
-	    	var key=$("[name='keywords']").val().replace(/^\s+|\s+$/g,"");
-	    	if(keyword==''){
-	    		if(key==''){
-		    		return;
-		    	}
-	    	}
-	    	if(keyword==key){
-	    		return;
-	    	}
-	    	keyword=key;
+	    	keyword=$("[name='keywords']").val().replace(/^\s+|\s+$/g,"");
+	    	user_id=$("[name='user_id_input']").val().replace(/^\s+|\s+$/g,"");
 	    	currentPageIndex=0;
 	    	page(1);
 	    }
 	    
-	    function doSearchById(){
-	    	var key=$("[name='user_id_input']").val().replace(/^\s+|\s+$/g,"");
-	    	if(user_id==''){
-	    		if(key==''){
-		    		return;
-		    	}
-	    	}
-	    	if(user_id==key){
-	    		return;
-	    	}
-	    	user_id=key;
-	    	currentPageIndex=0;
-	    	page(1);
-	    }
 	     //获取对应页面
 		function page(index) {
 			if (currentPageIndex == index) {
@@ -294,7 +272,7 @@
 			 var nick_name=pageData.nick_name;
 			 nick_name=nick_name==undefined?"":nick_name;
 			 if(state==1){
-				 toAdd+="<td id='td_nick_name_"+user_id+"'><font color='red'>"+nick_name+"</font></td>";
+				 toAdd+="<td id='td_nick_name_"+user_id+"'>"+nick_name+"</td>";
 			 }else{
 				 toAdd+="<td id='td_nick_name_"+user_id+"'>"+nick_name+"</td>";
 			 }

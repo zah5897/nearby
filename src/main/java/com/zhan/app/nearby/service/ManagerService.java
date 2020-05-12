@@ -23,8 +23,7 @@ import com.zhan.app.nearby.bean.VipUser;
 import com.zhan.app.nearby.bean.type.BottleType;
 import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.cache.UserCacheService;
-import com.zhan.app.nearby.comm.DynamicCommentStatus;
-import com.zhan.app.nearby.comm.DynamicState;
+import com.zhan.app.nearby.comm.DynamicStatus;
 import com.zhan.app.nearby.comm.ExchangeState;
 import com.zhan.app.nearby.comm.SysUserStatus;
 import com.zhan.app.nearby.comm.UserFnStatus;
@@ -164,7 +163,7 @@ public class ManagerService {
 		return managerDao.removeFromSelected(id);
 	}
 
-	public int removeDyanmicByIdAndState(long id, DynamicState state) {
+	public int removeDyanmicByIdAndState(long id, DynamicStatus state) {
 		return managerDao.removeDyanmicByIdAndState(id, state);
 	}
 
@@ -220,7 +219,7 @@ public class ManagerService {
 	}
 
 	// 动态审核违规
-	public int updateDynamicState(long id, DynamicState state) {
+	public int updateDynamicState(long id, DynamicStatus state) {
 		return managerDao.updateDynamicState(id, state);
 	}
 
@@ -373,8 +372,8 @@ public class ManagerService {
 		}
 	}
 
-	public void handleReport(int id, boolean isIgnore) {
-		mainService.handleReport(id, isIgnore);
+	public void deleteReport(int id) {
+		mainService.deleteReport(id);
 	}
 
 	/**
@@ -384,12 +383,12 @@ public class ManagerService {
 	 * @param pageIndex
 	 * @return
 	 */
-	public ModelMap getReports(int approval_type, int pageSize, int pageIndex) {
+	public ModelMap getReports(int pageSize, int pageIndex) {
 
 		ModelMap r = ResultUtil.getResultOKMap();
-		List<Report> exchanges = mainService.listManagerReport(approval_type, pageSize, pageIndex);
+		List<Report> exchanges = mainService.listManagerReport( pageSize, pageIndex);
 		if (pageIndex == 1) {
-			int totalSize = mainService.getReportSizeByApproval(approval_type);
+			int totalSize = mainService.getReportSizeByApproval();
 
 			r.put("pageCount", getPageCount(totalSize, pageSize));
 		}
@@ -398,9 +397,9 @@ public class ManagerService {
 		return r;
 	}
 
-	public ModelMap listBottleByState(Long user_id, int state, int pageSize, int pageIndex) {
+	public ModelMap listBottleByState(Long user_id,String nick_name, int state, int pageSize, int pageIndex) {
 		ModelMap r = ResultUtil.getResultOKMap();
-		List<Bottle> exchanges = bottleService.getBottlesByState(user_id, state, pageSize, pageIndex);
+		List<Bottle> exchanges = bottleService.getBottlesByState(user_id,nick_name, state, pageSize, pageIndex);
 		for (Bottle b : exchanges) {
 			if (b.getType() == BottleType.MEET.ordinal()) {
 				b.setContent(getMeetUserAvatar(b.getContent()));
@@ -502,55 +501,39 @@ public class ManagerService {
 	}
 
 	// ----------------约会相关------------------------------------------------
-	public ModelMap loadAppointMents(int status, int page, int count) {
+	public ModelMap loadAppointMents(Long user_id,String nick_name,int status, int page, int count) {
 
 		ModelMap r = ResultUtil.getResultOKMap();
 		if (page == 1) {
-			int totalSize = appointmentService.getCheckCount(status);
+			int totalSize = appointmentService.getCheckCount(user_id,nick_name,status);
 			r.put("pageCount", getPageCount(totalSize, count));
 		}
 		r.put("currentPageIndex", page);
 
-		List<Appointment> data = appointmentService.listToCheck(status, page, count);
+		List<Appointment> data = appointmentService.listToCheck(user_id,nick_name,status, page, count);
 		ImagePathUtil.completePath(data);
 		r.addAttribute("data", data);
 		return r;
 	}
 
-	public ModelMap changeAppointMentsStatus(int id, int status, int page, int count, int newStatus) {
-
-		appointmentService.changeStatus(id, newStatus);
-		ModelMap r = ResultUtil.getResultOKMap();
-		if (page == 1) {
-			int totalSize = appointmentService.getCheckCount(status);
-			r.put("pageCount", getPageCount(totalSize, count));
-		}
-		r.put("currentPageIndex", page);
-
-		List<Appointment> data = appointmentService.listToCheck(status, page, count);
-		ImagePathUtil.completePath(data);
-		r.addAttribute("data", data);
-		return r;
-	}
 
 	// ----------短视频相关--------------------------------------------------------------
 
-	public ModelMap loadShortvideos(int status, int page, int count) {
+	public ModelMap loadShortvideos(Long user_id,String nick_name,int status, int page, int count) {
 		ModelMap r = ResultUtil.getResultOKMap();
 		if (page == 1) {
-			int totalSize = userDynamicService.getVideoCountToCheck(status);
+			int totalSize = userDynamicService.getVideoCountByStatus(user_id,nick_name,status);
 			r.put("pageCount", getPageCount(totalSize, count));
 		}
 		r.put("currentPageIndex", page);
 
-		List<UserDynamic> data = userDynamicService.getVideoList(status, page, count);
+		List<UserDynamic> data = userDynamicService.getVideoList(user_id,nick_name,status, page, count);
 		r.addAttribute("data", data);
 		return r;
 	}
 
-	public ModelMap changeShortvideoStatus(int id, int status, int page, int count, int newStatus) {
+	public void changeShortvideoStatus(int id,  int newStatus) {
 		userDynamicService.changeVideoStatus(id, newStatus);
-		return loadShortvideos(status, page, count);
 	}
 
 	public ModelMap loadUserCertVideos(int status, int page, int count) {
@@ -573,23 +556,23 @@ public class ManagerService {
 	}
 	// ----------动态评论相关--------------------------------------------------------------
 
-	public ModelMap loadDynamicComment(Long user_id, int page, int count) {
+	public ModelMap loadDynamicComment(Long user_id,String nick_name, int page, int count) {
 
 		ModelMap r = ResultUtil.getResultOKMap();
 		if (page == 1) {
-			int totalSize = userDynamicService.getDynamicCommentCount(user_id);
+			int totalSize = userDynamicService.getDynamicCommentToCheckCount(user_id,nick_name);
 			r.put("pageCount", getPageCount(totalSize, count));
 		}
 		r.put("currentPageIndex", page);
 
-		List<DynamicComment> data = userDynamicService.loadDynamicCommentToCheck(user_id, page, count);
+		List<DynamicComment> data = userDynamicService.loadDynamicCommentToCheck(user_id,nick_name, page, count);
 		r.addAttribute("data", data);
 		return r;
 	}
 
-	public ModelMap change_dynamic_comment_status(Long user_id, int id, int status, int page, int count) {
-		userDynamicService.changeCommentStatus(id, status);
-		return loadDynamicComment(user_id, page, count);
+	public ModelMap change_dynamic_comment_status(Long user_id,String nick_name, int id, int page, int count,int toStatus) {
+		userDynamicService.changeCommentStatus(id, toStatus);
+		return loadDynamicComment(user_id,nick_name, page, count);
 	}
 
 	// ----------礼物清单-----------------------
@@ -625,5 +608,13 @@ public class ManagerService {
 	public ModelMap deleteUserSignature(long uid, Long user_id, int page, int count) {
 		userService.deleteUserSignature(uid);
 		return loadSignatureUpdateUsers(user_id, page, count);
+	}
+
+	public void addUserToBlackByBottleID(int id) {
+		userService.setUserSysStatusTo(bottleService.getBottleById(id).getUser_id(), SysUserStatus.BLACK);
+	}
+
+	public void deleteBottle(int id) {
+		bottleService.delete(id)	;	
 	}
 }

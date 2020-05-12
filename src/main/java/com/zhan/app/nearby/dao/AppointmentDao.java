@@ -79,12 +79,32 @@ public class AppointmentDao extends BaseDao<Appointment> {
 		return jdbcTemplate.query(sql, new Object[] { user_id, last_id, count }, appointmentMapper);
 	}
 
-	public List<Appointment> queryAllToCheck(int status, int page, int count) {
+	public List<Appointment> queryAllToCheck(Long uid,String nick_name,int status, int page, int count) {
+		
+		if(uid!=null) {
+			String sql = "select a.*,u.user_id,u.nick_name,u.sex,u.avatar,u.lat,u.lng,u.isvip,u.birthday,c.name as city_name,th.id as tid,th.name as thname  from "
+					+ getTableName() + " a left join t_user u on a.uid=u.user_id "
+					+ "left join t_sys_city c on a.city_id=c.id "
+					+ "left join t_appointment_theme th on a.theme_id=th.id where a.uid=? and a.status=? order by a.id desc limit ?,?";
+			return jdbcTemplate.query(sql, new Object[] {uid, status, (page - 1) * count, count }, appointmentMapper);
+		}
+		
+		if(TextUtils.isNotEmpty(nick_name)) {
+			String sql = "select a.*,u.user_id,u.nick_name,u.sex,u.avatar,u.lat,u.lng,u.isvip,u.birthday,c.name as city_name,th.id as tid,th.name as thname  from "
+					+ getTableName() + " a left join t_user u on a.uid=u.user_id "
+					+ "left join t_sys_city c on a.city_id=c.id "
+					+ "left join t_appointment_theme th on a.theme_id=th.id where a.status=? and a.uid in (select user_id from t_user where nick_name like ?) order by a.id desc limit ?,?";
+			return jdbcTemplate.query(sql, new Object[] { status,"%"+nick_name+"%", (page - 1) * count, count }, appointmentMapper);
+		}
+		
+		
 		String sql = "select a.*,u.user_id,u.nick_name,u.sex,u.avatar,u.lat,u.lng,u.isvip,u.birthday,c.name as city_name,th.id as tid,th.name as thname  from "
 				+ getTableName() + " a left join t_user u on a.uid=u.user_id "
 				+ "left join t_sys_city c on a.city_id=c.id "
 				+ "left join t_appointment_theme th on a.theme_id=th.id where a.status=? order by a.id desc limit ?,?";
 		return jdbcTemplate.query(sql, new Object[] { status, (page - 1) * count, count }, appointmentMapper);
+		
+		
 	}
 
 	public List<Appointment> loadUserAppointments(long uid, Integer last_id, int count) {
@@ -108,9 +128,23 @@ public class AppointmentDao extends BaseDao<Appointment> {
 				new BeanPropertyRowMapper<AppointmentTheme>(AppointmentTheme.class));
 	}
 
-	public int getCheckCount(int status) {
-		return jdbcTemplate.queryForObject("select count(*) from " + getTableName() + " where status=" + status,
+	public int getCheckCount(Long uid,String nick_name,int status) {
+		
+		if(uid!=null) {
+			return jdbcTemplate.queryForObject("select count(*) from " + getTableName() + " where  uid="+uid+" and status=" + status,
+					Integer.class);
+		}
+		
+		if(TextUtils.isNotEmpty(nick_name)) {
+			return jdbcTemplate.queryForObject("select count(*) from " + getTableName() + " where  uid in (select user_id from t_user where nick_name like ?) and status=?",new Object[] {"%"+nick_name+"%",status},
+					Integer.class);
+		}
+		
+
+		return jdbcTemplate.queryForObject("select count(*) from " + getTableName() + " where   status=" + status,
 				Integer.class);
+		
+		
 	}
 
 	public void changeStatus(int id, int newStatus) {

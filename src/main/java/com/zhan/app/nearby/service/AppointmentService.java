@@ -83,12 +83,12 @@ public class AppointmentService {
 		return appointmentDao.listTheme();
 	}
 
-	public List<Appointment> listToCheck(int status, int page, int count) {
-		return appointmentDao.queryAllToCheck(status, page, count);
+	public List<Appointment> listToCheck(Long uid,String nick_name,int status, int page, int count) {
+		return appointmentDao.queryAllToCheck(uid,nick_name,status, page, count);
 	}
 
-	public int getCheckCount(int status) {
-		return appointmentDao.getCheckCount(status);
+	public int getCheckCount(Long uid,String nick_name,int status) {
+		return appointmentDao.getCheckCount(uid,nick_name,status);
 	}
 
 	public void changeStatus(int id, int newStatus) {

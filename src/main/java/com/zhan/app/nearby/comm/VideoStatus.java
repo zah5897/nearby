@@ -6,6 +6,7 @@ public enum VideoStatus {
 	RECHECK,
 	ILLEGAL,
 	DEL,
-	OLD;
+	OLD,
+	RECOMMEND; //推荐
 }
 

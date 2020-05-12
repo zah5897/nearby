@@ -85,15 +85,14 @@ public class SystemDao extends BaseDao<Report> {
 				new Object[] { state, new Date(), id });
 	}
 
-	public List<Report> listManagerReport(int approval_type, int page, int count) {
-		String sql = "select *from t_report_record where approval_result=? order by create_time desc limit ?,?";
-		return jdbcTemplate.query(sql, new Object[] { approval_type, (page - 1) * count, count },
+	public List<Report> listManagerReport(int page, int count) {
+		String sql = "select r.*,t.name as tag_txt from t_report_record r left join t_sys_tag t on t.id=r.tag_id and t.type=8  order by create_time desc limit ?,?";
+		return jdbcTemplate.query(sql, new Object[] {  (page - 1) * count, count },
 				getEntityMapper());
 	}
 
-	public int getReportSizeByApproval(int appro) {
-		return jdbcTemplate.queryForObject("select count(*) from t_report_record where approval_result=?",
-				new Object[] { appro }, Integer.class);
+	public int getReportSizeByApproval(   ) {
+		return jdbcTemplate.queryForObject("select count(*) from t_report_record" ,Integer.class);
 	}
 
 	public List<Exchange> loadExchangeHistory(long user_id, String aid, int pageIndex, int count) {
@@ -240,5 +239,9 @@ public class SystemDao extends BaseDao<Report> {
 
 	public List<String> loadBlackWords() {
 		return jdbcTemplate.queryForList("select *from t_black_words", String.class);		
+	}
+
+	public void deleteReport(int id) {
+	     jdbcTemplate.update("delete from "+getTableName()+" where id="+id);
 	}
 }

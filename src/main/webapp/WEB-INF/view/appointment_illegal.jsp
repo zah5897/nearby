@@ -220,7 +220,7 @@ td {
 	   
 	    
  	    function changestatus(id,newStatus){
-			$.post("<%=path%>/manager/changeAppointMentStatus",{'user_id':user_id,'nick_name':nick_name,'id':id,'status':type,'page':currentPageIndex,'count':pageSize,'to_state':newStatus},function(result){
+			$.post("<%=path%>/manager/changeAppointMentStatus",{'user_id':user_id,'nick_name':nick_name,'id':id,'status':3,'page':currentPageIndex,'count':pageSize,'to_state':newStatus},function(result){
 				 var json=JSON.parse(result);
 			        if(json.code==0){
 			        	$("table tr[id*='tr_'").each(function(i){

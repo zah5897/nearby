@@ -500,7 +500,7 @@ public class UserService {
 			} else {
 				relationShip = 7;
 			}
-			r.addAttribute("coins", 0);
+			r.addAttribute("coins", giftService.getUserCoins(aid, user_id_for));
 
 			Video v = videoService.loadConfirmdVideo(user_id_for);
 			if (v != null) {

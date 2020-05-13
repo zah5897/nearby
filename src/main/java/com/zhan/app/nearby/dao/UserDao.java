@@ -950,14 +950,9 @@ public class UserDao extends BaseDao<BaseUser> {
 		return jdbcTemplate.queryForList(sql, new Object[] {limit},String.class);
 	}
 
-//	@Cacheable(value = "five_minute", key = "#root.methodName+'_'+#page+'_'+#count")
 	public List<LoginUser> getRankOnlineUsers(int count,Date time_point) {
-		String sql = "select u.user_id,u.nick_name,u.avatar,u.last_login_time ,u.sex,u.isvip,u.lat,u.lng,u.video_cert_status ,ifnull(gift.tval,'0') as shanbei " + " from t_user u"
-				+ "  left join "
-				+ " (select tg.user_id ,sum(tg.val) as tval from (select o.*,o.count*g.price as val from  t_gift_own o left join t_gift g on o.gift_id=g.id) as tg group by tg.user_id) gift "
-				+ "on u.user_id=gift.user_id "
-				+ " where u.isFace=1 ";
-		
+		String sql = "select u.user_id,u.nick_name,u.avatar,u.last_login_time ,u.sex,u.isvip,u.lat,u.lng,u.video_cert_status ,ifnull(g.total_value,'0') as shanbei   from t_user u"
+				+ "  left join t_user_gift_value g on u.user_id=g.user_id  where u.isFace=1 and u.avatar<>'illegal.jpg' and u.sys_status<>1 ";
 		
 		if(time_point==null) {
 			sql+=" order by u.last_login_time desc limit ?";

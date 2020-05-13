@@ -23,13 +23,11 @@ import com.zhan.app.nearby.bean.type.BottleType;
 import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.bean.user.MeetListUser;
 import com.zhan.app.nearby.cache.UserCacheService;
-import com.zhan.app.nearby.comm.AccountStateType;
 import com.zhan.app.nearby.comm.AndroidChannel;
 import com.zhan.app.nearby.comm.BottleAnswerState;
 import com.zhan.app.nearby.comm.BottleState;
 import com.zhan.app.nearby.comm.DynamicMsgType;
 import com.zhan.app.nearby.comm.Relationship;
-import com.zhan.app.nearby.comm.SysUserStatus;
 import com.zhan.app.nearby.dao.BottleDao;
 import com.zhan.app.nearby.dao.UserDao;
 import com.zhan.app.nearby.dao.VipDao;
@@ -91,16 +89,6 @@ public class BottleService {
 		boolean r = now - last_time > 1;
 		userCacheService.setLastBottleSendTime(bottle.getUser_id());
 		return r;
-	}
-
-	public boolean isBlockUser(long user_id) {
-		int state = userDao.getUserState(user_id);
-		return state == AccountStateType.LOCK.ordinal();
-	}
-
-	public boolean isBlackUser(long user_id) {
-		int state = userDao.getUserState(user_id);
-		return state == SysUserStatus.BLACK.ordinal();
 	}
 
 	/**

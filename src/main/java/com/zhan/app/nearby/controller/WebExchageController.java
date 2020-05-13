@@ -145,7 +145,7 @@ public class WebExchageController {
 		if (user == null) {
 			return new ModelAndView(redirectView,ResultUtil.getResultMap(ERROR.ERR_USER_NOT_EXIST));
 		}
-		if (userService.getUserState(user.getUser_id()) == SysUserStatus.BLACK.ordinal()) {
+		if (userService.getUserSysStatus(user.getUser_id()) == SysUserStatus.BLACK.ordinal()) {
 			return new ModelAndView(redirectView,ResultUtil.getResultMap(ERROR.ERR_ACCOUNT_BLACKLIST));
 		}
 		String md5;

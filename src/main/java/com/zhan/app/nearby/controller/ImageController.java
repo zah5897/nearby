@@ -66,11 +66,11 @@ public class ImageController {
 	 * @return
 	 */
 	@RequestMapping("upload")
-	public ModelMap upload(DefaultMultipartHttpServletRequest multipartRequest, Long user_id, UserDynamic dynamic,
+	public ModelMap upload(DefaultMultipartHttpServletRequest multipartRequest, Long user_id, String token,UserDynamic dynamic,
 			String ios_addr, String _ua) {
 
-		if (user_id == null || user_id < 0) {
-			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "用户id异常");
+		if (user_id ==null || !userService.checkLogin(user_id, token)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
 
 		if (userService.getBasicUser(user_id) == null) {

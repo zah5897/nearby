@@ -96,8 +96,8 @@ public class HXAsyncTask {
 	}
 
 	@Async
-	public void disconnect(String valueOf) {
-		HX_SessionUtil.disconnect(valueOf);
+	public void disconnect(String uid) {
+		HX_SessionUtil.disconnect(uid);
 	}
 
 	@Async

@@ -268,8 +268,5 @@ public class HX_SessionUtil {
 		}
 		ext.put("data", JSONUtil.writeValueAsString(bottleInfo));
 	}
-
-	public static void main(String[] args) {
-		pushLike(133258);
-	}
+	 
 }

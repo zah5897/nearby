@@ -135,6 +135,8 @@ public class Main {
 		initFactory();
 		String token = ClientContext.getInstance().getAuthToken();
 		System.out.println(token);
+		
+		disconnect("670557");
 	}
 
 	public static Object registUser(String userName, String password, String nickname) {
@@ -144,24 +146,7 @@ public class Main {
 		return user.createNewIMUserSingle(userBody);
 	}
 
-	public static boolean disconnectUser(String userName) {
-		initFactory();
-		IMUserAPI user = (IMUserAPI) factory.newInstance(EasemobRestAPIFactory.USER_CLASS);
-		ResponseWrapper wrapper = (ResponseWrapper) user.disconnectIMUser(userName);
-
-		ObjectNode node = (ObjectNode) wrapper.getResponseBody();
-		Map<String, Object> requestResult = JSONUtil.jsonToMap(node.toString());
-
-		try {
-			@SuppressWarnings("unchecked")
-			boolean b = (boolean) ((Map<String, Object>) requestResult.get("data")).get("result");
-			return b;
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		return false;
-	}
+	
 
 	public static Object updateNickName(String userName, String nickname) {
 		initFactory();
@@ -323,8 +308,28 @@ public class Main {
 	public static Object disconnect(String username) {
 		initFactory();
 		IMUserAPI user = (IMUserAPI) factory.newInstance(EasemobRestAPIFactory.USER_CLASS);
-		return user.disconnectIMUser(username);
+		ResponseWrapper wrapper=  (ResponseWrapper) user.disconnectIMUser(username);
+		return wrapper.getResponseBody();
 //		org_name}/{app_name}/users/{username}/disconnect
 	}
+	public static boolean disconnectUser(String userName) {
+		initFactory();
+		IMUserAPI user = (IMUserAPI) factory.newInstance(EasemobRestAPIFactory.USER_CLASS);
+		ResponseWrapper wrapper = (ResponseWrapper) user.disconnectIMUser(userName);
 
+		ObjectNode node = (ObjectNode) wrapper.getResponseBody();
+		Map<String, Object> requestResult = JSONUtil.jsonToMap(node.toString());
+
+		try {
+			@SuppressWarnings("unchecked")
+			boolean b = (boolean) ((Map<String, Object>) requestResult.get("data")).get("result");
+			return b;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return false;
+	}
+	
+	
 }

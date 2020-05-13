@@ -567,7 +567,7 @@ public class UserController {
 			return ResultUtil.getResultMap(ERROR.ERR_USER_CLOSE, "该账号已经注销");
 		}
 
-		if (userService.getUserState(user.getUser_id()) == SysUserStatus.BLACK.ordinal()) {
+		if (userService.getUserSysStatus(user.getUser_id()) == SysUserStatus.BLACK.ordinal()) {
 			return ResultUtil.getResultMap(ERROR.ERR_USER_NOT_EXIST, "该账号因举报而无法登录");
 		}
 
@@ -1216,7 +1216,7 @@ public class UserController {
 	@RequestMapping("autoLogin")
 	public ModelMap autoLogin(long user_id, String md5pwd, String aid, String device_token) {
 
-		if (userService.getUserState(user_id) == SysUserStatus.BLACK.ordinal()) {
+		if (userService.getUserSysStatus(user_id) == SysUserStatus.BLACK.ordinal()) {
 			return ResultUtil.getResultMap(ERROR.ERR_USER_NOT_EXIST, "该账号因举报而无法登录");
 		}
 

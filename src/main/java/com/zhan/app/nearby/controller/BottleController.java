@@ -49,10 +49,6 @@ public class BottleController {
 			return ResultUtil.getResultMap(ERROR.ERR_FREUENT);
 		}
 
-		if (bottleService.isBlackUser(bottle.getUser_id())) {
-			return ResultUtil.getResultMap(ERROR.ERR_ACCOUNT_BLACKLIST);
-		}
-
 		if (bottle.getType() == BottleType.MEET.ordinal()) {
 			//
 			return ResultUtil.getResultMap(ERROR.ERR_FAILED);

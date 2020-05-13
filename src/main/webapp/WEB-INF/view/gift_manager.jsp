@@ -116,7 +116,17 @@ function add_gift(){
 		        }
 			  });
 	 }
+	 
+	 function scrollToEnd(){//滚动到底部
+         var h = $(document).height()-$(window).height();
+         $(document).scrollTop(h); 
+      }
+	 
 	 function edit(pageData){
+		 
+		 scrollToEnd();
+		 
+		 
 		 $("#gift_id").attr("value",pageData['id']);//填充内容
 		 $("#gift_name").attr("value",pageData['name']);//填充内容
 		 $("#gift_price").attr("value",pageData['price']);//填充内容

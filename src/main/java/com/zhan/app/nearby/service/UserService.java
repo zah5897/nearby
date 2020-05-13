@@ -1053,8 +1053,8 @@ public class UserService {
 		return userDao.getCountOfUserAvatars(user_id, nickName);
 	}
 
-	public int getUserState(long uid) {
-		return userDao.getUserState(uid);
+	public int getUserSysStatus(long uid) {
+		return userDao.getUserSysStatus(uid);
 	}
 
 	public void clearExpireMeetBottleUser() {
@@ -1344,7 +1344,7 @@ public class UserService {
 			return ResultUtil.getResultMap(ERROR.ERR_USER_CLOSE, "璇ヨ处鍙峰凡缁忔敞閿�");
 		}
 
-		if (getUserState(user.getUser_id()) == SysUserStatus.BLACK.ordinal()) {
+		if (getUserSysStatus(user.getUser_id()) == SysUserStatus.BLACK.ordinal()) {
 			return ResultUtil.getResultMap(ERROR.ERR_USER_NOT_EXIST, "璇ヨ处鍙峰洜涓炬姤鑰屾棤娉曠櫥褰�");
 		}
 		// 妫�鏌ヨ鐢ㄦ埛澶氫箙娌＄櫥闄嗕簡
@@ -1586,6 +1586,8 @@ public class UserService {
 			userDynamicService.updateCommentStatus(uid, DynamicCommentStatus.ILLEGAL); // 标记评论为黑名单
 			appointmentService.markDataBlack(uid); // 标记约会为黑名单
 			userDao.removetSignatureUpdateRecord(uid);
+			userDao.clearToken(uid);
+			hxTask.disconnectUser(String.valueOf(uid)); //强制用户下线
 		}
 		userDao.setUserSysStatusTo(uid, status);
 	}

@@ -773,7 +773,7 @@ public class UserDao extends BaseDao<BaseUser> {
 				new Object[] { state, user_id });
 	}
 
-	public int getUserState(long user_id) {
+	public int getUserSysStatus(long user_id) {
 		List<Integer> states = jdbcTemplate.queryForList(
 				"select sys_status from  t_user where user_id=? limit 1", new Object[] { user_id },
 				Integer.class);
@@ -1444,5 +1444,9 @@ public class UserDao extends BaseDao<BaseUser> {
 
 	public void removetSignatureUpdateRecord(long uid) {
 		jdbcTemplate.update("delete from t_signature_update_record where uid="+uid);
+	}
+
+	public void clearToken(long uid) {
+		jdbcTemplate.update("update "+getTableName()+" set token='' where user_id="+uid); 
 	}
 }

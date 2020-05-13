@@ -50,11 +50,11 @@ public class DynamicController {
 	@Autowired
 	private UserCacheService userCacheService;
 	@RequestMapping("comment")
-	public ModelMap comment(DynamicComment comment) {
-		if (comment.getUser_id() < 1L) {
-			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "用户id异常");
-		}
+	public ModelMap comment(DynamicComment comment,String token) {
 		
+		if (comment.getUser_id() <= 0 && !userService.checkLogin(comment.getUser_id(), token)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
 		
 		long lastTIme=userCacheService.getCommentLastTime(comment.getUser_id());
 		if(System.currentTimeMillis()/1000-lastTIme<10) {//每次评论不能少于10秒

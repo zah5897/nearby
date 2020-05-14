@@ -30,15 +30,34 @@ td {
 			<div class="padding border-bottom">
 				<ul class="search">
 					<li>状态筛选：</li>
-					<li><select id="user_type" name="user_type" class="input"
-						onchange="changeType(this)"
+					<li>
+					   <select id="bottle_status" name="bottle_status" class="input"
+						onchange="changeSelectStatus(this)"
 						style="line-height: 17px; display: inline-block">
-							<option value="-1">全部</option>
 							<option value="0">正常状态</option>
 							<option value="1">审核状态</option>
 							<option value="2">黑名单</option>
 							<option value="3">精选</option>
-					</select></li>
+					   </select>
+					</li>
+					
+					
+					<li>类型筛选：</li>
+					<li>
+					   <select id="bottle_type" name="bottle_type" class="input"
+						onchange="changeSelectType(this)"
+						style="line-height: 17px; display: inline-block">
+							<option value="-1">全部</option>
+							<option value="0">文字</option>
+							<option value="2">语音</option>
+							<option value="3">邂逅</option>
+							<option value="4">弹幕文字</option>
+							<option value="5">弹幕语音</option>
+							<option value="6">我画你猜</option>
+							<option value="7">红包</option>
+					   </select>
+					</li>
+					
 					<li>
 			         <input type="text" placeholder="请输入用户昵称" name="keywords" class="input" style="width:250px; line-height:17px;display:inline-block" />
                      <a href="javascript:void(0)" class="button border-main icon-search" onclick="doSearch()" > 搜索</a>
@@ -80,6 +99,7 @@ td {
 	    var pageSize = 10;
 	    var pageCount = 100;
 	    var type=-1;
+	    var status=0;
 	    var nick_name;
 	    var user_id;
 	    //默认加载第一页
@@ -116,7 +136,7 @@ td {
 			if (currentPageIndex == index) {
 				return false;
 			}
-			$.post("<%=path%>/manager/list_bottle",{'pageIndex':index,'pageSize':pageSize,'type':type,'bottle_id':current_bottle_id,'user_id':user_id,'nick_name':nick_name},function(result){
+			$.post("<%=path%>/manager/list_bottle",{'pageIndex':index,'pageSize':pageSize,'status':status,'type':type,'bottle_id':current_bottle_id,'user_id':user_id,'nick_name':nick_name},function(result){
 				 var json=JSON.parse(result);
 			        if(json.code==0){
 			        	$("table tr[id*='tr_'").each(function(i){
@@ -271,7 +291,7 @@ td {
 	    }
  
  	    function changeBottleState(id,state){
-			$.post("<%=path%>/manager/changeBottleStatus",{'user_id':user_id,'nick_name':nick_name,'id':id,'type':type,'pageIndex':currentPageIndex,'pageSize':pageSize,'to_state':state,'bottle_id':current_bottle_id,'nick_name':nick_name},function(result){
+			$.post("<%=path%>/manager/changeBottleStatus",{'user_id':user_id,'nick_name':nick_name,'id':id,'status':status,'type':type,'pageIndex':currentPageIndex,'pageSize':pageSize,'to_state':state,'bottle_id':current_bottle_id,'nick_name':nick_name},function(result){
 				 var json=JSON.parse(result);
 			        if(json.code==0){
 			        	$("table tr[id*='tr_'").each(function(i){
@@ -282,14 +302,24 @@ td {
 		    });
 		}
 		 
-		function changeType(selectView) {
-			var typeSelect = $('#user_type option:selected').val();
+		function changeSelectStatus(selectView) {
+			var statusSelect = $('#bottle_status option:selected').val();
+			if (status != statusSelect) {
+				status = statusSelect;
+				currentPageIndex = 0;
+				page(1);
+			}
+		}
+		
+		function changeSelectType(selectView) {
+			var typeSelect = $('#bottle_type option:selected').val();
 			if (type != typeSelect) {
 				type = typeSelect;
 				currentPageIndex = 0;
 				page(1);
 			}
 		}
+		
 		
 		var current_bottle_id=0;
 		

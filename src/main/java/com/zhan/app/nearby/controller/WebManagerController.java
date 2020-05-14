@@ -586,12 +586,12 @@ public class WebManagerController {
 	}
 
 	@RequestMapping(value = "/list_bottle")
-	public @ResponseBody ModelMap list_bottle(HttpServletRequest request, Long user_id,String nick_name, int type, int pageSize,
+	public @ResponseBody ModelMap list_bottle(HttpServletRequest request, Long user_id,String nick_name,int status, int type, int pageSize,
 			int pageIndex) {
 		if (!managerService.isLogin(request)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
-		 return  managerService.listBottleByState(user_id,nick_name, type, pageSize, pageIndex);
+		 return  managerService.listBottleByState(user_id,nick_name,status, type, pageSize, pageIndex);
 	}
 	
 	@RequestMapping(value = "/list_bottle_black")
@@ -600,13 +600,13 @@ public class WebManagerController {
 		if (!managerService.isLogin(request)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
-		 return  managerService.listBottleByState(user_id,nick_name, BottleState.BLACK.ordinal(), pageSize, pageIndex);
+		 return  managerService.listBottleByState(user_id,nick_name, BottleState.BLACK.ordinal(),-1, pageSize, pageIndex);
 	}
 	
 
 	// 获取提现申请记录
 	@RequestMapping(value = "/changeBottleStatus")
-	public @ResponseBody ModelMap changeBottleState(HttpServletRequest request, Long user_id,String nick_name, int id, int type,
+	public @ResponseBody ModelMap changeBottleState(HttpServletRequest request, Long user_id,String nick_name, int id,int status, int type,
 			int pageSize, int pageIndex, int to_state) {
 
 		if (!managerService.isLogin(request)) {
@@ -622,7 +622,7 @@ public class WebManagerController {
 		if(to_state==-2) { //该用户加入黑名单
 			managerService.addUserToBlackByBottleID(id);
 		}
-		return list_bottle(request, user_id,nick_name, type, pageSize, pageIndex);
+		return list_bottle(request, user_id,nick_name,status, type, pageSize, pageIndex);
 	}
 
 	@RequestMapping(value = "/edit_key_words")

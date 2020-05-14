@@ -2,7 +2,6 @@ package com.easemob.server.example;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 
 import com.easemob.server.example.api.IMUserAPI;
 import com.easemob.server.example.api.SendMessageAPI;
@@ -18,7 +17,6 @@ import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.service.VipService;
 import com.zhan.app.nearby.util.DateTimeUtil;
 import com.zhan.app.nearby.util.HX_SessionUtil;
-import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.JSONUtil;
 import com.zhan.app.nearby.util.SpringContextUtil;
 
@@ -136,7 +134,7 @@ public class Main {
 		String token = ClientContext.getInstance().getAuthToken();
 		System.out.println(token);
 		
-		disconnect("670557");
+		disconnect("54973");
 	}
 
 	public static Object registUser(String userName, String password, String nickname) {

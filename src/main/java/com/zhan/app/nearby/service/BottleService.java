@@ -504,12 +504,12 @@ public class BottleService {
 		return 0;
 	}
 
-	public List<Bottle> getBottlesByState(Long user_id,String nick_name,int state, int pageSize, int pageIndex) {
-		return bottleDao.getBottlesByState(user_id, nick_name, state, pageSize, pageIndex);
+	public List<Bottle> getBottlesByState(Long user_id,String nick_name,int status,int type, int pageSize, int pageIndex) {
+		return bottleDao.getBottlesByState(user_id, nick_name, status,type, pageSize, pageIndex);
 	}
 
-	public int getBottleCountWithState(Long user_id,int state) {
-		return bottleDao.getBottleCountWithState(user_id,state);
+	public int getBottleCountWithState(Long user_id,int status,int type) {
+		return bottleDao.getBottleCountWithState(user_id,status,type);
 	}
 
 	public void changeBottleState(int id, int to_state) {

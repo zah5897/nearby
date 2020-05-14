@@ -400,21 +400,21 @@ public class BottleDao extends BaseDao<Bottle> {
 		return -1;
 	}
 
-	public List<Bottle> getBottlesByState(Long user_id,String nick_name,int state, int pageSize, int pageIndex) {
+	public List<Bottle> getBottlesByState(Long user_id,String nick_name,int status,int type, int pageSize, int pageIndex) {
 
 		
 		
 		List<Object> param=new ArrayList<>();
-		String sql  = "select b.*,u.nick_name,u.avatar from t_bottle b left join t_user u on b.user_id=u.user_id where  b.state=? and b.type<>? ";
-		if (state == -1) {
-			sql = "select b.*,u.nick_name,u.avatar from t_bottle b left join t_user u on b.user_id=u.user_id where  b.state<>? and b.type<>? ";
+		String sql  = "select b.*,u.nick_name,u.avatar from t_bottle b left join t_user u on b.user_id=u.user_id where  b.state=? ";
+		if (status == -1) {
+			sql = "select b.*,u.nick_name,u.avatar from t_bottle b left join t_user u on b.user_id=u.user_id where  b.state<>? ";
 		}
+		param.add(status);
 		
-		
-		param.add(state);
-		param.add(BottleType.MEET.ordinal());
-		
-		
+		if(type!=-1) {
+			sql+=" and b.type=? ";
+			param.add(type);
+		}
 		
 		if(user_id!=null) {
 			sql+=" and b.user_id=? ";	
@@ -427,7 +427,6 @@ public class BottleDao extends BaseDao<Bottle> {
 		}
 		
 		sql+=" order by b.id desc limit ?,?";
-		
 		param.add((pageIndex-1)*pageSize);
 		param.add(pageSize);
 		
@@ -446,16 +445,20 @@ public class BottleDao extends BaseDao<Bottle> {
 		});
 	}
 
-	public int getBottleCountWithState(Long user_id,int state) {
-		String sql = "select count(*) from  t_bottle b where b.state=?";
-		if (state == -1) {
-			sql = "select count(*) from   t_bottle  b where b.state<>?";
+	public int getBottleCountWithState(Long user_id,int status,int type) {
+		String sql = "select count(*) from  t_bottle b where 1=1 ";
+		if (status != -1) {
+			sql +=" and b.state="+status;
+		}
+		
+		if(type!=-1) {
+			sql+=" and b.type="+type;
 		}
 		
 		if(user_id!=null) {
 			sql+=" and b.user_id="+user_id;
 		}
-		return jdbcTemplate.queryForObject(sql, new Object[] { state }, Integer.class);
+		return jdbcTemplate.queryForObject(sql, Integer.class);
 	}
 
 	public int changeBottleState(int id, int to_state) {

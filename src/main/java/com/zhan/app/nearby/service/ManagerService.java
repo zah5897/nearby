@@ -397,9 +397,9 @@ public class ManagerService {
 		return r;
 	}
 
-	public ModelMap listBottleByState(Long user_id,String nick_name, int state, int pageSize, int pageIndex) {
+	public ModelMap listBottleByState(Long user_id,String nick_name, int status,int type, int pageSize, int pageIndex) {
 		ModelMap r = ResultUtil.getResultOKMap();
-		List<Bottle> exchanges = bottleService.getBottlesByState(user_id,nick_name, state, pageSize, pageIndex);
+		List<Bottle> exchanges = bottleService.getBottlesByState(user_id,nick_name, status,type, pageSize, pageIndex);
 		for (Bottle b : exchanges) {
 			if (b.getType() == BottleType.MEET.ordinal()) {
 				b.setContent(getMeetUserAvatar(b.getContent()));
@@ -408,7 +408,7 @@ public class ManagerService {
 			}
 		}
 		if (pageIndex == 1) {
-			int totalSize = bottleService.getBottleCountWithState(user_id, state);
+			int totalSize = bottleService.getBottleCountWithState(user_id, status,type);
 			r.put("pageCount", getPageCount(totalSize, pageSize));
 		}
 		r.put("bottles", exchanges);

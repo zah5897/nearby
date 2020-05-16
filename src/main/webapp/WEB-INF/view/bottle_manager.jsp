@@ -102,10 +102,14 @@ td {
 	    var status=0;
 	    var nick_name;
 	    var user_id;
+	    var playerQT;
 	    //默认加载第一页
 	    $(document).ready(function(){ 
 		    page(1);
 		}); 
+	    
+
+	    
 	    function doSearch(){
 	    	nick_name=$("[name='keywords']").val().replace(/^\s+|\s+$/g,"");
 	    	user_id=$("[name='user_id_input']").val().replace(/^\s+|\s+$/g,"");
@@ -170,7 +174,12 @@ td {
 				pageCount=json["pageCount"];
 				$("#new_count").text("对应新增用户数量："+json["totalCount"])
 			}
-			refreshPageIndex();		
+			refreshPageIndex();	
+			
+			 $("#playerBtn").bind("click",function(e){  
+	               var playerUrl = e.target.getAttribute("playerUrl");  
+	               playerAudio(playerUrl);  
+	         }); 
 		}
 		
 		function refreshPageIndex(){
@@ -268,7 +277,13 @@ td {
 			 toAdd+="<td>"+typeStr+"</td>";
 			 if(type==3||type==6){
 				 toAdd+="<td><img  src='"+pageData["content"]+"' alt='"+pageData["content"]+"'  height='50'/></td>";
-			 }else{
+			 }else if(type==2){
+				 var audioJson=JSON.parse(pageData["content"]);
+				 var audioPath=audioJson.remotePath;
+				 
+				 toAdd+="<td> <button class='icon-audio' id='playerBtn' style='margin:0 5px;cursor:pointer;' onclick=playerAudio("+id+","+audioPath+")>播放</button><div style='width:1px;height:1px;' id='playerQT"+id+"'></div></td>";
+			 }
+			 else{
 				 toAdd+="<td>"+pageData["content"]+"</td>";
 			 }
 			
@@ -285,7 +300,10 @@ td {
 			  toAdd+="</div></td></tr>";
 			 tr.after(toAdd);
 		}
-	  
+	    function playerAudio(id,url){  
+	    	$("#playerQT"+id).html('<ltembed width="1px" height="1px" name="plugin" src="'+url+'" type="audio/amr" id="QT_EMB">');
+       }  
+	    
 	    function show(img){
 	    	parent.showOriginImg(img);
 	    }

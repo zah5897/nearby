@@ -54,13 +54,12 @@
 			<table class="table table-hover text-center">
 				<tr>
 					<th width="8%">ID</th>
-					<th width="5%">设备</th>
-					<th width="8%">发布者</th>
+					<th width="12%">用户ID|昵称</th>
 					<th width="10%">图片</th>
 					<th width="10%">内容</th>
 					<th width="8%">城市</th>
 					<th width="10%">时间</th>
-					<th width="5%">赞|评</th>
+					<th width="8%">赞|评</th>
 					<th width="36%">操作</th>
 				</tr>
 				<tr id="bottom">
@@ -309,14 +308,14 @@
 			 toAdd+="<td><input type='checkbox' name='id[]' value='"+pageData["id"]+"' />"+pageData["id"]+"</td>";
 			 
 			  
-			 var device=parent.getDeviceTxt(pageData['_from']);
-			 toAdd+="<td>"+device+"</td>";
+			// var device=parent.getDeviceTxt(pageData['_from']);
+			 //toAdd+="<td>"+device+"</td>";
 			 
 			 
 			 var nick_name=pageData.user.nick_name;
 			 nick_name=nick_name==undefined?"":nick_name;
 			 
-			 toAdd+="<td>"+nick_name+"</td>";
+			 toAdd+="<td>"+pageData.user.user_id+"|"+nick_name+"</td>";
 			 toAdd+="<td><img src='"+pageData.thumb+"' alt='"+pageData.origin+"'   height='50' onclick='show(this)'/></td>";
 			 toAdd+="<td style='word-wrap:break-word'>"+pageData["description"]+"</td>";
 			 toAdd+="<td>"+pageData["city"]+"</td>";

@@ -35,14 +35,14 @@ public class ManagerDao extends BaseDao<ManagerUser> {
 //		return saveObj(jdbcTemplate, TABLE_USER_DYNAMIC, dyanmic);
 //	}
 
-	public List<UserDynamic> getHomeFoundSelected(Long user_id, int pageIndex, int pageSize, String nick_name) {
+	public List<UserDynamic> getHomeFoundSelected(Long user_id, int pageIndex, int pageSize, Long dy_id) {
 
-		if (!TextUtils.isEmpty(nick_name)) {
+		if (dy_id!=null) {
 			String sql = "select dy.*, user.user_id  ,user.nick_name ,user.avatar,user.sex ,user.birthday,user.type ,user.isvip from "
 					+ TABLE_USER_DYNAMIC
-					+ " dy   left join t_user user on  dy.user_id=user.user_id  where dy.found_status=?  and user.nick_name like ? order by dy.id desc limit ?,?";
+					+ " dy   left join t_user user on  dy.user_id=user.user_id  where dy.found_status=?  and dy.id=? order by dy.id desc limit ?,?";
 			return jdbcTemplate.query(sql,
-					new Object[] { UserFnStatus.ENABLE.ordinal(),"%"+nick_name+"%", (pageIndex - 1) * pageSize, pageSize },
+					new Object[] { UserFnStatus.ENABLE.ordinal(),dy_id, (pageIndex - 1) * pageSize, pageSize },
 					new DynamicMapper());
 		}else {
 			
@@ -127,14 +127,12 @@ public class ManagerDao extends BaseDao<ManagerUser> {
 				new DynamicMapper());
 	}
 
-	public int getHomeFoundSelectedCount(Long user_id, String nick_name) {
-		if (!TextUtils.isEmpty(nick_name)) {
+	public int getHomeFoundSelectedCount(Long user_id, Long dy_id) {
+		if (dy_id!=null) {
 			String sql = "select  count(*) from " + TABLE_USER_DYNAMIC
-					+ " dy left join t_user u on dy.user_id=u.user_id  where dy.type=0 and dy.found_status=?   and u.nick_name like ?";
-			return jdbcTemplate.queryForObject(sql, new Object[] { UserFnStatus.ENABLE.ordinal(), "%" + nick_name + "%" }, Integer.class);
+					+ " dy left join t_user u on dy.user_id=u.user_id  where dy.type=0 and dy.found_status=?   and dy.id=?";
+			return jdbcTemplate.queryForObject(sql, new Object[] { UserFnStatus.ENABLE.ordinal(), dy_id }, Integer.class);
 		} else {
-			
-			
 			if(user_id==null) {
 				String sql = "select  count(*) from " + TABLE_USER_DYNAMIC
 						+ " dy left join t_user u on dy.user_id=u.user_id  where  dy.type=0 and dy.found_status=? ";

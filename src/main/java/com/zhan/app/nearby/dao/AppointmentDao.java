@@ -15,7 +15,6 @@ import com.zhan.app.nearby.bean.City;
 import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.comm.AppointmentStatus;
 import com.zhan.app.nearby.dao.base.BaseDao;
-import com.zhan.app.nearby.util.DateTimeUtil;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.TextUtils;
 
@@ -32,10 +31,11 @@ public class AppointmentDao extends BaseDao<Appointment> {
 				"select a.*,u.user_id,u.nick_name,u.sex,u.avatar,u.birthday,u.lat,u.lng,u.isvip,u.video_cert_status,c.name as city_name,th.id as tid,th.name as thname  from "
 						+ getTableName() + " a left join t_user u on a.uid=u.user_id "
 						+ "left join t_sys_city c on a.city_id=c.id "
-						+ "left join t_appointment_theme th on a.theme_id=th.id   where (a.uid=? or a.status=?) ");
+						+ "left join t_appointment_theme th on a.theme_id=th.id   where (a.uid=? or a.status=? or a.status=? ) ");
 
 		params.add(user_id);
 		params.add(AppointmentStatus.CHECKED.ordinal());
+		params.add(AppointmentStatus.RECOMMEND.ordinal());
 
 		if (theme_id != null) {
 			sql.append(" and a.theme_id=? ");

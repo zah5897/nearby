@@ -105,11 +105,11 @@ public class WebManagerController {
 	}
 
 	@RequestMapping(value = "/selected_dynamic_list")
-	public @ResponseBody ModelMap selected_dynamic_list(HttpServletRequest request, Long user_id, int pageIndex,String nick_name) {
+	public @ResponseBody ModelMap selected_dynamic_list(HttpServletRequest request, Long user_id, int pageIndex,Long dy_id) {
 		if (!managerService.isLogin(request)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
-		return managerService.getHomeFoundSelected(user_id, pageIndex, 10,nick_name);
+		return managerService.getHomeFoundSelected(user_id, pageIndex, 10,dy_id);
 	}
 
 	// 未选择出现在首页的列表
@@ -125,19 +125,19 @@ public class WebManagerController {
 
 	@RequestMapping(value = "/remove_from_selected")
 	public @ResponseBody ModelMap remove_from_selected(HttpServletRequest request, Long user_id, long id,
-			int currentPage,String nick_name) {
+			int currentPage,Long dy_id) {
 
 		if (!managerService.isLogin(request)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
 		managerService.removeFromSelected(id);
-		return selected_dynamic_list(request,user_id,currentPage,nick_name);
+		return selected_dynamic_list(request,user_id,currentPage,dy_id);
 	}
 
 	// 删除多个
 	@RequestMapping(value = "/removes_from_selected")
 	public @ResponseBody ModelMap removes_from_selected(HttpServletRequest request, Long user_id, String ids,
-			int currentPage,String nick_name) {
+			int currentPage,Long dy_id) {
 
 		if (!managerService.isLogin(request)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
@@ -152,7 +152,7 @@ public class WebManagerController {
 		for (long id : idlist) {
 			managerService.removeFromSelected(id);
 		}
-		return selected_dynamic_list(request,user_id,currentPage,nick_name);
+		return selected_dynamic_list(request,user_id,currentPage,dy_id);
 	}
 
 	// 添加到首页推荐

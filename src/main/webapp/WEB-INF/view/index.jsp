@@ -69,11 +69,7 @@
     <li><a href="<%=path %>/manager/forword?path=signature_manager" target="right"><span class="icon-caret-right"></span>签名审核</a></li>
   </ul> 
   
-   <h2><span class="icon-user"></span>礼物</h2>
-   <ul>
-     <li><a href="<%=path %>/manager/forword?path=gift_history" target="right"><span class="icon-caret-right"></span>礼物清单</a></li>
-     <li><a href="<%=path %>/manager/forword?path=gift_manager" target="right"><span class="icon-caret-right"></span>礼物管理</a></li>
-    </ul> 
+
    
    <!--
   
@@ -127,7 +123,11 @@
   </ul> 
   -->
   
-  
+     <h2><span class="icon-user"></span>礼物</h2>
+   <ul>
+     <li><a href="<%=path %>/manager/forword?path=gift_history" target="right"><span class="icon-caret-right"></span>礼物清单</a></li>
+     <li><a href="<%=path %>/manager/forword?path=gift_manager" target="right"><span class="icon-caret-right"></span>礼物管理</a></li>
+    </ul> 
     <h2><span class="icon-user"></span>人工处理</h2>
    <ul>
     <li><a href="<%=path %>/manager/forword?path=charge_vip" target="right"><span class="icon-caret-right"></span>充值会员</a></li>

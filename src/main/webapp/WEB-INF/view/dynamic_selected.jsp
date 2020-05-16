@@ -32,11 +32,11 @@
 				<ul class="search">
 				    <li>
 			         <input type="text" placeholder="请输入用户id" name="user_id_input" class="input" style="width:250px; line-height:17px;display:inline-block" />
-                     <a href="javascript:void(0)" class="button border-main icon-search" onclick="doSearchById()" > 搜索</a>
+                     <a href="javascript:void(0)" class="button border-main icon-search" onclick="doSearch()" >搜索</a>
                    </li> 
 				   <li>
-			         <input type="text" placeholder="请输入用户昵称" name="keywords" class="input" style="width:250px; line-height:17px;display:inline-block" />
-                     <a href="javascript:void(0)" class="button border-main icon-search" onclick="doSearch()" > 搜索</a>
+			         <input type="text" placeholder="请输入动态id" name="dy_id" class="input" style="width:250px; line-height:17px;display:inline-block" />
+                     <a href="javascript:void(0)" class="button border-main icon-search" onclick="doSearch()" >搜索</a>
                    </li> 
 				
 					<li>
@@ -52,13 +52,12 @@
 			<table class="table table-hover text-center">
 				<tr>
 					<th width="8%">ID</th>
-					<th width="5%">设备</th>
-					<th width="8%">发布者</th>
+					<th width="10%">用户ID|昵称</th>
 					<th width="10%">图片</th>
-					<th width="15%">内容</th>
+					<th width="10%">内容</th>
 					<th width="8%">城市</th>
-					<th width="15%">时间</th>
-					<th width="10%">赞|评</th>
+					<th width="10%">时间</th>
+					<th width="8%">赞|评</th>
 					<th width="21%">操作</th>
 				</tr>
 				 
@@ -81,7 +80,7 @@
 	    var pageCount = 100;
 	    var user_id;
 	    
-	    var keyword;
+	    var dy_id;
 	    
 	    //默认加载第一页
 	    $(document).ready(function(){ 
@@ -102,44 +101,18 @@
 			}
 			page(currentPage+1)
 		}
-		function doSearchById(){
-	    	var key=$("[name='user_id_input']").val().replace(/^\s+|\s+$/g,"");
-	    	if(user_id==''){
-	    		if(key==''){
-		    		return;
-		    	}
-	    	}
-	    	if(user_id==key){
-	    		return;
-	    	}
-	    	user_id=key;
+		function doSearch(){
+	    	var dy_id=$("[name='dy_id']").val().replace(/^\s+|\s+$/g,"");
+	    	var user_id=$("[name='user_id_input']").val().replace(/^\s+|\s+$/g,"");
 	    	currentPage=0;
 	    	page(1);
 	    }
-		
-		
-		 function doSearch(){
-		    	var key=$("[name='keywords']").val().replace(/^\s+|\s+$/g,"");
-		    	if(keyword==''){
-		    		if(key==''){
-			    		return;
-			    	}
-		    	}
-		    	if(keyword==key){
-		    		return;
-		    	}
-		    	keyword=key;
-		    	currentPage=0;
-		    	page(1);
-		    }
-		
-		
 	     //获取对应页面
 		function page(index) {
 			if (currentPage == index) {
 				return false;
 			}
-			$.post("<%=path%>/manager/selected_dynamic_list",{'pageIndex':index,'user_id':user_id,'nick_name':keyword},function(result){
+			$.post("<%=path%>/manager/selected_dynamic_list",{'pageIndex':index,'user_id':user_id,'dy_id':dy_id},function(result){
 				 var json=JSON.parse(result);
 			        if(json.code==0){
 			        	$("table tr[id*='tr_'").each(function(i){
@@ -223,7 +196,7 @@
 		}
 		
 		function del(id) {
-				$.post("<%=path%>/manager/remove_from_selected",{id:id,currentPage:currentPage,'user_id':user_id,'nick_name':keyword},function(result){
+				$.post("<%=path%>/manager/remove_from_selected",{id:id,currentPage:currentPage,'user_id':user_id,'dy_id':dy_id},function(result){
 			        $("#tr_"+id).remove();//移除当前的元素
 			        
 			        var json=JSON.parse(result);
@@ -259,15 +232,15 @@
 			 
 			 
 			 
-			 var device=parent.getDeviceTxt(pageData['_from']);
-			 toAdd+="<td>"+device+"</td>";
+			// var device=parent.getDeviceTxt(pageData['_from']);
+			// toAdd+="<td>"+device+"</td>";
 			 
 			 
 			 
 			 var nick_name=pageData.user.nick_name;
 			 nick_name=nick_name==undefined?"":nick_name;
 			 
-			 toAdd+="<td>"+nick_name+"</td>";
+			 toAdd+="<td>"+pageData.user.user_id+"|"+nick_name+"</td>";
 			 toAdd+="<td><img  src='"+pageData.thumb+"' alt='"+pageData.origin+"'  height='50' onclick='show(this)'/></td>";
 			 toAdd+="<td>"+pageData["description"]+"</td>";
 			 toAdd+="<td>"+pageData["city"]+"</td>";

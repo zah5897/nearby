@@ -23,20 +23,6 @@
     </script>
   </head>
   <body>
-    <div id="mse"></div>
-    <script src="https://cdn.jsdelivr.net/npm/xgplayer/browser/index.js" charset="utf-8"></script>
-    <script src="https://cdn.jsdelivr.net/npm/xgplayer-flv/browser/index.js" charset="utf-8"></script>
-    <script type="text/javascript">
-      let player = new FlvPlayer({
-          id: 'mse',
-          url: '${url }',
-          // url: [{src: '/video/flv/xgplayer-demo-720p.flv', type: 'video/flv'}, {src: '/video/flv/xgplayer-demo-480p.flv', type: 'video/flv'}, {src: '/video/flv/xgplayer-demo-360p.flv', type: 'video/flv'}],
-          playsinline: true,
-          height: window.innerHeight,
-          width: window.innerWidth
-      });
-      player.emit('resourceReady', [{ name: '超清', url: '${url }' }, { name: '高清', url: '${url }' }, { name: '标清', url: '${url }' }]);
-
-    </script>
+   <video id="mse" src="${url }" controls ="true"></video>
   </body>
 </html>

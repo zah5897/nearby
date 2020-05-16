@@ -96,13 +96,13 @@ public class ManagerService {
 		return userCacheService.getManagerAuthName(ip);
 	}
 
-	public ModelMap getHomeFoundSelected(Long user_id, int pageIndex, int pageSize,String nick_name) {
+	public ModelMap getHomeFoundSelected(Long user_id, int pageIndex, int pageSize,Long dy_id) {
 		ModelMap reMap = ResultUtil.getResultOKMap();
 		if (pageIndex == 1) {
-			int totalSize = managerDao.getHomeFoundSelectedCount(user_id,nick_name);
+			int totalSize = managerDao.getHomeFoundSelectedCount(user_id,dy_id);
 			reMap.put("pageCount", getPageCount(totalSize, pageSize));
 		}
-		List<UserDynamic> dys = managerDao.getHomeFoundSelected(user_id, pageIndex, pageSize,nick_name);
+		List<UserDynamic> dys = managerDao.getHomeFoundSelected(user_id, pageIndex, pageSize,dy_id);
 		ImagePathUtil.completeDynamicsPath(dys, true);
 		reMap.put("data", dys);
 		reMap.put("currentPageIndex", pageIndex);

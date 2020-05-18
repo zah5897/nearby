@@ -51,8 +51,6 @@ td {
 							<option value="0">文字</option>
 							<option value="2">语音</option>
 							<option value="3">邂逅</option>
-							<option value="4">弹幕文字</option>
-							<option value="5">弹幕语音</option>
 							<option value="6">我画你猜</option>
 							<option value="7">红包</option>
 					   </select>
@@ -277,7 +275,7 @@ td {
 			 toAdd+="<td>"+typeStr+"</td>";
 			 if(type==3||type==6){
 				 toAdd+="<td><img  src='"+pageData["content"]+"' alt='"+pageData["content"]+"'  height='50'/></td>";
-			 }else if(type==2){
+			 }else if(type==2||type==5){
 				 var audioJson=JSON.parse(pageData["content"]);
 				 var audioPath=audioJson.remotePath;
 				 

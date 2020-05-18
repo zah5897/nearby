@@ -120,13 +120,13 @@ public class ManagerService {
 		return pageCount;
 	}
 
-	public ModelMap getUnSelected(Long user_id, String nick_name, int pageIndex, int pageSize) {
+	public ModelMap getUnSelected(Long user_id, Long dy_id,String nick_name, int pageIndex, int pageSize) {
 		ModelMap reMap = ResultUtil.getResultOKMap();
 		if (pageIndex == 1) {
-			int total = managerDao.getUnSelectedCount(user_id, nick_name);
+			int total = managerDao.getUnSelectedCount(user_id, dy_id);
 			reMap.put("pageCount", getPageCount(total, pageSize));
 		}
-		List<UserDynamic> dys = managerDao.getUnSelectedDynamic(user_id, nick_name, pageIndex, pageSize);
+		List<UserDynamic> dys = managerDao.getUnSelectedDynamic(user_id, dy_id,nick_name, pageIndex, pageSize);
 		ImagePathUtil.completeDynamicsPath(dys, true);
 		reMap.put("data", dys);
 		reMap.put("currentPageIndex", pageIndex);

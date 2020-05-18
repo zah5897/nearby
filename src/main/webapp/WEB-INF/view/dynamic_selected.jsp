@@ -102,8 +102,8 @@
 			page(currentPage+1)
 		}
 		function doSearch(){
-	    	var dy_id=$("[name='dy_id']").val().replace(/^\s+|\s+$/g,"");
-	    	var user_id=$("[name='user_id_input']").val().replace(/^\s+|\s+$/g,"");
+	    	dy_id=$("[name='dy_id']").val().replace(/^\s+|\s+$/g,"");
+	    	user_id=$("[name='user_id_input']").val().replace(/^\s+|\s+$/g,"");
 	    	currentPage=0;
 	    	page(1);
 	    }

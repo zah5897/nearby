@@ -114,13 +114,13 @@ public class WebManagerController {
 
 	// 未选择出现在首页的列表
 	@RequestMapping(value = "/unselected_dynamic_list")
-	public @ResponseBody ModelMap unselected_dynamic_list(HttpServletRequest request, Long user_id, int pageIndex,
+	public @ResponseBody ModelMap unselected_dynamic_list(HttpServletRequest request, Long user_id,Long dy_id, int pageIndex,
 			String nick_name) {
 
 		if (!managerService.isLogin(request)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
-		return  managerService.getUnSelected(user_id, nick_name, pageIndex, 10);
+		return  managerService.getUnSelected(user_id,dy_id, nick_name, pageIndex, 10);
 	}
 
 	@RequestMapping(value = "/remove_from_selected")
@@ -157,18 +157,18 @@ public class WebManagerController {
 
 	// 添加到首页推荐
 	@RequestMapping(value = "/add_dy_to_selected")
-	public @ResponseBody ModelMap add_dy_to_selected(HttpServletRequest request, Long user_id, String nick_name, long id,
+	public @ResponseBody ModelMap add_dy_to_selected(HttpServletRequest request, Long user_id,Long dy_id, String nick_name, long id,
 			int currentPage) {
 
 		if (!managerService.isLogin(request)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
 		managerService.addDyToSelected(id);
-		return unselected_dynamic_list(request,user_id,currentPage,nick_name);
+		return unselected_dynamic_list(request,user_id,dy_id,currentPage,nick_name);
 	}
 	// 添加多个到首页推荐
 	@RequestMapping(value = "/add_batch_to_selected")
-	public @ResponseBody ModelMap add_batch_to_selected(HttpServletRequest request, Long user_id, String nick_name,
+	public @ResponseBody ModelMap add_batch_to_selected(HttpServletRequest request, Long user_id, Long dy_id,String nick_name,
 			String ids, int currentPage) {
 
 		if (!managerService.isLogin(request)) {
@@ -184,7 +184,7 @@ public class WebManagerController {
 		for (long id : idList) {
 			managerService.addDyToSelected(id);
 		}
-		return unselected_dynamic_list(request,user_id,currentPage,nick_name);
+		return unselected_dynamic_list(request,user_id,dy_id,currentPage,nick_name);
 	}
 
 	@RequestMapping(value = "/get_welcome")
@@ -307,7 +307,7 @@ public class WebManagerController {
 		return reMap;
 	}
 	@RequestMapping(value = "/dynamic_del")
-	public @ResponseBody ModelMap dynamic_del(HttpServletRequest request, Long user_id, String nick_name, long id,
+	public @ResponseBody ModelMap dynamic_del(HttpServletRequest request, Long user_id,Long dy_id, String nick_name, long id,
 			int currentPage) {
 
 		if (!managerService.isLogin(request)) {
@@ -315,12 +315,12 @@ public class WebManagerController {
 		}
 
 		managerService.removeUserDynamic(id);
-		return unselected_dynamic_list(request,user_id,currentPage,nick_name);
+		return unselected_dynamic_list(request,user_id,dy_id,currentPage,nick_name);
 	}
 
 	// 未选中首页内执行违规操作
 	@RequestMapping(value = "/illegal_unselected")
-	public @ResponseBody ModelMap illegal_unselected(HttpServletRequest request, Long user_id, String nick_name,
+	public @ResponseBody ModelMap illegal_unselected(HttpServletRequest request, Long user_id,Long dy_id, String nick_name,
 			long id, int currentPage) {
 
 		if (!managerService.isLogin(request)) {
@@ -328,20 +328,20 @@ public class WebManagerController {
 		}
 
 		managerService.updateDynamicState(id, DynamicStatus.ILLEGAL);
-		return unselected_dynamic_list(request,user_id,currentPage,nick_name);
+		return unselected_dynamic_list(request,user_id,dy_id,currentPage,nick_name);
 	}
 	
 	
 	// 未选中首页内执行违规操作
 		@RequestMapping(value = "/ignore_unselected")
-		public @ResponseBody ModelMap ignore_unselected(HttpServletRequest request, Long user_id, String nick_name,
+		public @ResponseBody ModelMap ignore_unselected(HttpServletRequest request, Long user_id,Long dy_id, String nick_name,
 				long id, int currentPage) {
 
 			if (!managerService.isLogin(request)) {
 				return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 			}
 			managerService.updateDynamicManagerFlag(id, 1);
-			return unselected_dynamic_list(request,user_id,currentPage,nick_name);
+			return unselected_dynamic_list(request,user_id,dy_id,currentPage,nick_name);
 		}
 	
 

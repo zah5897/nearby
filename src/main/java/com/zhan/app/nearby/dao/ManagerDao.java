@@ -84,7 +84,7 @@ public class ManagerDao extends BaseDao<ManagerUser> {
 		}
 	}
 
-	public List<UserDynamic> getUnSelectedDynamic(Long user_id, String nick_name, int pageIndex, int pageSize) {
+	public List<UserDynamic> getUnSelectedDynamic(Long user_id,Long dy_id, String nick_name, int pageIndex, int pageSize) {
 
 		String sql = "select dynamic.*  ,user.user_id  ,user.nick_name ,user.avatar,user.sex,user.isvip ,user.birthday,user.type from "
 				+ TABLE_USER_DYNAMIC
@@ -95,9 +95,9 @@ public class ManagerDao extends BaseDao<ManagerUser> {
 		param.add(UserFnStatus.DEFAULT.ordinal());
 		param.add(DynamicStatus.CHECKED.ordinal());
 
-		if (!TextUtils.isEmpty(nick_name)) {
-			sql += " and dynamic.user_id in (select user_id from t_user where nick_name like ?)";
-			param.add("%" + nick_name + "%");
+		if (dy_id!=null) {
+			sql += " and dynamic.id=?";
+			param.add(dy_id);
 		}
 
 		if (user_id != null) {
@@ -149,7 +149,7 @@ public class ManagerDao extends BaseDao<ManagerUser> {
 	}
 
 	// 获取未选中的（前提为被审核通过的）
-	public int getUnSelectedCount(Long user_id, String nick_name) {
+	public int getUnSelectedCount(Long user_id, Long dy_id) {
 		String sql = "select count(*) from " + TABLE_USER_DYNAMIC
 				+ " dynamic    where dynamic.type=0 and  dynamic.found_status<>?  and dynamic.state=? and manager_flag<>1 ";
 
@@ -157,9 +157,9 @@ public class ManagerDao extends BaseDao<ManagerUser> {
 		param.add(UserFnStatus.DEFAULT.ordinal());
 		param.add(DynamicStatus.CHECKED.ordinal());
 
-		if (!TextUtils.isEmpty(nick_name)) {
-			sql += " and dynamic.user_id in (select user_id from t_user where nick_name like ?)";
-			param.add("%" + nick_name + "%");
+		if (dy_id!=null) {
+			sql += " and dynamic.id=? ";
+			param.add(dy_id);
 		}
 
 		if (user_id != null) {

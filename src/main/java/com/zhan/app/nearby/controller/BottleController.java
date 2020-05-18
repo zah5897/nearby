@@ -211,9 +211,8 @@ public class BottleController {
 		count=count == null ? 5 : count;
 		return bottleService.getBottles(user_id, count, look_sex, type, state,version, _ua,channel);
 	}
-
+	private String review_version="2.0.8";
 	
-	private String review_version="2.0.7";
 	@RequestMapping("set_ios_review_version")
 	public ModelMap set_ios_review(String review_version) {
 		 this.review_version=review_version;

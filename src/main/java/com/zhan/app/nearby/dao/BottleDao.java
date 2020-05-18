@@ -412,8 +412,18 @@ public class BottleDao extends BaseDao<Bottle> {
 		param.add(status);
 		
 		if(type!=-1) {
-			sql+=" and b.type=? ";
-			param.add(type);
+			if(type==0) { //
+				sql+=" and (b.type=? or b.type=?) ";
+				param.add(type);
+				param.add(BottleType.DM_TXT.ordinal());
+			}else if(type==2) {
+				sql+=" and (b.type=? or b.type=?) ";
+				param.add(type);
+				param.add(BottleType.DM_VOICE.ordinal());
+			}else {
+				sql+=" and b.type=? ";
+				param.add(type);
+			}
 		}
 		
 		if(user_id!=null) {
@@ -452,9 +462,15 @@ public class BottleDao extends BaseDao<Bottle> {
 		}
 		
 		if(type!=-1) {
-			sql+=" and b.type="+type;
+			
+			if(type==0) {
+				sql+=" and (b.type="+type+" or b.type="+BottleType.DM_TXT.ordinal()+")";
+			}else if(type==2) {
+				sql+=" and (b.type="+type+" or b.type="+BottleType.DM_VOICE.ordinal()+")";
+			}else {
+				sql+=" and b.type="+type;
+			}
 		}
-		
 		if(user_id!=null) {
 			sql+=" and b.user_id="+user_id;
 		}

@@ -232,18 +232,18 @@ td {
 			 var txtFrom;
 			 if(from==1){
 				 if(!channel){
-					 channel="iPhone"; 
+					 txtFrom="iPhone"; 
+				 }else{
+					 txtFrom=channel
 				 }
-				 txtFrom=channel;
-			 }else if(from==2){
-				 txtFrom=channel;
 			 }else{
-				 txtFrom=channel;
+				 if(!channel){
+					 txtFrom="and"; 
+				 }else{
+					 txtFrom=channel
+				 }
 			 }
-			 
 			 toAdd+="<td>"+txtFrom+"</td>";
-			 
-			 
 			 var nick_name=pageData.sender.nick_name;
 			 var uid=pageData.sender.user_id;
 			 nick_name=nick_name==undefined?"":nick_name;

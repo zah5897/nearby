@@ -29,6 +29,8 @@ public class TimerTask {
 	@Autowired
 	private MatchActiveUserTask matchActiveUserTask;
 	@Autowired
+	private HXAsyncTask hxAsyncTask;
+	@Autowired
 	private UserCacheService userCacheService;
 	
 	@Scheduled(cron = "0 0/5 * * * ?") // 每5分钟执行一次
@@ -157,6 +159,19 @@ public class TimerTask {
 		}
 	}
 
+	//@Scheduled(cron = "0 0/60 * * * ?") // 每10分钟执行一次
+	public void downloadIMChatHistoryMessages() { //
+		
+		String ip = IPUtil.getLocalAddr();
+		String method = Thread.currentThread().getStackTrace()[1].getMethodName();
+		boolean lock = userCacheService.tryLock(method, ip, 59*60); //锁定59分钟
+		if (lock) {
+			hxAsyncTask.exportChatMessages();
+		}
+		
+	}
+	
+	
 	public void autoAddBlackIP() {
 		UserService userService = SpringContextUtil.getBean("userService");
 		userService.checkRegistIP(10);

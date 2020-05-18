@@ -57,6 +57,11 @@ public class BottleDao extends BaseDao<Bottle> {
 			return null;
 		}
 	}
+	
+	
+	public String getBottleContent(long bid) {
+		return jdbcTemplate.queryForList("select content from "+getTableName()+" where id="+bid,String.class).get(0);
+	}
 
 	public Bottle getBottleByRand() {
 		String sql = "select bottle.*,user.nick_name,user.sex,user.avatar,u.isvip from " + getTableName()

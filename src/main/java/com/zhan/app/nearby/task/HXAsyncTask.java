@@ -143,6 +143,10 @@ public class HXAsyncTask {
 			throw new AppException(ERROR.ERR_SYS, new RuntimeException("鐜俊娉ㄥ唽澶辫触"));
 		}
 	}
+	@Async
+	public void exportChatMessages() {
+		HX_SessionUtil.exportChatMessages();
+	}
 
 
 //	@Async

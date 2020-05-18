@@ -10,6 +10,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
 <meta name="viewport"
 	content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 <meta name="renderer" content="webkit">
@@ -18,6 +19,8 @@
 <link rel="stylesheet" href="<%=path%>/css/admin.css">
 <script src="<%=path%>/js/jquery.js"></script>
 <script src="<%=path%>/js/pintuer.js"></script>
+<script src="<%=path%>/js/voice-2.0.js"></script>
+
 <style type="text/css">
 td {
 	word-break: break-all
@@ -29,19 +32,6 @@ td {
 		<div class="panel admin-panel">
 			<div class="padding border-bottom">
 				<ul class="search">
-					<li>状态筛选：</li>
-					<li>
-					   <select id="bottle_status" name="bottle_status" class="input"
-						onchange="changeSelectStatus(this)"
-						style="line-height: 17px; display: inline-block">
-							<option value="0">正常状态</option>
-							<option value="1">审核状态</option>
-							<option value="2">黑名单</option>
-							<option value="3">精选</option>
-					   </select>
-					</li>
-					
-					
 					<li>类型筛选：</li>
 					<li>
 					   <select id="bottle_type" name="bottle_type" class="input"
@@ -92,6 +82,7 @@ td {
 		</div>
 	</form>
 	<script type="text/javascript">
+	   RongIMLib.RongIMVoice.init();
 	    //页面索引记录
 	    var currentPageIndex = 0;
 	    var pageSize = 10;
@@ -173,11 +164,6 @@ td {
 				$("#new_count").text("对应新增用户数量："+json["totalCount"])
 			}
 			refreshPageIndex();	
-			
-			 $("#playerBtn").bind("click",function(e){  
-	               var playerUrl = e.target.getAttribute("playerUrl");  
-	               playerAudio(playerUrl);  
-	         }); 
 		}
 		
 		function refreshPageIndex(){
@@ -276,10 +262,7 @@ td {
 			 if(type==3||type==6){
 				 toAdd+="<td><img  src='"+pageData["content"]+"' alt='"+pageData["content"]+"'  height='50'/></td>";
 			 }else if(type==2||type==5){
-				 var audioJson=JSON.parse(pageData["content"]);
-				 var audioPath=audioJson.remotePath;
-				 
-				 toAdd+="<td> <button class='icon-audio' id='playerBtn' style='margin:0 5px;cursor:pointer;' onclick=playerAudio("+id+","+audioPath+")>播放</button><div style='width:1px;height:1px;' id='playerQT"+id+"'></div></td>";
+				 toAdd+="<td> <button class='icon-audio' style='margin:0 5px;cursor:pointer;' onclick='return download("+id+")'>播放</button></td>";
 			 }
 			 else{
 				 toAdd+="<td>"+pageData["content"]+"</td>";
@@ -288,19 +271,36 @@ td {
 			 toAdd+="<td>"+pageData['create_time']+"</td>";
 			 
 			 
+			 var state=pageData.state;
 			 //操作单元格
 			  toAdd+="<td><div class='button-group'>";
 			  //操作单元格
-				  toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return changeBottleState("+id+",3)'><span class='icon-edit'></span>精选推荐</a>";
-				  toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return changeBottleState("+id+",2)'><span class='icon-edit'></span>关小黑屋</a>";
+			  
+			  if(state!=3){
+				  toAdd+="<a class='button border-main' href='javascript:void(0)'	onclick='return changeBottleState("+id+",3)'><span class='icon-edit'></span>精选推荐</a>";
+			  }else{
+				  toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return changeBottleState("+id+",0)'><span class='icon-edit'></span>取消推荐</a>";
+			  }
+				  
+				  toAdd+="<a class='button border-yellow' href='javascript:void(0)'	onclick='return changeBottleState("+id+",2)'><span class='icon-edit'></span>关小黑屋</a>";
 			      toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return changeBottleState("+id+",-2)'><span class='icon-edit'></span>拉黑名单</a>";
 			  
 			  toAdd+="</div></td></tr>";
 			 tr.after(toAdd);
 		}
-	    function playerAudio(id,url){  
-	    	$("#playerQT"+id).html('<ltembed width="1px" height="1px" name="plugin" src="'+url+'" type="audio/amr" id="QT_EMB">');
-       }  
+	    function download(id){
+	    	
+	    	 $.get("<%=path%>/manager/download_audio?bid="+id, 
+	    		  function(result){
+	    		 var json=JSON.parse(result);
+	    		   if(json.code==0){
+	    			    var amr=json.amr;
+	    			    RongIMLib.RongIMVoice.play(amr);
+	    	    	 }
+	    		  });
+	    	
+	    	 return false;
+        }  
 	    
 	    function show(img){
 	    	parent.showOriginImg(img);

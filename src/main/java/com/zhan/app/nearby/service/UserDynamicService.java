@@ -244,9 +244,9 @@ public class UserDynamicService {
 		userDynamicDao.changeCommentStatus(id, status);
 	}
 
-	public List<UserDynamic> loadVideoDynamic(long user_id, Long last_id, int count, int secret_level) {
+	public List<UserDynamic> loadRecommendVideoDynamic(long user_id, Long last_id, int count, int secret_level) {
 
-		List<UserDynamic> dys = userDynamicDao.loadVideoDynamic(user_id, last_id == null ? Long.MAX_VALUE : last_id,
+		List<UserDynamic> dys = userDynamicDao.loadRecommendVideoDynamic(user_id, last_id == null ? Long.MAX_VALUE : last_id,
 				count, secret_level);
 		ImagePathUtil.completeDynamicsPath(dys, true);
 		return dys;

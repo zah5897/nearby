@@ -9,18 +9,31 @@ import com.easemob.server.example.comm.wrapper.QueryWrapper;
 
 public class EasemobChatMessage extends EasemobRestAPI implements ChatMessageAPI {
 
-    private static final String ROOT_URI = "chatmessages";
+	private static final String ROOT_URI = "/chatmessages";
 
-    public Object exportChatMessages(Long limit, String cursor, String query) {
-        String url = getContext().getSeriveURL() + getResourceRootURI();
-        HeaderWrapper header = HeaderHelper.getDefaultHeaderWithToken();
-        QueryWrapper queryWrapper = QueryWrapper.newInstance().addLimit(limit).addCursor(cursor).addQueryLang(query);
+	public Object exportChatMessages(Long limit, String cursor, String query) {
+		String url = getContext().getSeriveURL() + getResourceRootURI();
+		HeaderWrapper header = HeaderHelper.getDefaultHeaderWithToken();
+		QueryWrapper queryWrapper = QueryWrapper.newInstance().addLimit(limit).addCursor(cursor).addQueryLang(query);
 
-        return getInvoker().sendRequest(HTTPMethod.METHOD_DELETE, url, header, null, queryWrapper);
-    }
+		return getInvoker().sendRequest(HTTPMethod.METHOD_GET, url, header, null, queryWrapper);
+	}
 
-    @Override
-    public String getResourceRootURI() {
-        return ROOT_URI;
-    }
+	public Object exportChatMessages(String timePoint) {
+		String url = getContext().getSeriveURL() + getResourceRootURI();
+		HeaderWrapper header = HeaderHelper.getDefaultHeaderWithToken();
+		url += "/" + timePoint;
+		return getInvoker().sendRequest(HTTPMethod.METHOD_GET, url, header, null, null);
+	}
+	
+	public Object downloadAudioFile(String remoteUrl,String secretKey) {
+		HeaderWrapper header = HeaderHelper.getDefaultHeaderWithToken();
+		header.addHeader("share-secret", secretKey);
+		return getInvoker().downloadFile(remoteUrl, header, null);
+	}
+
+	@Override
+	public String getResourceRootURI() {
+		return ROOT_URI;
+	}
 }

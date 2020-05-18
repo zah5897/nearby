@@ -21,7 +21,7 @@ import com.zhan.app.nearby.util.TextUtils;
 @Repository("appointmentDao")
 public class AppointmentDao extends BaseDao<Appointment> {
 
-	public List<Appointment> queryAll(long user_id, Integer last_id, int count, Integer theme_id, Integer time_stage,
+	public List<Appointment> listRecommend(long user_id, Integer last_id, int count, Integer theme_id, Integer time_stage,
 			String appointment_time, Integer city_id, String keyword) {
 		last_id = (last_id == null ? Integer.MAX_VALUE : last_id);
 
@@ -31,10 +31,9 @@ public class AppointmentDao extends BaseDao<Appointment> {
 				"select a.*,u.user_id,u.nick_name,u.sex,u.avatar,u.birthday,u.lat,u.lng,u.isvip,u.video_cert_status,c.name as city_name,th.id as tid,th.name as thname  from "
 						+ getTableName() + " a left join t_user u on a.uid=u.user_id "
 						+ "left join t_sys_city c on a.city_id=c.id "
-						+ "left join t_appointment_theme th on a.theme_id=th.id   where (a.uid=? or a.status=? or a.status=? ) ");
+						+ "left join t_appointment_theme th on a.theme_id=th.id   where   (a.uid=? or a.status=? ) ");
 
 		params.add(user_id);
-		params.add(AppointmentStatus.CHECKED.ordinal());
 		params.add(AppointmentStatus.RECOMMEND.ordinal());
 
 		if (theme_id != null) {

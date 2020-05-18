@@ -1,10 +1,23 @@
 package com.easemob.server.example;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.http.conn.EofSensorInputStream;
 
 import com.easemob.server.example.api.IMUserAPI;
 import com.easemob.server.example.api.SendMessageAPI;
+import com.easemob.server.example.api.impl.EasemobChatMessage;
 import com.easemob.server.example.comm.ClientContext;
 import com.easemob.server.example.comm.EasemobRestAPIFactory;
 import com.easemob.server.example.comm.body.CmdMessageBody;
@@ -19,6 +32,7 @@ import com.zhan.app.nearby.util.DateTimeUtil;
 import com.zhan.app.nearby.util.HX_SessionUtil;
 import com.zhan.app.nearby.util.JSONUtil;
 import com.zhan.app.nearby.util.SpringContextUtil;
+import sun.misc.BASE64Encoder;
 
 public class Main {
 	public static EasemobRestAPIFactory factory;
@@ -131,10 +145,6 @@ public class Main {
 //		Main.sendTxtMessage("admin", new String[] {"133258"},map);
 		// disconnectUser("1");
 		initFactory();
-		String token = ClientContext.getInstance().getAuthToken();
-		System.out.println(token);
-		
-		disconnect("54973");
 	}
 
 	public static Object registUser(String userName, String password, String nickname) {
@@ -143,8 +153,6 @@ public class Main {
 		BodyWrapper userBody = new IMUserBody(userName, password, nickname);
 		return user.createNewIMUserSingle(userBody);
 	}
-
-	
 
 	public static Object updateNickName(String userName, String nickname) {
 		initFactory();
@@ -219,12 +227,11 @@ public class Main {
 	}
 
 	public static Object sendCmdMessageVipInfo(String[] toUsers, Map<String, String> ext) {
-		
-		
+
 		Map<String, String> apns = new HashMap<String, String>();
-		createCmdMsg(toUsers,ext,apns);
-		
-		VipService vipService=SpringContextUtil.getBean("vipService");
+		createCmdMsg(toUsers, ext, apns);
+
+		VipService vipService = SpringContextUtil.getBean("vipService");
 		apns.put("buy_vip_info", JSONUtil.writeValueAsString(vipService.globalInfo()));
 		try {
 			ext.put("em_apns_ext", JSONUtil.writeValueAsString(apns));
@@ -237,16 +244,16 @@ public class Main {
 
 		return message.sendMessage(payload);
 	}
-	public static Object sendCmdMessageOnlineMsg(String[] toUsers, Map<String, String> ext,BaseUser onlineUser) {
-		
-		
+
+	public static Object sendCmdMessageOnlineMsg(String[] toUsers, Map<String, String> ext, BaseUser onlineUser) {
+
 		Map<String, String> apns = new HashMap<String, String>();
-		createCmdMsg(toUsers,ext,apns);
-		
+		createCmdMsg(toUsers, ext, apns);
+
 		Map<String, String> onlineUserMap = new HashMap<String, String>();
 		HX_SessionUtil.putDataInfo(onlineUserMap, onlineUser);
 		onlineUserMap.put("sender_sex", onlineUser.getSex());
-		onlineUserMap.put("sender_age",DateTimeUtil.getAge(onlineUser.getBirthday()));
+		onlineUserMap.put("sender_age", DateTimeUtil.getAge(onlineUser.getBirthday()));
 		apns.put("online_user", JSONUtil.writeValueAsString(onlineUserMap));
 		try {
 			ext.put("em_apns_ext", JSONUtil.writeValueAsString(apns));
@@ -256,28 +263,27 @@ public class Main {
 		initFactory();
 		BodyWrapper payload = new CmdMessageBody("users", toUsers, SYS, ext);
 		SendMessageAPI message = (SendMessageAPI) factory.newInstance(EasemobRestAPIFactory.SEND_MESSAGE_CLASS);
-		
+
 		return message.sendMessage(payload);
 	}
-	
+
 	public static Object sendCmdMessage(String[] toUsers, Map<String, String> ext) {
 		Map<String, String> apns = new HashMap<String, String>();
-		createCmdMsg(toUsers,ext,apns);
+		createCmdMsg(toUsers, ext, apns);
 		try {
 			ext.put("em_apns_ext", JSONUtil.writeValueAsString(apns));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		initFactory();
 		BodyWrapper payload = new CmdMessageBody("users", toUsers, SYS, ext);
 		SendMessageAPI message = (SendMessageAPI) factory.newInstance(EasemobRestAPIFactory.SEND_MESSAGE_CLASS);
 
 		return message.sendMessage(payload);
 	}
-	
-	
-	private static void createCmdMsg(String[] toUsers, Map<String, String> ext,Map<String, String> apns) {
+
+	private static void createCmdMsg(String[] toUsers, Map<String, String> ext, Map<String, String> apns) {
 		if (ext == null) {
 			ext = new HashMap<String, String>();
 		}
@@ -289,7 +295,6 @@ public class Main {
 		apns.put("em_push_name", "漂流瓶交友");
 		apns.put("extern", ext.get("msg"));
 	}
-	
 
 	public static Object addFriend(String user_id, String friend_id) {
 		initFactory();
@@ -306,10 +311,11 @@ public class Main {
 	public static Object disconnect(String username) {
 		initFactory();
 		IMUserAPI user = (IMUserAPI) factory.newInstance(EasemobRestAPIFactory.USER_CLASS);
-		ResponseWrapper wrapper=  (ResponseWrapper) user.disconnectIMUser(username);
+		ResponseWrapper wrapper = (ResponseWrapper) user.disconnectIMUser(username);
 		return wrapper.getResponseBody();
 //		org_name}/{app_name}/users/{username}/disconnect
 	}
+
 	public static boolean disconnectUser(String userName) {
 		initFactory();
 		IMUserAPI user = (IMUserAPI) factory.newInstance(EasemobRestAPIFactory.USER_CLASS);
@@ -328,6 +334,34 @@ public class Main {
 
 		return false;
 	}
-	
-	
+
+	public static Object exportChatMessages() {
+		initFactory();
+		EasemobChatMessage message = (EasemobChatMessage) factory.newInstance(EasemobRestAPIFactory.MESSAGE_CLASS);
+		ResponseWrapper wrapper = (ResponseWrapper) message
+				.exportChatMessages(DateTimeUtil.getMessageHistoryTimePoint());
+		if (wrapper.getResponseStatus() == 200) {
+			Map<String, Object> requestResult = JSONUtil.jsonToMap(wrapper.getResponseBody().toString());
+			List<Map> data = (List<Map>) requestResult.get("data");
+			return data.get(0);
+		}
+		return null;
+	}
+
+	public static String downloadAudioFile(String remoteUrl, String secretKey) throws IOException {
+		initFactory();
+		EasemobChatMessage message = (EasemobChatMessage) factory.newInstance(EasemobRestAPIFactory.MESSAGE_CLASS);
+		ResponseWrapper wrapper = (ResponseWrapper) message.downloadAudioFile(remoteUrl, secretKey);
+		if (wrapper.getResponseStatus() == 200) {
+			EofSensorInputStream input = (EofSensorInputStream) wrapper.getResponseBody();
+			int size = input.available();
+			byte[] buffer = new byte[size];
+			input.read(buffer);
+			String str = new BASE64Encoder().encode(buffer);
+			input.close();
+			return str;
+		} else {
+			return null;
+		}
+	}
 }

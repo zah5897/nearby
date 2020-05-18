@@ -95,7 +95,7 @@ public class DynamicController {
 			@ApiImplicitParam(name = "secret_level", value = "视频等级，0为公开，1为私密", paramType = "query"),
 			@ApiImplicitParam(name = "count", value = "count", required = true, paramType = "query") })
 	public ModelMap list(long user_id, Long last_id, int count, Integer type, Integer secret_level) {
-		List<UserDynamic> dys = userDynamicService.loadVideoDynamic(user_id, last_id, count, secret_level);
+		List<UserDynamic> dys = userDynamicService.loadRecommendVideoDynamic(user_id, last_id, count, secret_level);
 
 		if (!dys.isEmpty()) {
 			last_id = dys.get(dys.size() - 1).getId();

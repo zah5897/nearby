@@ -642,4 +642,8 @@ public class BottleService {
 	public List<RedPackageGetHistory> getRedPackageHistory(long bid) {
 		return bottleDao.getRedPackageHistoryByBid(bid);
 	}
+
+	public String getBottleContent(long bid) {
+		return bottleDao.getBottleContent(bid);
+	}
 }

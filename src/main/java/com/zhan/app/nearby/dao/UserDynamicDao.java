@@ -449,7 +449,7 @@ public class UserDynamicDao extends BaseDao<UserDynamic> {
 		jdbcTemplate.update("update " + getTableName(DynamicComment.class) + " set status=? where id=?", status, id);
 	}
 
-	public List<UserDynamic> loadVideoDynamic(long user_id, long last_id, int count, int secret_level) {
+	public List<UserDynamic> loadRecommendVideoDynamic(long user_id, long last_id, int count, int secret_level) {
 
 		String sql = "select dynamic.*,user.user_id  , user.nick_name , user.avatar,user.sex , user.birthday ,user.type , user.isvip,"
 				+ "coalesce((select relationship from t_like_dynamic t_like where t_like.dynamic_id=dynamic.id and t_like.user_id=?), '0') as like_state ,o.check_time from "
@@ -457,7 +457,7 @@ public class UserDynamicDao extends BaseDao<UserDynamic> {
 				+ " dynamic  left join t_user user on  dynamic.user_id=user.user_id  left join t_user_online o on o.uid=dynamic.user_id  "
 				+ "where dynamic.type=1 and (dynamic.state=? or dynamic.user_id=?) and dynamic.secret_level=? and dynamic.id<?  and dynamic.user_id not in(select with_user_id from t_user_relationship where user_id=? and relationship=?)   order by dynamic.id desc  limit ?";
 
-		Object[] param = new Object[] { user_id, DynamicStatus.CHECKED.ordinal(), user_id, secret_level, last_id,
+		Object[] param = new Object[] { user_id, DynamicStatus.RECOMMEND.ordinal(), user_id, secret_level, last_id,
 				user_id, Relationship.BLACK.ordinal(), count };
 		return jdbcTemplate.query(sql, param, dynamicMapper);
 

@@ -1,8 +1,11 @@
 package com.zhan.app.nearby.util;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+
+import javax.servlet.http.HttpServletResponse;
 
 import com.easemob.server.example.Main;
 import com.zhan.app.nearby.bean.Bottle;
@@ -22,6 +25,7 @@ public class HX_SessionUtil {
 		int r = new Random().nextInt(meet_msg.length);
 		return meet_msg[r];
 	}
+
 	public static void replayBottle(BaseUser user, BaseUser with_user, Bottle bottle) {
 		if (bottle == null) {
 			return;
@@ -41,7 +45,8 @@ public class HX_SessionUtil {
 		putBottleInfo(ext, bottle);
 		Main.sendTxtMessage(with_user, new String[] { String.valueOf(user.getUser_id()) }, msg, ext);
 	}
-	public static void replayBottleSingle(BaseUser user, BaseUser with_user, Bottle bottle,String msg) {
+
+	public static void replayBottleSingle(BaseUser user, BaseUser with_user, Bottle bottle, String msg) {
 		if (bottle == null) {
 			return;
 		}
@@ -52,23 +57,21 @@ public class HX_SessionUtil {
 		putBottleInfo(ext, bottle);
 		Main.sendTxtMessage(user, new String[] { String.valueOf(with_user.getUser_id()) }, msg, ext);
 	}
-	
-	
+
 	public static void replayRedPackageBottleSingle(BaseUser user, long to, Bottle bottle, int coin) {
 		Map<String, String> ext = new HashMap<String, String>();
 		ext.put("bottle_id", String.valueOf(bottle.getId()));
 		putUserInfo(ext, user);
-		
+
 		Map<String, String> data = new HashMap<String, String>();
-		data.put("content",  user.getNick_name() + "领取了你的扇贝");
-		data.put("type",  ChatConversationType.CHAT_TYPE_RED_PACKET_BOTTLE);
-		
+		data.put("content", user.getNick_name() + "领取了你的扇贝");
+		data.put("type", ChatConversationType.CHAT_TYPE_RED_PACKET_BOTTLE);
+
 		putDataInfo(data, user);
 		ext.put("data", JSONUtil.writeValueAsString(data));
-		
+
 		Main.sendTxtMessage(user, new String[] { String.valueOf(to) }, user.getNick_name() + "领取了你的扇贝", ext);
 	}
-	
 
 	public static void createChatSession(BaseUser user, BaseUser with_user) {
 		createChatSession(user, with_user, null);
@@ -78,14 +81,14 @@ public class HX_SessionUtil {
 		// 发送给对方
 		Map<String, String> ext = new HashMap<String, String>();
 		putUserInfo(ext, user);
-		
+
 		Map<String, String> data = new HashMap<String, String>();
-		data.put("content",  msg);
-		data.put("type",  ChatConversationType.CHAT_TYPE_SYSTEM_MATCH);
+		data.put("content", msg);
+		data.put("type", ChatConversationType.CHAT_TYPE_SYSTEM_MATCH);
 		putDataInfo(data, user);
-		
-		String dataStr=JSONUtil.writeValueAsString(data);
-		ext.put("data",dataStr );
+
+		String dataStr = JSONUtil.writeValueAsString(data);
+		ext.put("data", dataStr);
 		if (TextUtils.isEmpty(msg)) {
 			msg = getRandomMsg();
 		}
@@ -93,24 +96,24 @@ public class HX_SessionUtil {
 		// 发送给自己
 		ext = new HashMap<String, String>();
 		putUserInfo(ext, with_user);
-        putDataInfo(data, with_user);
-	    dataStr=JSONUtil.writeValueAsString(data);
+		putDataInfo(data, with_user);
+		dataStr = JSONUtil.writeValueAsString(data);
 		ext.put("data", dataStr);
 		Main.sendTxtMessage(with_user, new String[] { String.valueOf(user.getUser_id()) }, msg, ext);
 	}
+
 	public static void createExpressSession(BaseUser user, BaseUser with_user, String msg) {
 		// 发送给对方
 		Map<String, String> ext = new HashMap<String, String>();
 		putUserInfo(ext, user);
-		
+
 		Map<String, String> data = new HashMap<String, String>();
-		data.put("content",  msg);
-		data.put("type",  ChatConversationType.CHAT_TYPE_EXPRESS);
+		data.put("content", msg);
+		data.put("type", ChatConversationType.CHAT_TYPE_EXPRESS);
 		putDataInfo(data, user);
 		ext.put("data", JSONUtil.writeValueAsString(data));
 		Main.sendTxtMessage(user, new String[] { String.valueOf(with_user.getUser_id()) }, msg, ext);
 	}
-
 
 	public static void pushPraise(long toUid, long dynamic_id) {
 		Map<String, String> ext = new HashMap<String, String>();
@@ -154,16 +157,15 @@ public class HX_SessionUtil {
 		Main.sendCmdMessage(new String[] { String.valueOf(to_user_id) }, ext);
 	}
 
-	
 	public static void pushVip(long to_user_id) {
 		// 通知对方收到某某的礼物
 		Map<String, String> ext = new HashMap<String, String>();
 		ext = new HashMap<String, String>();
 		ext.put("msg", "vip 到账通知");
 		ext.put("type", ChatConversationType.TYPE_BUY_VIP);
-	    Main.sendCmdMessageVipInfo(new String[] { String.valueOf(to_user_id) }, ext);
+		Main.sendCmdMessageVipInfo(new String[] { String.valueOf(to_user_id) }, ext);
 	}
-	
+
 	public static void pushOnLine(BaseUser user, String[] to_user_ids) {
 		// 通知对方收到某某的礼物
 		Map<String, String> ext = new HashMap<String, String>();
@@ -171,24 +173,22 @@ public class HX_SessionUtil {
 		putUserInfo(ext, user);
 		ext.put("msg", "用户上线通知");
 		ext.put("type", ChatConversationType.TYPE_ONLINE_USER);
-		
+
 		Map<String, String> data = new HashMap<String, String>();
-		data.put("content",  user.getNick_name()+"用户上线通知");
-		data.put("type",  ChatConversationType.TYPE_ONLINE_USER);
+		data.put("content", user.getNick_name() + "用户上线通知");
+		data.put("type", ChatConversationType.TYPE_ONLINE_USER);
 		Map<String, String> online_user = new HashMap<String, String>();
 		putDataInfo(online_user, user);
 		data.put("online_user", JSONUtil.writeValueAsString(online_user));
 		putDataInfo(data, user);
 		ext.put("data", JSONUtil.writeValueAsString(data));
-		Main.sendCmdMessageOnlineMsg(to_user_ids, ext,user);
+		Main.sendCmdMessageOnlineMsg(to_user_ids, ext, user);
 	}
-	
+
 //	public static void sendReplayBottle(BaseUser user, long target, String msg, Map<String, String> ext,
 //			String typeNewConversation) {
 //		Main.sendTxtMessage(user, new String[] { String.valueOf(target) }, msg, ext, typeNewConversation);
 //	}
-
-
 
 	public static void disconnectUser(String valueOf) {
 		Main.disconnectUser(valueOf);
@@ -212,8 +212,8 @@ public class HX_SessionUtil {
 		ext.put("avatar", avatar);
 		ext.put("origin_avatar", avatar);
 	}
-	
-	public static void putDataInfo(Map<String, String> data,BaseUser by) {
+
+	public static void putDataInfo(Map<String, String> data, BaseUser by) {
 		data.put("sender_user_id", String.valueOf(by.getUser_id()));
 		data.put("sender_nickname", by.getNick_name());
 		data.put("sender_avatar", ImagePathUtil.completeStrAvatarPath(by.getAvatar()));
@@ -268,5 +268,13 @@ public class HX_SessionUtil {
 		}
 		ext.put("data", JSONUtil.writeValueAsString(bottleInfo));
 	}
-	 
+
+	public static void exportChatMessages() {
+		Main.exportChatMessages();
+	}
+
+	public static String downloadAudioFile( String remoteUrl, String secretKey) throws IOException {
+		return Main.downloadAudioFile( remoteUrl, secretKey);
+	}
+
 }

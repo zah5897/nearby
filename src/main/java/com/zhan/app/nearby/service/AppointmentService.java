@@ -61,9 +61,9 @@ public class AppointmentService {
 		return cityService.getCityByName(city);
 	}
 
-	public List<Appointment> list(long user_id, Integer last_id, int count, Integer theme_id, Integer time_stage,
+	public List<Appointment> listRecommend(long user_id, Integer last_id, int count, Integer theme_id, Integer time_stage,
 			String appointment_time, Integer city_id, String keyword) {
-		return appointmentDao.queryAll(user_id, last_id, count, theme_id, time_stage, appointment_time, city_id,
+		return appointmentDao.listRecommend(user_id, last_id, count, theme_id, time_stage, appointment_time, city_id,
 				keyword);
 	}
 

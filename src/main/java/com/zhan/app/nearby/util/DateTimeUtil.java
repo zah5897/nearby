@@ -53,6 +53,16 @@ public class DateTimeUtil {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		return sdf.format(result);
 	}
+	
+	public static String getMessageHistoryTimePoint() {
+		 Calendar c=Calendar.getInstance();
+		 c.setTimeInMillis(System.currentTimeMillis());
+		 int year=c.get(Calendar.YEAR);
+		 int month=c.get(Calendar.MONTH)+1;
+		 int day=c.get(Calendar.DAY_OF_MONTH)-1;
+		 int hour=c.get(Calendar.HOUR_OF_DAY);
+		 return year+""+month+day+hour;
+	}
 
 	public static String getAge(Date birthday) {
 		if (birthday == null) {

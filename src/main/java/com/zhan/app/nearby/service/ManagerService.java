@@ -1,15 +1,19 @@
 package com.zhan.app.nearby.service;
 
+import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.ModelMap;
 
+import com.easemob.server.example.HXHistoryMsg;
 import com.zhan.app.nearby.bean.Appointment;
 import com.zhan.app.nearby.bean.Bottle;
 import com.zhan.app.nearby.bean.DynamicComment;
@@ -32,8 +36,10 @@ import com.zhan.app.nearby.dao.ManagerDao;
 import com.zhan.app.nearby.dao.UserDao;
 import com.zhan.app.nearby.task.HXAsyncTask;
 import com.zhan.app.nearby.util.BottleKeyWordUtil;
+import com.zhan.app.nearby.util.HX_SessionUtil;
 import com.zhan.app.nearby.util.IPUtil;
 import com.zhan.app.nearby.util.ImagePathUtil;
+import com.zhan.app.nearby.util.JSONUtil;
 import com.zhan.app.nearby.util.MD5Util;
 import com.zhan.app.nearby.util.ResultUtil;
 
@@ -70,6 +76,8 @@ public class ManagerService {
 
 	@Autowired
 	private HXAsyncTask hxTask;
+	@Autowired
+	private HXService hxService;
 
 	public boolean mLogin(HttpServletRequest request, String name, String pwd) {
 		Integer i = managerDao.queryM(name, pwd);
@@ -96,13 +104,13 @@ public class ManagerService {
 		return userCacheService.getManagerAuthName(ip);
 	}
 
-	public ModelMap getHomeFoundSelected(Long user_id, int pageIndex, int pageSize,Long dy_id) {
+	public ModelMap getHomeFoundSelected(Long user_id, int pageIndex, int pageSize, Long dy_id) {
 		ModelMap reMap = ResultUtil.getResultOKMap();
 		if (pageIndex == 1) {
-			int totalSize = managerDao.getHomeFoundSelectedCount(user_id,dy_id);
+			int totalSize = managerDao.getHomeFoundSelectedCount(user_id, dy_id);
 			reMap.put("pageCount", getPageCount(totalSize, pageSize));
 		}
-		List<UserDynamic> dys = managerDao.getHomeFoundSelected(user_id, pageIndex, pageSize,dy_id);
+		List<UserDynamic> dys = managerDao.getHomeFoundSelected(user_id, pageIndex, pageSize, dy_id);
 		ImagePathUtil.completeDynamicsPath(dys, true);
 		reMap.put("data", dys);
 		reMap.put("currentPageIndex", pageIndex);
@@ -120,13 +128,13 @@ public class ManagerService {
 		return pageCount;
 	}
 
-	public ModelMap getUnSelected(Long user_id, Long dy_id,String nick_name, int pageIndex, int pageSize) {
+	public ModelMap getUnSelected(Long user_id, Long dy_id, String nick_name, int pageIndex, int pageSize) {
 		ModelMap reMap = ResultUtil.getResultOKMap();
 		if (pageIndex == 1) {
 			int total = managerDao.getUnSelectedCount(user_id, dy_id);
 			reMap.put("pageCount", getPageCount(total, pageSize));
 		}
-		List<UserDynamic> dys = managerDao.getUnSelectedDynamic(user_id, dy_id,nick_name, pageIndex, pageSize);
+		List<UserDynamic> dys = managerDao.getUnSelectedDynamic(user_id, dy_id, nick_name, pageIndex, pageSize);
 		ImagePathUtil.completeDynamicsPath(dys, true);
 		reMap.put("data", dys);
 		reMap.put("currentPageIndex", pageIndex);
@@ -279,11 +287,11 @@ public class ManagerService {
 
 	}
 
-	public ModelMap getBlackUsers(String nick_name,String mobile, int page, int count) {
+	public ModelMap getBlackUsers(String nick_name, String mobile, int page, int count) {
 		ModelMap result = ResultUtil.getResultOKMap();
-		List<BaseUser> users = userService.getBlackUsers(nick_name,mobile, page, count);
+		List<BaseUser> users = userService.getBlackUsers(nick_name, mobile, page, count);
 		if (page == 1) {
-			int totalSize = userService.getBlackUsersCount(nick_name,mobile);
+			int totalSize = userService.getBlackUsersCount(nick_name, mobile);
 			int pageCount = totalSize / count;
 			if (totalSize % 10 > 0) {
 				pageCount += 1;
@@ -386,7 +394,7 @@ public class ManagerService {
 	public ModelMap getReports(int pageSize, int pageIndex) {
 
 		ModelMap r = ResultUtil.getResultOKMap();
-		List<Report> exchanges = mainService.listManagerReport( pageSize, pageIndex);
+		List<Report> exchanges = mainService.listManagerReport(pageSize, pageIndex);
 		if (pageIndex == 1) {
 			int totalSize = mainService.getReportSizeByApproval();
 
@@ -397,9 +405,10 @@ public class ManagerService {
 		return r;
 	}
 
-	public ModelMap listBottleByState(Long user_id,String nick_name, int status,int type, int pageSize, int pageIndex) {
+	public ModelMap listBottleByState(Long user_id, String nick_name, int status, int type, int pageSize,
+			int pageIndex) {
 		ModelMap r = ResultUtil.getResultOKMap();
-		List<Bottle> exchanges = bottleService.getBottlesByState(user_id,nick_name, status,type, pageSize, pageIndex);
+		List<Bottle> exchanges = bottleService.getBottlesByState(user_id, nick_name, status, type, pageSize, pageIndex);
 		for (Bottle b : exchanges) {
 			if (b.getType() == BottleType.MEET.ordinal()) {
 				b.setContent(getMeetUserAvatar(b.getContent()));
@@ -408,7 +417,7 @@ public class ManagerService {
 			}
 		}
 		if (pageIndex == 1) {
-			int totalSize = bottleService.getBottleCountWithState(user_id, status,type);
+			int totalSize = bottleService.getBottleCountWithState(user_id, status, type);
 			r.put("pageCount", getPageCount(totalSize, pageSize));
 		}
 		r.put("bottles", exchanges);
@@ -501,38 +510,37 @@ public class ManagerService {
 	}
 
 	// ----------------约会相关------------------------------------------------
-	public ModelMap loadAppointMents(Long user_id,String nick_name,int status, int page, int count) {
+	public ModelMap loadAppointMents(Long user_id, String nick_name, int status, int page, int count) {
 
 		ModelMap r = ResultUtil.getResultOKMap();
 		if (page == 1) {
-			int totalSize = appointmentService.getCheckCount(user_id,nick_name,status);
+			int totalSize = appointmentService.getCheckCount(user_id, nick_name, status);
 			r.put("pageCount", getPageCount(totalSize, count));
 		}
 		r.put("currentPageIndex", page);
 
-		List<Appointment> data = appointmentService.listToCheck(user_id,nick_name,status, page, count);
+		List<Appointment> data = appointmentService.listToCheck(user_id, nick_name, status, page, count);
 		ImagePathUtil.completePath(data);
 		r.addAttribute("data", data);
 		return r;
 	}
 
-
 	// ----------短视频相关--------------------------------------------------------------
 
-	public ModelMap loadShortvideos(Long user_id,String nick_name,int status, int page, int count) {
+	public ModelMap loadShortvideos(Long user_id, String nick_name, int status, int page, int count) {
 		ModelMap r = ResultUtil.getResultOKMap();
 		if (page == 1) {
-			int totalSize = userDynamicService.getVideoCountByStatus(user_id,nick_name,status);
+			int totalSize = userDynamicService.getVideoCountByStatus(user_id, nick_name, status);
 			r.put("pageCount", getPageCount(totalSize, count));
 		}
 		r.put("currentPageIndex", page);
 
-		List<UserDynamic> data = userDynamicService.getVideoList(user_id,nick_name,status, page, count);
+		List<UserDynamic> data = userDynamicService.getVideoList(user_id, nick_name, status, page, count);
 		r.addAttribute("data", data);
 		return r;
 	}
 
-	public void changeShortvideoStatus(int id,  int newStatus) {
+	public void changeShortvideoStatus(int id, int newStatus) {
 		userDynamicService.changeVideoStatus(id, newStatus);
 	}
 
@@ -552,27 +560,28 @@ public class ManagerService {
 	public ModelMap userShortvideoCert(int id, long uid, int isOK, int status, int page, int count) {
 		videoService.changeStatus(id, isOK == 1 ? VideoStatus.CHECKED.ordinal() : VideoStatus.DEL.ordinal());
 		userService.changeUserCertStatus(uid, isOK == 1 ? 1 : 0);
-		 return loadUserCertVideos(status,page,count);
+		return loadUserCertVideos(status, page, count);
 	}
 	// ----------动态评论相关--------------------------------------------------------------
 
-	public ModelMap loadDynamicComment(Long user_id,String nick_name, int page, int count) {
+	public ModelMap loadDynamicComment(Long user_id, String nick_name, int page, int count) {
 
 		ModelMap r = ResultUtil.getResultOKMap();
 		if (page == 1) {
-			int totalSize = userDynamicService.getDynamicCommentToCheckCount(user_id,nick_name);
+			int totalSize = userDynamicService.getDynamicCommentToCheckCount(user_id, nick_name);
 			r.put("pageCount", getPageCount(totalSize, count));
 		}
 		r.put("currentPageIndex", page);
 
-		List<DynamicComment> data = userDynamicService.loadDynamicCommentToCheck(user_id,nick_name, page, count);
+		List<DynamicComment> data = userDynamicService.loadDynamicCommentToCheck(user_id, nick_name, page, count);
 		r.addAttribute("data", data);
 		return r;
 	}
 
-	public ModelMap change_dynamic_comment_status(Long user_id,String nick_name, int id, int page, int count,int toStatus) {
+	public ModelMap change_dynamic_comment_status(Long user_id, String nick_name, int id, int page, int count,
+			int toStatus) {
 		userDynamicService.changeCommentStatus(id, toStatus);
-		return loadDynamicComment(user_id,nick_name, page, count);
+		return loadDynamicComment(user_id, nick_name, page, count);
 	}
 
 	// ----------礼物清单-----------------------
@@ -605,9 +614,26 @@ public class ManagerService {
 		return r;
 	}
 
+	public ModelMap loadNicknameUpdateUsers(Long user_id, int page, int count) {
+		ModelMap r = ResultUtil.getResultOKMap();
+		if (page == 1) {
+			int totalSize = userService.getNicknameUpdateUsersCount(user_id);
+			r.put("pageCount", getPageCount(totalSize, count));
+		}
+		r.put("currentPageIndex", page);
+
+		r.addAttribute("data", userService.loadNicknameUpdateUsers(user_id, page, count));
+		return r;
+	}
+
 	public ModelMap deleteUserSignature(long uid, Long user_id, int page, int count) {
 		userService.deleteUserSignature(uid);
 		return loadSignatureUpdateUsers(user_id, page, count);
+	}
+
+	public ModelMap deleteUserNickname(long uid, Long user_id, int page, int count) {
+		userService.deleteUserNickname(uid);
+		return loadNicknameUpdateUsers(user_id, page, count);
 	}
 
 	public void addUserToBlackByBottleID(int id) {
@@ -615,6 +641,51 @@ public class ManagerService {
 	}
 
 	public void deleteBottle(int id) {
-		bottleService.delete(id)	;	
+		bottleService.delete(id);
 	}
+
+	public ModelMap listHXChatHistoryMsgs(String keywords, String type, int page, int count) {
+		ModelMap r = ResultUtil.getResultOKMap();
+		List<HXHistoryMsg> msgs = hxService.list(type, keywords, page, count);
+		for (HXHistoryMsg msg : msgs) {
+			String fromVatar = ImagePathUtil.completeUserVatarPath(msg.getFrom_avatar());
+			msg.setFrom_avatar(fromVatar);
+
+			String toVatar = ImagePathUtil.completeUserVatarPath(msg.getTo_avatar());
+			msg.setTo_avatar(toVatar);
+		}
+		if (page == 1) {
+			int totalSize = hxService.getCount(type, keywords, page, count);
+			r.put("pageCount", getPageCount(totalSize, count));
+		}
+		r.put("msgs", msgs);
+		r.put("currentPageIndex", page);
+		return r;
+	}
+
+	public ModelMap downloadMsgFile(String msg_id) {
+		HXHistoryMsg msg = hxService.getHistoryMsgById(msg_id);
+		Map<String, Object> map = JSONUtil.jsonToMap(msg.getContent());
+		String secretKey = map.get("secret").toString();
+		String remotePath = map.get("url").toString();
+
+		String base64;
+		try {
+			base64 = HX_SessionUtil.downloadAudioFile(remotePath, secretKey);
+			return ResultUtil.getResultOKMap().addAttribute("file", base64).addAttribute("type", msg.getType());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return ResultUtil.getResultFailed();
+	}
+	public void downloadMsgImg(HttpServletResponse response,String msg_id) throws IOException {
+		HXHistoryMsg msg = hxService.getHistoryMsgById(msg_id);
+		Map<String, Object> map = JSONUtil.jsonToMap(msg.getContent());
+		String secretKey = map.get("secret").toString();
+		String remotePath = map.get("url").toString();
+		 
+		HX_SessionUtil.downloadImgFile(response,remotePath, secretKey);
+		 
+	}
+
 }

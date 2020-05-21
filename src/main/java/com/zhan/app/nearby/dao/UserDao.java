@@ -488,7 +488,7 @@ public class UserDao extends BaseDao<BaseUser> {
 	}
 
 	public BaseUser getBaseUserNoToken(long user_id) {
-		String sql = "select user_id,nick_name,sex,avatar,signature,birthday,isvip from t_user where user_id=?";
+		String sql = "select user_id,nick_name,sex,avatar,signature,birthday,type,isvip from t_user where user_id=?";
 		List<BaseUser> users = jdbcTemplate.query(sql, new Object[] { user_id }, getEntityMapper());
 		if (users.size() > 0) {
 			return users.get(0);
@@ -1376,6 +1376,14 @@ public class UserDao extends BaseDao<BaseUser> {
 		}
 		
 	}
+	public int getNicknameUpdateUsersCount(Long user_id) {
+		if(user_id==null) {
+			return jdbcTemplate.queryForObject("select count(*) from t_user_nickname_update_record", Integer.class);
+		}else {
+			return jdbcTemplate.queryForObject("select count(*) from t_user_nickname_update_record where uid="+user_id, Integer.class);
+		}
+		
+	}
 	public List<SimpleUser> loadSignatureUpdateUsers(Long user_id,int page,int count){
 		if(user_id==null) {
 			String sql="select u.user_id,u.nick_name,u.avatar,u.signature from t_signature_update_record sr"
@@ -1389,6 +1397,19 @@ public class UserDao extends BaseDao<BaseUser> {
 		
 		
 	}
+	public List<SimpleUser> loadNicknameUpdateUsers(Long user_id,int page,int count){
+		if(user_id==null) {
+			String sql="select u.user_id,u.nick_name,u.avatar from t_user_nickname_update_record nr"
+					+ " left join t_user u on nr.uid=u.user_id order by nr.update_time desc limit ?,?";
+			return jdbcTemplate.query(sql,new Object[] {(page-1)*count,count}, getEntityMapper(SimpleUser.class));	
+		}
+		
+		String sql="select u.user_id,u.nick_name,u.avatar from t_user_nickname_update_record sr "
+				+ " left join t_user u on sr.uid=u.user_id where sr.uid=? order by sr.update_time desc limit ?,?";
+		return jdbcTemplate.query(sql,new Object[] {user_id,(page-1)*count,count}, getEntityMapper(SimpleUser.class));	
+		
+		
+	}
 	public void updateSignatureRecord(long user_id, String signature) {
 		String sql="update t_signature_update_record set new_signature=?,create_time=? where uid=?";
 		int count=jdbcTemplate.update(sql,new Object[] {signature,new Date(),user_id});
@@ -1396,11 +1417,22 @@ public class UserDao extends BaseDao<BaseUser> {
 			jdbcTemplate.update("insert ignore into t_signature_update_record (uid,create_time,new_signature) values(?,?,?)",new Object[] {user_id,new Date(),signature});
 		}
 	}
+	
+	public void updateNicknameRecord(long user_id, String nickname) {
+		String sql="update t_user_nickname_update_record set new_nickname=?,update_time=? where uid=?";
+		int count=jdbcTemplate.update(sql,new Object[] {nickname,new Date(),user_id});
+		if(count==0) {
+			jdbcTemplate.update("insert ignore into t_user_nickname_update_record (uid,update_time,new_nickname) values(?,?,?)",new Object[] {user_id,new Date(),nickname});
+		}
+	}
 
 	public void deleteUserSignature(Long uid) {
 		jdbcTemplate.update("delete from t_signature_update_record where uid="+uid);
 		jdbcTemplate.update("update  t_user set signature=?  where user_id=?",new Object[] {"",uid});
 		
+	}
+	public void deleteUserNickname(Long uid) {
+		jdbcTemplate.update("delete from t_user_nickname_update_record where uid="+uid);
 	}
 
 	/**

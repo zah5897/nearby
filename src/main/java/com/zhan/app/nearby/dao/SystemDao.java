@@ -222,7 +222,7 @@ public class SystemDao extends BaseDao<Report> {
 	
 	
 	public List<BaseUser> getTouTiaoUser(int startIndex,int limit){
-		String sql="select u.user_id,u.nick_name,u.avatar,u.birthday, u.isvip from t_toutiao_user tt left join t_user u on tt.uid=u.user_id where u.type<>0 and u.type<>2 order by tt.create_time desc limit ?,?";
+		String sql="select u.user_id,u.nick_name,u.avatar,u.birthday, u.isvip,u.video_cert_status from t_toutiao_user tt left join t_user u on tt.uid=u.user_id where u.type<>0 and u.type<>2  and u.avatar<>'illegal.jpg' and u.sys_status<>1  order by tt.create_time desc limit ?,?";
 		return jdbcTemplate.query(sql, new Object[] {startIndex,limit}, new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
 	}
 	public List<Map<String, Object>> getTouTiaoUserIndexVal(){

@@ -912,6 +912,15 @@ public class WebManagerController {
 		return managerService.loadSignatureUpdateUsers(user_id, page, count);
 	}
 
+	@RequestMapping(value = "/load_nickname_update_users")
+	public @ResponseBody ModelMap load_nickname_update_users(HttpServletRequest request, Long user_id, int page,
+			int count) throws NoSuchAlgorithmException {
+		if (!managerService.isLogin(request)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		return managerService.loadNicknameUpdateUsers(user_id, page, count);
+	}
+
 	@RequestMapping(value = "/delete_user_signature")
 	public @ResponseBody ModelMap deleteUserSignature(HttpServletRequest request, long uid, Long user_id, int page,
 			int count) throws NoSuchAlgorithmException {
@@ -919,6 +928,15 @@ public class WebManagerController {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
 		return managerService.deleteUserSignature(uid, user_id, page, count);
+	}
+
+	@RequestMapping(value = "/delete_user_nickname")
+	public @ResponseBody ModelMap delete_user_nickname(HttpServletRequest request, long uid, Long user_id, int page,
+			int count) throws NoSuchAlgorithmException {
+		if (!managerService.isLogin(request)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		return managerService.deleteUserNickname(uid, user_id, page, count);
 	}
 
 	@RequestMapping(value = "/download_audio")
@@ -936,4 +954,20 @@ public class WebManagerController {
 		return ResultUtil.getResultFailed();
 	}
 
+	@RequestMapping(value = "/list_hx_chat_history_msgs")
+	public @ResponseBody ModelMap list_hx_chat_history_msgs(HttpServletRequest request, Long user_id, String keywords,
+			String type, int page, int count) {
+		if (!managerService.isLogin(request)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		return managerService.listHXChatHistoryMsgs(keywords, type, page, count);
+	}
+	@RequestMapping(value = "/download_msg")
+	public @ResponseBody ModelMap download_msg_audio(HttpServletResponse response,String msg_id) {
+		return managerService.downloadMsgFile(msg_id);
+	}
+	@RequestMapping(value = "/download_msg_img")
+	public void download_msg_img(HttpServletResponse response,String msg_id) throws IOException {
+		  managerService.downloadMsgImg(response, msg_id);
+	}
 }

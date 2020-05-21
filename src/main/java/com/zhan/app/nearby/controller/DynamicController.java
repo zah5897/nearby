@@ -270,13 +270,19 @@ public class DynamicController {
 	}
 
 	@RequestMapping("delete")
-	public ModelMap delete(Long user_id, String dynamic_id) {
+	public ModelMap delete(Long user_id,String token, String dynamic_id) {
 		if (user_id == null || user_id < 1l) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "请确定当前用户：user_id=" + user_id);
 		}
 		if (TextUtils.isEmpty(dynamic_id)) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "请确定您要操作的动态信息");
 		}
+		
+		if(!userService.checkLogin(user_id, token)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		
+		
 		String id = userDynamicService.delete(user_id, dynamic_id);
 		ModelMap result = ResultUtil.getResultOKMap();
 		result.put("delete_id", id);

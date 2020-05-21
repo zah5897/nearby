@@ -10,12 +10,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.easemob.server.example.HXHistoryMsgDownloadHelper;
 import com.zhan.app.nearby.bean.BGM;
 import com.zhan.app.nearby.bean.Report;
 import com.zhan.app.nearby.service.MainService;
 import com.zhan.app.nearby.service.UserService;
+import com.zhan.app.nearby.task.HXAsyncTask;
 import com.zhan.app.nearby.util.BottleKeyWordUtil;
-import com.zhan.app.nearby.util.HX_SessionUtil;
+import com.zhan.app.nearby.util.DateTimeUtil;
 import com.zhan.app.nearby.util.IPUtil;
 import com.zhan.app.nearby.util.ResultUtil;
 import com.zhan.app.nearby.util.baidu.ImgCheckHelper;
@@ -27,6 +29,10 @@ public class SystemController {
 	private UserService userService;
 	@Autowired
 	private MainService mainService;
+	
+	@Autowired
+	private HXAsyncTask hxAsyncTask;
+	
 	@Deprecated
 	@RequestMapping("report")
 	public ModelMap report(Report report) {
@@ -112,9 +118,8 @@ public class SystemController {
 	}
 	
 	@RequestMapping("test")
-	public ModelMap test(long f,long to) {
-//		HX_SessionUtil.pushOnLine(userService.getBaseUserNoToken(f),new String[] {String.valueOf(to)});
-		HX_SessionUtil.pushVip(to);
+	public ModelMap test() {
+		hxAsyncTask.exportChatMessages();
 		return ResultUtil.getResultOKMap();
 	}
 	

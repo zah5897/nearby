@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import com.zhan.app.nearby.bean.City;
 import com.zhan.app.nearby.bean.UserDynamic;
 import com.zhan.app.nearby.bean.user.BaseUser;
+import com.zhan.app.nearby.comm.UserType;
 import com.zhan.app.nearby.dao.CityDao;
 import com.zhan.app.nearby.service.DynamicMsgService;
 import com.zhan.app.nearby.service.MainService;
@@ -116,6 +117,9 @@ public class CommAsyncTask {
 			}
 		}
 		BaseUser user = userService.getBaseUserNoToken(uid);
+		if(user.getType()==UserType.TEMP_MOBILE.ordinal()||user.getType()==UserType.VISITOR.ordinal()) { //只推送正式用户和第三方登录的用户
+			return;
+		}
 		ImagePathUtil.completeAvatarPath(user, true);
 		List<String> uids = userService.getOnlineUidLastetByLimit(900);
 

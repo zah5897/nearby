@@ -308,6 +308,9 @@ public class UserService {
 		if (!TextUtils.isEmpty(signature)) {
 			userDao.updateSignatureRecord(user_id, signature);
 		}
+		if (!TextUtils.isEmpty(nick_name)) {
+			userDao.updateNicknameRecord(user_id, nick_name);;
+		}
 		return c;
 	}
 
@@ -1476,6 +1479,9 @@ public class UserService {
 
 	public void updateBaseInfo(long user_id, String nick_name, String avatar, Date birthday, City city) {
 		userDao.updateBaseInfo(user_id, nick_name, avatar, birthday, city);
+		if(TextUtils.isNotEmpty(nick_name)) {
+			userDao.updateNicknameRecord(user_id, nick_name);
+		}
 		if (!TextUtils.isEmpty(avatar)) {
 			saveAvatar(user_id, avatar);
 			faceCheckTask.doCheckFace(getBaseUserNoToken(user_id));
@@ -1563,15 +1569,27 @@ public class UserService {
 	public int getSignatureUpdateUsersCount(Long user_id) {
 		return userDao.getSignatureUpdateUsersCount(user_id);
 	}
+	public int getNicknameUpdateUsersCount(Long user_id) {
+		return userDao.getNicknameUpdateUsersCount(user_id);
+	}
 
 	public List<SimpleUser> loadSignatureUpdateUsers(Long user_id, int page, int count) {
 		List<SimpleUser> users = userDao.loadSignatureUpdateUsers(user_id, page, count);
 		ImagePathUtil.completeAvatarsPath(users, true);
 		return users;
 	}
+	public List<SimpleUser> loadNicknameUpdateUsers(Long user_id, int page, int count) {
+		List<SimpleUser> users = userDao.loadNicknameUpdateUsers(user_id, page, count);
+		ImagePathUtil.completeAvatarsPath(users, true);
+		return users;
+	}
 
 	public void deleteUserSignature(Long uid) {
 		userDao.deleteUserSignature(uid);
+	}
+	public void deleteUserNickname(Long uid) {
+		userDao.deleteUserNickname(uid);
+		nickNameIllegal(uid);
 	}
 
 	public void setUserSysStatusToNormal(long uid) {

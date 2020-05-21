@@ -50,6 +50,7 @@
     <li><a href="<%=path %>/manager/forword?path=avatar_checked" target="right"><span class="icon-caret-right"></span>变动头像已审核</a></li>
     <li><a href="<%=path %>/manager/forword?path=user_shortvideo_cert" target="right"><span class="icon-caret-right"></span>视频头像审核</a></li>
     <li><a href="<%=path %>/manager/forword?path=avatar_re_confirm" target="right"><span class="icon-caret-right"></span>变动头像人工复审</a></li>
+    <li><a href="<%=path %>/manager/forword?path=update_nickname_manager" target="right"><span class="icon-caret-right"></span>昵称变动审核</a></li>
 
     
      <!--  
@@ -134,6 +135,7 @@
     <!--<li><a href="<%=path %>/manager/forword?path=charge_coin" target="right"><span class="icon-caret-right"></span>充值扇贝</a></li>-->
     <li><a href="<%=path %>/manager/forword?path=change_pwd" target="right"><span class="icon-caret-right"></span>修改管理员密码</a></li>
     <li><a href="<%=path %>/manager/forword?path=filter_txt_key_word" target="right"><span class="icon-caret-right"></span>敏感词管理</a></li>
+    <li><a href="<%=path %>/manager/forword?path=hx_chat_history_msg_page" target="right"><span class="icon-caret-right"></span>环信聊天消息</a></li>
   </ul> 
   
   
@@ -156,6 +158,13 @@ function showOriginImg(img){
 	 var alt=$(img).attr("alt");
      var parentdiv=$('<img height="600"></img>');        //创建一个父div
      parentdiv.attr('src',alt);        //给父div设置id
+ 	 $(parentdiv).dialog({
+ 		title : "",
+ 	 });
+}
+function showImg(url){
+     var parentdiv=$('<img height="600"></img>');        //创建一个父div
+     parentdiv.attr('src',url);        //给父div设置id
  	 $(parentdiv).dialog({
  		title : "",
  	 });

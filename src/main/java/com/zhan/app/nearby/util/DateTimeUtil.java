@@ -10,9 +10,9 @@ import java.util.Random;
 import org.apache.log4j.Logger;
 
 public class DateTimeUtil {
-	
+
 	private static Logger log = Logger.getLogger(DateTimeUtil.class);
-	
+
 	public static String getYearMonthDay(long time) {
 		Calendar c = Calendar.getInstance();
 		c.setTimeInMillis(time);
@@ -23,21 +23,23 @@ public class DateTimeUtil {
 	}
 
 	public static String format(Date result) {
-		if(result==null) {
+		if (result == null) {
 			return null;
 		}
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		return sdf.format(result);
 	}
-	
+
 	public static Date parse(String timeStr) throws ParseException {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		return sdf.parse(timeStr);
 	}
-	public static Date parse(String timeStr,String pattern) throws ParseException {
+
+	public static Date parse(String timeStr, String pattern) throws ParseException {
 		SimpleDateFormat sdf = new SimpleDateFormat(pattern);
 		return sdf.parse(timeStr);
 	}
+
 	public static String parseBirthday(Date result) {
 		if (result == null) {
 			return new String();
@@ -45,7 +47,7 @@ public class DateTimeUtil {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		return sdf.format(result);
 	}
-	
+
 	public static String getDayStr(Date result) {
 		if (result == null) {
 			return new String();
@@ -53,15 +55,36 @@ public class DateTimeUtil {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		return sdf.format(result);
 	}
-	
+
+	public static void main(String[] args) {
+		System.out.println(getMessageHistoryTimePoint());
+		System.out.println("2020051816");
+	}
+
 	public static String getMessageHistoryTimePoint() {
-		 Calendar c=Calendar.getInstance();
-		 c.setTimeInMillis(System.currentTimeMillis());
-		 int year=c.get(Calendar.YEAR);
-		 int month=c.get(Calendar.MONTH)+1;
-		 int day=c.get(Calendar.DAY_OF_MONTH)-1;
-		 int hour=c.get(Calendar.HOUR_OF_DAY);
-		 return year+""+month+day+hour;
+		
+		long time=System.currentTimeMillis()-(1*60*60*1000);
+		
+		Calendar c = Calendar.getInstance();
+		c.setTimeInMillis(time);
+		int year = c.get(Calendar.YEAR);
+		int month = c.get(Calendar.MONTH) + 1;
+		int day = c.get(Calendar.DAY_OF_MONTH);
+		int hour = c.get(Calendar.HOUR_OF_DAY);
+		
+		if (month < 10) {
+			if (day < 10) {
+				return year + "0" + month + "0" + day + hour;
+			}
+			return year + "0" + month + day + hour;
+		} else {
+			if (day < 10) {
+				return year + month + "0" + day + hour;
+			} else {
+				return year + "" + month + day + hour;
+			}
+		}
+
 	}
 
 	public static String getAge(Date birthday) {
@@ -116,7 +139,6 @@ public class DateTimeUtil {
 		return c.getTime();
 	}
 
-	
 	public static String getOutTradeNo() {
 		SimpleDateFormat format = new SimpleDateFormat("MMddHHmmss", Locale.getDefault());
 		Date date = new Date();
@@ -126,7 +148,7 @@ public class DateTimeUtil {
 		key = key.substring(0, 15);
 		return key;
 	}
-	
+
 	// public static void main(String[] args) throws ParseException {
 	// Calendar c = Calendar.getInstance();
 	// SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");

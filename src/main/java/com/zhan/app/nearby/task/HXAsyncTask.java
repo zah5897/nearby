@@ -1,10 +1,13 @@
 package com.zhan.app.nearby.task;
 
+import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
+import com.easemob.server.example.HXHistoryMsg;
 import com.easemob.server.example.comm.wrapper.ResponseWrapper;
 import com.zhan.app.nearby.bean.Bottle;
 import com.zhan.app.nearby.bean.DynamicComment;
@@ -12,38 +15,47 @@ import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.comm.PushMsgType;
 import com.zhan.app.nearby.exception.AppException;
 import com.zhan.app.nearby.exception.ERROR;
+import com.zhan.app.nearby.service.HXService;
+import com.zhan.app.nearby.util.DateTimeUtil;
 import com.zhan.app.nearby.util.HX_SessionUtil;
 import com.zhan.app.nearby.util.MD5Util;
 
 @Component
 public class HXAsyncTask {
+
+	@Autowired
+	private HXService hxService;
+
 	@Async
 	public void replayBottle(BaseUser user, BaseUser with_user, Bottle bottle) {
 		HX_SessionUtil.replayBottle(user, with_user, bottle);
 	}
+
 	@Async
-	public void replayBottleSingle(BaseUser user, BaseUser with_user, Bottle bottle,String msg) {
-		HX_SessionUtil.replayBottleSingle(user, with_user, bottle,msg);
-	}
-	@Async
-	public void replayRedPackageBottleSingle(BaseUser user, long to,Bottle bottle,int coin) {
-		HX_SessionUtil.replayRedPackageBottleSingle(user, to, bottle, coin);
-	}
-	@Async
-	public void createChatSessionRandMsg(BaseUser user, BaseUser with_user) {
-		HX_SessionUtil.createChatSession(user, with_user,null);
+	public void replayBottleSingle(BaseUser user, BaseUser with_user, Bottle bottle, String msg) {
+		HX_SessionUtil.replayBottleSingle(user, with_user, bottle, msg);
 	}
 
 	@Async
-	public void createChatSession(BaseUser user, BaseUser with_user,String msg) {
-		HX_SessionUtil.createChatSession(user, with_user,msg);
+	public void replayRedPackageBottleSingle(BaseUser user, long to, Bottle bottle, int coin) {
+		HX_SessionUtil.replayRedPackageBottleSingle(user, to, bottle, coin);
 	}
-	
+
 	@Async
-	public void createExpressSession(BaseUser user, BaseUser with_user,String msg) {
-		HX_SessionUtil.createExpressSession(user, with_user,msg);
+	public void createChatSessionRandMsg(BaseUser user, BaseUser with_user) {
+		HX_SessionUtil.createChatSession(user, with_user, null);
 	}
-	
+
+	@Async
+	public void createChatSession(BaseUser user, BaseUser with_user, String msg) {
+		HX_SessionUtil.createChatSession(user, with_user, msg);
+	}
+
+	@Async
+	public void createExpressSession(BaseUser user, BaseUser with_user, String msg) {
+		HX_SessionUtil.createExpressSession(user, with_user, msg);
+	}
+
 //
 //	@Async
 //	public void makeChatSession(BaseUser user, BaseUser with_user, long bottle_id) {
@@ -59,7 +71,6 @@ public class HXAsyncTask {
 //	public void makeChatSession(BaseUser user, BaseUser with_user) {
 //		HX_SessionUtil.makeChatSession(user, with_user, 0);
 //	}
-
 
 	@Async
 	public void pushPraise(long toUid, long dynamic_id) {
@@ -87,8 +98,6 @@ public class HXAsyncTask {
 //			String typeNewConversation) {
 //		HX_SessionUtil.sendReplayBottle(user, target, msg, ext, typeNewConversation);
 //	}
-
-	
 
 	@Async
 	public void disconnectUser(String valueOf) {
@@ -135,23 +144,26 @@ public class HXAsyncTask {
 				if (resutl instanceof ResponseWrapper) {
 					ResponseWrapper response = (ResponseWrapper) resutl;
 					if (response.getResponseStatus() != 200) {
-						throw new AppException(ERROR.ERR_SYS, new RuntimeException("鐜俊娉ㄥ唽澶辫触"));
+						throw new AppException(ERROR.ERR_SYS, new RuntimeException("环信注册失败"));
 					}
 				}
 			}
 		} catch (Exception e) {
-			throw new AppException(ERROR.ERR_SYS, new RuntimeException("鐜俊娉ㄥ唽澶辫触"));
+			throw new AppException(ERROR.ERR_SYS, new RuntimeException("环信注册失败"));
 		}
 	}
+
 	@Async
 	public void exportChatMessages() {
-		HX_SessionUtil.exportChatMessages();
+		hxService.clearExpireHistoryMsg();
+		String timePoint = DateTimeUtil.getMessageHistoryTimePoint();
+		List<HXHistoryMsg> msgs = HX_SessionUtil.exportChatMessages(timePoint);
+		for (HXHistoryMsg msg : msgs) {
+			try {
+				hxService.insert(msg);
+			} catch (Exception e) {
+			}
+		}
 	}
-
-
-//	@Async
-//	public void sendMessage(BaseUser user,long to, String msgTxt) {
-//		Main.sendTxtMessage(user, new String[] {String.valueOf(to)}, msgTxt, null, PushMsgType.TYPE_NEW_CONVERSATION);
-//	}
 
 }

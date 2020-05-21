@@ -2,11 +2,14 @@ package com.zhan.app.nearby.util;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
 import javax.servlet.http.HttpServletResponse;
 
+import com.easemob.server.example.HXHistoryMsg;
+import com.easemob.server.example.HXHistoryMsgDownloadHelper;
 import com.easemob.server.example.Main;
 import com.zhan.app.nearby.bean.Bottle;
 import com.zhan.app.nearby.bean.DynamicComment;
@@ -269,12 +272,14 @@ public class HX_SessionUtil {
 		ext.put("data", JSONUtil.writeValueAsString(bottleInfo));
 	}
 
-	public static void exportChatMessages() {
-		Main.exportChatMessages();
+	public static List<HXHistoryMsg> exportChatMessages(String timePoint) {
+		return HXHistoryMsgDownloadHelper.downloadHistoryMessage(timePoint);
 	}
 
 	public static String downloadAudioFile( String remoteUrl, String secretKey) throws IOException {
 		return Main.downloadAudioFile( remoteUrl, secretKey);
 	}
-
+	public static void downloadImgFile(HttpServletResponse response,String remoteUrl, String secretKey) throws IOException {
+		  Main.downloadImgFile( response,remoteUrl, secretKey);
+	}
 }

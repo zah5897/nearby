@@ -1,16 +1,12 @@
 package com.easemob.server.example;
 
-import java.io.File;
-import java.io.FileOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.http.conn.EofSensorInputStream;
@@ -32,6 +28,7 @@ import com.zhan.app.nearby.util.DateTimeUtil;
 import com.zhan.app.nearby.util.HX_SessionUtil;
 import com.zhan.app.nearby.util.JSONUtil;
 import com.zhan.app.nearby.util.SpringContextUtil;
+
 import sun.misc.BASE64Encoder;
 
 public class Main {
@@ -335,15 +332,14 @@ public class Main {
 		return false;
 	}
 
-	public static Object exportChatMessages() {
+	static String getChatMessagesDownloadURL(String timePoint) {
 		initFactory();
 		EasemobChatMessage message = (EasemobChatMessage) factory.newInstance(EasemobRestAPIFactory.MESSAGE_CLASS);
-		ResponseWrapper wrapper = (ResponseWrapper) message
-				.exportChatMessages(DateTimeUtil.getMessageHistoryTimePoint());
+		ResponseWrapper wrapper = (ResponseWrapper) message.exportChatMessages("2020051810");
 		if (wrapper.getResponseStatus() == 200) {
 			Map<String, Object> requestResult = JSONUtil.jsonToMap(wrapper.getResponseBody().toString());
 			List<Map> data = (List<Map>) requestResult.get("data");
-			return data.get(0);
+			return data.get(0).get("url").toString();
 		}
 		return null;
 	}
@@ -362,6 +358,29 @@ public class Main {
 			return str;
 		} else {
 			return null;
+		}
+	}
+	public static void downloadImgFile(HttpServletResponse response,String remoteUrl, String secretKey) throws IOException {
+		initFactory();
+		EasemobChatMessage message = (EasemobChatMessage) factory.newInstance(EasemobRestAPIFactory.MESSAGE_CLASS);
+		ResponseWrapper wrapper = (ResponseWrapper) message.downloadAudioFile(remoteUrl, secretKey);
+		if (wrapper.getResponseStatus() == 200) {
+			EofSensorInputStream input = (EofSensorInputStream) wrapper.getResponseBody();
+			
+			
+			ByteArrayOutputStream bos=new ByteArrayOutputStream();
+			
+			byte[] buffer = new byte[1024];
+			int len;
+			while((len=input.read(buffer))>0) {
+				bos.write(buffer,0,len);
+			}
+			response.setContentType("image/jpg"); // 设置返回的文件类型
+		    OutputStream out = response.getOutputStream();
+		    out.write(bos.toByteArray());
+		    out.flush();
+		    out.close();
+			input.close();
 		}
 	}
 }

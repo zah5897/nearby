@@ -10,6 +10,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
 <meta name="viewport"
 	content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 <meta name="renderer" content="webkit">
@@ -18,6 +19,8 @@
 <link rel="stylesheet" href="<%=path%>/css/admin.css">
 <script src="<%=path%>/js/jquery.js"></script>
 <script src="<%=path%>/js/pintuer.js"></script>
+<script src="<%=path%>/js/voice-2.0.js"></script>
+
 <style type="text/css">
 td {
 	word-break: break-all
@@ -29,13 +32,10 @@ td {
 		<div class="panel admin-panel">
 			<div class="padding border-bottom">
 				<ul class="search">
+					
 					<li>
-			         <input type="text" placeholder="请输入发送者昵称" name="nick_input" class="input" style="width:250px; line-height:17px;display:inline-block" />
-                     <a href="javascript:void(0)" class="button border-main icon-search" onclick="doSearchById()" > 搜索</a>
-                   </li> 
-					<li>
-			         <input type="text" placeholder="请输入发送者id" name="user_id_input" class="input" style="width:250px; line-height:17px;display:inline-block" />
-                     <a href="javascript:void(0)" class="button border-main icon-search" onclick="doSearchById()" > 搜索</a>
+			         <input type="text" placeholder="请输入关键字" name="keywords" class="input" style="width:250px; line-height:17px;display:inline-block" />
+                     <a href="javascript:void(0)" class="button border-main icon-search" onclick="doSearch()" >搜索</a>
                    </li> 
 				</ul>
 			</div>
@@ -44,13 +44,13 @@ td {
 
 			<table class="table table-hover text-center">
 				<tr>
-					<th width="10%">设备</th>
-					<th width="15%">发送者</th>
-					<th width="10%">头像</th>
+					<th width="10%">发送者</th>
+					<th width="10%">发送者头像</th>
+					<th width="10%">接收者</th>
+					<th width="10%">接收者头像</th>
 					<th width="5%">类型</th>
 					<th width="10%">内容</th>
 					<th width="10%">时间</th>
-					<th width="40%">操作</th>
 				</tr>
 				<tr id="bottom">
 					<td colspan="8">
@@ -65,24 +65,27 @@ td {
 		</div>
 	</form>
 	<script type="text/javascript">
+	   RongIMLib.RongIMVoice.init();
 	    //页面索引记录
 	    var currentPageIndex = 0;
 	    var pageSize = 10;
 	    var pageCount = 100;
-	    var type=-1;
-	    var user_id;
-	    var nick_name;
+	    var type;
+	    var keywords;
+	    var playerQT;
 	    //默认加载第一页
 	    $(document).ready(function(){ 
 		    page(1);
 		}); 
-		
-	    function doSearchById(){
-	    	user_id=$("[name='user_id_input']").val().replace(/^\s+|\s+$/g,"");
-	    	nick_name=$("[name='nick_input']").val().replace(/^\s+|\s+$/g,"");
+	    
+
+	    
+	    function doSearch(){
+	    	keywords=$("[name='keywords']").val().replace(/^\s+|\s+$/g,"");
 	    	currentPageIndex=0;
 	    	page(1);
 	    }
+	     
 	    //前一页
 		function previous() {
 			if(currentPageIndex>1){
@@ -106,7 +109,7 @@ td {
 			if (currentPageIndex == index) {
 				return false;
 			}
-			$.post("<%=path%>/manager/list_bottle_black",{'pageIndex':index,'pageSize':pageSize,'bottle_id':current_bottle_id,'user_id':user_id,'nick_name':nick_name},function(result){
+			$.post("<%=path%>/manager/list_hx_chat_history_msgs",{'page':index,'count':pageSize,'type':type, 'keywords':keywords},function(result){
 				 var json=JSON.parse(result);
 			        if(json.code==0){
 			        	$("table tr[id*='tr_'").each(function(i){
@@ -118,10 +121,10 @@ td {
 			
 			return true;
 		}
-		
+	 
 		//刷新表格
 		function refreshTable(json){
-			var pageData=json["bottles"];
+			var pageData=json["msgs"];
 			if(pageData){
 				for(var i=0;i<pageData.length;i++){
 					var tr;
@@ -140,7 +143,7 @@ td {
 				pageCount=json["pageCount"];
 				$("#new_count").text("对应新增用户数量："+json["totalCount"])
 			}
-			refreshPageIndex();		
+			refreshPageIndex();	
 		}
 		
 		function refreshPageIndex(){
@@ -181,88 +184,65 @@ td {
 		}
 	  //
       function reviewTableTr(pageData,tr) {
-			 var currentItem=$("tr#tr_"+pageData["user_id"]);
+			 var currentItem=$("tr#tr_"+pageData["msg_id"]);
 			 if(currentItem.length>0){
 				 return;
 			 }
-			 var id=pageData['id'];
-			 
+			 var id=pageData['msg_id'];
 			 var toAdd="<tr id='tr_"+id+"'>";
 			 
-			 var from=pageData['_from'];
-			 var channel=pageData['channel'];
-			
-			 var txtFrom;
-			 if(from==1){
-				 if(!channel){
-					 channel="iPhone"; 
-				 }
-				 txtFrom=channel;
-			 }else if(from==2){
-				 txtFrom=channel;
-			 }else{
-				 txtFrom=channel;
+			 toAdd+="<td>"+pageData.from_id+"|"+pageData.from_nick_name+"</td>";
+			 toAdd+="<td><img  src='"+pageData.from_avatar+"' alt='"+pageData.from_avatar+"'  height='50'/></td>";
+			 
+			 
+			 toAdd+="<td>"+pageData.to_id+"|"+pageData.to_nick_name+"</td>";
+			 toAdd+="<td><img  src='"+pageData.to_avatar+"' alt='"+pageData.to_avatar+"'  height='50'/></td>";
+			 
+			 var cType=pageData.type;
+			 toAdd+="<td>"+cType+"</td>";//类型
+			 if(cType=='txt'){
+				 toAdd+="<td>"+pageData.content+"</td>"; //文本
+			 }else if(cType=='img'){ //图片
+				 toAdd+="<td> <button class='icon-audio' style='margin:0 5px;cursor:pointer;' onclick='return showImg("+id+")'>查看</button></td>";
+			 }else if(cType=='loc'){ //loc
+				 toAdd+="<td>"+pageData.content+"</td>"; //文本
+			 }else if(cType=='audio'){ //loc
+				 toAdd+="<td> <button class='icon-audio' style='margin:0 5px;cursor:pointer;' onclick='return downloadMsg("+id+")'>播放</button></td>";
+			 }else if(cType=='video'){ //loc
+				 toAdd+="<td> <button class='icon-audio' style='margin:0 5px;cursor:pointer;' onclick='return downloadMsg("+id+")'>播放</button></td>";
+			 }else if(cType=='file'){ //loc
+				 toAdd+="<td> <button class='icon-audio' style='margin:0 5px;cursor:pointer;' onclick='return downloadMsg("+id+")'>下载</button></td>";
 			 }
 			 
-			 toAdd+="<td>"+txtFrom+"</td>";
-			 
-			 
-			 var nick_name=pageData.sender.nick_name;
-			 var uid=pageData.sender.user_id;
-			 nick_name=nick_name==undefined?"":nick_name;
-			 toAdd+="<td>"+uid+"|"+nick_name+"</td>";
-			 toAdd+="<td><img  src='"+pageData.sender.avatar+"' alt='"+pageData.sender.origin_avatar+"'  height='50'/></td>";
-			 //类型
-			 var type=pageData["type"];
-			 var typeStr=type;
-			 
-			 
-			 if(type==0){
-				 typeStr="文字";
-			 }else if(type==1){
-				 typeStr="图片";
-			 }else if(type==2){
-				 typeStr="语音";
-			 }else if(type==3){
-				 typeStr="邂逅";
-			 }else if(type==4){
-				 typeStr="文本弹幕";
-			 }else if(type==5){
-				 typeStr="语音弹幕";
-			 }else if(type==6){
-				 typeStr="我画你猜";
-			 }else if(type==7){
-				 typeStr="红包";
-			 }
-			 
-			 toAdd+="<td>"+typeStr+"</td>";
-			 if(type==3||type==6){
-				 toAdd+="<td><img  src='"+pageData["content"]+"' alt='"+pageData["content"]+"'  height='50'/></td>";
-			 }else{
-				 toAdd+="<td>"+pageData["content"]+"</td>";
-			 }
-			
-			 toAdd+="<td>"+pageData['create_time']+"</td>";
-			 
-			 
-			 //操作单元格
-			  toAdd+="<td><div class='button-group'>";
-			  //操作单元格
-			  
-			    toAdd+="<a class='button border-main' href='javascript:void(0)'	onclick='return changeBottleStatus("+id+",0)'><span class='icon-edit'></span>移除黑屋</a>";
-			    toAdd+="<a class='button border-main' href='javascript:void(0)'	onclick='return changeBottleStatus("+id+",-1)'><span class='icon-edit'></span>删除</a>";
-			     toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return changeBottleStatus("+id+",-2)'><span class='icon-edit'></span>拉黑名单</a>";
-			  
-			  toAdd+="</div></td></tr>";
+			 toAdd+="<td>"+pageData['send_time']+"</td></tr>";
 			 tr.after(toAdd);
 		}
-	  
+	    function downloadMsg(id){
+	    	 $.get("<%=path%>/manager/download_msg?msg_id="+id, 
+	    		  function(result){
+	    		  var json=JSON.parse(result);
+	    		   if(json.code==0){
+	    			   if(json.type=='audio'){
+	    				   RongIMLib.RongIMVoice.play(json.file);
+	    			   }else if(json.type=='img'){
+	    				   showBase64(json.file);
+	    			   }
+	    	    	 }
+	    		  });
+	    	
+	    	 return false;
+        }  
+	    
 	    function show(img){
 	    	parent.showOriginImg(img);
 	    }
-	    
- 	    function changeBottleStatus(id,state){
-			$.post("<%=path%>/manager/changeBottleStatus",{'status':2,'user_id':user_id,'nick_name':nick_name,'id':id,'type':-1,'pageIndex':currentPageIndex,'pageSize':pageSize,'to_state':state},function(result){
+	    function showImg(id){
+	    	var url="<%=path%>/manager/download_msg_img?msg_id="+id;
+	    	parent.showImg(url);
+	    }
+ 
+ 	    function changeBottleState(id,state){
+			$.post("<%=path%>/manager/changeBottleStatus",{'user_id':user_id,'nick_name':nick_name,'id':id,'status':status,'type':type,'pageIndex':currentPageIndex,'pageSize':pageSize,'to_state':state,'bottle_id':current_bottle_id,'nick_name':nick_name},function(result){
 				 var json=JSON.parse(result);
 			        if(json.code==0){
 			        	$("table tr[id*='tr_'").each(function(i){
@@ -273,14 +253,24 @@ td {
 		    });
 		}
 		 
-		function changeType(selectView) {
-			var typeSelect = $('#user_type option:selected').val();
+		function changeSelectStatus(selectView) {
+			var statusSelect = $('#bottle_status option:selected').val();
+			if (status != statusSelect) {
+				status = statusSelect;
+				currentPageIndex = 0;
+				page(1);
+			}
+		}
+		
+		function changeSelectType(selectView) {
+			var typeSelect = $('#bottle_type option:selected').val();
 			if (type != typeSelect) {
 				type = typeSelect;
 				currentPageIndex = 0;
 				page(1);
 			}
 		}
+		
 		
 		var current_bottle_id=0;
 		

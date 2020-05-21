@@ -260,7 +260,10 @@ public class BottleController {
 	}
 
 	@RequestMapping("delete")
-	public ModelMap delete(long user_id, long bottle_id) {
+	public ModelMap delete(long user_id,String token, long bottle_id) {
+		if (!userService.checkLogin(user_id, token)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
 		return bottleService.delete(user_id, bottle_id);
 	}
 

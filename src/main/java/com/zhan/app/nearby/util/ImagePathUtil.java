@@ -96,6 +96,18 @@ public class ImagePathUtil {
 		avatarModel.setOrigin_avatar(path);
 		return avatarModel;
 	}
+	
+
+	public static String completeUserVatarPath(String avatar) {
+		if (TextUtils.isEmpty(avatar)) {
+			return "";
+		}
+		if (avatar.startsWith("http")) {
+			return avatar;
+		}
+		String path = HOST_PROFIX_AVATAR + ImageSaveUtils.FILE_AVATAR + avatar;
+		return path;
+	}
 
 	public static void completePath(Appointment appointment) {
 		if (appointment == null) {

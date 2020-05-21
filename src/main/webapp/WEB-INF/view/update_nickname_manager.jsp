@@ -27,29 +27,24 @@ td {
 <body>
 	<form method="post" action="">
 		<div class="panel admin-panel">
-			<div class="padding border-bottom">
+		
+		
+		<div class="padding border-bottom">
+			   
 				<ul class="search">
-					<li>
-			         <input type="text" placeholder="请输入发送者昵称" name="nick_input" class="input" style="width:250px; line-height:17px;display:inline-block" />
-                     <a href="javascript:void(0)" class="button border-main icon-search" onclick="doSearchById()" > 搜索</a>
-                   </li> 
-					<li>
-			         <input type="text" placeholder="请输入发送者id" name="user_id_input" class="input" style="width:250px; line-height:17px;display:inline-block" />
+                   <li>
+			         <input type="text" placeholder="请输入用户id" name="user_id_input" class="input" style="width:250px; line-height:17px;display:inline-block" />
                      <a href="javascript:void(0)" class="button border-main icon-search" onclick="doSearchById()" > 搜索</a>
                    </li> 
 				</ul>
 			</div>
-
-
-
+		
+		
 			<table class="table table-hover text-center">
 				<tr>
-					<th width="10%">设备</th>
-					<th width="15%">发送者</th>
-					<th width="10%">头像</th>
-					<th width="5%">类型</th>
-					<th width="10%">内容</th>
-					<th width="10%">时间</th>
+					<th width="10%">用户ID</th>
+					<th width="10%">用户昵称</th>
+					<th width="20%">用户头像</th>
 					<th width="40%">操作</th>
 				</tr>
 				<tr id="bottom">
@@ -69,20 +64,13 @@ td {
 	    var currentPageIndex = 0;
 	    var pageSize = 10;
 	    var pageCount = 100;
-	    var type=-1;
 	    var user_id;
-	    var nick_name;
 	    //默认加载第一页
 	    $(document).ready(function(){ 
 		    page(1);
 		}); 
 		
-	    function doSearchById(){
-	    	user_id=$("[name='user_id_input']").val().replace(/^\s+|\s+$/g,"");
-	    	nick_name=$("[name='nick_input']").val().replace(/^\s+|\s+$/g,"");
-	    	currentPageIndex=0;
-	    	page(1);
-	    }
+	     
 	    //前一页
 		function previous() {
 			if(currentPageIndex>1){
@@ -106,7 +94,7 @@ td {
 			if (currentPageIndex == index) {
 				return false;
 			}
-			$.post("<%=path%>/manager/list_bottle_black",{'pageIndex':index,'pageSize':pageSize,'bottle_id':current_bottle_id,'user_id':user_id,'nick_name':nick_name},function(result){
+			$.post("<%=path%>/manager/load_nickname_update_users",{'page':index,'count':pageSize,'user_id':user_id},function(result){
 				 var json=JSON.parse(result);
 			        if(json.code==0){
 			        	$("table tr[id*='tr_'").each(function(i){
@@ -118,10 +106,10 @@ td {
 			
 			return true;
 		}
-		
+
 		//刷新表格
 		function refreshTable(json){
-			var pageData=json["bottles"];
+			var pageData=json["data"];
 			if(pageData){
 				for(var i=0;i<pageData.length;i++){
 					var tr;
@@ -138,7 +126,7 @@ td {
 			currentPageIndex=json["currentPageIndex"]
 			if(currentPageIndex==1){
 				pageCount=json["pageCount"];
-				$("#new_count").text("对应新增用户数量："+json["totalCount"])
+				//$("#new_count").text("对应新增用户数量："+json["totalCount"])
 			}
 			refreshPageIndex();		
 		}
@@ -156,7 +144,20 @@ td {
 			 })
 			nextAflag.before(pageIndexHtml);
 		}
-		 
+		 function doSearchById(){
+		    	var key=$("[name='user_id_input']").val().replace(/^\s+|\s+$/g,"");
+		    	if(user_id==''){
+		    		if(key==''){
+			    		return;
+			    	}
+		    	}
+		    	if(user_id==key){
+		    		return;
+		    	}
+		    	user_id=key;
+		    	currentPageIndex=0;
+		    	page(1);
+		    }
 		
 		function getPageIndexItem(i){
 			 if(i==currentPageIndex){
@@ -179,80 +180,49 @@ td {
 				return startIndex+4;
 			}
 		}
+		
+	    function showVideo(img){
+			   var alt=$(img).attr("alt");
+			   var vu=$(img).attr("vu");
+			   var url='<%=path %>/manager/forword?path=play_video';
+			   
+			   url+="&thumb="+alt+"&vu="+vu;
+			   
+			  // window.open ('play_video.jsp?thumb="+alt+"&vu="+vu', 'newwindow', 'height=100, width=400, top=0, left=0, toolbar=no, menubar=no, scrollbars=no, resizable=no,location=n o, status=no')  
+			   openwindow(url,'短视频播放',800,500);
+		}
+	    
+	    
+	    function openwindow(url,name,iWidth,iHeight)
+	    {
+	          var url; //转向网页的地址;
+	         var name; //网页名称，可为空;
+	         var iWidth; //弹出窗口的宽度;
+	         var iHeight; //弹出窗口的高度;
+	    //window.screen.height获得屏幕的高，window.screen.width获得屏幕的宽
+	          var iTop = (window.screen.height-30-iHeight)/2; //获得窗口的垂直位置;
+	         var iLeft = (window.screen.width-10-iWidth)/2; //获得窗口的水平位置;
+	         window.open(url,name,'height='+iHeight+',,innerHeight='+iHeight+',width='+iWidth+',innerWidth='+iWidth+',top='+iTop+',left='+iLeft+',toolbar=no,menubar=no,scrollbars=auto,resizeable=no,location=no,status=no');
+	    }
+	    
 	  //
       function reviewTableTr(pageData,tr) {
 			 var currentItem=$("tr#tr_"+pageData["user_id"]);
 			 if(currentItem.length>0){
 				 return;
 			 }
-			 var id=pageData['id'];
+			 var uid=pageData['user_id'];
 			 
-			 var toAdd="<tr id='tr_"+id+"'>";
-			 
-			 var from=pageData['_from'];
-			 var channel=pageData['channel'];
-			
-			 var txtFrom;
-			 if(from==1){
-				 if(!channel){
-					 channel="iPhone"; 
-				 }
-				 txtFrom=channel;
-			 }else if(from==2){
-				 txtFrom=channel;
-			 }else{
-				 txtFrom=channel;
-			 }
-			 
-			 toAdd+="<td>"+txtFrom+"</td>";
-			 
-			 
-			 var nick_name=pageData.sender.nick_name;
-			 var uid=pageData.sender.user_id;
-			 nick_name=nick_name==undefined?"":nick_name;
-			 toAdd+="<td>"+uid+"|"+nick_name+"</td>";
-			 toAdd+="<td><img  src='"+pageData.sender.avatar+"' alt='"+pageData.sender.origin_avatar+"'  height='50'/></td>";
-			 //类型
-			 var type=pageData["type"];
-			 var typeStr=type;
-			 
-			 
-			 if(type==0){
-				 typeStr="文字";
-			 }else if(type==1){
-				 typeStr="图片";
-			 }else if(type==2){
-				 typeStr="语音";
-			 }else if(type==3){
-				 typeStr="邂逅";
-			 }else if(type==4){
-				 typeStr="文本弹幕";
-			 }else if(type==5){
-				 typeStr="语音弹幕";
-			 }else if(type==6){
-				 typeStr="我画你猜";
-			 }else if(type==7){
-				 typeStr="红包";
-			 }
-			 
-			 toAdd+="<td>"+typeStr+"</td>";
-			 if(type==3||type==6){
-				 toAdd+="<td><img  src='"+pageData["content"]+"' alt='"+pageData["content"]+"'  height='50'/></td>";
-			 }else{
-				 toAdd+="<td>"+pageData["content"]+"</td>";
-			 }
-			
-			 toAdd+="<td>"+pageData['create_time']+"</td>";
-			 
+			 var toAdd="<tr id='tr_"+uid+"'>";
+			 toAdd+="<td>"+uid+"</td>";
+			 toAdd+="<td>"+pageData['nick_name']+"</td>";
+	 
+			 toAdd+="<td><img id='img_"+uid+"' src='"+pageData.avatar+"' alt='"+pageData.origin_avatar+"'  height='50' onclick='show(this)'/></td>";
 			 
 			 //操作单元格
 			  toAdd+="<td><div class='button-group'>";
 			  //操作单元格
-			  
-			    toAdd+="<a class='button border-main' href='javascript:void(0)'	onclick='return changeBottleStatus("+id+",0)'><span class='icon-edit'></span>移除黑屋</a>";
-			    toAdd+="<a class='button border-main' href='javascript:void(0)'	onclick='return changeBottleStatus("+id+",-1)'><span class='icon-edit'></span>删除</a>";
-			     toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return changeBottleStatus("+id+",-2)'><span class='icon-edit'></span>拉黑名单</a>";
-			  
+		      toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return del("+uid+")'><span class='icon-edit'></span>删除</a>";
 			  toAdd+="</div></td></tr>";
 			 tr.after(toAdd);
 		}
@@ -260,19 +230,25 @@ td {
 	    function show(img){
 	    	parent.showOriginImg(img);
 	    }
+	   
 	    
- 	    function changeBottleStatus(id,state){
-			$.post("<%=path%>/manager/changeBottleStatus",{'status':2,'user_id':user_id,'nick_name':nick_name,'id':id,'type':-1,'pageIndex':currentPageIndex,'pageSize':pageSize,'to_state':state},function(result){
-				 var json=JSON.parse(result);
-			        if(json.code==0){
-			        	$("table tr[id*='tr_'").each(function(i){
-				        	this.remove();//移除当前的元素
-				        })
-			        	refreshTable(json);
-			        }
-		    });
+ 	    function del(uid){
+			$.post("<%=path%>/manager/delete_user_nickname", {
+				'uid' : uid,
+				'page' : currentPageIndex,
+				'user_id':user_id,
+				'count' : pageSize
+			}, function(result) {
+				var json = JSON.parse(result);
+				if (json.code == 0) {
+					$("table tr[id*='tr_'").each(function(i) {
+						this.remove();//移除当前的元素
+					})
+					refreshTable(json);
+				}
+			});
 		}
-		 
+
 		function changeType(selectView) {
 			var typeSelect = $('#user_type option:selected').val();
 			if (type != typeSelect) {
@@ -281,31 +257,29 @@ td {
 				page(1);
 			}
 		}
-		
-		var current_bottle_id=0;
-		
-		 function doSearch(){
-			 
-		    	var key=$("[name='bottle_id']").val().replace(/^\s+|\s+$/g,"");
-		    	 
-		    	var intKey;
-		    	  
-		    		intKey=Number(key);
-		    		
-		    		if(isNaN(intKey)){
-		    			alert("请输入数字");
-		    			return;
-		    		}
-		    		
-		    		 
-		    		if(intKey==current_bottle_id){
-		    			return;
-		    		}
-		    		currentPageIndex=0;
-		    		current_bottle_id=intKey;
-		    		page(1);
-		    }
-		
+
+		var current_bottle_id = 0;
+
+		function doSearch() {
+
+			var key = $("[name='bottle_id']").val().replace(/^\s+|\s+$/g, "");
+
+			var intKey;
+
+			intKey = Number(key);
+
+			if (isNaN(intKey)) {
+				alert("请输入数字");
+				return;
+			}
+
+			if (intKey == current_bottle_id) {
+				return;
+			}
+			currentPageIndex = 0;
+			current_bottle_id = intKey;
+			page(1);
+		}
 	</script>
 </body>
 </html>

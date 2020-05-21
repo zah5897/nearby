@@ -159,7 +159,7 @@ public class TimerTask {
 		}
 	}
 
-	//@Scheduled(cron = "0 0/60 * * * ?") // 每10分钟执行一次
+	@Scheduled(cron = "0 0/60 * * * ?") // 每10分钟执行一次
 	public void downloadIMChatHistoryMessages() { //
 		
 		String ip = IPUtil.getLocalAddr();

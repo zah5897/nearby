@@ -51,6 +51,7 @@ public class ImagePathUtil {
 
 		String avatar = user.getAvatar();
 		if (TextUtils.isEmpty(avatar)) {
+			user.setOrigin_avatar(avatar);
 			return user;
 		}
 
@@ -96,7 +97,6 @@ public class ImagePathUtil {
 		avatarModel.setOrigin_avatar(path);
 		return avatarModel;
 	}
-	
 
 	public static String completeUserVatarPath(String avatar) {
 		if (TextUtils.isEmpty(avatar)) {
@@ -201,7 +201,7 @@ public class ImagePathUtil {
 				dynamic.setOrigin(dynamic.getThumb());
 			}
 		}
-	 
+
 	}
 
 	public static void completeImagesPath(List<SimpleDynamic> images, boolean thumbAndOrigin) {

@@ -63,7 +63,7 @@ public class DateTimeUtil {
 
 	public static String getMessageHistoryTimePoint() {
 		
-		long time=System.currentTimeMillis()-(1*60*60*1000);
+		long time=System.currentTimeMillis()-(2*60*60*1000);
 		
 		Calendar c = Calendar.getInstance();
 		c.setTimeInMillis(time);

@@ -155,7 +155,7 @@ public class HXAsyncTask {
 
 	@Async
 	public void exportChatMessages() {
-		hxService.clearExpireHistoryMsg();
+		//hxService.clearExpireHistoryMsg();
 		String timePoint = DateTimeUtil.getMessageHistoryTimePoint();
 		List<HXHistoryMsg> msgs = HX_SessionUtil.exportChatMessages(timePoint);
 		for (HXHistoryMsg msg : msgs) {

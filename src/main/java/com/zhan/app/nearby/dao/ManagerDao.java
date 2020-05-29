@@ -151,7 +151,7 @@ public class ManagerDao extends BaseDao<ManagerUser> {
 	// 获取未选中的（前提为被审核通过的）
 	public int getUnSelectedCount(Long user_id, Long dy_id) {
 		String sql = "select count(*) from " + TABLE_USER_DYNAMIC
-				+ " dynamic    where dynamic.type=0 and  dynamic.found_status<>?  and dynamic.state=? and manager_flag<>1 ";
+				+ " dynamic    where dynamic.type=0 and  dynamic.found_status=?  and dynamic.state=? and manager_flag<>1 ";
 
 		List<Object> param = new ArrayList<Object>();
 		param.add(UserFnStatus.DEFAULT.ordinal());

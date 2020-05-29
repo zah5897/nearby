@@ -121,9 +121,9 @@ public class MainService {
 		}
 		List<UserDynamic> dynamics = userDynamicDao.getHomeFoundSelected(user_id, last_id, count, city);
 		ModelMap result = ResultUtil.getResultOKMap();
-		if(dynamics.size()>0) {
+		if (dynamics.size() > 0) {
 			result.put("last_id", dynamics.get(dynamics.size() - 1).getId());
-		}else {
+		} else {
 			result.put("last_id", 0);
 		}
 		result.put("hasMore", dynamics.size() == count);
@@ -145,7 +145,7 @@ public class MainService {
 		for (int i = 0; i < len; i++) {
 			long tuid = Long.parseLong(with_ids[i]);
 			changeRelationShip(user_id, tuid, Relationship.LIKE);
-			userService.updateMeiLiValue(tuid, 1); //增加魅力值
+			userService.updateMeiLiValue(tuid, 1); // 增加魅力值
 		}
 		return ResultUtil.getResultOKMap();
 	}
@@ -256,41 +256,41 @@ public class MainService {
 		return ResultUtil.getResultOKMap();
 	}
 
-	public ModelMap rank_list_v2(long user_id,int type, Integer pageIndex, Integer count,String time_point) {
+	public ModelMap rank_list_v2(long user_id, int type, Integer pageIndex, Integer count, String time_point) {
 		if (pageIndex == null || pageIndex <= 0) {
 			pageIndex = 1;
 		}
 		if (count == null) {
 			count = 20;
 		}
-		
-		ModelMap r=	ResultUtil.getResultOKMap();
+
+		ModelMap r = ResultUtil.getResultOKMap();
 		List<? extends BaseUser> users = null;
-		if(type==-2) {
-			users = userDao.getIWatching(user_id,pageIndex, count);
-		}else if(type==-1) {
-			Date timePoint=null;
+		if (type == -2) {
+			users = userDao.getIWatching(user_id, pageIndex, count);
+		} else if (type == -1) {
+			Date timePoint = null;
 			try {
 				timePoint = DateTimeUtil.parse(time_point, "yyyy-MM-dd HH:mm:ss");
 			} catch (Exception e) {
 				log.error(e.getMessage());
 			}
-			users = userDao.getRankOnlineUsers(count,timePoint);
-			
-			if(!users.isEmpty()) {
-				LoginUser user=(LoginUser) users.get(users.size()-1);
-				r.addAttribute("last_login_time",DateTimeUtil.format(user.getLast_login_time()));
+			users = userDao.getRankOnlineUsers(count, timePoint);
+
+			if (!users.isEmpty()) {
+				LoginUser user = (LoginUser) users.get(users.size() - 1);
+				r.addAttribute("last_login_time", DateTimeUtil.format(user.getLast_login_time()));
 			}
-		}else if (type == 0) {
+		} else if (type == 0) {
 			users = userDao.getNewRegistUsersV2(pageIndex, count);
 		} else if (type == 1) {
 			users = giftService.loadMeiLiV2(pageIndex, count);
 		} else if (type == 2) {
 			users = giftService.loadTuHaoV2(pageIndex, count);
 		} else if (type == 3) {
-			users=userDao.getVipRankUsersV2(pageIndex, count);
+			users = userDao.getVipRankUsersV2(pageIndex, count);
 		}
-		r.addAttribute("hasMore", users.size()==count);
+		r.addAttribute("hasMore", users.size() == count);
 		ImagePathUtil.completeAvatarsPath(users, true);
 		return r.addAttribute("users", users);
 	}
@@ -570,8 +570,8 @@ public class MainService {
 		return reports;
 	}
 
-	public int getReportSizeByApproval(   ) {
-		return systemDao.getReportSizeByApproval( );
+	public int getReportSizeByApproval() {
+		return systemDao.getReportSizeByApproval();
 	}
 
 	public void deleteReport(int id) {
@@ -653,5 +653,9 @@ public class MainService {
 
 	public void deleteBlackWord(String words) {
 		systemDao.delBlackWord(words);
+	}
+
+	public ModelMap chatStrategy(String channel) {
+		return ResultUtil.getResultOKMap().addAttribute("show_chat", true);
 	}
 }

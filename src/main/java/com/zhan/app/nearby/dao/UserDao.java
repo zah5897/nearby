@@ -488,7 +488,7 @@ public class UserDao extends BaseDao<BaseUser> {
 	}
 
 	public BaseUser getBaseUserNoToken(long user_id) {
-		String sql = "select user_id,nick_name,sex,avatar,signature,birthday,type,isvip from t_user where user_id=?";
+		String sql = "select user_id,nick_name,sex,avatar,signature,birthday,type,isvip,isFace from t_user where user_id=?";
 		List<BaseUser> users = jdbcTemplate.query(sql, new Object[] { user_id }, getEntityMapper());
 		if (users.size() > 0) {
 			return users.get(0);
@@ -946,7 +946,7 @@ public class UserDao extends BaseDao<BaseUser> {
 	}
 	
 	public List<String> getOnlineUidLastetByLimit(int limit) {
-		 String sql="select uid from t_user_online   where notify_cmd_time is null or notify_cmd_time<DATE_ADD(NOW(), INTERVAL -2 MINUTE) order by check_time desc limit ?";
+		 String sql="select uid from t_user_online   where notify_cmd_time is null or DATE_SUB(CURDATE(), INTERVAL 2 DAY) <= date(notify_cmd_time) order by check_time desc limit ?";
 		return jdbcTemplate.queryForList(sql, new Object[] {limit},String.class);
 	}
 

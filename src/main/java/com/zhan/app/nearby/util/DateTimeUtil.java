@@ -62,9 +62,10 @@ public class DateTimeUtil {
 	}
 
 	public static String getMessageHistoryTimePoint() {
-		
-		long time=System.currentTimeMillis()-(2*60*60*1000);
-		
+
+		long time = System.currentTimeMillis() - (2 * 60 * 60 * 1000);
+//		long time=System.currentTimeMillis();
+
 		Calendar c = Calendar.getInstance();
 		c.setTimeInMillis(time);
 		int year = c.get(Calendar.YEAR);
@@ -72,19 +73,17 @@ public class DateTimeUtil {
 		int day = c.get(Calendar.DAY_OF_MONTH);
 		int hour = c.get(Calendar.HOUR_OF_DAY);
 		
-		if (month < 10) {
-			if (day < 10) {
-				return year + "0" + month + "0" + day + hour;
-			}
-			return year + "0" + month + day + hour;
-		} else {
-			if (day < 10) {
-				return year + month + "0" + day + hour;
-			} else {
-				return year + "" + month + day + hour;
-			}
-		}
+		
+		
+		
+		String timeStr=String.valueOf(year);
+		
+		timeStr+=month < 10?("0"+month):String.valueOf(month);
+		timeStr+=day < 10?("0"+day):String.valueOf(day);
+		timeStr+=hour < 10?("0"+hour):String.valueOf(hour);
+		
 
+		return timeStr;
 	}
 
 	public static String getAge(Date birthday) {

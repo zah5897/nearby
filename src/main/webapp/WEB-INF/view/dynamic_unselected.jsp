@@ -101,7 +101,9 @@
 			}
 			page(currentPage+1)
 		}
-	    
+		function end(){
+		    	page(pageCount);
+		}
 	    
 		 function doSearch(){
 			 dy_id=$("[name='dy_id']").val().replace(/^\s+|\s+$/g,"");

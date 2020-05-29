@@ -90,6 +90,9 @@
 			page(currentPage+1)
 		}
 	    
+	    function end(){
+	    	page(pageCount);
+	    }
 	     //获取对应页面
 		function page(index) {
 			if (currentPage == index) {

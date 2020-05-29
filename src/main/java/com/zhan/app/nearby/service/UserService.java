@@ -1591,6 +1591,9 @@ public class UserService {
 		userDao.deleteUserNickname(uid);
 		nickNameIllegal(uid);
 	}
+	public String onlyNicknameIllegal(Long uid) {
+		return nickNameIllegal(uid);
+	}
 
 	public void setUserSysStatusToNormal(long uid) {
 		userDao.setUserSysStatusToNormal(uid);

@@ -232,70 +232,11 @@ td {
 	    	
 	    	 return false;
         }  
-	    
-	    function show(img){
-	    	parent.showOriginImg(img);
-	    }
 	    function showImg(id){
 	    	var url="<%=path%>/manager/download_msg_img?msg_id="+id;
 	    	parent.showImg(url);
 	    }
- 
- 	    function changeBottleState(id,state){
-			$.post("<%=path%>/manager/changeBottleStatus",{'user_id':user_id,'nick_name':nick_name,'id':id,'status':status,'type':type,'pageIndex':currentPageIndex,'pageSize':pageSize,'to_state':state,'bottle_id':current_bottle_id,'nick_name':nick_name},function(result){
-				 var json=JSON.parse(result);
-			        if(json.code==0){
-			        	$("table tr[id*='tr_'").each(function(i){
-				        	this.remove();//移除当前的元素
-				        })
-			        	refreshTable(json);
-			        }
-		    });
-		}
 		 
-		function changeSelectStatus(selectView) {
-			var statusSelect = $('#bottle_status option:selected').val();
-			if (status != statusSelect) {
-				status = statusSelect;
-				currentPageIndex = 0;
-				page(1);
-			}
-		}
-		
-		function changeSelectType(selectView) {
-			var typeSelect = $('#bottle_type option:selected').val();
-			if (type != typeSelect) {
-				type = typeSelect;
-				currentPageIndex = 0;
-				page(1);
-			}
-		}
-		
-		
-		var current_bottle_id=0;
-		
-		 function doSearch(){
-			 
-		    	var key=$("[name='bottle_id']").val().replace(/^\s+|\s+$/g,"");
-		    	 
-		    	var intKey;
-		    	  
-		    		intKey=Number(key);
-		    		
-		    		if(isNaN(intKey)){
-		    			alert("请输入数字");
-		    			return;
-		    		}
-		    		
-		    		 
-		    		if(intKey==current_bottle_id){
-		    			return;
-		    		}
-		    		currentPageIndex=0;
-		    		current_bottle_id=intKey;
-		    		page(1);
-		    }
-		
 	</script>
 </body>
 </html>

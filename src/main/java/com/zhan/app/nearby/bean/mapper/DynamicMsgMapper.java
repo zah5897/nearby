@@ -8,7 +8,6 @@ import org.springframework.jdbc.core.RowMapper;
 
 import com.zhan.app.nearby.bean.DynamicMessage;
 import com.zhan.app.nearby.bean.user.SimpleUser;
-import com.zhan.app.nearby.util.DateTimeUtil;
 
 public class DynamicMsgMapper implements RowMapper<DynamicMessage> {
 
@@ -19,12 +18,12 @@ public class DynamicMsgMapper implements RowMapper<DynamicMessage> {
 		dynamicMsg.setCreate_time(rs.getTimestamp("create_time"));
 
 		dynamicMsg.setStatus(rs.getInt("status"));
-		
+
 		dynamicMsg.setType(rs.getInt("type"));
-        int isRead=rs.getInt("isReadNum");
-        dynamicMsg.setIsReadNum(isRead);
+		int isRead = rs.getInt("isReadNum");
+		dynamicMsg.setIsReadNum(isRead);
 		long obj_id = rs.getLong("obj_id");
-		 
+
 		dynamicMsg.setObj_id(obj_id);
 
 		SimpleUser user = new SimpleUser();

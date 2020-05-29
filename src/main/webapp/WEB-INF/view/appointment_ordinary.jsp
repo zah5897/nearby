@@ -202,7 +202,7 @@ td {
 			 toAdd+="<td>"+pageData.street+"</td>";
 			 toAdd+="<td>"+pageData.description+"</td>";
 			 
-			 toAdd+="<td><img  src='"+pageData.images[0]+"' alt='"+pageData.images[0]+"'  height='50'/></td>";
+			 toAdd+="<td><img id='img_"+id+"' src='"+pageData.images[0]+"' alt='"+pageData.images[0]+"'  height='50' onclick='show(this)'/></td>";
 			 
 			 var state=pageData["status"];
 			 //操作单元格

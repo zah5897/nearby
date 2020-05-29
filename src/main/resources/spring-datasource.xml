@@ -16,7 +16,7 @@
 
 	<!-- 加载资源文件 其中包含变量信息，必须在Spring配置文件的最前面加载，即第一个加载 -->
 	<context:property-placeholder
-		location="classpath:mysql.properties" />
+		location="classpath:mysql2.properties" />
 
 	<bean id="dataSource"
 		class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
@@ -51,17 +51,18 @@
 		<!-- 配置监控统计拦截的filters -->
 		<!-- <property name="filters" value="stat" /> -->
 	</bean>
-    
-    <bean id="customSQLErrorCodeTranslator"
+
+	<bean id="customSQLErrorCodeTranslator"
 		class="com.zhan.app.nearby.exception.CustomSQLErrorCodeTranslator">
 		<property name="dataSource" ref="dataSource" />
 	</bean>
-    
-    
+
+
 	<bean id="jdbcTemplate"
 		class="org.springframework.jdbc.core.JdbcTemplate">
 		<property name="dataSource" ref="dataSource" />
-		<property name="exceptionTranslator" ref="customSQLErrorCodeTranslator" />
+		<property name="exceptionTranslator"
+			ref="customSQLErrorCodeTranslator" />
 	</bean>
 
 	<!-- 配置Hibernate事务管理器 -->
@@ -74,7 +75,8 @@
 	<bean id="persistenceExceptionTranslationPostProcessor"
 		class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor" />
 
-	<tx:annotation-driven transaction-manager="transactionManager" proxy-target-class="true" />
-   
+	<tx:annotation-driven
+		transaction-manager="transactionManager" proxy-target-class="true" />
+
 
 </beans>

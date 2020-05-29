@@ -56,22 +56,6 @@ public class HXAsyncTask {
 		HX_SessionUtil.createExpressSession(user, with_user, msg);
 	}
 
-//
-//	@Async
-//	public void makeChatSession(BaseUser user, BaseUser with_user, long bottle_id) {
-//		HX_SessionUtil.makeChatSession(user, with_user, bottle_id);
-//	}
-
-//	@Async
-//	public void makeChatSessionSingle(BaseUser user, BaseUser with_user, String expressMsg) {
-//		HX_SessionUtil.makeChatSessionSingle(user, with_user, expressMsg);
-//	}
-
-//	@Async
-//	public void makeChatSession(BaseUser user, BaseUser with_user) {
-//		HX_SessionUtil.makeChatSession(user, with_user, 0);
-//	}
-
 	@Async
 	public void pushPraise(long toUid, long dynamic_id) {
 		HX_SessionUtil.pushPraise(toUid, dynamic_id);
@@ -92,12 +76,6 @@ public class HXAsyncTask {
 		// 通知对方收到某某的礼物
 		HX_SessionUtil.pushGift(from_nick_name, to_user_id);
 	}
-
-//	@Async
-//	public void sendReplayBottle(BaseUser user, long target, String msg, Map<String, String> ext,
-//			String typeNewConversation) {
-//		HX_SessionUtil.sendReplayBottle(user, target, msg, ext, typeNewConversation);
-//	}
 
 	@Async
 	public void disconnectUser(String valueOf) {
@@ -155,7 +133,7 @@ public class HXAsyncTask {
 
 	@Async
 	public void exportChatMessages() {
-		//hxService.clearExpireHistoryMsg();
+		// hxService.clearExpireHistoryMsg();
 		String timePoint = DateTimeUtil.getMessageHistoryTimePoint();
 		List<HXHistoryMsg> msgs = HX_SessionUtil.exportChatMessages(timePoint);
 		for (HXHistoryMsg msg : msgs) {

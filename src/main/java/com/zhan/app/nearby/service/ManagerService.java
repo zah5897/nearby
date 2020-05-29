@@ -90,6 +90,7 @@ public class ManagerService {
 	}
 
 	public boolean isLogin(HttpServletRequest request) {
+		request.getSession().setMaxInactiveInterval(60 * 60);
 		String ip = IPUtil.getIpAddress(request);
 		return userCacheService.validateManagerAuthDataActive(ip);
 	}
@@ -635,6 +636,11 @@ public class ManagerService {
 		userService.deleteUserNickname(uid);
 		return loadNicknameUpdateUsers(user_id, page, count);
 	}
+	
+	public ModelMap onlyUserNicknameIllegal(long uid) {
+		String nick=userService.onlyNicknameIllegal(uid);
+		return ResultUtil.getResultOKMap().addAttribute("nick", nick);
+	}
 
 	public void addUserToBlackByBottleID(int id) {
 		userService.setUserSysStatusTo(bottleService.getBottleById(id).getUser_id(), SysUserStatus.BLACK);
@@ -678,14 +684,15 @@ public class ManagerService {
 		}
 		return ResultUtil.getResultFailed();
 	}
-	public void downloadMsgImg(HttpServletResponse response,String msg_id) throws IOException {
+
+	public void downloadMsgImg(HttpServletResponse response, String msg_id) throws IOException {
 		HXHistoryMsg msg = hxService.getHistoryMsgById(msg_id);
 		Map<String, Object> map = JSONUtil.jsonToMap(msg.getContent());
 		String secretKey = map.get("secret").toString();
 		String remotePath = map.get("url").toString();
-		 
-		HX_SessionUtil.downloadImgFile(response,remotePath, secretKey);
-		 
+
+		HX_SessionUtil.downloadImgFile(response, remotePath, secretKey);
+
 	}
 
 }

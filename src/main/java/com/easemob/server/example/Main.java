@@ -335,7 +335,7 @@ public class Main {
 	static String getChatMessagesDownloadURL(String timePoint) {
 		initFactory();
 		EasemobChatMessage message = (EasemobChatMessage) factory.newInstance(EasemobRestAPIFactory.MESSAGE_CLASS);
-		ResponseWrapper wrapper = (ResponseWrapper) message.exportChatMessages("2020051810");
+		ResponseWrapper wrapper = (ResponseWrapper) message.exportChatMessages(timePoint);
 		if (wrapper.getResponseStatus() == 200) {
 			Map<String, Object> requestResult = JSONUtil.jsonToMap(wrapper.getResponseBody().toString());
 			List<Map> data = (List<Map>) requestResult.get("data");

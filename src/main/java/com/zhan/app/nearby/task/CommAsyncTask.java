@@ -120,6 +120,11 @@ public class CommAsyncTask {
 		if(user.getType()==UserType.TEMP_MOBILE.ordinal()||user.getType()==UserType.VISITOR.ordinal()) { //只推送正式用户和第三方登录的用户
 			return;
 		}
+		
+		if(user.getIsFace()==0) {
+			return;
+		}
+		
 		ImagePathUtil.completeAvatarPath(user, true);
 		List<String> uids = userService.getOnlineUidLastetByLimit(900);
 

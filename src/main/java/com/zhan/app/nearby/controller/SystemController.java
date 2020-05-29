@@ -10,29 +10,33 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.easemob.server.example.HXHistoryMsgDownloadHelper;
 import com.zhan.app.nearby.bean.BGM;
 import com.zhan.app.nearby.bean.Report;
 import com.zhan.app.nearby.service.MainService;
 import com.zhan.app.nearby.service.UserService;
 import com.zhan.app.nearby.task.HXAsyncTask;
 import com.zhan.app.nearby.util.BottleKeyWordUtil;
-import com.zhan.app.nearby.util.DateTimeUtil;
 import com.zhan.app.nearby.util.IPUtil;
 import com.zhan.app.nearby.util.ResultUtil;
 import com.zhan.app.nearby.util.baidu.ImgCheckHelper;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+
 @RestController
 @RequestMapping("/system")
+@Api(value = "系统相关")
 public class SystemController {
 	@Resource
 	private UserService userService;
 	@Autowired
 	private MainService mainService;
-	
+
 	@Autowired
 	private HXAsyncTask hxAsyncTask;
-	
+
 	@Deprecated
 	@RequestMapping("report")
 	public ModelMap report(Report report) {
@@ -106,6 +110,18 @@ public class SystemController {
 		ImgCheckHelper.instance.resetClient(app_id, api_key, sccret_key);
 		return ResultUtil.getResultOKMap();
 	}
+	@ApiOperation(httpMethod = "POST", value = "获取窗口隐藏设置")  
+	@ApiImplicitParams({ @ApiImplicitParam(name = "user_id", value = "user_id", required = true, paramType = "query"),
+			@ApiImplicitParam(name = "token", value = "token", required = true,paramType = "query"),
+			@ApiImplicitParam(name = "channel", value = "channel", required = true, paramType = "query")
+			})
+	@RequestMapping("show_chat_info")
+	public ModelMap showChatTabInfo(long user_id, String token, String channel) {
+		if (userService.checkLogin(user_id, token)) {
+			return ResultUtil.getResultOKMap();
+		}
+		return mainService.chatStrategy(channel);
+	}
 
 	@RequestMapping("test_redis")
 	public ModelMap test_redis() {
@@ -116,11 +132,11 @@ public class SystemController {
 	public String test_black_words(String w) {
 		return BottleKeyWordUtil.filterContent(w);
 	}
-	
+
 	@RequestMapping("test")
 	public ModelMap test() {
 		hxAsyncTask.exportChatMessages();
 		return ResultUtil.getResultOKMap();
 	}
-	
+
 }

@@ -222,7 +222,7 @@ td {
 			 //操作单元格
 			  toAdd+="<td><div class='button-group'>";
 			  //操作单元格
-		      toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return del("+uid+")'><span class='icon-edit'></span>删除</a>";
+		      toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return del("+uid+")'><span class='icon-edit'></span>昵称违规</a>";
 			  toAdd+="</div></td></tr>";
 			 tr.after(toAdd);
 		}

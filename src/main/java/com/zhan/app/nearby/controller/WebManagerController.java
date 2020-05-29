@@ -939,6 +939,15 @@ public class WebManagerController {
 		return managerService.deleteUserNickname(uid, user_id, page, count);
 	}
 
+	@RequestMapping(value = "/only_nick_name_illegal")
+	public @ResponseBody ModelMap only_nick_name_illegal(HttpServletRequest request, long uid) throws NoSuchAlgorithmException {
+		if (!managerService.isLogin(request)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
+		}
+		return managerService.onlyUserNicknameIllegal(uid);
+	}
+	
+	
 	@RequestMapping(value = "/download_audio")
 	public @ResponseBody ModelMap deleteUserSignature(HttpServletResponse response, long bid) {
 		String contetn = bottleService.getBottleContent(bid);

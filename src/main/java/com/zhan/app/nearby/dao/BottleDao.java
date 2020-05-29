@@ -57,10 +57,10 @@ public class BottleDao extends BaseDao<Bottle> {
 			return null;
 		}
 	}
-	
-	
+
 	public String getBottleContent(long bid) {
-		return jdbcTemplate.queryForList("select content from "+getTableName()+" where id="+bid,String.class).get(0);
+		return jdbcTemplate.queryForList("select content from " + getTableName() + " where id=" + bid, String.class)
+				.get(0);
 	}
 
 	public Bottle getBottleByRand() {
@@ -119,7 +119,8 @@ public class BottleDao extends BaseDao<Bottle> {
 	}
 
 	public int insertToPool(Bottle bottle) {
-		String sql = "insert ignore into " + TABLE_BOTTLE_POOL + " (bottle_id,user_id,type,create_time) values (?,?,?,?)";
+		String sql = "insert ignore into " + TABLE_BOTTLE_POOL
+				+ " (bottle_id,user_id,type,create_time) values (?,?,?,?)";
 		return jdbcTemplate.update(sql,
 				new Object[] { bottle.getId(), bottle.getUser_id(), bottle.getType(), bottle.getCreate_time() });
 	}
@@ -314,11 +315,10 @@ public class BottleDao extends BaseDao<Bottle> {
 		return jdbcTemplate.update("delete from " + getTableName() + " where user_id=? and id=?",
 				new Object[] { user_id, bottle_id });
 	}
-	public int delete( long bottle_id) {
-		jdbcTemplate.update("delete from " + TABLE_BOTTLE_POOL + " where   bottle_id=?",
-				new Object[] {  bottle_id });
-		return jdbcTemplate.update("delete from " + getTableName() + " where    id=?",
-				new Object[] {  bottle_id });
+
+	public int delete(long bottle_id) {
+		jdbcTemplate.update("delete from " + TABLE_BOTTLE_POOL + " where   bottle_id=?", new Object[] { bottle_id });
+		return jdbcTemplate.update("delete from " + getTableName() + " where    id=?", new Object[] { bottle_id });
 	}
 
 	public int logScan(long user_id, long bottle_id) {
@@ -405,46 +405,45 @@ public class BottleDao extends BaseDao<Bottle> {
 		return -1;
 	}
 
-	public List<Bottle> getBottlesByState(Long user_id,String nick_name,int status,int type, int pageSize, int pageIndex) {
+	public List<Bottle> getBottlesByState(Long user_id, String nick_name, int status, int type, int pageSize,
+			int pageIndex) {
 
-		
-		
-		List<Object> param=new ArrayList<>();
-		String sql  = "select b.*,u.nick_name,u.avatar from t_bottle b left join t_user u on b.user_id=u.user_id where  b.state=? ";
+		List<Object> param = new ArrayList<>();
+		String sql = "select b.*,u.nick_name,u.avatar from t_bottle b left join t_user u on b.user_id=u.user_id where  b.state=? ";
 		if (status == -1) {
 			sql = "select b.*,u.nick_name,u.avatar from t_bottle b left join t_user u on b.user_id=u.user_id where  b.state<>? ";
 		}
 		param.add(status);
-		
-		if(type!=-1) {
-			if(type==0) { //
-				sql+=" and (b.type=? or b.type=?) ";
+
+		if (type != -1) {
+			if (type == 0) { //
+				sql += " and (b.type=? or b.type=?) ";
 				param.add(type);
 				param.add(BottleType.DM_TXT.ordinal());
-			}else if(type==2) {
-				sql+=" and (b.type=? or b.type=?) ";
+			} else if (type == 2) {
+				sql += " and (b.type=? or b.type=?) ";
 				param.add(type);
 				param.add(BottleType.DM_VOICE.ordinal());
-			}else {
-				sql+=" and b.type=? ";
+			} else {
+				sql += " and b.type=? ";
 				param.add(type);
 			}
 		}
-		
-		if(user_id!=null) {
-			sql+=" and b.user_id=? ";	
+
+		if (user_id != null) {
+			sql += " and b.user_id=? ";
 			param.add(user_id);
 		}
-		
-		if(TextUtils.isNotEmpty(nick_name)) {
-			sql+=" and b.user_id in (select user_id from t_user where nick_name like ?) ";
-			param.add("%"+nick_name+"%");
+
+		if (TextUtils.isNotEmpty(nick_name)) {
+			sql += " and b.user_id in (select user_id from t_user where nick_name like ?) ";
+			param.add("%" + nick_name + "%");
 		}
-		
-		sql+=" order by b.id desc limit ?,?";
-		param.add((pageIndex-1)*pageSize);
+
+		sql += " order by b.id desc limit ?,?";
+		param.add((pageIndex - 1) * pageSize);
 		param.add(pageSize);
-		
+
 		return jdbcTemplate.query(sql, param.toArray(), new BeanPropertyRowMapper<Bottle>(Bottle.class) {
 			@Override
 			public Bottle mapRow(ResultSet rs, int rowNumber) throws SQLException {
@@ -460,24 +459,24 @@ public class BottleDao extends BaseDao<Bottle> {
 		});
 	}
 
-	public int getBottleCountWithState(Long user_id,int status,int type) {
+	public int getBottleCountWithState(Long user_id, int status, int type) {
 		String sql = "select count(*) from  t_bottle b where 1=1 ";
 		if (status != -1) {
-			sql +=" and b.state="+status;
+			sql += " and b.state=" + status;
 		}
-		
-		if(type!=-1) {
-			
-			if(type==0) {
-				sql+=" and (b.type="+type+" or b.type="+BottleType.DM_TXT.ordinal()+")";
-			}else if(type==2) {
-				sql+=" and (b.type="+type+" or b.type="+BottleType.DM_VOICE.ordinal()+")";
-			}else {
-				sql+=" and b.type="+type;
+
+		if (type != -1) {
+
+			if (type == 0) {
+				sql += " and (b.type=" + type + " or b.type=" + BottleType.DM_TXT.ordinal() + ")";
+			} else if (type == 2) {
+				sql += " and (b.type=" + type + " or b.type=" + BottleType.DM_VOICE.ordinal() + ")";
+			} else {
+				sql += " and b.type=" + type;
 			}
 		}
-		if(user_id!=null) {
-			sql+=" and b.user_id="+user_id;
+		if (user_id != null) {
+			sql += " and b.user_id=" + user_id;
 		}
 		return jdbcTemplate.queryForObject(sql, Integer.class);
 	}
@@ -547,22 +546,21 @@ public class BottleDao extends BaseDao<Bottle> {
 				new Object[] { BottleType.MEET.ordinal(), uid });
 		c = jdbcTemplate.update("delete from t_bottle where type=? and user_id=?",
 				new Object[] { BottleType.MEET.ordinal(), uid });
-		
+
 		return c;
 	}
-	
+
 	public int clearIllegalMeetBottleAndMarkBlack(long uid) {
 		int c = jdbcTemplate.update("delete from t_bottle_pool where type=? and user_id=?",
 				new Object[] { BottleType.MEET.ordinal(), uid });
 		c = jdbcTemplate.update("delete from t_bottle where type=? and user_id=?",
 				new Object[] { BottleType.MEET.ordinal(), uid });
-		
+
 		jdbcTemplate.update("update t_bottle  set state= ? where  user_id=?",
 				new Object[] { BottleState.BLACK.ordinal(), uid });
-		
+
 		return c;
 	}
-
 
 	public int clearPoolBottleByUserId(long uid) {
 		return jdbcTemplate.update("delete from t_bottle_pool where  user_id=?", new Object[] { uid });
@@ -641,12 +639,17 @@ public class BottleDao extends BaseDao<Bottle> {
 		String sql = "delete from t_bottle_pool   where  type=? and  bottle_id<?  order by bottle_id desc";
 		jdbcTemplate.update(sql, new Object[] { type, last_id });
 	}
-	
+
 	public void keepVoiceByDay(int day) {
 		String sql = "delete  from t_bottle_pool  where type=?  and  TO_DAYS( NOW( ) ) - TO_DAYS( create_time) > ?";
 		jdbcTemplate.update(sql, new Object[] { BottleType.VOICE.ordinal(), day });
 		sql = "delete  from t_bottle  where type=?  and  TO_DAYS( NOW( ) ) - TO_DAYS( create_time) > ?";
 		jdbcTemplate.update(sql, new Object[] { BottleType.VOICE.ordinal(), 8 });
+
+		sql = "delete  from t_bottle_pool  where type=?  and  TO_DAYS( NOW( ) ) - TO_DAYS( create_time) > ?";
+		jdbcTemplate.update(sql, new Object[] { BottleType.DM_VOICE.ordinal(), day });
+		sql = "delete  from t_bottle  where type=?  and  TO_DAYS( NOW( ) ) - TO_DAYS( create_time) > ?";
+		jdbcTemplate.update(sql, new Object[] { BottleType.DM_VOICE.ordinal(), 8 });
 	}
 
 	public void keepRedPackageByDay(int day) {

@@ -37,7 +37,8 @@ td {
 			<table class="table table-hover text-center">
 				<tr>
 					<th width="8%">ID</th>
-					<th width="10%">发送者</th>
+					<th width="6%">发送者</th>
+					<th width="8%">昵称</th>
 					<th width="15%">预览图</th>
 					<th width="10%">日期</th>
 					<th width="25%">操作</th>
@@ -202,6 +203,7 @@ td {
 			 var uid=pageData.user.user_id;
 			// nick_name=nick_name==undefined?"":nick_name;
 			 toAdd+="<td>"+uid+"</td>";
+			 toAdd+="<td id='nick_"+uid+"'>"+pageData.user.nick_name+"</td>";
 			 
 			 var thumb_url=pageData.thumb_url
 			 
@@ -216,6 +218,7 @@ td {
 			 //操作单元格
 			  toAdd+="<td><div class='button-group'>";
 			  //操作单元格
+			     toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return nick_name_illegal("+uid+")'><span class='icon-edit'></span>昵称违规</a>";
 				 toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return changeUserCert("+id+","+uid+",1)'><span class='icon-edit'></span>通过</a>";
 				 toAdd+="<a class='button border-red' href='javascript:void(0)'	onclick='return changeUserCert("+id+","+uid+",0)'><span class='icon-edit'></span>删除</a>";
 			   
@@ -227,7 +230,17 @@ td {
 	    	parent.showOriginImg(img);
 	    }
 	   
-	    
+	    function nick_name_illegal(uid){
+			$.post("<%=path%>/manager/only_nick_name_illegal", {
+				'uid' : uid
+			}, function(result) {
+				var json = JSON.parse(result);
+				if (json.code == 0) {
+					 var nick=json.nick;
+					 $("#nick_"+uid).html(nick);
+				}
+			});
+		}
  	    function changeUserCert(id,uid,isOK){
 			$.post("<%=path%>/manager/user_shortvideo_cert_ok", {
 				'id' : id,

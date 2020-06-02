@@ -121,7 +121,7 @@ public class CommAsyncTask {
 			return;
 		}
 		
-		if(user.getIsFace()==0) {
+		if(user.getIsFace()==0||"illegal.jpg".equals(user.getAvatar())||TextUtils.isEmpty(user.getAvatar())) {
 			return;
 		}
 		

@@ -463,6 +463,18 @@ public class UserDynamicDao extends BaseDao<UserDynamic> {
 
 	}
 
+	public List<UserDynamic> loadMyVideoDynamic(long user_id, long last_id, int count) {
+		String sql = "select dynamic.*,user.user_id  , user.nick_name , user.avatar,user.sex , user.birthday ,user.type , user.isvip,'1' as like_state ,o.check_time from "
+				+ getTableName()
+				+ " dynamic  left join t_user user on  dynamic.user_id=user.user_id  left join t_user_online o on o.uid=dynamic.user_id  "
+				+ "where dynamic.type=1 and   dynamic.user_id=?  and dynamic.id<?  order by dynamic.id desc  limit ?";
+
+		Object[] param = new Object[] { user_id,last_id, count };
+		return jdbcTemplate.query(sql, param, dynamicMapper);
+
+	}
+	
+	
 	public long getDynamicId(long comment_id) {
 		String sql = "select dynamic_id from " + getTableName(DynamicComment.class) + " where id=" + comment_id;
 		List<Long> ids = jdbcTemplate.queryForList(sql, Long.class);

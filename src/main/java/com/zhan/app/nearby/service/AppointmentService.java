@@ -6,14 +6,12 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.ui.ModelMap;
 
 import com.zhan.app.nearby.bean.Appointment;
 import com.zhan.app.nearby.bean.AppointmentTheme;
 import com.zhan.app.nearby.bean.City;
 import com.zhan.app.nearby.dao.AppointmentDao;
 import com.zhan.app.nearby.util.JSONUtil;
-import com.zhan.app.nearby.util.ResultUtil;
 import com.zhan.app.nearby.util.TextUtils;
 
 @Service
@@ -24,13 +22,16 @@ public class AppointmentService {
 	@Autowired
 	private CityService cityService;
 
-	public void save(Appointment appointment,String iosAddr,String android_addr) {
+	public void save(Appointment appointment, String iosAddr, String android_addr) {
 		appointment.setCreate_time(new Date());
-		City city=null;
-		if(!TextUtils.isEmpty(iosAddr)) {
+		City city = null;
+		if (!TextUtils.isEmpty(iosAddr)) {
 			city = praseIosAddrGetCity(iosAddr);
 		}
-		if(!TextUtils.isEmpty(android_addr)) {
+		if (!TextUtils.isEmpty(android_addr)) {
+			if (android_addr.endsWith("市")) {
+				android_addr.subSequence(0, android_addr.length() - 1);
+			}
 			city = cityService.getCityByName(android_addr);
 		}
 		if (city != null) {
@@ -61,8 +62,8 @@ public class AppointmentService {
 		return cityService.getCityByName(city);
 	}
 
-	public List<Appointment> listRecommend(long user_id, Integer last_id, int count, Integer theme_id, Integer time_stage,
-			String appointment_time, Integer city_id, String keyword) {
+	public List<Appointment> listRecommend(long user_id, Integer last_id, int count, Integer theme_id,
+			Integer time_stage, String appointment_time, Integer city_id, String keyword) {
 		return appointmentDao.listRecommend(user_id, last_id, count, theme_id, time_stage, appointment_time, city_id,
 				keyword);
 	}
@@ -70,6 +71,7 @@ public class AppointmentService {
 	public List<Appointment> mine(long user_id, Integer last_id, int count) {
 		return appointmentDao.queryMine(user_id, last_id, count);
 	}
+
 	public List<Appointment> loadUserAppointments(long uid, Integer last_id, int count) {
 		return appointmentDao.loadUserAppointments(uid, last_id, count);
 	}
@@ -83,12 +85,12 @@ public class AppointmentService {
 		return appointmentDao.listTheme();
 	}
 
-	public List<Appointment> listToCheck(Long uid,String nick_name,int status, int page, int count) {
-		return appointmentDao.queryAllToCheck(uid,nick_name,status, page, count);
+	public List<Appointment> listToCheck(Long uid, String nick_name, int status, int page, int count) {
+		return appointmentDao.queryAllToCheck(uid, nick_name, status, page, count);
 	}
 
-	public int getCheckCount(Long uid,String nick_name,int status) {
-		return appointmentDao.getCheckCount(uid,nick_name,status);
+	public int getCheckCount(Long uid, String nick_name, int status) {
+		return appointmentDao.getCheckCount(uid, nick_name, status);
 	}
 
 	public void changeStatus(int id, int newStatus) {
@@ -96,13 +98,15 @@ public class AppointmentService {
 	}
 
 	public int getAppointMentUnlockCount(long user_id, int id) {
-		return appointmentDao.getAppointMentUnlockCount(user_id,id);
+		return appointmentDao.getAppointMentUnlockCount(user_id, id);
 	}
+
 	public int getAppointMentTodayCount(long user_id) {
 		return appointmentDao.getAppointMentTodayCount(user_id);
 	}
+
 	public void unlock(long user_id, int id) {
-		appointmentDao.unlock(user_id,id);
+		appointmentDao.unlock(user_id, id);
 	}
 
 	public Appointment load(int id) {

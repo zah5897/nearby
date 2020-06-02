@@ -12,6 +12,7 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
+import com.zhan.app.nearby.bean.City;
 import com.zhan.app.nearby.bean.Exchange;
 import com.zhan.app.nearby.bean.Gift;
 import com.zhan.app.nearby.bean.GiftOwn;
@@ -177,12 +178,25 @@ public class GiftDao extends BaseDao<Gift> {
 	
 	@Cacheable(value = "one_hour", key = "#root.methodName+'_'+#page+'_'+#count")
 	public List<RankUser> loadTotalMeiLiV2(int page, int count) {
-		String sql = "select u.user_id ,u.nick_name,u.lat,u.lng, u.avatar,u.isvip,ifnull(gift.tval,'0') as shanbei, u.meili from t_user u"
+		String sql = "select u.user_id ,u.nick_name,u.lat,u.lng, u.avatar,u.isvip,ifnull(gift.tval,'0') as shanbei, u.meili,u.city_id as city_id,c.name as city_name from t_user u"
 				+ "  left join "
 				+ " (select tg.user_id ,sum(tg.val) as tval,tg.give_time from (select o.*,o.count*g.price as val from  t_gift_own o left join t_gift g on o.gift_id=g.id) as tg group by tg.user_id) gift "
-				+ " on u.user_id=gift.user_id "
+				+ " on u.user_id=gift.user_id  left join t_sys_city c on c.id=u.city_id "
 				+ " where    (u.type=? or u.type=?) and u.sys_status<>1  and DATE_SUB(CURDATE(), INTERVAL 30 DAY) <= date(gift.give_time) order by u.meili desc limit ?,?";
-		List<RankUser> users = jdbcTemplate.query(sql, new Object[] {  UserType.OFFIEC.ordinal(), UserType.THRID_CHANNEL.ordinal(), (page - 1) * count, count },new BeanPropertyRowMapper<RankUser>(RankUser.class));
+		List<RankUser> users = jdbcTemplate.query(sql, new Object[] {  UserType.OFFIEC.ordinal(), UserType.THRID_CHANNEL.ordinal(), (page - 1) * count, count },new BeanPropertyRowMapper<RankUser>(RankUser.class) {
+			@Override
+			public RankUser mapRow(ResultSet rs, int rowNumber) throws SQLException {
+				RankUser u = super.mapRow(rs, rowNumber);
+				try {
+					City c = new City();
+					c.setId(rs.getInt("city_id"));
+					c.setName(rs.getString("city_name"));
+					u.setCity(c);
+				} catch (Exception e) {
+				}
+				return u;
+			}
+		});
 		return users;
 	}
 	
@@ -229,14 +243,27 @@ public class GiftDao extends BaseDao<Gift> {
 
 	@Cacheable(value = "one_hour", key = "#root.methodName+'_'+#page+'_'+#count")
 	public List<RankUser> loadTuHaoV2(int page, int count) {
-		String sql = "select u.user_id ,u.nick_name,u.lat,u.lng, u.avatar,u.isvip,ifnull(gift.tval,'0') as shanbei from "
+		String sql = "select u.user_id ,u.nick_name,u.lat,u.lng, u.avatar,u.isvip,ifnull(gift.tval,'0') as shanbei,u.city_id as city_id,c.name as city_name from "
 				+ "t_user u left join "
 				+ "(select tg.from_uid ,sum(tg.val) as tval,tg.give_time from (select o.*,o.count*g.price as val from  t_gift_own o left join t_gift g on o.gift_id=g.id) as tg group by tg.from_uid) gift "
-				+ "on u.user_id=gift.from_uid "  
+				+ "on u.user_id=gift.from_uid  left join t_sys_city c on c.id=u.city_id "  
 				+ "where  (u.type=? or  u.type=?) and  u.sys_status<>1  and DATE_SUB(CURDATE(), INTERVAL 30 DAY) <= date(gift.give_time) order by shanbei desc limit ?,?";
 
 		List<RankUser> users = jdbcTemplate.query(sql,
-				new Object[] { UserType.OFFIEC.ordinal(), UserType.THRID_CHANNEL.ordinal(), (page - 1) * count, count },new BeanPropertyRowMapper<RankUser>(RankUser.class));
+				new Object[] { UserType.OFFIEC.ordinal(), UserType.THRID_CHANNEL.ordinal(), (page - 1) * count, count },new BeanPropertyRowMapper<RankUser>(RankUser.class) {
+			@Override
+			public RankUser mapRow(ResultSet rs, int rowNumber) throws SQLException {
+				RankUser u = super.mapRow(rs, rowNumber);
+				try {
+					City c = new City();
+					c.setId(rs.getInt("city_id"));
+					c.setName(rs.getString("city_name"));
+					u.setCity(c);
+				} catch (Exception e) {
+				}
+				return u;
+			}
+		});
 		return users;
 	}
 	

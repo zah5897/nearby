@@ -13,10 +13,12 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.stereotype.Repository;
 
 import com.zhan.app.nearby.bean.BGM;
+import com.zhan.app.nearby.bean.City;
 import com.zhan.app.nearby.bean.Exchange;
 import com.zhan.app.nearby.bean.PersonalInfo;
 import com.zhan.app.nearby.bean.Report;
 import com.zhan.app.nearby.bean.user.BaseUser;
+import com.zhan.app.nearby.bean.user.RankUser;
 import com.zhan.app.nearby.comm.ExchangeState;
 import com.zhan.app.nearby.dao.base.BaseDao;
 import com.zhan.app.nearby.util.DateTimeUtil;
@@ -130,12 +132,14 @@ public class SystemDao extends BaseDao<Report> {
 	 */
 	public List<BaseUser> loadMaxRateMeiLiRandom(Long ignoreUserId, String gender,  int limit) {
 		if (TextUtils.isEmpty(gender)) {
-			String sql = "select u.user_id,u.nick_name,u.avatar,u.sex,u.birthday,u.birth_city_id, u.city_id ,u.isvip from   t_user u   where u.sys_status=0 and   u.user_id<>? and  u.avatar<>? order by rand() limit ?";
+			String sql = "select u.user_id,u.nick_name,u.avatar,u.sex,u.birthday,u.birth_city_id, u.city_id ,u.isvip ,u.city_id as city_id ,c.name as city_name "
+					+ " from   t_user u  left join t_sys_city c on c.id=u.city_id  where u.sys_status=0 and   u.user_id<>? and  u.avatar<>? order by rand() limit ?";
 			return jdbcTemplate.query(sql,
 					new Object[] { ignoreUserId == null ? 0 : ignoreUserId, "",   limit },
 					new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
 		} else {
-			String sql = "select u.user_id,u.nick_name,u.avatar,u.sex,u.birthday,u.birth_city_id, u.city_id,u.isvip  from   t_user u      where u.sys_status=0 and u.user_id<>? and u.avatar<>? and u.sex=?  order by rand() limit ?";
+			String sql = "select u.user_id,u.nick_name,u.avatar,u.sex,u.birthday,u.birth_city_id, u.city_id,u.isvip,u.city_id as city_id ,c.name as city_name  "
+					+ " from   t_user u left join t_sys_city c on c.id=u.city_id     where u.sys_status=0 and u.user_id<>? and u.avatar<>? and u.sex=?  order by rand() limit ?";
 			return jdbcTemplate
 					.query(sql,
 							new Object[] { ignoreUserId == null ? 0 : ignoreUserId, "", gender, limit },
@@ -222,8 +226,23 @@ public class SystemDao extends BaseDao<Report> {
 	
 	
 	public List<BaseUser> getTouTiaoUser(int startIndex,int limit){
-		String sql="select u.user_id,u.nick_name,u.avatar,u.birthday, u.isvip,u.video_cert_status from t_toutiao_user tt left join t_user u on tt.uid=u.user_id where u.type<>0 and u.type<>2  and u.avatar <>'' and u.avatar is not null  and u.avatar<>'illegal.jpg' and u.sys_status<>1  order by tt.create_time desc limit ?,?";
-		return jdbcTemplate.query(sql, new Object[] {startIndex,limit}, new BeanPropertyRowMapper<BaseUser>(BaseUser.class));
+		String sql="select u.user_id,u.nick_name,u.avatar,u.birthday, u.isvip,u.video_cert_status,u.city_id as city_id ,c.name as city_name  "
+				+ " from t_toutiao_user tt "
+				+ " left join t_user u on tt.uid=u.user_id left join t_sys_city c on c.id=u.city_id  where u.type<>0 and u.type<>2  and u.avatar <>'' and u.avatar is not null  and u.avatar<>'illegal.jpg' and u.sys_status<>1  order by tt.create_time desc limit ?,?";
+		return jdbcTemplate.query(sql, new Object[] {startIndex,limit}, new BeanPropertyRowMapper<BaseUser>(BaseUser.class) {
+			@Override
+			public BaseUser mapRow(ResultSet rs, int rowNumber) throws SQLException {
+				BaseUser u = super.mapRow(rs, rowNumber);
+				try {
+					City c = new City();
+					c.setId(rs.getInt("city_id"));
+					c.setName(rs.getString("city_name"));
+					u.setCity(c);
+				} catch (Exception e) {
+				}
+				return u;
+			}
+		});
 	}
 	public List<Map<String, Object>> getTouTiaoUserIndexVal(){
 		String sql="SELECT (@i:=@i+1) i,uid FROM t_toutiao_user, (SELECT @i:=0) as i order by create_time desc ";

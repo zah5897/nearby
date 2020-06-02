@@ -939,7 +939,12 @@ public class UserService {
 		}
 	}
 
+	
+	
 	public ModelMap autoLogin(long user_id, String md5_pwd, String aid, String device_token) {
+		if (getUserSysStatus(user_id) == SysUserStatus.BLACK.ordinal()) {
+			return ResultUtil.getResultMap(ERROR.ERR_ACCOUNT_BLACKLIST, "登录失败，用户 ID号："+user_id+" ，帐号无法登录");
+		}
 		boolean exist = userDao.checkExistByIdAndPwd(user_id, md5_pwd);
 		if (exist) {
 			userDao.uploadLastLoginTime(user_id);
@@ -1337,18 +1342,14 @@ public class UserService {
 		// login by openid;
 		LoginUser user = userDao.findLocationUserByOpenid(tempUser.getOpenid());
 
-		if (user == null)
-
-		{
-			return ResultUtil.getResultMap(ERROR.ERR_USER_NOT_EXIST, "璇ヨ处鍙蜂笉瀛樺湪");
-		}
+		 
 
 		if (user.getAccount_state() == AccountStateType.CLOSE.ordinal()) {
-			return ResultUtil.getResultMap(ERROR.ERR_USER_CLOSE, "璇ヨ处鍙峰凡缁忔敞閿�");
+			return ResultUtil.getResultMap(ERROR.ERR_USER_CLOSE, "账号已经关闭");
 		}
 
 		if (getUserSysStatus(user.getUser_id()) == SysUserStatus.BLACK.ordinal()) {
-			return ResultUtil.getResultMap(ERROR.ERR_USER_NOT_EXIST, "璇ヨ处鍙峰洜涓炬姤鑰屾棤娉曠櫥褰�");
+			return ResultUtil.getResultMap(ERROR.ERR_ACCOUNT_BLACKLIST, "登录失败，用户 ID号："+user.getUser_id()+" ，帐号无法登录");
 		}
 		// 妫�鏌ヨ鐢ㄦ埛澶氫箙娌＄櫥闄嗕簡
 //		checkHowLongNotOpenApp(user);
@@ -1408,7 +1409,13 @@ public class UserService {
 		int times = userDao.getSexModifyTimes(uid);
 		return times <= 0;
 	}
-
+	/**
+	 * 获取1小时内登陆的用户id
+	 * @return
+	 */
+	public List<String> getLatestLoginUserIds() {
+		return userDao.getLatestLoginUserIds();
+	}
 	public boolean matchActiveUsers() {
 
 		Calendar c = Calendar.getInstance();
@@ -1629,4 +1636,6 @@ public class UserService {
 		userDao.updateNickName(user_id, starName);
 		return starName;
 	}
+
+	
 }

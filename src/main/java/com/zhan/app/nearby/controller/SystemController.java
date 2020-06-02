@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.zhan.app.nearby.bean.BGM;
 import com.zhan.app.nearby.bean.Report;
+import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.service.MainService;
 import com.zhan.app.nearby.service.UserService;
 import com.zhan.app.nearby.task.HXAsyncTask;
@@ -110,15 +111,15 @@ public class SystemController {
 		ImgCheckHelper.instance.resetClient(app_id, api_key, sccret_key);
 		return ResultUtil.getResultOKMap();
 	}
-	@ApiOperation(httpMethod = "POST", value = "获取窗口隐藏设置")  
+
+	@ApiOperation(httpMethod = "POST", value = "获取窗口隐藏设置")
 	@ApiImplicitParams({ @ApiImplicitParam(name = "user_id", value = "user_id", required = true, paramType = "query"),
-			@ApiImplicitParam(name = "token", value = "token", required = true,paramType = "query"),
-			@ApiImplicitParam(name = "channel", value = "channel", required = true, paramType = "query")
-			})
+			@ApiImplicitParam(name = "token", value = "token", required = true, paramType = "query"),
+			@ApiImplicitParam(name = "channel", value = "channel", required = true, paramType = "query") })
 	@RequestMapping("show_chat_info")
 	public ModelMap showChatTabInfo(long user_id, String token, String channel) {
-		if (userService.checkLogin(user_id, token)) {
-			return ResultUtil.getResultOKMap();
+		if (!userService.checkLogin(user_id, token)) {
+			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
 		return mainService.chatStrategy(channel);
 	}

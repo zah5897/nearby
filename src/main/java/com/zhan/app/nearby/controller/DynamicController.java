@@ -49,20 +49,20 @@ public class DynamicController {
 	private GiftService giftService;
 	@Autowired
 	private UserCacheService userCacheService;
+
 	@RequestMapping("comment")
-	public ModelMap comment(DynamicComment comment,String token) {
-		
+	public ModelMap comment(DynamicComment comment, String token) {
+
 		if (comment.getUser_id() <= 0 && !userService.checkLogin(comment.getUser_id(), token)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
-		
-		long lastTIme=userCacheService.getCommentLastTime(comment.getUser_id());
-		if(System.currentTimeMillis()/1000-lastTIme<10) {//每次评论不能少于10秒
-			 return ResultUtil.getResultMap(ERROR.ERR_FREUENT);
+
+		long lastTIme = userCacheService.getCommentLastTime(comment.getUser_id());
+		if (System.currentTimeMillis() / 1000 - lastTIme < 10) {// 每次评论不能少于10秒
+			return ResultUtil.getResultMap(ERROR.ERR_FREUENT);
 		}
 		userCacheService.putCommentLastTime(comment.getUser_id());
-		
-		
+
 		comment.setComment_time(new Date());
 
 		// 敏感词过滤
@@ -97,6 +97,20 @@ public class DynamicController {
 	public ModelMap list(long user_id, Long last_id, int count, Integer type, Integer secret_level) {
 		List<UserDynamic> dys = userDynamicService.loadRecommendVideoDynamic(user_id, last_id, count, secret_level);
 
+		if (!dys.isEmpty()) {
+			last_id = dys.get(dys.size() - 1).getId();
+		}
+		return ResultUtil.getResultOKMap().addAttribute("data", dys).addAttribute("hasMore", dys.size() == count)
+				.addAttribute("last_id", last_id);
+	}
+
+	@RequestMapping("list_my_video")
+	@ApiOperation(httpMethod = "POST", value = "获取短视频动态") // swagger 当前接口注解
+	@ApiImplicitParams({ @ApiImplicitParam(name = "last_id", value = "上一页最后一条的id值", paramType = "query"),
+			@ApiImplicitParam(name = "secret_level", value = "视频等级，0为公开，1为私密", paramType = "query"),
+			@ApiImplicitParam(name = "count", value = "count", required = true, paramType = "query") })
+	public ModelMap list_my_video(long user_id, Long last_id, int count, Integer type, Integer secret_level) {
+		List<UserDynamic> dys = userDynamicService.loadMyVideoDynamic(user_id, last_id, count);
 		if (!dys.isEmpty()) {
 			last_id = dys.get(dys.size() - 1).getId();
 		}
@@ -153,11 +167,11 @@ public class DynamicController {
 		}
 		return result;
 	}
-	
+
 	@RequestMapping("detail_by_comment_id")
-	public ModelMap detail_by_comment_id(long comment_id,Long user_id) {
-	    long dynamic_id=userDynamicService.getDynamicId(comment_id);
-		 return detail(dynamic_id, user_id);
+	public ModelMap detail_by_comment_id(long comment_id, Long user_id) {
+		long dynamic_id = userDynamicService.getDynamicId(comment_id);
+		return detail(dynamic_id, user_id);
 	}
 
 	@RequestMapping("comment_sub_list")
@@ -208,10 +222,11 @@ public class DynamicController {
 				userDynamicService.praiseDynamic(dy_id, true);
 				userDynamicService.updateLikeState(user_id, dy_id, LikeDynamicState.LIKE);
 				long userId = userDynamicService.getUserIdByDynamicId(dy_id);
-				int type=userDynamicService.getDynamicType(dy_id);
-				if(type==1) { //视频类型
-					dynamicMsgService.insertActionMsg(DynamicMsgType.TYPE_PRAISE_VIDEO, user_id, dy_id, userId, "有人喜欢了你的视频");
-				}else {
+				int type = userDynamicService.getDynamicType(dy_id);
+				if (type == 1) { // 视频类型
+					dynamicMsgService.insertActionMsg(DynamicMsgType.TYPE_PRAISE_VIDEO, user_id, dy_id, userId,
+							"有人喜欢了你的视频");
+				} else {
 					dynamicMsgService.insertActionMsg(DynamicMsgType.TYPE_PRAISE, user_id, dy_id, userId, "有人喜欢了你的动态");
 				}
 
@@ -270,19 +285,18 @@ public class DynamicController {
 	}
 
 	@RequestMapping("delete")
-	public ModelMap delete(Long user_id,String token, String dynamic_id) {
+	public ModelMap delete(Long user_id, String token, String dynamic_id) {
 		if (user_id == null || user_id < 1l) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "请确定当前用户：user_id=" + user_id);
 		}
 		if (TextUtils.isEmpty(dynamic_id)) {
 			return ResultUtil.getResultMap(ERROR.ERR_PARAM, "请确定您要操作的动态信息");
 		}
-		
-		if(!userService.checkLogin(user_id, token)) {
+
+		if (!userService.checkLogin(user_id, token)) {
 			return ResultUtil.getResultMap(ERROR.ERR_NO_LOGIN);
 		}
-		
-		
+
 		String id = userDynamicService.delete(user_id, dynamic_id);
 		ModelMap result = ResultUtil.getResultOKMap();
 		result.put("delete_id", id);

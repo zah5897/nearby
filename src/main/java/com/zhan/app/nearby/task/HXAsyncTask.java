@@ -16,9 +16,11 @@ import com.zhan.app.nearby.comm.PushMsgType;
 import com.zhan.app.nearby.exception.AppException;
 import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.service.HXService;
+import com.zhan.app.nearby.service.UserService;
 import com.zhan.app.nearby.util.DateTimeUtil;
 import com.zhan.app.nearby.util.HX_SessionUtil;
 import com.zhan.app.nearby.util.MD5Util;
+import com.zhan.app.nearby.util.SpringContextUtil;
 
 @Component
 public class HXAsyncTask {
@@ -133,7 +135,6 @@ public class HXAsyncTask {
 
 	@Async
 	public void exportChatMessages() {
-		// hxService.clearExpireHistoryMsg();
 		String timePoint = DateTimeUtil.getMessageHistoryTimePoint();
 		List<HXHistoryMsg> msgs = HX_SessionUtil.exportChatMessages(timePoint);
 		for (HXHistoryMsg msg : msgs) {
@@ -142,6 +143,29 @@ public class HXAsyncTask {
 			} catch (Exception e) {
 			}
 		}
+	}
+
+	@Async
+	public void notifyOnlineUserCloseChatPage() {
+		UserService userService = SpringContextUtil.getBean("userService");
+		List<String> ids = userService.getLatestLoginUserIds();
+		handleCloseChatPageNotify(ids);
+
+	}
+
+	private void handleCloseChatPageNotify(List<String> ids) {
+		if (ids.isEmpty()) {
+			return;
+		}
+		List<String> subIds = ids;
+		if (ids.size() >= 1000) {
+			subIds = ids.subList(0, 999);
+		}
+		String[] idArray = new String[subIds.size()];
+		subIds.toArray(idArray);
+		HX_SessionUtil.pushCloseChatPage(idArray);
+		ids.removeAll(subIds);
+		handleCloseChatPageNotify(ids);
 	}
 
 }

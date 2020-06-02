@@ -187,7 +187,23 @@ public class HX_SessionUtil {
 		ext.put("data", JSONUtil.writeValueAsString(data));
 		Main.sendCmdMessageOnlineMsg(to_user_ids, ext, user);
 	}
+ 
 
+	public static void pushCloseChatPage(String[] to_user_ids) {
+		// 通知对方收到某某的礼物
+		Map<String, String> ext = new HashMap<String, String>();
+		ext = new HashMap<String, String>();
+		ext.put("msg", "关闭聊天页面通知");
+		ext.put("type", ChatConversationType.TYPE_CLOSE_CHAT_PAGE);
+
+		Map<String, String> data = new HashMap<String, String>();
+		data.put("content","关闭聊天页面通知");
+		data.put("type", ChatConversationType.TYPE_CLOSE_CHAT_PAGE);
+		ext.put("data", JSONUtil.writeValueAsString(data));
+		Main.sendCmdMessage(to_user_ids, ext);
+	}
+	
+	
 //	public static void sendReplayBottle(BaseUser user, long target, String msg, Map<String, String> ext,
 //			String typeNewConversation) {
 //		Main.sendTxtMessage(user, new String[] { String.valueOf(target) }, msg, ext, typeNewConversation);

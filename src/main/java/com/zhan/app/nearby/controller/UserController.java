@@ -568,7 +568,7 @@ public class UserController {
 		}
 
 		if (userService.getUserSysStatus(user.getUser_id()) == SysUserStatus.BLACK.ordinal()) {
-			return ResultUtil.getResultMap(ERROR.ERR_USER_NOT_EXIST, "该账号因举报而无法登录");
+			return ResultUtil.getResultMap(ERROR.ERR_ACCOUNT_BLACKLIST, "登录失败，用户 ID号："+user.getUser_id()+" ，帐号无法登录");
 		}
 
 		// 注册环信
@@ -1215,11 +1215,6 @@ public class UserController {
 	@ApiOperation(httpMethod = "POST", value = "autoLogin") // swagger 当前接口注解
 	@RequestMapping("autoLogin")
 	public ModelMap autoLogin(long user_id, String md5pwd, String aid, String device_token) {
-
-		if (userService.getUserSysStatus(user_id) == SysUserStatus.BLACK.ordinal()) {
-			return ResultUtil.getResultMap(ERROR.ERR_USER_NOT_EXIST, "该账号因举报而无法登录");
-		}
-
 		return userService.autoLogin(user_id, md5pwd, aid, device_token);
 	}
 	@ApiOperation(httpMethod = "POST", value = "online_list") // swagger 当前接口注解

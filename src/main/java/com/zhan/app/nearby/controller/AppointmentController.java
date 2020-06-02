@@ -15,6 +15,7 @@ import com.zhan.app.nearby.bean.Appointment;
 import com.zhan.app.nearby.exception.ERROR;
 import com.zhan.app.nearby.service.AppointmentService;
 import com.zhan.app.nearby.service.UserService;
+import com.zhan.app.nearby.util.BottleKeyWordUtil;
 import com.zhan.app.nearby.util.DateTimeUtil;
 import com.zhan.app.nearby.util.ImagePathUtil;
 import com.zhan.app.nearby.util.ResultUtil;
@@ -64,11 +65,11 @@ public class AppointmentController {
 
 		Appointment appointment = new Appointment();
 		appointment.setUid(user_id);
-		appointment.setDescription(description);
+		appointment.setDescription(BottleKeyWordUtil.filterContent(description));
 		appointment.setTime_stage(time_stage);
 		
 	    appointment.setTheme_id(theme_id);
-		appointment.setStreet(Street);
+		appointment.setStreet(BottleKeyWordUtil.filterContent(Street));
 		appointment.setLat(lat);
 		appointment.setLng(lng);
 		appointment.setChannel(channel);

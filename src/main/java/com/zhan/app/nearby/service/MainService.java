@@ -2,6 +2,7 @@ package com.zhan.app.nearby.service;
 
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -75,8 +76,6 @@ public class MainService {
 
 	@Autowired
 	private HXAsyncTask hxTask;
-	@Autowired
-	private CommAsyncTask commAsyncTask;
 
 	public ModelMap found_users(Long user_id, Integer page_size, Integer gender) {
 		int realCount;
@@ -656,6 +655,20 @@ public class MainService {
 	}
 
 	public ModelMap chatStrategy(String channel) {
-		return ResultUtil.getResultOKMap().addAttribute("show_chat", true);
+		return ResultUtil.getResultOKMap().addAttribute("show_chat", canChat());
+	}
+
+	private boolean canChat() {
+		Calendar c = Calendar.getInstance();
+		c.setTimeInMillis(System.currentTimeMillis() - 5 * 60 * 1000); // 提前5分钟关闭聊天
+		int hour = c.get(Calendar.HOUR_OF_DAY);
+		if (hour < 7) {
+			return false;
+		}
+		return true;
+	}
+
+	public void notifyOnlineUserCloseChatPage() {
+		hxTask.notifyOnlineUserCloseChatPage();
 	}
 }

@@ -13,6 +13,7 @@ import com.zhan.app.nearby.bean.user.BaseUser;
 import com.zhan.app.nearby.cache.UserCacheService;
 import com.zhan.app.nearby.dao.UserDao;
 import com.zhan.app.nearby.service.BottleService;
+import com.zhan.app.nearby.service.MainService;
 import com.zhan.app.nearby.service.UserDynamicService;
 import com.zhan.app.nearby.service.UserService;
 import com.zhan.app.nearby.service.VipService;
@@ -65,6 +66,9 @@ public class TimerTask {
 			// 删除匹配的用户记录
 			UserService userService = SpringContextUtil.getBean("userService");
 			userService.clearUserMatchData();
+			
+			MainService mainService = SpringContextUtil.getBean("mainService");
+			mainService.notifyOnlineUserCloseChatPage();
 		}
 	}
 

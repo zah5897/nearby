@@ -251,6 +251,11 @@ public class UserDynamicService {
 		ImagePathUtil.completeDynamicsPath(dys, true);
 		return dys;
 	}
+	public List<UserDynamic> loadMyVideoDynamic(long user_id, Long last_id, int count) {
+		List<UserDynamic> dys = userDynamicDao.loadMyVideoDynamic(user_id, last_id == null ? Long.MAX_VALUE : last_id,count);
+		ImagePathUtil.completeDynamicsPath(dys, true);
+		return dys;
+	}
 
 	public long getDynamicId(long comment_id) {
 		return userDynamicDao.getDynamicId(comment_id);

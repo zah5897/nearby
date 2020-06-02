@@ -38,6 +38,7 @@ public class ChatConversationType {
 	/** vip购买 */
     public static final String TYPE_BUY_VIP = "TYPE_BUY_VIP";
 
-    /** vip购买 */
     public static final String TYPE_ONLINE_USER = "TYPE_ONLINE_USER";
+    
+    public static final String TYPE_CLOSE_CHAT_PAGE = "TYPE_CLOSE_CHAT_PAGE";
 }
